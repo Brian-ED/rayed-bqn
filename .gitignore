@@ -5,3 +5,5 @@ tests/example.cpp
 # Unimportant raylib sorce files
 raylibSorce/raymath.h
 raylibSorce/rlgl.h
+
+raylib.dll
