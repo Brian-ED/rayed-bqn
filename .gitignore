@@ -1,0 +1,7 @@
+# In the future i want to translate this to bqn,
+# so i have a 1 to 1 coparison between c++ and bqn raylib use. 
+tests/example.cpp
+
+# Unimportant raylib sorce files
+raylibSorce/raymath.h
+raylibSorce/rlgl.h
