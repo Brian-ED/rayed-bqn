@@ -1,11 +1,11 @@
 rayFFI⇐•Import "rayffi.bqn"
 
+IsInt ← {(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
+
 _bitwise⇐{
-  _into⇐{𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
+  _into←{𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
-
-
 
 IsKeyPressed ⇐ {𝕊 key:
   0≠rayFFI.IsKeyPressed-⟜@⍟(∞⊸<)𝕩
@@ -20,24 +20,33 @@ image ⇐ {
 
 window ⇐ {
   ⟨_init ⋄ Close
-   SetIcon ⋄ ClearBackground ⋄ SetToResizable⟩⇐
+   SetIcon ⋄ SetBackground ⋄ SetToResizable⟩⇐
 
-  _init ← {title _𝕣 posX‿posY: fps←𝕨⊣60
+  Init ← {posX‿posY 𝕊 title: 
     "𝕩 can only be ints"!∧´⌈⊸=𝕩
-    rayFFI.InitWindow 𝕩∾<𝕗∾@
-    rayFFI.SetTargetFPS fps
+    rayFFI.InitWindow (𝕨⊣2⥊1000)∾<𝕩∾@
+    rayFFI.SetTargetFPS 60
   }
   Close ← rayFFI.WindowShouldClose∘⟨⟩
-
-  ClearBackground ← {𝕊r‿g‿b‿t:
-    "ClearBackground only accepts ints as args"!∧´⌈⊸=𝕩
+  SetBackground ← {𝕊r‿g‿b‿t:
+    (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     rayFFI.ClearBackground 𝕩
   }
-
-  SetIcon     ← {rayFFI.SetWindowIcon𝕩}
+  # Needs to test input for image
+  SetIcon ← {rayFFI.SetWindowIcon𝕩}
 
   # Make this modify window settings instead of overwrite
-  SetToResizable ← rayFFI.SetWindowState∘4
+  Setting ← {
+     𝕊"fps":rayFFI.GetFPS⟨⟩
+   ;𝕨𝕊"fps":
+      "𝕩 has to be int"!1≡⌈⊸=𝕩
+      rayFFI.SetTargetFPS 𝕩
+   ;𝕨𝕊"resize":
+      "𝕩 has to be 0 or 1"!1<⊸≡𝕨∊↕2
+      rayFFI.SetWindowState𝕩×4
+    𝕊"resize":
+    isWindowState 
+  }
 }
 
 draw ⇐ { 

@@ -1,9 +1,8 @@
 ⟨rayFFI, k, c⟩←r←•Import "../raylib.bqn"
 
-"Test"r.window._Init 1000‿1000
-r.window.SetToResizable 1
-rec←30
-cir←100
+rec←30 ⋄ cir←100
+r.window.Init "Test"
+r.window.SetResizable 1
 {
   r.window.ClearBackground c.black
   cir     c.red r.draw._Circle 𝕩
@@ -11,4 +10,4 @@ cir←100
 }r.draw._with∘⌊∘rayFFI.GetMousePosition •_While_{𝕤
   ¬∨´⟨r.window.Close@⋄r.IsKeyPressed k.kESCAPE⟩
 }@
-rayFFI.CloseWindow ⟨⟩
+r.window.Close@

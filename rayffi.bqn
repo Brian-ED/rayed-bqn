@@ -170,8 +170,37 @@ getMouseWheelMove     ⇐ f "GetMouseWheelMove"    _R@                      # Ge
 getMouseWheelMoveV    ⇐ v2"GetMouseWheelMoveV"   _R@                      # Get mouse wheel movement for both X and Y
 setMouseCursor        ⇐   "SetMouseCursor"       _R i   # cursor          # Set mouse cursor
 
+
+# System/Window config flags
+# NOTE: Every bit registers one state (use it with bit masks)
+# By default all flags are set to 0
+
+_into←{𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
+•SHow •Repr 2 _into 65536 
+
+gonfigFlags ⇐{
+  ⟨
+    fullscreen       # Set to run program in fullscreen
+    resizable        # Set to allow resizable window
+    undecorated      # Set to disable window decoration (frame and buttons)
+    transparent      # Set to allow transparent framebuffer
+    msaa_4x          # Set to try enabling MSAA 4X
+    vSYNC            # Set to try enabling V-Sync on GPU
+    hidden           # Set to hide window
+    alwaysRun        # Set to allow windows running while minimized
+    minimized        # Set to minimize window (iconify)
+    maximized        # Set to maximize window (expanded to monitor)
+    unfocused        # Set to window non focused
+    awaysOnTop       # Set to window always on top
+    highDPI          # Set to support HighDPI
+    mousePassthrough # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+    interlaced       # Set to try enabling interlaced video format (for V3D)
+  ⟩⇐2⋆1⊸+⌾(⊒⌽)1+↕16
+} 
 # Window
 setWindowState ⇐ "SetWindowState"_R u # flags # Set window configuration state using flags (only PLATFORM_DESKTOP)
+isWindowState  ⇐i"IsWindowState" _R u # flag  # Check if one specific window flag is enabled
+
 
 # Basic shapes drawing functions
 drawPixel                 ⇐ "DrawPixel"                 _R i‿i‿color             # x y                                                         # Draw a pixel
