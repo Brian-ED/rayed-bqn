@@ -174,10 +174,6 @@ setMouseCursor        ⇐   "SetMouseCursor"       _R i   # cursor          # Se
 # System/Window config flags
 # NOTE: Every bit registers one state (use it with bit masks)
 # By default all flags are set to 0
-
-_into←{𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
-•SHow •Repr 2 _into 65536 
-
 gonfigFlags ⇐{
   ⟨
     fullscreen       # Set to run program in fullscreen
@@ -195,8 +191,8 @@ gonfigFlags ⇐{
     highDPI          # Set to support HighDPI
     mousePassthrough # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
     interlaced       # Set to try enabling interlaced video format (for V3D)
-  ⟩⇐2⋆1⊸+⌾(⊒⌽)1+↕16
-} 
+  ⟩⇐2⋆1⊸+⌾(⊑⌽)1+↕15
+}
 # Window
 setWindowState ⇐ "SetWindowState"_R u # flags # Set window configuration state using flags (only PLATFORM_DESKTOP)
 isWindowState  ⇐i"IsWindowState" _R u # flag  # Check if one specific window flag is enabled

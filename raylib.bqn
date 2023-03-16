@@ -17,17 +17,25 @@ image ⇐ {
   _with  ⇐ {(Unload⊢𝔽)Load𝕩}
 }
 
+mouse ⇐ {
+  GetPos ⇐ {𝕊:rayFFI.GetMousePosition⟨⟩}
+}
 
 window ⇐ {
-  ⟨_init ⋄ Close
-   SetIcon ⋄ SetBackground ⋄ SetToResizable⟩⇐
+  ⟨Open ⋄ Close ⋄ _openAs ⋄ ShouldClose
+   SetIcon ⋄ SetBackground ⋄ Setting⟩⇐
 
-  Init ← {posX‿posY 𝕊 title: 
-    "𝕩 can only be ints"!∧´⌈⊸=𝕩
-    rayFFI.InitWindow (𝕨⊣2⥊1000)∾<𝕩∾@
+  Open ← {𝕊 title: posX‿posY←𝕨⊣2⥊1000 
+    "𝕨 can only be ints"!∧´⌈⊸=𝕨
+    rayFFI.InitWindow posX‿posY∾<𝕩∾@
     rayFFI.SetTargetFPS 60
   }
-  Close ← rayFFI.WindowShouldClose∘⟨⟩
+  ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩
+  Close ← rayFFI.CloseWindow∘⟨⟩
+  _openAs ← {
+    Close𝔽𝕩⊣Open𝕩
+  }
+
   SetBackground ← {𝕊r‿g‿b‿t:
     (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     rayFFI.ClearBackground 𝕩
@@ -37,25 +45,31 @@ window ⇐ {
 
   # Make this modify window settings instead of overwrite
   Setting ← {
-     𝕊"fps":rayFFI.GetFPS⟨⟩
-   ;𝕨𝕊"fps":
-      "𝕩 has to be int"!1≡⌈⊸=𝕩
-      rayFFI.SetTargetFPS 𝕩
-   ;𝕨𝕊"resize":
-      "𝕩 has to be 0 or 1"!1<⊸≡𝕨∊↕2
-      rayFFI.SetWindowState𝕩×4
-    𝕊"resize":
-    isWindowState 
+    𝕊"fps":    rayFFI.GetFPS⟨⟩
+   ;𝕊"resize": rayFFI.IsWindowState 4
+  }⊘{
+    𝕨𝕊"fps":
+      "𝕨 has to be int"!1≡⌈⊸=𝕨
+      rayFFI.SetTargetFPS 𝕨
+   ;0𝕊"resize":
+      rayFFI.SetWindowState 0
+   ;1𝕊"resize":
+      rayFFI.SetWindowState 4
   }
 }
 
 draw ⇐ { 
-  ⟨Start ⋄ End ⋄ _with 
+  ⟨Start ⋄ End ⋄ _withCanvas_ 
    _Circle ⋄ _Rectangle⟩⇐
 
   Start ← rayFFI.EndDrawing  ∘⟨⟩
   End   ← rayFFI.BeginDrawing∘⟨⟩
-  _with ← {End𝔽𝕩⊣Start@}
+  _withCanvas_ ← {
+    Start@
+    window.SetBackground𝕘
+    𝔽𝕩
+    End@
+  }
 
   _Circle ← {radius ⟨r,g,b,t⟩_𝕣 posX‿posY :
     "only accepts ints as args"    !∧´⌊⊸=a←𝕩∾𝕨∾𝕗
@@ -69,17 +83,16 @@ draw ⇐ {
   }
 }
 
-
-c ⇐ {
+color ⇐ {
   white⇐4⥊255 ⋄ black⇐¯4↑255
   [red    ‿green ‿blue
    magenta‿yellow‿cyan]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
 }
 
-k ⇐ {
+key ⇐ {
   # consider switching to `letter-@` when possible.
 
-# vars           Keycodes   Keys
+  # vars           Keycodes   Keys
   kNULL          ⇐ 0        # NULL, used for no key pressed
   # Alphanumeric keys
   kAPOSTROPHE    ⇐ 39       # '
