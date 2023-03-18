@@ -2,7 +2,7 @@ rayFFI⇐•Import "rayffi.bqn"
 
 IsInt ← {(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
 
-_bitwise⇐{
+_bitwise ⇐ {
   _into←{𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
@@ -33,7 +33,9 @@ window ⇐ {
   ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩
   Close ← rayFFI.CloseWindow∘⟨⟩
   _openAs ← {
-    Close𝔽𝕩⊣Open𝕩
+    Open𝕩
+    𝔽@
+    Close@
   }
 
   SetBackground ← {𝕊r‿g‿b‿t:
@@ -56,6 +58,7 @@ window ⇐ {
    ;1𝕊"resize":
       rayFFI.SetWindowState 4
   }
+  1 Setting "resize"
 }
 
 draw ⇐ { 
@@ -78,15 +81,17 @@ draw ⇐ {
   }
 
   _Rectangle ← {width‿height ⟨r,g,b,t⟩_𝕣 posX‿posY :
-    "Rectangle only accepts ints as args"!∧´⌈⊸=a←𝕩∾𝕨∾𝕗
-    rayFFI.DrawRectangle ⌊(𝕩∾𝕨)∾<𝕗
+    "Rectangle only accepts ints as args"!∧´⌈⊸=𝕩∾𝕨∾𝕗
+    rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
   }
 }
+
+
 
 color ⇐ {
   white⇐4⥊255 ⋄ black⇐¯4↑255
   [red    ‿green ‿blue
-   magenta‿yellow‿cyan]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
+   cyan‿magenta‿yellow]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
 }
 
 key ⇐ {

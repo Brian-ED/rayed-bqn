@@ -2,10 +2,10 @@
 # making FFI nicer to use
 _R ← {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
   a←(⋈'>'⊸∾)⍟((0≠≠)∧1=≡)⟨⟩⍟(@⊸≡)𝕩
-  "raylib.dll"•FFI⟨outType⋄𝕗⟩∾a
+  "raylib.dll"•FFI outType‿𝕗∾a
 }
 Struct ←{'{'∾'}'«∾','∾¨𝕩}
-i←"i32"⋄f←"f32"⋄color←"{u8,u8,u8,u8}"⋄str←"&i32:c8"⋄u←"u32"
+i←"i32"⋄f←"f32"⋄color←"{u8,u8,u8,u8}"⋄str←"*i32:c8"⋄u←"u32"
 rectangle ← Struct 4⥊<f
 
 v2 ← "{f32,f32}"
@@ -236,3 +236,46 @@ drawTriangleStrip         ⇐ "DrawTriangleStrip"         _R points‿i‿color 
 drawPoly                  ⇐ "DrawPoly"                  _R v2‿i‿f‿f‿color        # center sides radius rotation                                # Draw a regular polygon _R Vector version)
 drawPolyLines             ⇐ "DrawPolyLines"             _R v2‿i‿f‿f‿color        # center sides radius rotation                                # Draw a polygon outline of n sides
 drawPolyLinesEx           ⇐ "DrawPolyLinesEx"           _R v2‿i‿f‿f‿f‿color      # center sides radius rotation lineThick                      # Draw a polygon outline of n sides with extended parameters
+
+
+
+# GlyphInfo, font characters glyphs info
+glyphInfo←Struct i‿i‿i‿i‿image
+# value    # Character value (Unicode)
+# offsetX  # Character offset X when drawing
+# offsetY  # Character offset Y when drawing
+# advanceX # Character advance position X
+# image    # Character image data
+
+# Font, font texture and GlyphInfo array data
+font ← Struct ⟨i,i,i,texture,'*'∾rectangle,'*'∾glyphInfo⟩
+# baseSize           # Base size (default chars height)
+# glyphCount         # Number of glyph characters
+# glyphPadding       # Padding around the glyph characters
+# Texture atlas containing the glyphs
+# recs        # Rectangles in texture for the glyphs
+# glyphs      # Glyphs info data
+
+
+
+# Font loading/unloading functions
+getFontDefault    ⇐ font "GetFontDefault"_R@                                              # Get the default Font
+loadFont          ⇐ font "LoadFont"         _R str                   # fileName                               # Load font from file into GPU memory (VRAM)
+loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿i‿i # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+loadFontFromImage ⇐ font "LoadFontFromImage"_R image‿color‿i         # image color(key?) firstChar            # Load font from Image (XNA style)
+unloadFont        ⇐      "UnloadFont"       _R font                                                       # Unload font from GPU memory (VRAM)
+
+# Text drawing
+drawFPS            ⇐ "DrawFPS"           _R i‿i                         # posX posY                                                # Draw current FPS
+drawText           ⇐ "DrawText"          _R str‿i‿i‿i‿color             # text posX posY fontSize color                            # Draw text (using default font)
+drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color       # font text position spacing fontSize tint                 # Draw text using font and additional parameters
+drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color  # font text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation)
+drawTextCodepoint  ⇐ "DrawTextCodepoint" _R font‿i‿v2‿f‿color           # font codepoint position fontSize tint                    # Draw one character (codepoint)
+drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿('*'∾i)‿i‿v2‿f‿f‿color # font codepoints count positions fontSize spacing tint    # Draw multiple character (codepoint)
+
+# Text font info
+measureText      ⇐ i        "MeasureText"     _R str‿i        # text fontSize              # Measure string width for default font
+measureTextEx    ⇐ v2       "MeasureTextEx"   _R font‿str‿f‿f # font text fontSize spacing # Measure string size for Font
+getGlyphIndex    ⇐ i        "GetGlyphIndex"   _R font‿i       # font codepoint             # Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
+getGlyphInfo     ⇐ glyphInfo"GetGlyphInfo"    _R font‿i       # font codepoint             # Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
+getGlyphAtlasRec ⇐ rectangle"GetGlyphAtlasRec"_R font‿i       # font codepoint             # Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
