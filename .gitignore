@@ -2,7 +2,7 @@
 # in-progress tests
 tests/test2
 tests/test3
+tests/test4
 
 # raylib sorce files, that need to be downloaded seperately
 raylibSorce
-raylib.dll
