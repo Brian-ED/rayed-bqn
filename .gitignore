@@ -1,9 +1,8 @@
-# In the future i want to translate this to bqn,
-# so i have a 1 to 1 coparison between c++ and bqn raylib use. 
-tests/example.cpp
 
-# Unimportant raylib sorce files
-raylibSorce/raymath.h
-raylibSorce/rlgl.h
+# in-progress tests
+tests/test2
+tests/test3
 
+# raylib sorce files, that need to be downloaded seperately
+raylibSorce
 raylib.dll
