@@ -2,10 +2,10 @@
 # making FFI nicer to use
 _R ← {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
   a←(⋈'>'⊸∾)⍟((0≠≠)∧1=≡)⟨⟩⍟(@⊸≡)𝕩
-  "raylib.dll"•FFI outType‿𝕗∾a
+  "raylibSorce/lib/raylib.dll"•FFI outType‿𝕗∾a
 }
 Struct ←{'{'∾'}'«∾','∾¨𝕩}
-i←"i32"⋄f←"f32"⋄color←"{u8,u8,u8,u8}"⋄str←"*i32:c8"⋄u←"u32"
+i←"i32"⋄f←"f32"⋄color←"{u8,u8,u8,u8}"⋄str←"*i8:c8"⋄u←"u32"
 rectangle ← Struct 4⥊<f
 
 v2 ← "{f32,f32}"
@@ -84,8 +84,8 @@ closeWindow       ⇐ "CloseWindow"      _R@
 
 # Timing-related functions
 setTargetFPS ⇐       "SetTargetFPS" _R i # fps # Set target FPS (maximum)
-getFPS       ⇐     i "GetFPS"       _R@        # Get current FPS
-getFrameTime ⇐     f "GetFrameTime" _R@        # Get time in seconds for last frame drawn (delta time)
+getFPS       ⇐ i     "GetFPS"       _R@        # Get current FPS
+getFrameTime ⇐ f     "GetFrameTime" _R@        # Get time in seconds for last frame drawn (delta time)
 getTime      ⇐ "f64" "GetTime"      _R@        # Get elapsed time in seconds since InitWindow()
 
 setWindowIcon ⇐ "SetWindowIcon"_R image
@@ -119,8 +119,13 @@ exportImageAsCode    ⇐ i     "ExportImageAsCode"   _R image‿str   # image fi
 #imageClearBackground ⇐ "ImageClearBackground"_R('*'∾image)‿color # *dst # Clear image background with given color
 
 # Texture drawing functions
-drawTexture ⇐ "DrawTexture"_R texture‿i‿i‿color #texture posX posY tint # Draw a Texture2D
-
+drawTexture       ⇐ "DrawTexture"      _R texture‿i‿i‿color                       # texture posX posY tint                       # Draw a Texture2D
+drawTextureV      ⇐ "DrawTextureV"     _R texture‿v2‿color                        # texture position tint                        # Draw a Texture2D with position defined as Vector2
+drawTextureEx     ⇐ "DrawTextureEx"    _R texture‿v2‿f‿f‿color                    # texture position rotation scale tint         # Draw a Texture2D with extended parameters
+drawTextureRec    ⇐ "DrawTextureRec"   _R texture‿rectangle‿v2‿color              # texture source position tint                 # Draw a part of a texture defined by a rectangle
+drawTexturePro    ⇐ "DrawTexturePro"   _R texture‿rectangle ‿rectangle‿v2‿f‿color # texture source dest origin rotation tint     # Draw a part of a texture defined by a rectangle with 'pro' parameters
+## This one will be implemented after implementing nPatchInfo struct
+# drawTextureNPatch ⇐ "DrawTextureNPatch"_R texture‿nPatchInfo‿rectangle‿v2‿f‿color # texture nPatchInfo dest origin rotation tint # Draws a texture (or part of it) that stretches or shrinks nicely
 
 # Texture loading functions
 # NOTE: These functions require GPU access
@@ -248,7 +253,7 @@ glyphInfo←Struct i‿i‿i‿i‿image
 # image    # Character image data
 
 # Font, font texture and GlyphInfo array data
-font ← Struct ⟨i,i,i,texture,'*'∾rectangle,'*'∾glyphInfo⟩
+font ←  Struct ⟨i,i,i,texture,'*'∾rectangle,"*:i32"⟩
 # baseSize           # Base size (default chars height)
 # glyphCount         # Number of glyph characters
 # glyphPadding       # Padding around the glyph characters
@@ -271,7 +276,7 @@ drawText           ⇐ "DrawText"          _R str‿i‿i‿i‿color           
 drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color       # font text position spacing fontSize tint                 # Draw text using font and additional parameters
 drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color  # font text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation)
 drawTextCodepoint  ⇐ "DrawTextCodepoint" _R font‿i‿v2‿f‿color           # font codepoint position fontSize tint                    # Draw one character (codepoint)
-drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿('*'∾i)‿i‿v2‿f‿f‿color # font codepoints count positions fontSize spacing tint    # Draw multiple character (codepoint)
+drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿('*'∾i)‿i‿v2‿f‿f‿color # font codepoints count position fontSize spacing tint     # Draw multiple character (codepoint)
 
 # Text font info
 measureText      ⇐ i        "MeasureText"     _R str‿i        # text fontSize              # Measure string width for default font

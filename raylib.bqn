@@ -1,3 +1,8 @@
+# Conventions:
+# if position is an argument, it's always 𝕩  (unless it's an optional arg, then it's 𝕨)
+# if color is an argument, it's always 𝕗
+#
+
 rayFFI⇐•Import "rayffi.bqn"
 
 IsInt ← {(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
@@ -58,12 +63,11 @@ window ⇐ {
    ;1𝕊"resize":
       rayFFI.SetWindowState 4
   }
-  1 Setting "resize"
 }
 
 draw ⇐ { 
   ⟨Start ⋄ End ⋄ _withCanvas_ 
-   _Circle ⋄ _Rectangle⟩⇐
+   _Circle ⋄ _Rectangle ⋄ _Text_⟩⇐
 
   Start ← rayFFI.EndDrawing  ∘⟨⟩
   End   ← rayFFI.BeginDrawing∘⟨⟩
@@ -84,9 +88,10 @@ draw ⇐ {
     "Rectangle only accepts ints as args"!∧´⌈⊸=𝕩∾𝕨∾𝕗
     rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
   }
+  _Text_ ← {text ⟨r,g,b,t⟩_𝕣_ fontSize ⟨posX,posY⟩:
+    rayFFI.DrawText (𝕨∾@)<⊸∾⌊𝕩∾𝕘‿𝕗
+  }
 }
-
-
 
 color ⇐ {
   white⇐4⥊255 ⋄ black⇐¯4↑255
