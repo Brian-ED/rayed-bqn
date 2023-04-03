@@ -1,0 +1,1 @@
+This is a demo for text display, currently only ascii. You can see the FPS at the top left, and "Hello!!!" at cursor.

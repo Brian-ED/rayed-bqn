@@ -1,14 +1,14 @@
-# Conventions:
-# if position is an argument, it's always 𝕩  (unless it's an optional arg, then it's 𝕨)
-# if color is an argument, it's always 𝕗
-#
+## Conventions:
+# if position is an argument, it's always 𝕩.
+# if color is an argument, it's always 𝕗.
+# if function has no intended output, output 𝕩, it makes chaining look nicer.
 
-rayFFI⇐•Import "rayffi.bqn"
+rayFFI ⇐ •Import "rayffi.bqn"
 
-IsInt ← {(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
+IsInt ← {𝕩⊣(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
 
 _bitwise ⇐ {
-  _into←{𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
+  _into ← {𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
 
@@ -17,73 +17,99 @@ IsKeyPressed ⇐ {𝕊 key:
 }⚇0
 
 image ⇐ {
-  Load   ⇐ {𝕊strPath: ⊑rayFFI.LoadImage𝕩∾@} # ⊑ used because LoadImage outputs image‿strPath for unknown reasons.
-  Unload ⇐ {𝕊image:    rayFFI.UnloadImage𝕩}
-  _with  ⇐ {(Unload⊢𝔽)Load𝕩}
+  Load   ⇐ {𝕊strPath   : ⊑rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
+  Unload ⇐ {𝕊image     : @⊣rayFFI.UnloadImage𝕩}
+  _with  ⇐ {𝔽_𝕣 strPath: Unload 𝔽 Load𝕩}
+}
+texture ⇐ {
+  Load   ⇐ {𝕊strPath:   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
+  Unload ⇐ {𝕊texture: @⊣rayFFI.UnloadImage𝕩}
+  _with  ⇐ {𝔽_𝕣 strPath: (Unload⊢𝔽) Load𝕩}
+  
+  # TODO: texture.Draw    r.rayFFI.DrawTextureEx texture‿pos‿rotation‿scale‿color
 }
 
 mouse ⇐ {
-  GetPos ⇐ {𝕊:rayFFI.GetMousePosition⟨⟩}
+  GetPos     ⇐rayFFI.GetMousePosition∘⟨⟩
+  WheelMoved ⇐rayFFI.GetMouseWheelMove∘⟨⟩
 }
 
 window ⇐ {
-  ⟨Open ⋄ Close ⋄ _openAs ⋄ ShouldClose
-   SetIcon ⋄ SetBackground ⋄ Setting⟩⇐
-
-  Open ← {𝕊 title: posX‿posY←𝕨⊣2⥊1000 
-    "𝕨 can only be ints"!∧´⌈⊸=𝕨
-    rayFFI.InitWindow posX‿posY∾<𝕩∾@
+  ⟨_openAs_ ⋄ ShouldClose   ⋄ isOpen
+   SetIcon ⋄ SetBackground ⋄ Setting
+   fps⟩⇐
+  isOpen ← 0
+  Open ← {scale 𝕊 title: 
+    (¬isOpen)!˜"The window cannot be opened twice"
+    (𝕨≡0⌈1⌊𝕨)!˜"Scale can only be between 0 and 1"
+    ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕨)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
+    rayFFI.InitWindow 0‿0∾<𝕩∾@
+    rayFFI.SetWindowPosition 0‿42 # 42 here is the window header size
+    rayFFI.SetWindowSize 𝕨×(rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight) rayFFI.GetCurrentMonitor⟨⟩
     rayFFI.SetTargetFPS 60
-  }
-  ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩
-  Close ← rayFFI.CloseWindow∘⟨⟩
-  _openAs ← {
-    Open𝕩
-    𝔽@
-    Close@
+    𝕩⊣isOpen↩1
   }
 
+  ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩
+  Close ← {
+    "No window is open"!isOpen
+    rayFFI.CloseWindow⟨⟩
+    𝕩⊣isOpen↩0
+  }
+  _openAs_ ← {
+    𝕩 Open 𝕘 
+    rayFFI.SetWindowState 4
+    Close 𝔽@
+  }
   SetBackground ← {𝕊r‿g‿b‿t:
     (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     rayFFI.ClearBackground 𝕩
   }
-  # Needs to test input for image
-  SetIcon ← {rayFFI.SetWindowIcon𝕩}
+  # TODO: Needs to test input for image
+  SetIcon ← {𝕊image:rayFFI.SetWindowIcon𝕩}
 
-  # Make this modify window settings instead of overwrite
+  # TODO: Make this modify window settings instead of overwrite it
   Setting ← {
-    𝕊"fps":    rayFFI.GetFPS⟨⟩
-   ;𝕊"resize": rayFFI.IsWindowState 4
+    "fps":    rayFFI.GetFPS⟨⟩
+   ;"resize": rayFFI.IsWindowState 4
   }⊘{
-    𝕨𝕊"fps":
-      "𝕨 has to be int"!1≡⌈⊸=𝕨
+     0𝕊"resize": rayFFI.SetWindowState 0;
+     1𝕊"resize": rayFFI.SetWindowState 4;
+     𝕨𝕊"fps":
+      "𝕨 has to be int"!⌈⊸≡𝕨
       rayFFI.SetTargetFPS 𝕨
-   ;0𝕊"resize":
-      rayFFI.SetWindowState 0
-   ;1𝕊"resize":
-      rayFFI.SetWindowState 4
+  }"Window has to be open to access settings"!isOpen˙
+  fps⇐{
+    Get ⇐ rayFFI.GetFPS∘⟨⟩
+    Set ⇐ {
+      (𝕩=⌈0⌈𝕩)!˜"FPS has to be a positive int"
+      𝕩⊣rayFFI.SetTargetFPS𝕩
+    }
   }
 }
 
-draw ⇐ { 
-  ⟨Start ⋄ End ⋄ _withCanvas_ 
-   _Circle ⋄ _Rectangle ⋄ _Text_⟩⇐
+draw ⇐ {
+  ⟨Start   ⋄ End        ⋄ _withCanvas_
+   _Circle ⋄ _Rectangle ⋄ _Text_
+  ⟩⇐
 
-  Start ← rayFFI.EndDrawing  ∘⟨⟩
-  End   ← rayFFI.BeginDrawing∘⟨⟩
+# Needs rethinking on design. I won't add this till i've redesigned some stuff.
+#  _Texture_ ← {degree ⟨r,g,b,t⟩_𝕣_ texture pos: # missing rotation and scale
+#    rayFFI.DrawTextureEx 𝕘‿𝕩‿𝕨‿0.25‿color.white‿90 # texture position rotation scale tint    
+#  }
+
+  Start ← rayFFI.BeginDrawing∘⟨⟩
+  End   ← rayFFI.EndDrawing  ∘⟨⟩
   _withCanvas_ ← {
     Start@
     window.SetBackground𝕘
-    𝔽𝕩
-    End@
+    ⊣⟜End𝔽𝕩
   }
-
   _Circle ← {radius ⟨r,g,b,t⟩_𝕣 posX‿posY :
     "only accepts ints as args"    !∧´⌊⊸=a←𝕩∾𝕨∾𝕗
     "Incorrect amount of arguments"!7=≠a
     rayFFI.DrawCircle ⌊𝕩∾𝕨‿𝕗
   }
-
   _Rectangle ← {width‿height ⟨r,g,b,t⟩_𝕣 posX‿posY :
     "Rectangle only accepts ints as args"!∧´⌈⊸=𝕩∾𝕨∾𝕗
     rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
@@ -94,8 +120,12 @@ draw ⇐ {
 }
 
 color ⇐ {
+  hex ⇐ {
+    From ⇐ 16⊸×⊸+˜´∘⌽˘·(∾"0A"+⟜↕¨10‿6)⊸⊐˘∘‿2⥊⊢
+  }
+
   white⇐4⥊255 ⋄ black⇐¯4↑255
-  [red    ‿green ‿blue
+  [red ‿green  ‿blue
    cyan‿magenta‿yellow]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
 }
 
