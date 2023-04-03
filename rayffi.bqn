@@ -73,22 +73,58 @@ image←Struct "*:i32"<⊸∾4⥊<i
 # mipmaps # Mipmap levels, 1 by default
 # format  # Data format (PixelFormat type)
 
-
-# BQN FFI
-readPointer ⇐@•FFI"a"‿"bqn_makeI32Vec"‿"u64"‿"*:i32"
-
-# Window
-initWindow        ⇐ "InitWindow"       _R i‿i‿str
-windowShouldClose ⇐i"WindowShouldClose"_R@
-closeWindow       ⇐ "CloseWindow"      _R@
+# Window-related functions
+initWindow               ⇐        "InitWindow"              _R i‿i‿str # width height title # Initialize window and OpenGL context
+windowShouldClose        ⇐ i      "WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
+closeWindow              ⇐        "CloseWindow"             _R@                             # Close window and unload OpenGL context
+isWindowReady            ⇐ i      "IsWindowReady"           _R@                             # Check if window has been initialized successfully
+isWindowFullscreen       ⇐ i      "IsWindowFullscreen"      _R@                             # Check if window is currently fullscreen
+isWindowHidden           ⇐ i      "IsWindowHidden"          _R@                             # Check if window is currently hidden (only PLATFORM_DESKTOP)
+isWindowMinimized        ⇐ i      "IsWindowMinimized"       _R@                             # Check if window is currently minimized (only PLATFORM_DESKTOP)
+isWindowMaximized        ⇐ i      "IsWindowMaximized"       _R@                             # Check if window is currently maximized (only PLATFORM_DESKTOP)
+isWindowFocused          ⇐ i      "IsWindowFocused"         _R@                             # Check if window is currently focused (only PLATFORM_DESKTOP)
+isWindowResized          ⇐ i      "IsWindowResized"         _R@                             # Check if window has been resized last frame
+isWindowState            ⇐ i      "IsWindowState"           _R u # flag                     # Check if one specific window flag is enabled
+setWindowState           ⇐        "SetWindowState"          _R u # flags                    # Set window configuration state using flags (only PLATFORM_DESKTOP)
+clearWindowState         ⇐        "ClearWindowState"        _R u # flags                    # Clear window configuration state flags
+toggleFullscreen         ⇐        "ToggleFullscreen"        _R@                             # Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)
+maximizeWindow           ⇐        "MaximizeWindow"          _R@                             # Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
+minimizeWindow           ⇐        "MinimizeWindow"          _R@                             # Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
+restoreWindow            ⇐        "RestoreWindow"           _R@                             # Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
+setWindowIcon            ⇐        "SetWindowIcon"           _R image                        # Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
+setWindowIcons           ⇐        "SetWindowIcons"          _R('*'∾image)‿i # images count  # Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
+setWindowTitle           ⇐        "SetWindowTitle"          _R str # title                  # Set title for window (only PLATFORM_DESKTOP)
+setWindowPosition        ⇐        "SetWindowPosition"       _R i‿i # x y                    # Set window position on screen (only PLATFORM_DESKTOP)
+setWindowMonitor         ⇐        "SetWindowMonitor"        _R i   # monitor                # Set monitor for the current window (fullscreen mode)
+setWindowMinSize         ⇐        "SetWindowMinSize"        _R i‿i # width height           # Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
+setWindowSize            ⇐        "SetWindowSize"           _R i‿i # width height           # Set window dimensions
+setWindowOpacity         ⇐        "SetWindowOpacity"        _R f # opacity                  # Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
+getWindowHandle          ⇐"*:i32" "GetWindowHandle"         _R@                             # Get native window handle
+getScreenWidth           ⇐ i      "GetScreenWidth"          _R@                             # Get current screen width
+getScreenHeight          ⇐ i      "GetScreenHeight"         _R@                             # Get current screen height
+getRenderWidth           ⇐ i      "GetRenderWidth"          _R@                             # Get current render width (it considers HiDPI)
+getRenderHeight          ⇐ i      "GetRenderHeight"         _R@                             # Get current render height (it considers HiDPI)
+getMonitorCount          ⇐ i      "GetMonitorCount"         _R@                             # Get number of connected monitors
+getCurrentMonitor        ⇐ i      "GetCurrentMonitor"       _R@                             # Get current connected monitor
+getMonitorPosition       ⇐ v2     "GetMonitorPosition"      _R i # monitor                  # Get specified monitor position
+getMonitorWidth          ⇐ i      "GetMonitorWidth"         _R i # monitor                  # Get specified monitor width (current video mode used by monitor)
+getMonitorHeight         ⇐ i      "GetMonitorHeight"        _R i # monitor                  # Get specified monitor height (current video mode used by monitor)
+getMonitorPhysicalWidth  ⇐ i      "GetMonitorPhysicalWidth" _R i # monitor                  # Get specified monitor physical width in millimetres
+getMonitorPhysicalHeight ⇐ i      "GetMonitorPhysicalHeight"_R i # monitor                  # Get specified monitor physical height in millimetres
+getMonitorRefreshRate    ⇐ i      "GetMonitorRefreshRate"   _R i # monitor                  # Get specified monitor refresh rate
+getWindowPosition        ⇐ v2     "GetWindowPosition"       _R@                             # Get window position XY on monitor
+getWindowScaleDPI        ⇐ v2     "GetWindowScaleDPI"       _R@                             # Get window scale DPI factor
+getMonitorName           ⇐"*:i32" "GetMonitorName"          _R i # utf-8 _R monitor         # Get the human-readable, UTF-8 encoded name of the primary monitor
+setClipboardText         ⇐        "SetClipboardText"        _R str # text                   # Set clipboard text content
+getClipboardText         ⇐"*:i32" "GetClipboardText"        _R@ # utf-8                     # Get clipboard text content
+enableEventWaiting       ⇐        "EnableEventWaiting"      _R@                             # Enable waiting for events on EndDrawing(), no automatic event polling
+disableEventWaiting      ⇐        "DisableEventWaiting"     _R@                             # Disable waiting for events on EndDrawing(), automatic events polling
 
 # Timing-related functions
 setTargetFPS ⇐       "SetTargetFPS" _R i # fps # Set target FPS (maximum)
 getFPS       ⇐ i     "GetFPS"       _R@        # Get current FPS
 getFrameTime ⇐ f     "GetFrameTime" _R@        # Get time in seconds for last frame drawn (delta time)
 getTime      ⇐ "f64" "GetTime"      _R@        # Get elapsed time in seconds since InitWindow()
-
-setWindowIcon ⇐ "SetWindowIcon"_R image
 
 # Input-related functions: keyboard
 isKeyPressed   ⇐ "i32" "IsKeyPressed"  _R i # Check if a key has been pressed once
@@ -198,10 +234,6 @@ gonfigFlags ⇐{
     interlaced       # Set to try enabling interlaced video format (for V3D)
   ⟩⇐2⋆1⊸+⌾(⊑⌽)1+↕15
 }
-# Window
-setWindowState ⇐ "SetWindowState"_R u # flags # Set window configuration state using flags (only PLATFORM_DESKTOP)
-isWindowState  ⇐i"IsWindowState" _R u # flag  # Check if one specific window flag is enabled
-
 
 # Basic shapes drawing functions
 drawPixel                 ⇐ "DrawPixel"                 _R i‿i‿color             # x y                                                         # Draw a pixel
@@ -253,7 +285,7 @@ glyphInfo←Struct i‿i‿i‿i‿image
 # image    # Character image data
 
 # Font, font texture and GlyphInfo array data
-font ←  Struct ⟨i,i,i,texture,'*'∾rectangle,"*:i32"⟩
+font ← Struct ⟨i,i,i,"*:i32","*:i32","*:i32"⟩
 # baseSize           # Base size (default chars height)
 # glyphCount         # Number of glyph characters
 # glyphPadding       # Padding around the glyph characters
@@ -261,14 +293,12 @@ font ←  Struct ⟨i,i,i,texture,'*'∾rectangle,"*:i32"⟩
 # recs        # Rectangles in texture for the glyphs
 # glyphs      # Glyphs info data
 
-
-
 # Font loading/unloading functions
-getFontDefault    ⇐ font "GetFontDefault"_R@                                              # Get the default Font
-loadFont          ⇐ font "LoadFont"         _R str                   # fileName                               # Load font from file into GPU memory (VRAM)
-loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿i‿i # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
-loadFontFromImage ⇐ font "LoadFontFromImage"_R image‿color‿i         # image color(key?) firstChar            # Load font from Image (XNA style)
-unloadFont        ⇐      "UnloadFont"       _R font                                                       # Unload font from GPU memory (VRAM)
+getFontDefault    ⇐ font "GetFontDefault"_R@                                                          # Get the default Font
+loadFont          ⇐ font "LoadFont"         _R str           # fileName                               # Load font from file into GPU memory (VRAM)
+loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿i‿i     # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+loadFontFromImage ⇐ font "LoadFontFromImage"_R image‿color‿i # image color(key?) firstChar            # Load font from Image (XNA style)
+unloadFont        ⇐      "UnloadFont"       _R font                                                   # Unload font from GPU memory (VRAM)
 
 # Text drawing
 drawFPS            ⇐ "DrawFPS"           _R i‿i                         # posX posY                                                # Draw current FPS
