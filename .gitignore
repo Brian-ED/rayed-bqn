@@ -1,8 +1,13 @@
 
 # in-progress tests
-tests/test2
-tests/test3
-tests/test4
+tests/test3_CppToBQN
+tests/test5_snakeGame
 
 # raylib sorce files, that need to be downloaded seperately
 raylibSorce
+
+# vim files
+.vim
+
+# Aribtrary testing
+tests/test0
