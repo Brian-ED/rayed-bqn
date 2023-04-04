@@ -3,12 +3,9 @@ size ← 15
 
 GetConsts ← {𝕤
   # Line drawing positions
-  offWH ← ⌊0.5+(size+2)÷˜window.GetSize@
-  [offw,offh] ← offWH×⌜1+↕size+1
-  tr‿bl ← 2↑1⌽⥊∾⌜˝offWH×⌜1∾size+1
-  minMaxX‿minMaxY ← tr∾¨bl
-  lines ← <˘⍉⊸∾´minMaxX‿offw∾⌜¨offh‿minMaxY
-  offWH‿lines
+  tileSize ← (⌊´window.GetSize@)⌊∘÷size+2
+  lines    ← (⌽¨∾⊢) (⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size
+  tileSize‿lines
 }
 OnStart ← {𝕤
   frame ← 0 ⋄ speed ← 10
@@ -22,14 +19,14 @@ OnStart ← {𝕤
   facing ← ⟨1‿0, 0‿¯1, ¯1‿0, 0‿1⟩ 
   frame‿gameState‿snake‿fruit‿facing‿speed
 }
-PerFrame ←{offWH‿lines𝕊frame‿gameState‿snake‿fruit‿facing‿speed:
+PerFrame ←{tileSize‿lines𝕊frame‿gameState‿snake‿fruit‿facing‿speed:
   # Drawing
   screens ← ⟨
     {𝕊:"Game Over" c.black draw._Text_ 20 100‿100}
     {𝕊:
-      c.white draw._Line¨lines
-      ( offWH-2)  c.red draw._Rectangle 1+offWH×1+fruit
-      {(offWH-2) c.blue draw._Rectangle 1+offWH×𝕩}¨1+snake
+      c.white draw._Line˘lines
+      ( tileSize-2)  c.red draw._Rectangle○(2⊸⥊) 1+tileSize×1+fruit
+      {(tileSize-2) c.blue draw._Rectangle○(2⊸⥊) 1+tileSize×𝕩}¨1+snake
     }
     {𝕊: "Paused" c.black draw._Text_ 40 100‿200}
   ⟩
@@ -58,4 +55,4 @@ PerFrame ←{offWH‿lines𝕊frame‿gameState‿snake‿fruit‿facing‿speed
 } draw._withCanvas_ 255‿200‿0‿255
 
 Game ← GetConsts PerFrame•_While_(¬window.ShouldClose) OnStart
-Game window._openAs_ "Snake" 0.5‿0.9
+Game window._openAs_ "Snake" 1
