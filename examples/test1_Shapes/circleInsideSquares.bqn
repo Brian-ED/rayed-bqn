@@ -17,5 +17,5 @@ PerFrame ← {𝕤
 } draw._withCanvas_ black
 
 PerFrame•_While_(¬window.ShouldClose)window._openAs_ "Hello!!!" 0.5 # 0.5 sets window size to half the monitor size
-# r un PerFrame while condition is true, and run this with the window opened as "test" 
+# run PerFrame while condition is true, and run this with the window opened as "test" 
 # if window should close, close it  ¯\_(ツ)_/¯
