@@ -4,5 +4,5 @@ This example shows how you can handle a somewhat big game without needing to res
 
 
 
-Here's a preveiw
-![game preview](https://i.imgur.com/OF4Blkt.gif)
+# Preveiw
+<img src="https://i.imgur.com/OF4Blkt.gif" width="500" />
