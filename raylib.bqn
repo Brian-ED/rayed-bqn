@@ -12,10 +12,6 @@ _bitwise ⇐ {
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
 
-IsKeyPressed ⇐ {𝕊 key:
-  0≠rayFFI.IsKeyPressed-⟜@⍟(∞⊸<)𝕩
-}⚇0
-
 image ⇐ {
   Load   ⇐ {𝕊strPath   : ⊑rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
   Unload ⇐ {𝕊image     : @⊣rayFFI.UnloadImage𝕩}
@@ -37,7 +33,7 @@ mouse ⇐ {
 window ⇐ {
   ⟨_openAs_ ⋄ ShouldClose   ⋄ isOpen
    SetIcon ⋄ SetBackground ⋄ Setting
-   fps⟩⇐
+   fps, GetSize, Open, Close⟩⇐
   isOpen ← 0
   Open ← {scale 𝕊 title: 
     (¬isOpen)!˜"The window cannot be opened twice"
@@ -47,9 +43,14 @@ window ⇐ {
     rayFFI.SetWindowPosition 0‿42 # 42 here is the window header size
     rayFFI.SetWindowSize 𝕨×(rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight) rayFFI.GetCurrentMonitor⟨⟩
     rayFFI.SetTargetFPS 60
+    rayFFI.SetWindowState 4
     𝕩⊣isOpen↩1
   }
-
+  GetSize ←{𝕤
+    "Window has to be open to get size of screen."!isOpen
+    ⟨rayFFI.GetScreenWidth⟨⟩
+     rayFFI.GetScreenHeight⟨⟩⟩
+  }
   ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩
   Close ← {
     "No window is open"!isOpen
@@ -58,7 +59,6 @@ window ⇐ {
   }
   _openAs_ ← {
     𝕩 Open 𝕘 
-    rayFFI.SetWindowState 4
     Close 𝔽@
   }
   SetBackground ← {𝕊r‿g‿b‿t:
@@ -90,7 +90,7 @@ window ⇐ {
 
 draw ⇐ {
   ⟨Start   ⋄ End        ⋄ _withCanvas_
-   _Circle ⋄ _Rectangle ⋄ _Text_
+   _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line
   ⟩⇐
 
 # Needs rethinking on design. I won't add this till i've redesigned some stuff.
@@ -103,7 +103,7 @@ draw ⇐ {
   _withCanvas_ ← {
     Start@
     window.SetBackground𝕘
-    ⊣⟜End𝔽𝕩
+    ⊣⟜End𝕨𝔽𝕩
   }
   _Circle ← {radius ⟨r,g,b,t⟩_𝕣 posX‿posY :
     "only accepts ints as args"    !∧´⌊⊸=a←𝕩∾𝕨∾𝕗
@@ -116,6 +116,12 @@ draw ⇐ {
   }
   _Text_ ← {text ⟨r,g,b,t⟩_𝕣_ fontSize ⟨posX,posY⟩:
     rayFFI.DrawText (𝕨∾@)<⊸∾⌊𝕩∾𝕘‿𝕗
+  }
+  _Line ← { #TODO add asserts
+    ⟨r,g,b,t⟩_𝕣 startPos‿endPos:
+      rayFFI.DrawLine (∾𝕩)∾<𝕗;
+    thickness ⟨r,g,b,t⟩ _𝕣 startPos‿endPos:
+      rayFFI.DrawLineEx 𝕩∾𝕨∾<𝕗
   }
 }
 
@@ -130,6 +136,9 @@ color ⇐ {
 }
 
 key ⇐ {
+  IsPressed ⇐ {𝕊 key:
+    0≠rayFFI.IsKeyPressed-⟜@⍟(∞⊸<)𝕩
+  }⚇0
   # consider switching to `letter-@` when possible.
 
   # vars           Keycodes   Keys
