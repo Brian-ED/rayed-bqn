@@ -24,11 +24,16 @@ OnStart ← {𝕤
 }
 PerFrame ←{offWH‿lines𝕊frame‿gameState‿snake‿fruit‿facing‿speed:
   # Drawing
-  gameState◶{𝕊:"Game Over" c.black draw._Text_ 20 100‿100}‿{𝕊:
-    c.white draw._Line¨lines
-    ( offWH-2)  c.red draw._Rectangle 1+offWH×1+fruit
-    {(offWH-2) c.blue draw._Rectangle 1+offWH×𝕩}¨1+snake
-  }‿{𝕊: "Paused" c.black draw._Text_ 40 100‿200} @
+  screens ← ⟨
+    {𝕊:"Game Over" c.black draw._Text_ 20 100‿100}
+    {𝕊:
+      c.white draw._Line¨lines
+      ( offWH-2)  c.red draw._Rectangle 1+offWH×1+fruit
+      {(offWH-2) c.blue draw._Rectangle 1+offWH×𝕩}¨1+snake
+    }
+    {𝕊: "Paused" c.black draw._Text_ 40 100‿200}
+  ⟩
+  ⊢◶screens gameState
   (•Repr ¯1+≠snake)c.black draw._Text_ 40 10‿10
 
   # Computing game
@@ -52,4 +57,5 @@ PerFrame ←{offWH‿lines𝕊frame‿gameState‿snake‿fruit‿facing‿speed
   }𝕩
 } draw._withCanvas_ 255‿200‿0‿255
 
-(GetConsts PerFrame•_While_(¬window.ShouldClose) OnStart) window._openAs_ "Snake" 0.5‿0.9
+Game ← GetConsts PerFrame•_While_(¬window.ShouldClose) OnStart
+Game window._openAs_ "Snake" 0.5‿0.9

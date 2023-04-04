@@ -31,6 +31,7 @@ I have never tested mac, but it could be similar to Linux.
 # Ideologies
 Having as little magic as possible, magic meaning magic numbers and global values (available to the user) changing outside user's control.
 
+Mutations localized in namespaces like "button" are probably fine though.
 # Credits
 Lots of thanks to [@dzaima](https://github.com/dzaima) for helping with FFI.
 
