@@ -1,7 +1,6 @@
 
 # in-progress tests
 tests/test3_CppToBQN
-tests/test5_snakeGame
 
 # raylib sorce files, that need to be downloaded seperately
 raylibSorce
