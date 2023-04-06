@@ -1,16 +1,9 @@
-⟨c⇐color,window,draw⟩←r←•Import "../../raylib.bqn"
+⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "../../raylib.bqn"
+PerFrame ← {
+  20‿20 c.white d._Text_ 30˜•Repr∘w.fps.Get⊸∾" FPS"
+  c.white d._Texture_ 𝕨⟜(m.GetPos@)¨0.2⊸⋈¨𝕩+90×↕4
+  90|m.WheelMoved⊸+𝕩
+} d._withCanvas_ c.black
 
-fontSize←30
-
-OnStart←{𝕊:⟨
-  0 ⋄ r.rayFFI.LoadTexture "logo.png"∾@ # original SVG taken from https://github.com/mlochbaum/BQN/blob/master/logo.svg
-⟩}
-PerFrame ← {𝕊⟨meRot, logo⟩:
-  pos←⌊r.mouse.GetPos@
-  fps←" FPS"∾˜•Repr r.rayFFI.GetFPS⟨⟩
-  fps c.black draw._Text_ fontSize 20‿20
-  {r.rayFFI.DrawTextureEx ⟨logo, pos, meRot+𝕩, 0.2, c.white⟩}¨90×↕4
-  ⟨90|meRot+r.rayFFI.GetMouseWheelMove⟨⟩, logo⟩
-} draw._withCanvas_ c.green
-
-PerFrame•_While_(¬window.ShouldClose)∘OnStart window._openAs_ "test" 1
+Game ← r.texture.Load∘"logo.png" PerFrame•_While_(¬w.ShouldClose) 0˙
+Game w._openAs_ "test" 1
