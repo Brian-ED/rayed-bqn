@@ -32,7 +32,7 @@ mouse ⇐ {
 
 window ⇐ {
   ⟨_openAs_ ⋄ ShouldClose   ⋄ isOpen
-   SetIcon ⋄ SetBackground ⋄ Setting
+   SetIcon ⋄ Setting
    fps, GetSize, Open, Close⟩⇐
   isOpen ← 0
   Open ← {scale 𝕊 title: 
@@ -49,7 +49,7 @@ window ⇐ {
   GetSize ←{𝕤
     "Window has to be open to get size of screen."!isOpen
     ⟨rayFFI.GetScreenWidth⟨⟩
-     rayFFI.GetScreenHeight⟨⟩⟩
+     •Show rayFFI.GetScreenHeight⟨⟩⟩
   }
   ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩
   Close ← {
@@ -60,10 +60,6 @@ window ⇐ {
   _openAs_ ← {
     𝕩 Open 𝕘 
     Close 𝔽@
-  }
-  SetBackground ← {𝕊r‿g‿b‿t:
-    (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
-    rayFFI.ClearBackground 𝕩
   }
   # TODO: Needs to test input for image
   SetIcon ← {𝕊image:rayFFI.SetWindowIcon𝕩}
@@ -90,7 +86,7 @@ window ⇐ {
 
 draw ⇐ {
   ⟨Start   ⋄ End        ⋄ _withCanvas_
-   _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line
+   _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line ⋄ Background
   ⟩⇐
 
 # Needs rethinking on design. I won't add this till i've redesigned some stuff.
@@ -98,11 +94,15 @@ draw ⇐ {
 #    rayFFI.DrawTextureEx 𝕘‿𝕩‿𝕨‿0.25‿color.white‿90 # texture position rotation scale tint    
 #  }
 
-  Start ← rayFFI.BeginDrawing∘⟨⟩
-  End   ← rayFFI.EndDrawing  ∘⟨⟩
+  Background ← {𝕊r‿g‿b‿t:
+    (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
+    rayFFI.ClearBackground 𝕩
+  }
+  Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩
+  End   ← ⊢⊣rayFFI.EndDrawing  ∘⟨⟩
   _withCanvas_ ← {
     Start@
-    window.SetBackground𝕘
+    Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
   }
   _Circle ← {radius ⟨r,g,b,t⟩_𝕣 posX‿posY :
@@ -133,16 +133,26 @@ color ⇐ {
   white⇐4⥊255 ⋄ black⇐¯4↑255
   [red ‿green  ‿blue
    cyan‿magenta‿yellow]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
+  
+  gray    ⇐ 255‿255‿255‿128
+  #red     ⇐ 230‿41‿55‿255
+#  blue    ⇐ 0‿121‿241‿255
+  skyBlue ⇐ 102‿191‿255‿255
+
 }
 
 key ⇐ {
-  IsPressed ⇐ {𝕊 key:
-    0≠rayFFI.IsKeyPressed-⟜@⍟(∞⊸<)𝕩
+  ⟨IsPressed, GetPressed⟩⇐
+  IsPressed ← {𝕊 key:
+    0≠rayFFI.IsKeyPressed @-˜⍟>𝕩
   }⚇0
+  GetPressed ← {𝕤  # Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
+    rayFFI.GetKeyPressed⟨⟩
+  }
   # consider switching to `letter-@` when possible.
 
   # vars           Keycodes   Keys
-  kNULL          ⇐ 0        # NULL, used for no key pressed
+  kNULL           ⇐ 0        # NULL, used for no key pressed
   # Alphanumeric keys
   kAPOSTROPHE    ⇐ 39       # '
   kCOMMA         ⇐ 44       # ,

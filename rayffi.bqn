@@ -15,7 +15,7 @@ v3 ← "{f32,f32,f32}"
 points←'*'∾v2
 
 # Texture, tex data stored in GPU memory (VRAM)
-texture←Struct u‿i‿i‿i‿i
+texture ← Struct u‿i‿i‿i‿i
 # id      # OpenGL texture id
 # width   # Texture base width
 # height  # Texture base height
@@ -23,14 +23,14 @@ texture←Struct u‿i‿i‿i‿i
 # format  # Data format (PixelFormat type)
 
 # Camera2D, defines position/orientation in 2d space
-camera2D ←Struct v2‿v2‿f‿f
+camera2D ← Struct v2‿v2‿f‿f
 # offset   # Camera offset (displacement from target)
 # target   # Camera target (rotation and zoom origin)
 # rotation # Camera rotation in degrees
 # zoom     # Camera zoom (scaling), should be 1.0f by default
 
 # Camera, defines position/orientation in 3d space
-camera3D ←Struct v3‿v3‿v3‿f‿i
+camera3D ← Struct v3‿v3‿v3‿f‿i
 # position   # Camera position
 # target     # Camera target it looks-at
 # up         # Camera up vector (rotation over its axis)
@@ -42,20 +42,20 @@ shader ←"{u32,*i32}"
 # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 
 # Matrix, 4x4 components, column major, OpenGL style, right handed
-matrix ←Struct 16⥊<f
+matrix ← Struct 16⥊<f
 # m0 m4 m8  m12
 # m1 m5 m9  m13
 # m2 m6 m10 m14
 # m3 m7 m11 m15
 
 # RenderTexture, fbo for texture rendering
-renderTexture ←Struct"u32"<⊸∾2⥊<texture
+renderTexture ← Struct"u32"<⊸∾2⥊<texture
 # OpenGL framebuffer object id
 # Color buffer attachment texture
 # Depth buffer attachment texture
 
 # VrStereoConfig, VR stereo rendering configuration for simulator
-vrStereoConfig ←Struct Struct∘⋈¨(2⥊<matrix)∾6⥊<f
+vrStereoConfig ← Struct Struct∘⋈¨(2⥊<matrix)∾6⥊<f
 # projection[2]        # VR projection matrices (per eye)
 # viewOffset[2]        # VR view offset matrices (per eye)
 # leftLensCenter[2]    # VR left lens center
@@ -66,7 +66,7 @@ vrStereoConfig ←Struct Struct∘⋈¨(2⥊<matrix)∾6⥊<f
 # scaleIn[2]           # VR distortion scale in
 
 # Image, pixel data stored in CPU memory (RAM)
-image←Struct "*:i32"<⊸∾4⥊<i
+image ← Struct "*:i32"<⊸∾4⥊<i
 # *data   # Image raw data
 # width   # Image base width
 # height  # Image base height
@@ -277,7 +277,7 @@ drawPolyLinesEx           ⇐ "DrawPolyLinesEx"           _R v2‿i‿f‿f‿f�
 
 
 # GlyphInfo, font characters glyphs info
-glyphInfo←Struct i‿i‿i‿i‿image
+glyphInfo ← Struct i‿i‿i‿i‿image
 # value    # Character value (Unicode)
 # offsetX  # Character offset X when drawing
 # offsetY  # Character offset Y when drawing
