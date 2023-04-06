@@ -3,14 +3,6 @@
 ⟨c⇐color,window,draw,k⇐key⟩←r←•Import "../../raylib.bqn"
 textSize ← 100
 size ← 15
-
-GetConsts ← {𝕊:{
-  winSize       ⇐ window.GetSize@
-  textPixelSize ⇐ r.rayFFI.MeasureText¨textSize⋈˜¨"Paused"‿"GAME OVER"
-  tileSize      ⇐ ⌊winSize⌊´⊸÷size+2
-  lines         ⇐ ⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
-}}
-
 nonDarkMode‿darkMode ← {
   ⟨text, fruit, snake, lines, background⟩ ⇐ 𝕩
 }¨{
@@ -18,6 +10,14 @@ nonDarkMode‿darkMode ← {
   ⟨c.black‿c.red‿c.blue ‿c.white‿yellow
    ⌈c.white‿c.red‿c.green‿c.white‿c.black÷1.3⟩ # divided to lower intencity
 }
+
+LoadConsts ← {𝕊:{
+  winSize       ⇐ window.GetSize@
+  textPixelSize ⇐ r.rayFFI.MeasureText¨textSize⋈˜¨"Paused"‿"GAME OVER"
+  tileSize      ⇐ ⌊winSize⌊´⊸÷size+2
+  lines         ⇐ ⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
+}}
+
 
 OnStart ← {𝕤
   frame ← 0 ⋄ speed ← 10
@@ -72,5 +72,5 @@ PerFrame ←{con𝕊⟨gameState,frame,snake,fruit,facing,speed,buffer,pal⟩:
   ⟩  {1:2;2:1;𝕩}⍟pauseP⌾⊑ 𝕩
 } draw._withCanvas_ {(7⊑𝕩).background}
 
-Game ← GetConsts PerFrame•_While_(¬window.ShouldClose) OnStart
+Game ← LoadConsts PerFrame•_While_(¬window.ShouldClose) OnStart
 Game window._openAs_ "Snake" 1
