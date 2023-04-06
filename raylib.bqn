@@ -21,10 +21,7 @@ texture ⇐ {
   Load   ⇐ {𝕊strPath:   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
   Unload ⇐ {𝕊texture: @⊣rayFFI.UnloadImage𝕩}
   _with  ⇐ {𝔽_𝕣 strPath: (Unload⊢𝔽) Load𝕩}
-  
-  # TODO: texture.Draw    r.rayFFI.DrawTextureEx texture‿pos‿rotation‿scale‿color
 }
-
 mouse ⇐ {
   GetPos     ⇐rayFFI.GetMousePosition∘⟨⟩
   WheelMoved ⇐rayFFI.GetMouseWheelMove∘⟨⟩
@@ -86,13 +83,9 @@ window ⇐ {
 
 draw ⇐ {
   ⟨Start   ⋄ End        ⋄ _withCanvas_
-   _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line ⋄ Background
+   _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line
+  Background ⋄ _Texture_
   ⟩⇐
-
-# Needs rethinking on design. I won't add this till i've redesigned some stuff.
-#  _Texture_ ← {degree ⟨r,g,b,t⟩_𝕣_ texture pos: # missing rotation and scale
-#    rayFFI.DrawTextureEx 𝕘‿𝕩‿𝕨‿0.25‿color.white‿90 # texture position rotation scale tint    
-#  }
 
   Background ← {𝕊r‿g‿b‿t:
     (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
@@ -122,6 +115,9 @@ draw ⇐ {
       rayFFI.DrawLine (∾𝕩)∾<𝕗;
     thickness ⟨r,g,b,t⟩ _𝕣 startPos‿endPos:
       rayFFI.DrawLineEx 𝕩∾𝕨∾<𝕗
+  }
+  _Texture_ ⇐ {scale‿rotation color _𝕣_ texture pos:
+    rayFFI.DrawTextureEx⟨texture,pos,rotation,scale,color⟩
   }
 }
 
