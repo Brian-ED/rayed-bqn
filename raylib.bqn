@@ -13,11 +13,13 @@ _bitwise ⇐ {
 }
 
 image ⇐ {
+  # TODO: remember to check if file exists before running.
   Load   ⇐ {𝕊strPath   : ⊑rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
   Unload ⇐ {𝕊image     : @⊣rayFFI.UnloadImage𝕩}
   _with  ⇐ {𝔽_𝕣 strPath: Unload 𝔽 Load𝕩}
 }
 texture ⇐ {
+  # TODO: remember to check if file exists before running.
   Load   ⇐ {𝕊strPath:   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
   Unload ⇐ {𝕊texture: @⊣rayFFI.UnloadImage𝕩}
   _with  ⇐ {𝔽_𝕣 strPath: (Unload⊢𝔽) Load𝕩}

@@ -35,11 +35,11 @@ OnStart ← {𝕤
   gameState‿frame‿snake‿fruit‿facing‿speed‿buffer‿palete
 }
 PerGameFrame ← {𝕊gameState‿snake‿fruit‿facing‿buffer:
-  SpawnFruit      ← {•rand.Range∘≠⊸⊑(<˘𝕨)(¬∘∊˜/⊢)⥊↕2⥊size}
-  nowFacing       ← facing⌽˜-´k.kLeft‿k.kRight=⊑1↑buffer
-  extendedSnake   ← nowfacing(⊢∾˜size|+○⊏)snake
-  newFruit        ← extendedSnake SpawnFruit⍟(⊏⊸≡) fruit
-  cutSnake        ← ¯1⊸↓⍟(newFruit≡fruit)extendedSnake
+  SpawnFruit    ← {•rand.Range∘≠⊸⊑(<˘𝕨)(¬∘∊˜/⊢)⥊↕2⥊size}
+  nowFacing     ← facing⌽˜-´k.kLeft‿k.kRight=⊑1↑buffer
+  extendedSnake ← nowfacing(⊢∾˜size|+○⊏)snake
+  newFruit      ← extendedSnake SpawnFruit⍟(⊏⊸≡) fruit
+  cutSnake      ← ¯1⊸↓⍟(newFruit≡fruit)extendedSnake
   ⟨
     gameState×⍷⊸≡cutSnake # gameState
     cutSnake              # snake
