@@ -11,76 +11,80 @@ _bitwise ⇐ {
   _into ← {𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
+NeedsWindow ← {𝕊:𝕩⊣"Expected window to be open"!window.isOpen}
 
 image ⇐ {
   # TODO: remember to check if file exists before running.
-  Load   ⇐ {𝕊strPath   : ⊑rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
-  Unload ⇐ {𝕊image     : @⊣rayFFI.UnloadImage𝕩}
-  _with  ⇐ {𝔽_𝕣 strPath: Unload 𝔽 Load𝕩}
+  Load   ⇐ {𝕊strPath   : NeedsWindow@ ⋄ ⊑rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
+  Unload ⇐ {𝕊image     : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
+  _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄ Unload 𝔽 Load𝕩}
 }
 texture ⇐ {
   # TODO: remember to check if file exists before running.
-  Load   ⇐ {𝕊strPath:   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
-  Unload ⇐ {𝕊texture: @⊣rayFFI.UnloadImage𝕩}
-  _with  ⇐ {𝔽_𝕣 strPath: (Unload⊢𝔽) Load𝕩}
+  Load   ⇐ {𝕊strPath: NeedsWindow@ ⋄   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
+  Unload ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
+  _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄r←𝔽˜x←Load𝕩⋄ Unload x ⋄ r}
 }
 mouse ⇐ {
-  GetPos     ⇐rayFFI.GetMousePosition∘⟨⟩
-  WheelMoved ⇐rayFFI.GetMouseWheelMove∘⟨⟩
+  GetPos     ⇐rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
+  WheelMoved ⇐rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
+}
+monitor ⇐ {
+  ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
+   Sizemm ⋄ Name⟩⇐
+  Selected    ← rayFFI.GetCurrentMonitor∘⟨⟩
+  Count       ← rayFFI.GetMonitorCount∘⟨⟩
+  RefreshRate ← rayFFI.GetMonitorRefreshRate
+  Size        ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)
+  Sizemm      ← (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)
+  Name        ← rayFFI.GetMonitorName
+  
+  ⟨RefreshRate, Size, Sizemm, Name⟩{𝕏@⊸≢◶Selected‿{
+      𝕩⊣(⊑𝕩∊↕Count@)!˜"Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
+    }}¨↩
+  ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
+   Sizemm ⋄ Name⟩ {𝕏⊣NeedsWindow}¨↩
 }
 
 window ⇐ {
-  ⟨_openAs_ ⋄ ShouldClose   ⋄ isOpen
-   SetIcon ⋄ Setting
-   fps, GetSize, Open, Close⟩⇐
+  ⟨_openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
+   ShouldClose ⋄ isOpen ⋄ Open ⋄ Close⟩⇐
   isOpen ← 0
-  Open ← {scale 𝕊 title: 
-    (¬isOpen)!˜"The window cannot be opened twice"
-    (𝕨≡0⌈1⌊𝕨)!˜"Scale can only be between 0 and 1"
-    ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕨)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
-    rayFFI.InitWindow 0‿0∾<𝕩∾@
-    rayFFI.SetWindowPosition 0‿42 # 42 here is the window header size
-    rayFFI.SetWindowSize 𝕨×(rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight) rayFFI.GetCurrentMonitor⟨⟩
-    rayFFI.SetTargetFPS 60
-    rayFFI.SetWindowState 4
-    𝕩⊣isOpen↩1
-  }
-  GetSize ←{𝕤
-    "Window has to be open to get size of screen."!isOpen
-    ⟨rayFFI.GetScreenWidth⟨⟩
-     •Show rayFFI.GetScreenHeight⟨⟩⟩
-  }
-  ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩
-  Close ← {
-    "No window is open"!isOpen
-    rayFFI.CloseWindow⟨⟩
-    𝕩⊣isOpen↩0
-  }
-  _openAs_ ← {
-    𝕩 Open 𝕘 
-    Close 𝔽@
-  }
-  # TODO: Needs to test input for image
-  SetIcon ← {𝕊image:rayFFI.SetWindowIcon𝕩}
-
-  # TODO: Make this modify window settings instead of overwrite it
-  Setting ← {
-    "fps":    rayFFI.GetFPS⟨⟩
-   ;"resize": rayFFI.IsWindowState 4
-  }⊘{
-     0𝕊"resize": rayFFI.SetWindowState 0;
-     1𝕊"resize": rayFFI.SetWindowState 4;
-     𝕨𝕊"fps":
-      "𝕨 has to be int"!⌈⊸≡𝕨
-      rayFFI.SetTargetFPS 𝕨
-  }"Window has to be open to access settings"!isOpen˙
   fps⇐{
-    Get ⇐ rayFFI.GetFPS∘⟨⟩
+    Get ⇐ rayFFI.GetFPS∘⟨⟩NeedsWindow
     Set ⇐ {
+      NeedsWindow@
       (𝕩=⌈0⌈𝕩)!˜"FPS has to be a positive int"
       𝕩⊣rayFFI.SetTargetFPS𝕩
     }
   }
+  Open ← {𝕨𝕊 title: scale←𝕨⊣1
+    (¬isOpen)!˜"The window cannot be opened twice"
+    (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
+    ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢scale)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
+    rayFFI.InitWindow 0‿0∾<𝕩∾@
+    𝕩⊣isOpen↩1
+    rayFFI.SetWindowPosition 0‿42 # 42 here is the window header size (might be windows only)
+    rayFFI.SetWindowSize monitor.Size∘@⊸× scale
+    fps.Set monitor.RefreshRate@
+    rayFFI.SetWindowState 4
+  }
+  GetSize ←{𝕤
+    NeedsWindow@
+    ⟨rayFFI.GetScreenWidth⟨⟩
+     rayFFI.GetScreenHeight⟨⟩⟩
+  }
+  ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩∘NeedsWindow
+  Close ← {
+    NeedsWindow@
+    rayFFI.CloseWindow⟨⟩
+    𝕩⊣isOpen↩0
+  }
+  _openAs ← {App _𝕣 title: scale←𝕨⊣1
+    scale(Close⊢𝔽⊣Open)𝕩
+  }
+  # TODO: Needs to test input for image
+  SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩}
 }
 
 draw ⇐ {
@@ -89,36 +93,44 @@ draw ⇐ {
   Background ⋄ _Texture_
   ⟩⇐
 
-  Background ← {𝕊r‿g‿b‿t:
+  Background ← {𝕊r‿g‿b‿a:
+    NeedsWindow@
     (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     rayFFI.ClearBackground 𝕩
   }
-  Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩
-  End   ← ⊢⊣rayFFI.EndDrawing  ∘⟨⟩
-  _withCanvas_ ← {
+  Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩∘NeedsWindow
+  End   ← ⊢⊣rayFFI.EndDrawing  ∘⟨⟩∘NeedsWindow
+  _withCanvas_ ← {𝕨Func _𝕣_ Func_Returning_A_Color𝕩:
     Start@
     Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
   }
-  _Circle ← {radius ⟨r,g,b,t⟩_𝕣 posX‿posY :
-    "only accepts ints as args"    !∧´⌊⊸=a←𝕩∾𝕨∾𝕗
-    "Incorrect amount of arguments"!7=≠a
+  _Circle ← {radius ⟨r,g,b,a⟩_𝕣 posX‿posY :
+    NeedsWindow@
+    "only accepts ints as args"    !∧´⌊⊸=n←𝕩∾𝕨∾𝕗
+    "Incorrect amount of arguments"!7=≠n
     rayFFI.DrawCircle ⌊𝕩∾𝕨‿𝕗
   }
-  _Rectangle ← {width‿height ⟨r,g,b,t⟩_𝕣 posX‿posY :
+  _Rectangle ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
+    NeedsWindow@
     "Rectangle only accepts ints as args"!∧´⌈⊸=𝕩∾𝕨∾𝕗
     rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
   }
-  _Text_ ← {text ⟨r,g,b,t⟩_𝕣_ fontSize ⟨posX,posY⟩:
+  _Text_ ← {text ⟨r,g,b,a⟩_𝕣_ fontSize ⟨posX,posY⟩:
+    NeedsWindow@
+    "the window isn't open"!window.isOpen
     rayFFI.DrawText (𝕨∾@)<⊸∾⌊𝕩∾𝕘‿𝕗
   }
   _Line ← { #TODO add asserts
-    ⟨r,g,b,t⟩_𝕣 startPos‿endPos:
+    ⟨r,g,b,a⟩_𝕣 startPos‿endPos:
+      NeedsWindow@
       rayFFI.DrawLine (∾𝕩)∾<𝕗;
-    thickness ⟨r,g,b,t⟩ _𝕣 startPos‿endPos:
+    thickness ⟨r,g,b,a⟩ _𝕣 startPos‿endPos:
+      NeedsWindow@
       rayFFI.DrawLineEx 𝕩∾𝕨∾<𝕗
   }
   _Texture_ ⇐ {scale‿rotation color _𝕣_ texture pos:
+    NeedsWindow@
     rayFFI.DrawTextureEx⟨texture,pos,rotation,scale,color⟩
   }
 }
@@ -127,24 +139,48 @@ color ⇐ {
   hex ⇐ {
     From ⇐ 16⊸×⊸+˜´∘⌽˘·(∾"0A"+⟜↕¨10‿6)⊸⊐˘∘‿2⥊⊢
   }
-
-  white⇐4⥊255 ⋄ black⇐¯4↑255
-  [red ‿green  ‿blue
-   cyan‿magenta‿yellow]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
+  exact⇐{
+    white⇐4⥊255 ⋄ black⇐¯4↑255
+    [red ‿green  ‿blue
+     cyan‿magenta‿yellow]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
   
-  gray    ⇐ 255‿255‿255‿128
-  #red     ⇐ 230‿41‿55‿255
-#  blue    ⇐ 0‿121‿241‿255
-  skyBlue ⇐ 102‿191‿255‿255
-
+  }
+  lightgreen ⇐ 144‿238‿144‿255
+  darkgreen  ⇐ 0‿100‿0‿255
+  lightred   ⇐ 255‿102‿102‿255
+  darkred    ⇐ 139‿0‿0‿255
+  lightblue  ⇐ 173‿216‿230‿255
+  darkblue   ⇐ 0‿0‿139‿255
+  orange     ⇐ 255‿165‿0‿255
+  brown      ⇐ 165‿42‿42‿255
+  green      ⇐ 0‿255‿0‿255
+  white      ⇐ 4⥊255
+  black      ⇐ ¯4↑255
+  red        ⇐ 230‿41‿55‿255
+  yellow     ⇐ 255‿255‿0‿255
+  cyan       ⇐ 0‿255‿255‿255
+  magenta    ⇐ 255‿0‿255‿255
+  pink       ⇐ 255‿192‿203‿255
+  purple     ⇐ 128‿0‿128‿255
+  teal       ⇐ 0‿128‿128‿255
+  navy       ⇐ 0‿0‿128‿255
+  lavender   ⇐ 230‿230‿250‿255
+  gold       ⇐ 255‿215‿0‿255
+  silver     ⇐ 192‿192‿192‿255
+  blue       ⇐ 0‿121‿241‿255
+  skyBlue    ⇐ 102‿191‿255‿255
+  gray       ⇐ 128‿128‿128‿255
+  lightGray  ⇐ 200‿200‿200‿255
+  darkGray   ⇐ 70‿78‿81‿255
 }
-
 key ⇐ {
   ⟨IsPressed, GetPressed⟩⇐
   IsPressed ← {𝕊 key:
+    NeedsWindow@
     0≠rayFFI.IsKeyPressed @-˜⍟>𝕩
   }⚇0
   GetPressed ← {𝕤  # Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
+    NeedsWindow@
     rayFFI.GetKeyPressed⟨⟩
   }
   # consider switching to `letter-@` when possible.
