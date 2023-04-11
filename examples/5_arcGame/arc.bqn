@@ -1,6 +1,5 @@
 ⟨c⇐color,window,draw,k⇐key⟩←r←•Import "../../raylib.bqn"
-
-
+⟨DrawBoard⇐Draw⟩←•Import"spritesLoad.bqn"
 
 g←{
   chars  ← " @o⭍#/\-|+<>^v" # the characters that are used in the level representation
@@ -22,7 +21,7 @@ g←{
   
   Tiles←{(𝕩+𝕨×⊢)¨↕3} # given object (including itself)
   # We (try to) push the tile in front of the player
-  Step←{Push⌾((𝕨 Tiles ⊑player /○⥊⟜(↕≢)∘⍷ ⊑¨𝕩)⊸⊑)𝕩} # 𝕨 S 𝕩 | 𝕨: direction | 𝕩:level | Step the game
+  Step⇐{Push⌾((𝕨 Tiles ⊑player /○⥊⟜(↕≢)∘⍷ ⊑¨𝕩)⊸⊑)𝕩} # 𝕨 S 𝕩 | 𝕨: direction | 𝕩:level | Step the game
 
   Bounce←{d‿w S x:{ # Base case:
     ⊑opaque∊˜w⊑x? # When the beam touches an opaque object (not a mirror):
@@ -39,8 +38,6 @@ g←{
       }
   }
   Shoot⇐{𝕩Bounce´⌽∾⟨0‿¯1,0‿1,¯1‿0,1‿0⟩(<∘⊣⋈¨<⊸+)¨/○⥊⟜(↕≢)¨𝕩⊸=¨lasers}
-  # --- Rule 2: -------------------------------------------------------------------
-  # - The Player wins when all machines are powered:
   colors ← c.blue‿c.yellow‿c.cyan‿c.red
   cols   ← colors⊏˜⌈´(≠chars)↑¨(↕3)×/⁼¨⟨pmachine⟩‿mirrors‿beams    
 
@@ -59,8 +56,8 @@ PerFrame ← {𝕊⟨gameState, moves, currentLevel⟩:
   gameState◶⟨
     {𝕤 # Playing
       # Draw not implemented. map each int as sprite
-      Draw level←g.Shoot(currentLevel⊑g.levels) g.Step´⌽moves
-      won ← ¬⊑machine∊level
+      10 DrawBoard level←g.Shoot(currentLevel⊑g.levels) g.Step´⌽moves
+      won ← ¬⊑g.machine∊⥊level
         # has the user beaten all of the levels?
       ⟨
         1⌾⊑⍟won gameState
@@ -71,17 +68,16 @@ PerFrame ← {𝕊⟨gameState, moves, currentLevel⟩:
     {𝕤 # info screen
       {currentLevel=0?
         1↓∾(@+10)∾¨⟨
-           "Power the machines by moving the mirrors"
-           "Controls: (hjkl or wasd) to move, u to undo, r to reset level, q to quit"
-           "Moves: "∾•Repr ¯1+≠g.moves
-        ⟩
-      ; "Good job!, press any key to continue to the next level"
-      }c.white draw._Text_ 100 300‿300
-      g.NextLevel @
+        "Power the machines by moving the mirrors"
+        "Controls: (hjkl or wasd) to move, u to undo, r to reset level, q to quit"
+        ⟩;
+        "Good job! took only "∾(moves)∾" moves. press any key to continue to the next level!"
+      }c.white draw._Text_ 30 300‿300
+      ⟨0,⟨0‿0⟩,1⊸+⟩{𝕎𝕩}¨⍟(0≢key) 𝕩
     }
   ⟩𝕩
 }draw._withCanvas_ c.black
 # On end, show "Well played, you win!"
 
-Game ← PerFrame•_While_ {(2⊑𝕩)<≠g.levels}∘onStart
-Game window._openAs_ "Arc" 1
+Game ← PerFrame•_While_ {(window.ShouldClose@)¬⊸∧(2⊑𝕩)<≠g.levels}OnStart
+Game window._openAs "Arc"
