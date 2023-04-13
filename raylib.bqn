@@ -80,7 +80,7 @@ window ⇐ {
     rayFFI.CloseWindow⟨⟩
     𝕩⊣isOpen↩0
   }
-  _openAs ← {App _𝕣 title: scale←𝕨⊣1
+  _openAs ← {𝕨 App _𝕣 title: scale←𝕨⊣1
     scale(Close⊢𝔽⊣Open)𝕩
   }
   # TODO: Needs to test input for image
@@ -133,6 +133,18 @@ draw ⇐ {
     NeedsWindow@
     rayFFI.DrawTextureEx⟨texture,pos,rotation,scale,color⟩
   }
+}
+font ⇐ {
+  Load ⇐ {charactersYouCanUse 𝕊 fontFilePath:
+    NeedsWindow@
+    r.rayFFI.LoadFontEx ⟨fontFilePath∾@, 40, 𝕨-@, ≠𝕨⟩ # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
+    ;𝕊𝕩:
+    r.rayFFI.LoadFontEx ⟨fontFilePath∾@, 40, ""∾@, 0⟩ # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
+  }
+  
+    # Sorce of font and chars: https://dzaima.github.io/BQN386/
+  chars ← "⎕⍞∆⍙ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_^⌹⍳⍴!%*+,-<=>?|~⊢⊣⌷≤≥≠∨∧÷×∊↑↓○⌈⌊⊂⊃∩∪⊥⊤⍱⍲⍒⍋⍉⌽⊖⍟⍕⍎⍪≡≢⍷⍸⊆⊇⍧⍮√ϼ…¨⍨⌸⍁⍩ᑈᐵ⌶/\&.@∘⌺⍫⍣⍢⍤⍛⍡⍥⍠0123456789¯∞⍬#⍺⍵⍶⍹∇{}:⋄←→+-×÷⋆√⌊⌈∧∨¬|=≠≤<>≥≡≢⊣⊢⥊∾≍⋈↑↓↕⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔`˜˘¨⁼⌜´˝˙∘⊸⟜○⌾⎉⚇⍟⊘◶⎊π‿∞‿@↩←⇐→,⋄𝕨𝕩𝔽𝔾𝕎𝕏𝕗𝕘𝕊𝕤ℝ𝕣⦃⦄⟨⟩"
+  r.rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, fontSize, chars-@, ≠chars⟩ # fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
 }
 
 color ⇐ {

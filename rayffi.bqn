@@ -4,8 +4,13 @@ _R ← {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
   a←(⋈'>'⊸∾)⍟((0≠≠)∧1=≡)⟨⟩⍟(@⊸≡)𝕩
   "raylibSorce/lib/raylib.dll"•FFI outType‿𝕗∾a
 }
+
+# Structs::
+
 Struct ←{'{'∾'}'«∾','∾¨𝕩}
+
 i←"i32"⋄f←"f32"⋄color←"{u8,u8,u8,u8}"⋄str←"*i8:c8"⋄u←"u32"
+
 rectangle ← Struct 4⥊<f
 
 v2 ← "{f32,f32}"
@@ -285,7 +290,7 @@ glyphInfo ← Struct i‿i‿i‿i‿image
 # image    # Character image data
 
 # Font, font texture and GlyphInfo array data
-font ← Struct ⟨i,i,i,"*:i32","*:i32","*:i32"⟩
+font ← Struct ⟨i,i,i,texture,"*:i32","*:i32"⟩
 # baseSize           # Base size (default chars height)
 # glyphCount         # Number of glyph characters
 # glyphPadding       # Padding around the glyph characters
@@ -296,15 +301,16 @@ font ← Struct ⟨i,i,i,"*:i32","*:i32","*:i32"⟩
 # Font loading/unloading functions
 getFontDefault    ⇐ font "GetFontDefault"_R@                                                          # Get the default Font
 loadFont          ⇐ font "LoadFont"         _R str           # fileName                               # Load font from file into GPU memory (VRAM)
-loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿i‿i     # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿('*'∾i)‿i     # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
 loadFontFromImage ⇐ font "LoadFontFromImage"_R image‿color‿i # image color(key?) firstChar            # Load font from Image (XNA style)
 unloadFont        ⇐      "UnloadFont"       _R font                                                   # Unload font from GPU memory (VRAM)
 
 # Text drawing
 drawFPS            ⇐ "DrawFPS"           _R i‿i                         # posX posY                                                # Draw current FPS
 drawText           ⇐ "DrawText"          _R str‿i‿i‿i‿color             # text posX posY fontSize color                            # Draw text (using default font)
-drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color       # font text position spacing fontSize tint                 # Draw text using font and additional parameters
-drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color  # font text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation)
+drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color       # font text position spacing fontSize tint                 # Draw text using font and additional parameters     # Warning, does not support unicode
+drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color  # font text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation) # Warning, does not support unicode
+
 drawTextCodepoint  ⇐ "DrawTextCodepoint" _R font‿i‿v2‿f‿color           # font codepoint position fontSize tint                    # Draw one character (codepoint)
 drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿('*'∾i)‿i‿v2‿f‿f‿color # font codepoints count position fontSize spacing tint     # Draw multiple character (codepoint)
 

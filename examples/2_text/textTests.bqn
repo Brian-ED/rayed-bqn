@@ -1,30 +1,26 @@
 ⟨c⇐color,window,draw⟩←r←•Import "../../raylib.bqn"
 
-fontSize←30
+fontSize←50
 
 OnStart←{𝕤
-  •Show r.rayffi.LoadFont "BQN386.ttf"∾@
-  •SHow r.rayffi.GetFontDefault⟨⟩
+  # Sorce of font and chars: https://dzaima.github.io/BQN386/
+  chars ← "⎕⍞∆⍙ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_^⌹⍳⍴!%*+,-<=>?|~⊢⊣⌷≤≥≠∨∧÷×∊↑↓○⌈⌊⊂⊃∩∪⊥⊤⍱⍲⍒⍋⍉⌽⊖⍟⍕⍎⍪≡≢⍷⍸⊆⊇⍧⍮√ϼ…¨⍨⌸⍁⍩ᑈᐵ⌶/\&.@∘⌺⍫⍣⍢⍤⍛⍡⍥⍠0123456789¯∞⍬#⍺⍵⍶⍹∇{}:⋄←→+-×÷⋆√⌊⌈∧∨¬|=≠≤<>≥≡≢⊣⊢⥊∾≍⋈↑↓↕⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔`˜˘¨⁼⌜´˝˙∘⊸⟜○⌾⎉⚇⍟⊘◶⎊π‿∞‿@↩←⇐→,⋄𝕨𝕩𝔽𝔾𝕎𝕏𝕗𝕘𝕊𝕤ℝ𝕣⦃⦄⟨⟩"
+  r.rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, fontSize, chars-@, ≠chars⟩ # fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
 }
 
 PerFrame ← {𝕊font:
   pos ← ⌊r.mouse.GetPos@
-  
-  #---------------------------------------------------------
-  # None of these are currently working for unknown reasons. 
-  # They do not error. All are related to font, 
-  # so an issue with the font struct makes most sense.
-  #---------------------------------------------------------
-  # txt←"hello how are you? this is bqn ⥊⍉𝕨↕ :D"
-  # r.rayFFI.DrawTextCodepoints ⟨font, txt-@, ≠txt, 20‿20, fontSize, 1, c.black⟩
-  # r.rayFFI.DrawTextCodepoint  ⟨font, 'A'-@, 110‿100, 50, c.white⟩
-  # r.rayFFI.DrawTextEx ⟨font, "hi!!"∾@, 20‿20, 10, 20, c.white⟩
-  # r.rayFFI.DrawTextPro ⟨font, "hi!!"∾@, 110‿110, 0‿0, 0, 20, 20, c.white⟩
-  
+  txt←"hello how are you? ⦃⦄ 𝕣 𝕩 this is bqn ⥊ ⍴ ⍺ ⍉↓ :D"
+  r.rayFFI.DrawTextCodepoints ⟨font, txt-@, ≠txt, 100‿50, fontSize, 1, c.black⟩
+  r.rayFFI.DrawTextCodepoint  ⟨font, '⍴'-@, 100‿100, fontSize, c.white⟩
+
+  ## r.rayFFI.DrawTextEx ⟨font, "⍴⍳"∾@, 100‿150, fontSize, 10, c.white⟩ 
+  ## r.rayFFI.DrawTextPro ⟨font, "⍴⍳"∾@, 100‿200, 0‿0, 0, fontSize, 1, c.white⟩
+
   fps←" FPS"∾˜•Repr window.fps.Get@
-  fps c.black draw._Text_ fontSize 20‿20
+  fps c.black draw._Text_ (⌈fontSize÷4) 20‿20
   "Helloo!!!" c.white draw._Text_ fontSize pos
   𝕩
 } draw._withCanvas_ c.green
 
-PerFrame•_While_(¬window.ShouldClose)∘OnStart window._openAs_ "test" 1
+PerFrame•_While_(¬window.ShouldClose)∘OnStart window._openAs "test"
