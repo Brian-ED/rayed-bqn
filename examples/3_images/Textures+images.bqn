@@ -6,4 +6,4 @@ PerFrame ← {
 } d._withCanvas_ c.black
 
 Game ← r.texture.Load∘"logo.png" PerFrame•_While_(¬w.ShouldClose) 0˙
-Game w._openAs_ "test" 1
+Game w._openAs "test"

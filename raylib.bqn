@@ -63,11 +63,11 @@ window ⇐ {
     (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢scale)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
     rayFFI.InitWindow 0‿0∾<𝕩∾@
-    𝕩⊣isOpen↩1
+    isOpen↩1
     rayFFI.SetWindowPosition 0‿42 # 42 here is the window header size (might be windows only)
     rayFFI.SetWindowSize monitor.Size∘@⊸× scale
     fps.Set monitor.RefreshRate@
-    rayFFI.SetWindowState 4
+    𝕩⊣rayFFI.SetWindowState 4
   }
   GetSize ←{𝕤
     NeedsWindow@
@@ -85,6 +85,26 @@ window ⇐ {
   }
   # TODO: Needs to test input for image
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩}
+  
+  # NOTE: Every bit registers one state (use it with bit masks)
+  # By default all flags are set to 0
+  configFlags ⇐{⟨
+    fullscreen       # Set to run program in fullscreen
+    resizable        # Set to allow resizable window
+    undecorated      # Set to disable window decoration (frame and buttons)
+    transparent      # Set to allow transparent framebuffer
+    msaa_4x          # Set to try enabling MSAA 4X
+    vSYNC            # Set to try enabling V-Sync on GPU
+    hidden           # Set to hide window
+    alwaysRun        # Set to allow windows running while minimized
+    minimized        # Set to minimize window (iconify)
+    maximized        # Set to maximize window (expanded to monitor)
+    unfocused        # Set to window non focused
+    awaysOnTop       # Set to window always on top
+    highDPI          # Set to support HighDPI
+    mousePassthrough # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+    interlaced       # Set to try enabling interlaced video format (for V3D)
+  ⟩⇐2⋆1⊸+⌾(⊑⌽)1+↕15}
 }
 
 draw ⇐ {
@@ -135,16 +155,18 @@ draw ⇐ {
   }
 }
 font ⇐ {
-  Load ⇐ {charactersYouCanUse 𝕊 fontFilePath:
-    NeedsWindow@
-    r.rayFFI.LoadFontEx ⟨fontFilePath∾@, 40, 𝕨-@, ≠𝕨⟩ # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
-    ;𝕊𝕩:
-    r.rayFFI.LoadFontEx ⟨fontFilePath∾@, 40, ""∾@, 0⟩ # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
+  Load ⇐ {
+    𝕊fontFilePath:
+      NeedsWindow@
+      rayFFI.LoadFontEx⟨𝕩∾@, 40, ≍@, 0⟩; # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
+    charactersYouCanUse 𝕊 fontFilePath:
+      NeedsWindow@
+      rayFFI.LoadFontEx ⟨𝕩∾@, 40, 𝕨-@, ≠𝕨⟩
   }
-  
-    # Sorce of font and chars: https://dzaima.github.io/BQN386/
-  chars ← "⎕⍞∆⍙ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_^⌹⍳⍴!%*+,-<=>?|~⊢⊣⌷≤≥≠∨∧÷×∊↑↓○⌈⌊⊂⊃∩∪⊥⊤⍱⍲⍒⍋⍉⌽⊖⍟⍕⍎⍪≡≢⍷⍸⊆⊇⍧⍮√ϼ…¨⍨⌸⍁⍩ᑈᐵ⌶/\&.@∘⌺⍫⍣⍢⍤⍛⍡⍥⍠0123456789¯∞⍬#⍺⍵⍶⍹∇{}:⋄←→+-×÷⋆√⌊⌈∧∨¬|=≠≤<>≥≡≢⊣⊢⥊∾≍⋈↑↓↕⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔`˜˘¨⁼⌜´˝˙∘⊸⟜○⌾⎉⚇⍟⊘◶⎊π‿∞‿@↩←⇐→,⋄𝕨𝕩𝔽𝔾𝕎𝕏𝕗𝕘𝕊𝕤ℝ𝕣⦃⦄⟨⟩"
-  r.rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, fontSize, chars-@, ≠chars⟩ # fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+  LoadBQN ← {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
+    chars ← "⎕⍞∆⍙ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_^⌹⍳⍴!%*+,-<=>?|~⊢⊣⌷≤≥≠∨∧÷×∊↑↓○⌈⌊⊂⊃∩∪⊥⊤⍱⍲⍒⍋⍉⌽⊖⍟⍕⍎⍪≡≢⍷⍸⊆⊇⍧⍮√ϼ…¨⍨⌸⍁⍩ᑈᐵ⌶/\&.@∘⌺⍫⍣⍢⍤⍛⍡⍥⍠0123456789¯∞⍬#⍺⍵⍶⍹∇{}:⋄←→+-×÷⋆√⌊⌈∧∨¬|=≠≤<>≥≡≢⊣⊢⥊∾≍⋈↑↓↕⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔`˜˘¨⁼⌜´˝˙∘⊸⟜○⌾⎉⚇⍟⊘◶⎊π‿∞‿@↩←⇐→,⋄𝕨𝕩𝔽𝔾𝕎𝕏𝕗𝕘𝕊𝕤ℝ𝕣⦃⦄⟨⟩"
+    rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, 𝕩, chars-@, ≠chars⟩
+  }
 }
 
 color ⇐ {
@@ -312,3 +334,5 @@ key ⇐ {
   kVOLUME_UP     ⇐ 24       # Android volume up button
   kVOLUME_DOWN   ⇐ 25       # Android volume down button
 }
+
+
