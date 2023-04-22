@@ -1,2 +1,4 @@
 # raylib sorce files, that need to be downloaded seperately
-raylibSorce
+raylibSource
+
+examples/6_shader
