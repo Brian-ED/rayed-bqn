@@ -1,26 +1,33 @@
 
 # making FFI nicer to use
-_R ← {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
+_R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
   a←(⋈'>'⊸∾)⍟((0≠≠)∧1=≡)⟨⟩⍟(@⊸≡)𝕩
-  "raylibSorce/lib/raylib.dll"•FFI outType‿𝕗∾a
+  "raylibSource/lib/raylib.dll"•FFI outType‿𝕗∾a
 }
 
-# Structs::
+#region Structs
 
-Struct ←{'{'∾'}'«∾','∾¨𝕩}
+Struct ⇐{'{'∾'}'«∾','∾¨𝕩}
 
-i←"i32"⋄f←"f32"⋄color←"{u8,u8,u8,u8}"⋄str←"*i8:c8"⋄u←"u32"
+i     ⇐ "i32"
+f     ⇐ "f32"
+u     ⇐ "u32"
+c     ⇐ "u8"
+color ⇐ "{u8,u8,u8,u8}"
+str   ⇐ "*i8:c8"
+void  ⇐ "*:i32"
 
-rectangle ← Struct 4⥊<f
+rectangle ⇐ Struct 4⥊<f
 
-v2 ← "{f32,f32}"
-v3 ← "{f32,f32,f32}"
+v2 ⇐ "{f32,f32}"
+v3 ⇐ "{f32,f32,f32}"
+v4 ⇐ "{f32,f32,f32,f32}"
 
 # *v2 means ⟨1‿2, 3‿4, 5‿6⟩ for example
-points←'*'∾v2
+points ⇐ '*'∾v2
 
 # Texture, tex data stored in GPU memory (VRAM)
-texture ← Struct u‿i‿i‿i‿i
+texture ⇐ Struct u‿i‿i‿i‿i
 # id      # OpenGL texture id
 # width   # Texture base width
 # height  # Texture base height
@@ -28,39 +35,39 @@ texture ← Struct u‿i‿i‿i‿i
 # format  # Data format (PixelFormat type)
 
 # Camera2D, defines position/orientation in 2d space
-camera2D ← Struct v2‿v2‿f‿f
+camera2D ⇐ Struct v2‿v2‿f‿f
 # offset   # Camera offset (displacement from target)
 # target   # Camera target (rotation and zoom origin)
 # rotation # Camera rotation in degrees
 # zoom     # Camera zoom (scaling), should be 1.0f by default
 
 # Camera, defines position/orientation in 3d space
-camera3D ← Struct v3‿v3‿v3‿f‿i
+camera3D ⇐ Struct v3‿v3‿v3‿f‿i
 # position   # Camera position
 # target     # Camera target it looks-at
 # up         # Camera up vector (rotation over its axis)
 # fovy       # Camera field-of-view apperture in Y (degrees) in perspective, used as near plane width in orthographic
 # projection # Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
 
-shader ←"{u32,*i32}"
+shader ⇐"{u32,*:i8}"
 # Shader program id
 # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 
 # Matrix, 4x4 components, column major, OpenGL style, right handed
-matrix ← Struct 16⥊<f
+matrix ⇐ Struct 16⥊<f
 # m0 m4 m8  m12
 # m1 m5 m9  m13
 # m2 m6 m10 m14
 # m3 m7 m11 m15
 
 # RenderTexture, fbo for texture rendering
-renderTexture ← Struct"u32"<⊸∾2⥊<texture
+renderTexture ⇐ Struct"u32"<⊸∾2⥊<texture
 # OpenGL framebuffer object id
 # Color buffer attachment texture
 # Depth buffer attachment texture
 
 # VrStereoConfig, VR stereo rendering configuration for simulator
-vrStereoConfig ← Struct Struct∘⋈¨(2⥊<matrix)∾6⥊<f
+vrStereoConfig ⇐ Struct Struct∘⋈¨(2⥊<matrix)∾6⥊<f
 # projection[2]        # VR projection matrices (per eye)
 # viewOffset[2]        # VR view offset matrices (per eye)
 # leftLensCenter[2]    # VR left lens center
@@ -71,59 +78,150 @@ vrStereoConfig ← Struct Struct∘⋈¨(2⥊<matrix)∾6⥊<f
 # scaleIn[2]           # VR distortion scale in
 
 # Image, pixel data stored in CPU memory (RAM)
-image ← Struct "*:i32"<⊸∾4⥊<i
+image ⇐ Struct void<⊸∾4⥊<i
 # *data   # Image raw data
 # width   # Image base width
 # height  # Image base height
 # mipmaps # Mipmap levels, 1 by default
 # format  # Data format (PixelFormat type)
 
+# GlyphInfo, font characters glyphs info
+glyphInfo ⇐ Struct i‿i‿i‿i‿image
+# value    # Character value (Unicode)
+# offsetX  # Character offset X when drawing
+# offsetY  # Character offset Y when drawing
+# advanceX # Character advance position X
+# image    # Character image data
+
+# Font, font texture and GlyphInfo array data
+font ⇐ Struct ⟨i,i,i,texture,void,void⟩
+# baseSize           # Base size (default chars height)
+# glyphCount         # Number of glyph characters
+# glyphPadding       # Padding around the glyph characters
+# Texture atlas containing the glyphs
+# recs        # Rectangles in texture for the glyphs
+# glyphs      # Glyphs info data
+
+# MaterialMap
+materialMap ⇐ Struct ⟨
+    texture # map texture
+    color   # map color
+    f       # map value
+⟩
+
+# Material, includes shader and maps
+material ⇐ Struct ⟨
+    shader                      # Material shader
+    '*'∾materialMap             # Material maps array (MAX_MATERIAL_MAPS)
+    Struct 4⥊<f     # params[4] # Material generic parameters (if required)
+⟩
+
+
+# Mesh, vertex data and vao/vbo
+mesh ← Struct ⟨
+  "i32" # int vertexCount        # Number of vertices stored in arrays
+  "i32" # int triangleCount      # Number of triangles stored (indexed or not)
+
+  # Vertex attributes data
+  "*:i8" # float *vertices        # Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
+  "*:i8" # float *texcoords       # Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
+  "*:i8" # float *texcoords2      # Vertex texture second coordinates (UV - 2 components per vertex) (shader-location = 5)
+  "*:i8" # float *normals         # Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)
+  "*:i8" # float *tangents        # Vertex tangents (XYZW - 4 components per vertex) (shader-location = 4)
+  "*:i8" # unsigned char *colors      # Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
+  "*:i8" # unsigned short *indices    # Vertex indices (in case vertex data comes indexed)
+
+  # Animation vertex data
+  "*:i8" # float *animVertices    # Animated vertex positions (after bones transformations)
+  "*:i8" # float *animNormals     # Animated normals (after bones transformations)
+  "*:i8"# unsigned char *boneIds # Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning)
+  "*:i8" # float *boneWeights     # Vertex bone weight, up to 4 bones influence by vertex (skinning)
+
+  # OpenGL identifiers
+  "u32"     # unsigned int vaoId     # OpenGL Vertex Array Object id
+  "*:i8" # unsigned int *vboId    # OpenGL Vertex Buffer Objects id (default vertex data)
+⟩
+
+# Bone, skeletal animation bone
+boneInfo ⇐ Struct ⟨
+    Struct 32⥊<c # name[32] # Bone name
+    i            # parent   # Bone parent
+⟩
+
+# Transform, vertex transformation data
+transform ⇐ Struct ⟨
+    v3         # translation # Translation
+    v4         # quaternion  # rotation
+    v3         # scale       # Scale
+⟩
+
+# Model, meshes, materials and animation data
+model ⇐ Struct ⟨
+  matrix       # Matrix transform;       # Local transform matrix
+  i            # int meshCount;          # Number of meshes
+  i            # int materialCount;      # Number of materials
+  "*:i8"       # Mesh *meshes;           # Meshes array
+  "*:i8"       # Material *materials;    # Materials array
+  i            # int *meshMaterial;      # Mesh material number
+  # Animation data
+  i            # int boneCount;          # Number of bones
+  "*:i8"       # BoneInfo *bones;        # Bones information (skeleton)
+  transform    # Transform *bindPose;    # Bones base transformation (pose)
+⟩
+
+boundingBox ← Struct v3‿v3 # min corner to max corner
+
+
+#endregion Structs
+
+#region FFIFunctions
+
 # Window-related functions
-initWindow               ⇐        "InitWindow"              _R i‿i‿str # width height title # Initialize window and OpenGL context
-windowShouldClose        ⇐ i      "WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
-closeWindow              ⇐        "CloseWindow"             _R@                             # Close window and unload OpenGL context
-isWindowReady            ⇐ i      "IsWindowReady"           _R@                             # Check if window has been initialized successfully
-isWindowFullscreen       ⇐ i      "IsWindowFullscreen"      _R@                             # Check if window is currently fullscreen
-isWindowHidden           ⇐ i      "IsWindowHidden"          _R@                             # Check if window is currently hidden (only PLATFORM_DESKTOP)
-isWindowMinimized        ⇐ i      "IsWindowMinimized"       _R@                             # Check if window is currently minimized (only PLATFORM_DESKTOP)
-isWindowMaximized        ⇐ i      "IsWindowMaximized"       _R@                             # Check if window is currently maximized (only PLATFORM_DESKTOP)
-isWindowFocused          ⇐ i      "IsWindowFocused"         _R@                             # Check if window is currently focused (only PLATFORM_DESKTOP)
-isWindowResized          ⇐ i      "IsWindowResized"         _R@                             # Check if window has been resized last frame
-isWindowState            ⇐ i      "IsWindowState"           _R u # flag                     # Check if one specific window flag is enabled
-setWindowState           ⇐        "SetWindowState"          _R u # flags                    # Set window configuration state using flags (only PLATFORM_DESKTOP)
-clearWindowState         ⇐        "ClearWindowState"        _R u # flags                    # Clear window configuration state flags
-toggleFullscreen         ⇐        "ToggleFullscreen"        _R@                             # Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)
-maximizeWindow           ⇐        "MaximizeWindow"          _R@                             # Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
-minimizeWindow           ⇐        "MinimizeWindow"          _R@                             # Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
-restoreWindow            ⇐        "RestoreWindow"           _R@                             # Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
-setWindowIcon            ⇐        "SetWindowIcon"           _R image                        # Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
-setWindowIcons           ⇐        "SetWindowIcons"          _R('*'∾image)‿i # images count  # Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
-setWindowTitle           ⇐        "SetWindowTitle"          _R str # title                  # Set title for window (only PLATFORM_DESKTOP)
-setWindowPosition        ⇐        "SetWindowPosition"       _R i‿i # x y                    # Set window position on screen (only PLATFORM_DESKTOP)
-setWindowMonitor         ⇐        "SetWindowMonitor"        _R i   # monitor                # Set monitor for the current window (fullscreen mode)
-setWindowMinSize         ⇐        "SetWindowMinSize"        _R i‿i # width height           # Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
-setWindowSize            ⇐        "SetWindowSize"           _R i‿i # width height           # Set window dimensions
-setWindowOpacity         ⇐        "SetWindowOpacity"        _R f # opacity                  # Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
-getWindowHandle          ⇐"*:i32" "GetWindowHandle"         _R@                             # Get native window handle
-getScreenWidth           ⇐ i      "GetScreenWidth"          _R@                             # Get current screen width
-getScreenHeight          ⇐ i      "GetScreenHeight"         _R@                             # Get current screen height
-getRenderWidth           ⇐ i      "GetRenderWidth"          _R@                             # Get current render width (it considers HiDPI)
-getRenderHeight          ⇐ i      "GetRenderHeight"         _R@                             # Get current render height (it considers HiDPI)
-getMonitorCount          ⇐ i      "GetMonitorCount"         _R@                             # Get number of connected monitors
-getCurrentMonitor        ⇐ i      "GetCurrentMonitor"       _R@                             # Get current connected monitor
-getMonitorPosition       ⇐ v2     "GetMonitorPosition"      _R i # monitor                  # Get specified monitor position
-getMonitorWidth          ⇐ i      "GetMonitorWidth"         _R i # monitor                  # Get specified monitor width (current video mode used by monitor)
-getMonitorHeight         ⇐ i      "GetMonitorHeight"        _R i # monitor                  # Get specified monitor height (current video mode used by monitor)
-getMonitorPhysicalWidth  ⇐ i      "GetMonitorPhysicalWidth" _R i # monitor                  # Get specified monitor physical width in millimetres
-getMonitorPhysicalHeight ⇐ i      "GetMonitorPhysicalHeight"_R i # monitor                  # Get specified monitor physical height in millimetres
-getMonitorRefreshRate    ⇐ i      "GetMonitorRefreshRate"   _R i # monitor                  # Get specified monitor refresh rate
-getWindowPosition        ⇐ v2     "GetWindowPosition"       _R@                             # Get window position XY on monitor
-getWindowScaleDPI        ⇐ v2     "GetWindowScaleDPI"       _R@                             # Get window scale DPI factor
-getMonitorName           ⇐"*:i32" "GetMonitorName"          _R i # utf-8 _R monitor         # Get the human-readable, UTF-8 encoded name of the primary monitor
-setClipboardText         ⇐        "SetClipboardText"        _R str # text                   # Set clipboard text content
-getClipboardText         ⇐"*:i32" "GetClipboardText"        _R@ # utf-8                     # Get clipboard text content
-enableEventWaiting       ⇐        "EnableEventWaiting"      _R@                             # Enable waiting for events on EndDrawing(), no automatic event polling
-disableEventWaiting      ⇐        "DisableEventWaiting"     _R@                             # Disable waiting for events on EndDrawing(), automatic events polling
+initWindow               ⇐     "InitWindow"              _R i‿i‿str # width height title # Initialize window and OpenGL context
+windowShouldClose        ⇐ i   "WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
+closeWindow              ⇐     "CloseWindow"             _R@                             # Close window and unload OpenGL context
+isWindowReady            ⇐ i   "IsWindowReady"           _R@                             # Check if window has been initialized successfully
+isWindowFullscreen       ⇐ i   "IsWindowFullscreen"      _R@                             # Check if window is currently fullscreen
+isWindowHidden           ⇐ i   "IsWindowHidden"          _R@                             # Check if window is currently hidden (only PLATFORM_DESKTOP)
+isWindowMinimized        ⇐ i   "IsWindowMinimized"       _R@                             # Check if window is currently minimized (only PLATFORM_DESKTOP)
+isWindowMaximized        ⇐ i   "IsWindowMaximized"       _R@                             # Check if window is currently maximized (only PLATFORM_DESKTOP)
+isWindowFocused          ⇐ i   "IsWindowFocused"         _R@                             # Check if window is currently focused (only PLATFORM_DESKTOP)
+isWindowResized          ⇐ i   "IsWindowResized"         _R@                             # Check if window has been resized last frame
+isWindowState            ⇐ i   "IsWindowState"           _R u # flag                     # Check if one specific window flag is enabled
+setWindowState           ⇐     "SetWindowState"          _R u # flags                    # Set window configuration state using flags (only PLATFORM_DESKTOP)
+clearWindowState         ⇐     "ClearWindowState"        _R u # flags                    # Clear window configuration state flags
+toggleFullscreen         ⇐     "ToggleFullscreen"        _R@                             # Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)
+maximizeWindow           ⇐     "MaximizeWindow"          _R@                             # Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
+minimizeWindow           ⇐     "MinimizeWindow"          _R@                             # Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
+restoreWindow            ⇐     "RestoreWindow"           _R@                             # Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
+setWindowIcon            ⇐     "SetWindowIcon"           _R image                        # Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
+setWindowIcons           ⇐     "SetWindowIcons"          _R('*'∾image)‿i # images count  # Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
+setWindowTitle           ⇐     "SetWindowTitle"          _R str # title                  # Set title for window (only PLATFORM_DESKTOP)
+setWindowPosition        ⇐     "SetWindowPosition"       _R i‿i # x y                    # Set window position on screen (only PLATFORM_DESKTOP)
+setWindowMonitor         ⇐     "SetWindowMonitor"        _R i   # monitor                # Set monitor for the current window (fullscreen mode)
+setWindowMinSize         ⇐     "SetWindowMinSize"        _R i‿i # width height           # Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
+setWindowSize            ⇐     "SetWindowSize"           _R i‿i # width height           # Set window dimensions
+setWindowOpacity         ⇐     "SetWindowOpacity"        _R f # opacity                  # Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
+getWindowHandle          ⇐ void"GetWindowHandle"         _R@                             # Get native window handle
+getScreenWidth           ⇐ i   "GetScreenWidth"          _R@                             # Get current screen width
+getScreenHeight          ⇐ i   "GetScreenHeight"         _R@                             # Get current screen height
+getRenderWidth           ⇐ i   "GetRenderWidth"          _R@                             # Get current render width (it considers HiDPI)
+getRenderHeight          ⇐ i   "GetRenderHeight"         _R@                             # Get current render height (it considers HiDPI)
+getMonitorCount          ⇐ i   "GetMonitorCount"         _R@                             # Get number of connected monitors
+getCurrentMonitor        ⇐ i   "GetCurrentMonitor"       _R@                             # Get current connected monitor
+getMonitorPosition       ⇐ v2  "GetMonitorPosition"      _R i # monitor                  # Get specified monitor position
+getMonitorWidth          ⇐ i   "GetMonitorWidth"         _R i # monitor                  # Get specified monitor width (current video mode used by monitor)
+getMonitorHeight         ⇐ i   "GetMonitorHeight"        _R i # monitor                  # Get specified monitor height (current video mode used by monitor)
+getMonitorPhysicalWidth  ⇐ i   "GetMonitorPhysicalWidth" _R i # monitor                  # Get specified monitor physical width in millimetres
+getMonitorPhysicalHeight ⇐ i   "GetMonitorPhysicalHeight"_R i # monitor                  # Get specified monitor physical height in millimetres
+getMonitorRefreshRate    ⇐ i   "GetMonitorRefreshRate"   _R i # monitor                  # Get specified monitor refresh rate
+getWindowPosition        ⇐ v2  "GetWindowPosition"       _R@                             # Get window position XY on monitor
+getWindowScaleDPI        ⇐ v2  "GetWindowScaleDPI"       _R@                             # Get window scale DPI factor
+getMonitorName           ⇐ void"GetMonitorName"          _R i # utf-8 _R monitor         # Get the human-readable, UTF-8 encoded name of the primary monitor
+setClipboardText         ⇐     "SetClipboardText"        _R str # text                   # Set clipboard text content
+getClipboardText         ⇐ void"GetClipboardText"        _R@ # utf-8                     # Get clipboard text content
+enableEventWaiting       ⇐     "EnableEventWaiting"      _R@                             # Enable waiting for events on EndDrawing(), no automatic event polling
+disableEventWaiting      ⇐     "DisableEventWaiting"     _R@                             # Disable waiting for events on EndDrawing(), automatic events polling
 
 # Timing-related functions
 setTargetFPS ⇐       "SetTargetFPS" _R i # fps # Set target FPS (maximum)
@@ -172,12 +270,12 @@ drawTexturePro    ⇐ "DrawTexturePro"   _R texture‿rectangle ‿rectangle‿v
 # NOTE: These functions require GPU access
 loadTexture          ⇐ texture       "LoadTexture"         _R str           # fileName                          # Load texture from file into GPU memory (VRAM)
 loadTextureFromImage ⇐ texture       "LoadTextureFromImage"_R image                                             # Load texture from image data
-loadTextureCubemap   ⇐ texture       "LoadTextureCubemap"  _R image‿i       # textureCubemap ""_R image layout # Load cubemap from image, multiple image cubemap layouts supported
+loadTextureCubemap   ⇐ texture       "LoadTextureCubemap"  _R image‿i       # textureCubemap ""_R image layout  # Load cubemap from image, multiple image cubemap layouts supported
 loadRenderTexture    ⇐ renderTexture "LoadRenderTexture"   _R i‿i           # width height                      # Load texture for rendering (framebuffer)
 unloadTexture        ⇐               "UnloadTexture"       _R texture                                           # Unload texture from GPU memory (VRAM)
 unloadRenderTexture  ⇐               "UnloadRenderTexture" _R renderTexture # target                            # Unload render texture from GPU memory (VRAM)
-updateTexture        ⇐               "UpdateTexture"       _R texture‿"*:i32"                              # Update GPU texture with new data
-updateTextureRec     ⇐               "UpdateTextureRec"    _R texture‿rectangle‿"*:i32"                    # Update GPU texture rectangle with new data
+updateTexture        ⇐               "UpdateTexture"       _R texture‿void                                      # Update GPU texture with new data
+updateTextureRec     ⇐               "UpdateTextureRec"    _R texture‿rectangle‿void                            # Update GPU texture rectangle with new data
 
 
 # Drawing-related functions
@@ -199,6 +297,18 @@ endScissorMode    ⇐ "EndScissorMode"   _R@                                  # 
 beginVrStereoMode ⇐ "BeginVrStereoMode"_R vrStereoConfig # config           # Begin stereo rendering (requires VR simulator)
 endVrStereoMode   ⇐ "EndVrStereoMode"  _R@                                  # End stereo rendering (requires VR simulator)
 
+# Shader management functions
+# NOTE: Shader functionality is not available on OpenGL 1.1
+loadShader              ⇐ shader"LoadShader"             _R str‿str           # vsFileName fsFileName # Load shader from files and bind default locations
+loadShaderFromMemory    ⇐ shader"LoadShaderFromMemory"   _R str‿str           # vsCode fsCode                           # Load shader from code strings and bind default locations
+isShaderReady           ⇐ i     "IsShaderReady"          _R shader                                                      # Check if a shader is ready
+getShaderLocation       ⇐ i     "GetShaderLocation"      _R shader‿str        # shader uniformName                      # Get shader uniform location
+getShaderLocationAttrib ⇐ i     "GetShaderLocationAttrib"_R shader‿str        # shader attribName                       # Get shader attribute location
+setShaderValue          ⇐       "SetShaderValue"         _R shader‿i‿void‿i   # shader locIndex value uniformType       # Set shader uniform value
+setShaderValueV         ⇐       "SetShaderValueV"        _R shader‿i‿void‿i‿i # shader locIndex value uniformType count # Set shader uniform value vector
+setShaderValueMatrix    ⇐       "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                     # Set shader uniform value (matrix 4x4)
+setShaderValueTexture   ⇐       "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                 # Set shader uniform value for texture (sampler2d)
+unloadShader            ⇐       "UnloadShader"           _R shader                                                      # Unload shader from GPU memory (VRAM)
 
 # mouse
 isMouseButtonPressed  ⇐ i "IsMouseButtonPressed" _R i   # button          # Check if a mouse button has been pressed once
@@ -215,30 +325,6 @@ setMouseScale         ⇐   "SetMouseScale"        _R f‿f # scaleX scaleY   # 
 getMouseWheelMove     ⇐ f "GetMouseWheelMove"    _R@                      # Get mouse wheel movement for X or Y, whichever is larger
 getMouseWheelMoveV    ⇐ v2"GetMouseWheelMoveV"   _R@                      # Get mouse wheel movement for both X and Y
 setMouseCursor        ⇐   "SetMouseCursor"       _R i   # cursor          # Set mouse cursor
-
-
-# System/Window config flags
-# NOTE: Every bit registers one state (use it with bit masks)
-# By default all flags are set to 0
-gonfigFlags ⇐{
-  ⟨
-    fullscreen       # Set to run program in fullscreen
-    resizable        # Set to allow resizable window
-    undecorated      # Set to disable window decoration (frame and buttons)
-    transparent      # Set to allow transparent framebuffer
-    msaa_4x          # Set to try enabling MSAA 4X
-    vSYNC            # Set to try enabling V-Sync on GPU
-    hidden           # Set to hide window
-    alwaysRun        # Set to allow windows running while minimized
-    minimized        # Set to minimize window (iconify)
-    maximized        # Set to maximize window (expanded to monitor)
-    unfocused        # Set to window non focused
-    awaysOnTop       # Set to window always on top
-    highDPI          # Set to support HighDPI
-    mousePassthrough # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-    interlaced       # Set to try enabling interlaced video format (for V3D)
-  ⟩⇐2⋆1⊸+⌾(⊑⌽)1+↕15
-}
 
 # Basic shapes drawing functions
 drawPixel                 ⇐ "DrawPixel"                 _R i‿i‿color             # x y                                                         # Draw a pixel
@@ -279,25 +365,6 @@ drawPoly                  ⇐ "DrawPoly"                  _R v2‿i‿f‿f‿co
 drawPolyLines             ⇐ "DrawPolyLines"             _R v2‿i‿f‿f‿color        # center sides radius rotation                                # Draw a polygon outline of n sides
 drawPolyLinesEx           ⇐ "DrawPolyLinesEx"           _R v2‿i‿f‿f‿f‿color      # center sides radius rotation lineThick                      # Draw a polygon outline of n sides with extended parameters
 
-
-
-# GlyphInfo, font characters glyphs info
-glyphInfo ← Struct i‿i‿i‿i‿image
-# value    # Character value (Unicode)
-# offsetX  # Character offset X when drawing
-# offsetY  # Character offset Y when drawing
-# advanceX # Character advance position X
-# image    # Character image data
-
-# Font, font texture and GlyphInfo array data
-font ← Struct ⟨i,i,i,texture,"*:i32","*:i32"⟩
-# baseSize           # Base size (default chars height)
-# glyphCount         # Number of glyph characters
-# glyphPadding       # Padding around the glyph characters
-# Texture atlas containing the glyphs
-# recs        # Rectangles in texture for the glyphs
-# glyphs      # Glyphs info data
-
 # Font loading/unloading functions
 getFontDefault    ⇐ font "GetFontDefault"_R@                                                          # Get the default Font
 loadFont          ⇐ font "LoadFont"         _R str           # fileName                               # Load font from file into GPU memory (VRAM)
@@ -320,3 +387,56 @@ measureTextEx    ⇐ v2       "MeasureTextEx"   _R font‿str‿f‿f # font tex
 getGlyphIndex    ⇐ i        "GetGlyphIndex"   _R font‿i       # font codepoint             # Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
 getGlyphInfo     ⇐ glyphInfo"GetGlyphInfo"    _R font‿i       # font codepoint             # Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
 getGlyphAtlasRec ⇐ rectangle"GetGlyphAtlasRec"_R font‿i       # font codepoint             # Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
+
+
+# Model management functions
+loadModel           ⇐ model       "LoadModel"          _R str  # fileName # Load model from files (meshes and materials)
+loadModelFromMesh   ⇐ model       "LoadModelFromMesh"  _R mesh            # Load model from generated mesh (default material)
+isModelReady        ⇐ i           "IsModelReady"       _R model           # Check if a model is ready
+unloadModel         ⇐             "UnloadModel"        _R model           # Unload model (including meshes) from memory (RAM and/or VRAM)
+getModelBoundingBox ⇐ boundingBox "GetModelBoundingBox"_R model           # Compute model bounding box limits (considers all meshes)
+
+
+# not done catagories
+colorAlpha ⇐ color "ColorAlpha"_R color‿f # color alpha # Get color with alpha applied, alpha goes from 0.0f to 1.0f
+
+drawGrid ⇐ "DrawGrid"_R i‿f # slices spacing # Draw a grid (centered at (0, 0, 0))
+
+
+
+
+# Misc. functions
+# RLAPI int GetRandomValue(int min, int max);                       # Get a random value between min and max (both included)
+# RLAPI void SetRandomSeed(unsigned int seed);                      # Set the seed for the random number generator
+# RLAPI void TakeScreenshot(const char *fileName);                  # Takes a screenshot of current screen (filename extension defines format)
+setConfigFlags ⇐ "SetConfigFlags"_R u # flags                    # Setup init configuration flags (view FLAGS)
+# 
+# RLAPI void TraceLog(int logLevel, const char *text, ...);         # Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...)
+# RLAPI void SetTraceLogLevel(int logLevel);                        # Set the current threshold (minimum) log level
+# RLAPI void *MemAlloc(unsigned int size);                          # Internal memory allocator
+# RLAPI void *MemRealloc(void *ptr, unsigned int size);             # Internal memory reallocator
+# RLAPI void MemFree(void *ptr);                                    # Internal memory free
+# 
+# RLAPI void OpenURL(const char *url);                              # Open URL with default system browser (if available)
+
+
+# Mesh generation functions
+# RLAPI Mesh GenMeshPoly(int sides, float radius);                                            # Generate polygonal mesh
+genMeshPlane ⇐ mesh "GenMeshPlane"_R f‿f‿i‿i # width length resX resZ                             # Generate plane mesh (with subdivisions)
+genMeshCube  ⇐ mesh "GenMeshCube" _R f‿f‿f   # width height length                                # Generate cuboid mesh
+# RLAPI Mesh GenMeshSphere(float radius, int rings, int slices);                              # Generate sphere mesh (standard sphere)
+# RLAPI Mesh GenMeshHemiSphere(float radius, int rings, int slices);                          # Generate half-sphere mesh (no bottom cap)
+# RLAPI Mesh GenMeshCylinder(float radius, float height, int slices);                         # Generate cylinder mesh
+# RLAPI Mesh GenMeshCone(float radius, float height, int slices);                             # Generate cone/pyramid mesh
+# RLAPI Mesh GenMeshTorus(float radius, float size, int radSeg, int sides);                   # Generate torus mesh
+# RLAPI Mesh GenMeshKnot(float radius, float size, int radSeg, int sides);                    # Generate trefoil knot mesh
+# RLAPI Mesh GenMeshHeightmap(Image heightmap, Vector3 size);                                 # Generate heightmap mesh from image data
+# RLAPI Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);                               # Generate cubes-based map mesh from image data
+
+
+# Compression/Encoding functionality
+compressData ⇐   "*:c8" "CompressData"  _R "*u8:c8"‿i‿"&i32" # data dataSize compDataSize # Compress data (DEFLATE algorithm), memory must be MemFree()
+decompressData ⇐ "*:c8" "DecompressData"_R "*u8:c8"‿i‿"&i32" # compData compDataSize dataSize  # Decompress data (DEFLATE algorithm), memory must be MemFree()
+
+# char *EncodeDataBase64(const unsigned char *data, int dataSize, int *outputSize);               # Encode data to Base64 string, memory must be MemFree()
+# unsigned char *DecodeDataBase64(const unsigned char *data, int *outputSize);                    # Decode Base64 string data, memory must be MemFree()
