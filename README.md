@@ -1,5 +1,5 @@
 # Rayed BQN
-Rayed bqn is a library made to write windowed applications using the [BQN programming language](https://mlochbaum.github.io/BQN/).
+Rayed BQN is a library made to write windowed applications using the [BQN programming language](https://mlochbaum.github.io/BQN/).
 It inter-ops with [Raylib](https://github.com/raysan5/raylib), but changes a lot of the functions to be more in-lined with BQN's syntax.
 
 Breaking changes to any feature in raylib.bqn should be expected for now, as this library is very young and experimental. 
