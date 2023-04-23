@@ -26,8 +26,8 @@ texture ⇐ {
   _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄r←𝔽˜x←Load𝕩⋄ Unload x ⋄ r}
 }
 mouse ⇐ {
-  GetPos     ⇐rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
-  WheelMoved ⇐rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
+  GetPos     ⇐ rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
+  WheelMoved ⇐ rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
 }
 monitor ⇐ {
   ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
@@ -174,9 +174,9 @@ color ⇐ {
     From ⇐ 16⊸×⊸+˜´∘⌽˘·(∾"0A"+⟜↕¨10‿6)⊸⊐˘∘‿2⥊⊢
   }
   exact⇐{
-    white⇐4⥊255 ⋄ black⇐¯4↑255
+    white ⇐ 4⥊255 ⋄ black ⇐ ¯4↑255
     [red ‿green  ‿blue
-     cyan‿magenta‿yellow]⇐255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
+     cyan‿magenta‿yellow] ⇐ 255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
   
   }
   lightgreen ⇐ 144‿238‿144‿255
