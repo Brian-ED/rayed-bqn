@@ -3,6 +3,10 @@
 # if color is an argument, it's always 𝕗.
 # if function has no intended output, output 𝕩, it makes chaining look nicer.
 
+⟨draw, image, texture, monitor, window, mouse
+ obj, font, color, key
+ _bitwise, rayffi⟩⇐
+
 rayFFI ⇐ •Import "rayffi.bqn"
 
 IsInt ← {𝕩⊣(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
@@ -13,23 +17,23 @@ _bitwise ⇐ {
 }
 NeedsWindow ← {𝕊:𝕩⊣"Expected window to be open"!window.isOpen}
 
-image ⇐ {
+image ← {
   # TODO: remember to check if file exists before running.
   Load   ⇐ {𝕊strPath   : NeedsWindow@ ⋄ ⊑rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
   Unload ⇐ {𝕊image     : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
   _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄ Unload 𝔽 Load𝕩}
 }
-texture ⇐ {
+texture ← {
   # TODO: remember to check if file exists before running.
   Load   ⇐ {𝕊strPath: NeedsWindow@ ⋄   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
   Unload ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
   _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄r←𝔽˜x←Load𝕩⋄ Unload x ⋄ r}
 }
-mouse ⇐ {
+mouse ← {
   GetPos     ⇐rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
   WheelMoved ⇐rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
 }
-monitor ⇐ {
+monitor ← {
   ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
    Sizemm ⋄ Name⟩⇐
   Selected    ← rayFFI.GetCurrentMonitor∘⟨⟩
@@ -46,7 +50,7 @@ monitor ⇐ {
    Sizemm ⋄ Name⟩ {𝕏⊣NeedsWindow}¨↩
 }
 
-window ⇐ {
+window ← {
   ⟨_openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
    ShouldClose ⋄ isOpen ⋄ Open ⋄ Close⟩⇐
   isOpen ← 0
@@ -106,13 +110,31 @@ window ⇐ {
     interlaced       # Set to try enabling interlaced video format (for V3D)
   ⟩⇐2⋆1⊸+⌾(⊑⌽)1+↕15}
 }
+obj ⇐ {
+  ⟨ cirOutline, cir, rec
+    _Move, _Scale, _Color
 
-draw ⇐ {
-  ⟨Start   ⋄ End        ⋄ _withCanvas_
-   _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line
-  Background ⋄ _Texture_
   ⟩⇐
+  # obj(square=0) layer posx posy lenx leny r g b a
+  x‿y‿sx‿sy ← 0‿0‿1‿1
+  r‿g‿b‿a ← 4⥊255
+  rec‿cir‿cirOutline ← (↕3)∾¨<x‿y‿sx‿sy‿r‿g‿b‿a
 
+  ⟨_Move, _Scale, _Color⟩ ← {𝕊d:
+    {R _𝕣:{(𝕨R⊢)⌾(d⊸⊏)𝕩}⚇1}
+  }¨⟨1‿2, 3‿4, 5+↕4⟩
+
+  Draw ⇐ {
+    0≡⊑𝕩?  (3‿4⊏𝕩) ((5+↕4)⊏ 𝕩)drawCopy._Rectangle      1‿2⊏𝕩;
+    1≡⊑𝕩?  (3‿4⊏𝕩) ((5+↕4)⊏ 𝕩)drawCopy._Ellipse        1‿2⊏𝕩;
+    2≡⊑𝕩?  (3‿4⊏𝕩) ((5+↕4)⊏ 𝕩)drawCopy._EllipseOutline 1‿2⊏𝕩
+  }{𝔽⚇1 drawCopy._withCanvas_𝕎 𝕩}
+}
+draw ← {
+  ⟨Start     ⋄ End        ⋄ _withCanvas_
+   _Circle   ⋄ _Rectangle ⋄ _Text_   ⋄ _Line
+  Background ⋄ _Texture_  ⋄ _Ellipse ⋄ _EllipseOutline
+  ⟩⇐
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
     (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
@@ -127,7 +149,7 @@ draw ⇐ {
   }
   _Circle ← {radius ⟨r,g,b,a⟩_𝕣 posX‿posY :
     NeedsWindow@
-    "only accepts ints as args"    !∧´⌊⊸=n←𝕩∾𝕨∾𝕗
+    "Circle only accepts ints as args"!∧´⌊⊸=n←𝕩∾𝕨∾𝕗
     "Incorrect amount of arguments"!7=≠n
     rayFFI.DrawCircle ⌊𝕩∾𝕨‿𝕗
   }
@@ -138,7 +160,6 @@ draw ⇐ {
   }
   _Text_ ← {text ⟨r,g,b,a⟩_𝕣_ fontSize ⟨posX,posY⟩:
     NeedsWindow@
-    "the window isn't open"!window.isOpen
     rayFFI.DrawText (𝕨∾@)<⊸∾⌊𝕩∾𝕘‿𝕗
   }
   _Line ← { #TODO add asserts
@@ -149,27 +170,36 @@ draw ⇐ {
       NeedsWindow@
       rayFFI.DrawLineEx 𝕩∾𝕨∾<𝕗
   }
-  _Texture_ ⇐ {scale‿rotation color _𝕣_ texture pos:
+  _Texture_ ← {scale‿rotation color _𝕣_ texture pos:
     NeedsWindow@
     rayFFI.DrawTextureEx⟨texture,pos,rotation,scale,color⟩
   }
-}
-font ⇐ {
-  Load ⇐ {
-    𝕊fontFilePath:
-      NeedsWindow@
-      rayFFI.LoadFontEx⟨𝕩∾@, 40, ≍@, 0⟩; # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
-    charactersYouCanUse 𝕊 fontFilePath:
-      NeedsWindow@
-      rayFFI.LoadFontEx ⟨𝕩∾@, 40, 𝕨-@, ≠𝕨⟩
+  _Ellipse ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
+    NeedsWindow@
+    "Ellipse only accepts ints as args"!∧´⌈⊸=𝕩∾𝕗
+    rayffi.DrawEllipse (𝕩∾𝕨)∾<𝕗
   }
-  LoadBQN ← {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
-    chars ← "⎕⍞∆⍙ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_^⌹⍳⍴!%*+,-<=>?|~⊢⊣⌷≤≥≠∨∧÷×∊↑↓○⌈⌊⊂⊃∩∪⊥⊤⍱⍲⍒⍋⍉⌽⊖⍟⍕⍎⍪≡≢⍷⍸⊆⊇⍧⍮√ϼ…¨⍨⌸⍁⍩ᑈᐵ⌶/\&.@∘⌺⍫⍣⍢⍤⍛⍡⍥⍠0123456789¯∞⍬#⍺⍵⍶⍹∇{}:⋄←→+-×÷⋆√⌊⌈∧∨¬|=≠≤<>≥≡≢⊣⊢⥊∾≍⋈↑↓↕⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔`˜˘¨⁼⌜´˝˙∘⊸⟜○⌾⎉⚇⍟⊘◶⎊π‿∞‿@↩←⇐→,⋄𝕨𝕩𝔽𝔾𝕎𝕏𝕗𝕘𝕊𝕤ℝ𝕣⦃⦄⟨⟩"
-    rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, 𝕩, chars-@, ≠chars⟩
+  _EllipseOutline ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
+    NeedsWindow@
+    "EllipseOutline only accepts ints as args"!∧´⌈⊸=𝕩∾𝕗
+    rayffi.DrawEllipseLines (𝕩∾𝕨)∾<𝕗
   }
 }
 
-color ⇐ {
+font ← { # TODO: This is untested, please test this later
+  Load ⇐ rayFFI.LoadFontEx∘{
+    𝕊fontFilePath:
+      ⟨𝕩∾@, 40, ≍@, 0⟩; # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
+    charactersYouCanUse 𝕊 fontFilePath:
+      ⟨𝕩∾@, 40, 𝕨-@, ≠𝕨⟩
+  }NeedsWindow
+  LoadBQN ⇐ {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
+    chars ← "⎕⍞∆⍙ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_^⌹⍳⍴!%*+,-<=>?|~⊢⊣⌷≤≥≠∨∧÷×∊↑↓○⌈⌊⊂⊃∩∪⊥⊤⍱⍲⍒⍋⍉⌽⊖⍟⍕⍎⍪≡≢⍷⍸⊆⊇⍧⍮√ϼ…¨⍨⌸⍁⍩ᑈᐵ⌶/\&.@∘⌺⍫⍣⍢⍤⍛⍡⍥⍠0123456789¯∞⍬#⍺⍵⍶⍹∇{}:⋄←→+-×÷⋆√⌊⌈∧∨¬|=≠≤<>≥≡≢⊣⊢⥊∾≍⋈↑↓↕⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔`˜˘¨⁼⌜´˝˙∘⊸⟜○⌾⎉⚇⍟⊘◶⎊π‿∞‿@↩←⇐→,⋄𝕨𝕩𝔽𝔾𝕎𝕏𝕗𝕘𝕊𝕤ℝ𝕣⦃⦄⟨⟩"
+    rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, 𝕩, chars-@, ≠chars⟩
+  }NeedsWindow
+}
+
+color ← {
   hex ⇐ {
     From ⇐ 16⊸×⊸+˜´∘⌽˘·(∾"0A"+⟜↕¨10‿6)⊸⊐˘∘‿2⥊⊢
   }
@@ -207,7 +237,7 @@ color ⇐ {
   lightGray  ⇐ 200‿200‿200‿255
   darkGray   ⇐ 70‿78‿81‿255
 }
-key ⇐ {
+key ← {
   ⟨IsPressed, GetPressed⟩⇐
   IsPressed ← {𝕊 key:
     NeedsWindow@
@@ -335,4 +365,4 @@ key ⇐ {
   kVOLUME_DOWN   ⇐ 25       # Android volume down button
 }
 
-
+drawCopy ← draw
