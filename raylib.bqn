@@ -130,13 +130,13 @@ draw ← {
   }
   _Circle ← {radius ⟨r,g,b,a⟩_𝕣 posX‿posY :
     NeedsWindow@
-    "Circle only accepts ints as args"!∧´⌊⊸=n←𝕩∾𝕨∾𝕗
+    "Circle only accepts ints as args"!(∧´⌈⊸=∨∞=|)n←𝕩∾𝕨∾𝕗
     "Incorrect amount of arguments"!7=≠n
     rayFFI.DrawCircle ⌊𝕩∾𝕨‿𝕗
   }
   _Rectangle ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
     NeedsWindow@
-    "Rectangle only accepts ints as args"!∧´⌈⊸=𝕩∾𝕨∾𝕗
+    "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕩∾𝕨∾𝕗
     rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
   }
   _Text_ ← {text ⟨r,g,b,a⟩_𝕣_ fontSize ⟨posX,posY⟩:
@@ -157,16 +157,17 @@ draw ← {
   }
   _Ellipse ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
     NeedsWindow@
-    "Ellipse only accepts ints as args"!∧´⌈⊸=𝕩∾𝕗
+    ((∧´⌈⊸=∨∞=|)𝕩)!˜"Ellipse only accepts ints as args"
+    (∧´𝕗∊↕256)!˜"𝕗 _Ellipse: 𝕗 (color) only accepts ints in the range 0-255 inclusive"
     rayffi.DrawEllipse (𝕩∾𝕨)∾<𝕗
   }
   _EllipseOutline ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
     NeedsWindow@
-    "EllipseOutline only accepts ints as args"!∧´⌈⊸=𝕩∾𝕗
+    ((∧´⌈⊸=∨∞=|)𝕩∾𝕗)!˜"EllipseOutline only accepts ints as args"
+    (∧´𝕗∊↕256)!˜"𝕗 _Ellipse: 𝕗 (color) only accepts ints in the range 0-255 inclusive"
     rayffi.DrawEllipseLines (𝕩∾𝕨)∾<𝕗
   }
 }
-
 font ← { # TODO: This is untested, please test this later
   Load ⇐ rayFFI.LoadFontEx∘{
     𝕊fontFilePath:
