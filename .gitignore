@@ -1,2 +1,5 @@
 # raylib sorce files, that need to be downloaded seperately
 raylibSource
+
+# config files (new addition, no documentation)
+config.txt

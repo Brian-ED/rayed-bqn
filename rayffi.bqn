@@ -1,8 +1,12 @@
+raylibPath←"raylibSource/lib/raylib.dll"
+{
+  "raylibPath"𝕊𝕩:raylibPath↩1↓𝕩
+}´¨+`∘=⟜':'⊸⊔¨•FLines "config.txt"
 
 # making FFI nicer to use
 _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
   a←(⋈'>'⊸∾)⍟((0≠≠)∧1=≡)⟨⟩⍟(@⊸≡)𝕩
-  "raylibSource/lib/raylib.dll"•FFI outType‿𝕗∾a
+  raylibPath•FFI outType‿𝕗∾a
 }
 
 #region Structs
@@ -15,7 +19,7 @@ u     ⇐ "u32"
 c     ⇐ "u8"
 color ⇐ "{u8,u8,u8,u8}"
 str   ⇐ "*i8:c8"
-void  ⇐ "*:i32"
+void  ⇐ "*:i8"
 
 rectangle ⇐ Struct 4⥊<f
 

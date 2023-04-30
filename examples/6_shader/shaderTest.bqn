@@ -1,23 +1,6 @@
 # THIS EXAMPLE IS INCOMPLETE
 
 ⟨color, window, draw, rayffi,key⟩←r←•Import "../../raylib.bqn"
-# Light data
-#  light ← Struct ⟨   
-#    i      # type
-#    i      # bool enabled
-#    v3     # position
-#    v3     # target
-#    color  # color
-#    f      # attenuation
-#  
-#    # Shader locations
-#    i # enabledLoc
-#    i # typeLoc
-#    i # positionLoc
-#    i # targetLoc
-#    i # colorLoc
-#    i # attenuationLoc
-#  ⟩
 
 # Create a light and get shader locations
 CreateLight ← {lightsCount𝕊intType‿v3Pos‿v3Target‿color‿shader: # i v3 v3 color shader
@@ -25,11 +8,11 @@ CreateLight ← {lightsCount𝕊intType‿v3Pos‿v3Target‿color‿shader: # i
     intType, 1, v3Pos, v3Target, color
     @ # attenuation
   # NOTE: Lighting shader naming must be the provided ones
-    rayffi.GetShaderLocation shader‿"lights["∾lightsCount∾"].enabled"
-    rayffi.GetShaderLocation shader‿"lights["∾lightsCount∾"].type"
-    rayffi.GetShaderLocation shader‿"lights["∾lightsCount∾"].position"
-    rayffi.GetShaderLocation shader‿"lights["∾lightsCount∾"].target"
-    rayffi.GetShaderLocation shader‿"lights["∾lightsCount∾"].color"
+    rayffi.GetShaderLocation ⟨shader,"lights["∾lightsCount∾"].enabled"⟩
+    rayffi.GetShaderLocation ⟨shader,"lights["∾lightsCount∾"].type"⟩
+    rayffi.GetShaderLocation ⟨shader,"lights["∾lightsCount∾"].position"⟩
+    rayffi.GetShaderLocation ⟨shader,"lights["∾lightsCount∾"].target"⟩
+    rayffi.GetShaderLocation ⟨shader,"lights["∾lightsCount∾"].color"⟩
     @ # attenuationLoc
   ⟩
   shader UpdateLightValues light
@@ -84,10 +67,16 @@ LoadConsts ← {𝕤
   # Load basic lighting shader
   shader ← rayffi.LoadShader"lighting.vs"‿"lighting.fs"∾¨@
   # Get some required shader locations
-  # shader rayffi.GetShaderLocation∘shader‿("viewPos"∾@)⌾(shader_loc_vector_veiw⊑⟜•Show 1⊑⊢)↩
+  
+  # shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+  f ← @•FFI"a"‿"bqn_readI32Arr"‿">*:i8"
+  •Show F (4×shader_loc_vector_veiw)+1⊑shader
+
+  shader rayffi.GetShaderLocation∘⟨shader,"viewPos"∾@⟩⌾(shader_loc_vector_veiw⊑1⊑⊢)↩
 
   # Ambient light level (some basic lighting)
   ambientLoc ← rayffi.GetShaderLocation shader‿("ambient"∾@)
+
   rayffi.SetShaderValue⟨shader, ambientLoc, 1∾˜3⥊0.1, shader_uniform_vec4⟩
 
   # Assign out lighting shader to model;
