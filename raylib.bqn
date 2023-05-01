@@ -191,6 +191,7 @@ color ← {
      cyan‿magenta‿yellow] ⇐ 255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
   
   }
+  raywhite   ⇐ 245‿245‿245‿255
   lightgreen ⇐ 144‿238‿144‿255
   darkgreen  ⇐ 0‿100‿0‿255
   lightred   ⇐ 255‿102‿102‿255
