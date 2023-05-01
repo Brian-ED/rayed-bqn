@@ -223,7 +223,7 @@ key ← {
   ⟨IsPressed, GetPressed⟩⇐
   IsPressed ← {𝕊 key:
     NeedsWindow@
-    0≠rayFFI.IsKeyPressed @-˜⍟>𝕩
+    0≠rayFFI.IsKeyPressed @-˜⍟<𝕩
   }⚇0
   GetPressed ← {𝕤  # Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
     NeedsWindow@
