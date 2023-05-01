@@ -43,12 +43,9 @@ _withConsts ← {𝕨𝔽_𝕣𝕩:
 
   # Load basic lighting shader
   shader ← rayffi.LoadShader"lighting.vs"‿"lighting.fs"∾¨@
+
   # Get some required shader locations
-  
-  mutateAtIndex ←  @•FFI""‿"bqn_readI32Arr"‿"𝕨>a"‿"𝕩>*:i8"
-  shader_loc_vector_veiw ← 11
-  p ← (4×shader_loc_vector_veiw) {b←256⋆↕8 ⋄ -⟜(256×≥⟜128) 256|⌊÷⟜b 𝕨++´b×256|𝕩} 1⊑shader
-  p MutateAtIndex˜⋈xxx←rayffi.GetShaderLocation shader⋈"viewPos"∾@
+  xxx←rayffi.GetShaderLocation shader⋈"viewPos"∾@
 
   # Ambient light level (some basic lighting)
   ambientLoc ← rayffi.GetShaderLocation shader⋈"ambient"∾@
