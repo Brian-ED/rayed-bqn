@@ -53,7 +53,7 @@ camera3D ⇐ Struct v3‿v3‿v3‿f‿i
 # fovy       # Camera field-of-view apperture in Y (degrees) in perspective, used as near plane width in orthographic
 # projection # Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
 
-shader ⇐"{u32,*:i8}"
+shader ⇐ Struct u‿void
 # Shader program id
 # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 
@@ -154,9 +154,9 @@ boneInfo ⇐ Struct ⟨
 
 # Transform, vertex transformation data
 transform ⇐ Struct ⟨
-    v3         # translation # Translation
-    v4         # quaternion  # rotation
-    v3         # scale       # Scale
+    v3 # translation # Translation
+    v4 # quaternion  # rotation
+    v3 # scale       # Scale
 ⟩
 
 # Model, meshes, materials and animation data
@@ -175,6 +175,8 @@ model ⇐ Struct ⟨
 
 boundingBox ← Struct v3‿v3 # min corner to max corner
 
+# ray for raycasting
+ray ⇐ Struct v3‿v3 #position direction       // Ray position (origin)    Ray direction
 
 #endregion Structs
 
@@ -308,7 +310,8 @@ loadShaderFromMemory    ⇐ shader"LoadShaderFromMemory"   _R str‿str         
 isShaderReady           ⇐ i     "IsShaderReady"          _R shader                                                      # Check if a shader is ready
 getShaderLocation       ⇐ i     "GetShaderLocation"      _R shader‿str        # shader uniformName                      # Get shader uniform location
 getShaderLocationAttrib ⇐ i     "GetShaderLocationAttrib"_R shader‿str        # shader attribName                       # Get shader attribute location
-setShaderValue          ⇐       "SetShaderValue"         _R shader‿i‿void‿i   # shader locIndex value uniformType       # Set shader uniform value
+setShaderValue          ⇐       "SetShaderValue"         _R shader‿i‿('*'∾f)‿i   # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
+setShaderValue2         ⇐       "SetShaderValue"         _R shader‿i‿void‿i   # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
 setShaderValueV         ⇐       "SetShaderValueV"        _R shader‿i‿void‿i‿i # shader locIndex value uniformType count # Set shader uniform value vector
 setShaderValueMatrix    ⇐       "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                     # Set shader uniform value (matrix 4x4)
 setShaderValueTexture   ⇐       "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                 # Set shader uniform value for texture (sampler2d)
@@ -404,9 +407,6 @@ getModelBoundingBox ⇐ boundingBox "GetModelBoundingBox"_R model           # Co
 # not done catagories
 colorAlpha ⇐ color "ColorAlpha"_R color‿f # color alpha # Get color with alpha applied, alpha goes from 0.0f to 1.0f
 
-drawGrid ⇐ "DrawGrid"_R i‿f # slices spacing # Draw a grid (centered at (0, 0, 0))
-
-
 
 
 # Misc. functions
@@ -444,3 +444,44 @@ decompressData ⇐ "*:c8" "DecompressData"_R "*u8:c8"‿i‿"&i32" # compData co
 
 # char *EncodeDataBase64(const unsigned char *data, int dataSize, int *outputSize);               # Encode data to Base64 string, memory must be MemFree()
 # unsigned char *DecodeDataBase64(const unsigned char *data, int *outputSize);                    # Decode Base64 string data, memory must be MemFree()
+
+
+# Camera System Functions (Module: rcamera)
+updateCamera    ⇐ "UpdateCamera"   _R ('*'∾camera3d)‿i       # Camera mode                   # Update camera position for selected mode
+updateCameraPro ⇐ "UpdateCameraPro"_R ('*'∾camera3d)‿v3‿v3‿f # Camera movement rotation zoom # Update camera movement/rotation
+
+# Model drawing functions
+drawModel        ⇐ "DrawModel"       _R model‿v3‿f‿color # model position scale tint              # Draw a model (with texture if set)
+drawModelEx      ⇐ "DrawModelEx"     _R model‿v3‿v3‿f‿v3‿color # model position rotationAxis rotationAngle scale tint # Draw a model with extended parameters
+drawModelWires   ⇐ "DrawModelWires"  _R model‿v3‿f‿color # model position scale tint          # Draw a model wires (with texture if set)
+drawModelWiresEx ⇐ "DrawModelWiresEx"_R model‿v3‿v3‿f‿v3‿color # model position rotationAxis rotationAngle scale tint # Draw a model wires (with texture if set) with extended parameters
+drawBoundingBox  ⇐ "DrawBoundingBox" _R boundingBox‿color # box color                                   # Draw bounding box (wires)
+drawBillboard    ⇐ "DrawBillboard"   _R camera3d‿texture‿v3‿f‿color # camera texture position size tint   # Draw a billboard texture
+drawBillboardRec ⇐ "DrawBillboardRec"_R camera3d‿texture‿rectangle‿v3‿v2‿color # camera texture source position size tint # Draw a billboard texture defined by source
+drawBillboardPro ⇐ "DrawBillboardPro"_R camera3d‿texture‿rectangle‿v3‿v3‿v2‿v2‿f‿color # camera texture source position up size origin rotation tint # Draw a billboard texture defined by source and rotation
+
+
+
+
+# Basic geometric 3D shapes drawing functions
+drawLine3D          ⇐ "DrawLine3D"         _R v3‿v3‿color         # startPos endPos color                              # Draw a line in 3D world space
+drawPoint3D         ⇐ "DrawPoint3D"        _R v3‿color            # position color                                     # Draw a point in 3D space, actually a small line
+drawCircle3D        ⇐ "DrawCircle3D"       _R v3‿f‿v3‿f‿color     # center radius rotationAxis rotationAngle color     # Draw a circle in 3D world space
+drawTriangle3D      ⇐ "DrawTriangle3D"     _R v3‿v3‿v3‿color      # v1 v2 v3 color                                     # Draw a color-filled triangle (vertex in counter-clockwise order!)
+drawTriangleStrip3D ⇐ "DrawTriangleStrip3D"_R ('*'∾v3)‿i‿color  # *points pointCount color                           # Draw a triangle strip defined by points
+drawCube            ⇐ "DrawCube"           _R v3‿f‿f‿f‿color      # position width hight length color                  # Draw cube
+drawCubeV           ⇐ "DrawCubeV"          _R v3‿v3‿color         # position size color                                # Draw cube (Vector version)
+drawCubeWires       ⇐ "DrawCubeWires"      _R v3‿f‿f‿f‿color      # position width hight length color                  # Draw cube wires
+drawCubeWiresV      ⇐ "DrawCubeWiresV"     _R v3‿v3‿color         # position size color                                # Draw cube wires (Vector version)
+drawSphere          ⇐ "DrawSphere"         _R v3‿f‿color          # centerPos radius color                             # Draw sphere
+drawSphereEx        ⇐ "DrawSphereEx"       _R v3‿f‿i‿i‿color      # centerPos radius rings slices color                # Draw sphere with extended parameters
+drawSphereWires     ⇐ "DrawSphereWires"    _R v3‿f‿i‿i‿color      # centerPos radius rings slices color                # Draw sphere wires
+drawCylinder        ⇐ "DrawCylinder"       _R v3‿f‿f‿f‿i‿color    # position radiusTop radiusBottom hight slices color # Draw a cylinder/cone
+drawCylinderEx      ⇐ "DrawCylinderEx"     _R v3‿v3‿f‿f‿i‿color   # startPos endPos startRadius endRadius sides color  # Draw a cylinder with base at startPos and top at endPos
+drawCylinderWires   ⇐ "DrawCylinderWires"  _R v3‿f‿f‿f‿i‿color    # position radiusTop radiusBottom hight slices color # Draw a cylinder/cone wires
+drawCylinderWiresEx ⇐ "DrawCylinderWiresEx"_R v3‿v3‿f‿f‿i‿color   # startPos endPos startRadius endRadius sides color  # Draw a cylinder wires with base at startPos and top at endPos
+drawCapsule         ⇐ "DrawCapsule"        _R v3‿v3‿f‿i‿i‿color   # startPos endPos radius slices rings color          # Draw a capsule with the center of its sphere caps at startPos and endPos
+drawCapsuleWires    ⇐ "DrawCapsuleWires"   _R v3‿v3‿f‿i‿i‿color   # startPos endPos radius slices rings color          # Draw capsule wireframe with the center of its sphere caps at startPos and endPos
+drawPlane           ⇐ "DrawPlane"          _R v3‿v2‿color         # centerPos size color                               # Draw a plane XZ
+drawRay             ⇐ "DrawRay"            _R ray‿color                                                                # Draw a ray line
+drawGrid            ⇐ "DrawGrid"           _R i‿f                 # slices spacing                                     # Draw a grid (centered at (0, 0, 0))
