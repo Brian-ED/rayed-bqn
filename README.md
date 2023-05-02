@@ -6,19 +6,31 @@ Breaking changes to any feature in raylib.bqn should be expected for now, as thi
 raylib.ffi is only for bindings and therefore shouldn't change, so you can probably rely on those, but no guarantees.
 
 # Getting started
+Make a config file named "config.txt" at `./rayed_bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and value to set that config to.
 
+The only values supported for now is the path to binary. 
+
+The binary being one of the following raylib.ddl/libraylib.so/etc.
+examples are below:
+```txt
+raylibPath:raylib/lib/raylib.dll
+```
+```txt
+raylibPath:raylib/lib/libraylib.so
+```
+
+To actually get the binary, follow the steps below:
 ## Windows
-First download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-4.5.0_win64_mingw-w64` and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylibSource".
+First download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-4.5.0_win64_mingw-w64` and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
 
 ## Linux
-Build [raylib](https://github.com/raysan5/raylib/) from source, and place the binaries generated from compiling into the folder ./raylibSource/lib.
+Build [raylib](https://github.com/raysan5/raylib/) from source, and place the binaries generated from compiling into the folder ./raylib/lib.
 
 ## Mac
 I have never tested mac, but it could be similar to Linux.
 
 
-
-# Tested raylib versions:
+# Tested Raylib versions:
 
 ## Windows
   "raylib-4.5.0_win64_mingw-w64" on Windows 10.
@@ -29,8 +41,8 @@ I have never tested mac, but it could be similar to Linux.
   None yet
 
 # Extra info
-The most important file in ./raylibSource/lib/ is the binary file, which should be located at:
-./rayed-bqn/raylibSource/lib/(BINARY).
+The most important file in ./raylib/lib/ is the binary file, which should be located at:
+./rayed-bqn/raylib/lib/(BINARY).
 
 The name of this binary file differs from OS to OS,
 
@@ -43,14 +55,8 @@ On Linux: libraylib.so
 # Ideologies
 Having as little magic as possible, magic meaning magic numbers and global values (available to the user) changing outside user's control.
 
-Mutations localized in namespaces like "button" are probably fine though.
+Mutations localized in namespaces like "button" are probably fine though. Nothing does this yet though.
 # Credits
 Lots of thanks to [@dzaima](https://github.com/dzaima) for helping with FFI.
 
 I owe credit to [@nulldatamap](https://gist.github.com/nulldatamap) for showing a lovely [example](https://gist.github.com/nulldatamap/30b10389bf91d6f25bb262da9c9e9709) to get me started with using FFI for BQN, and for making it easy to start with making this library.
-
-# Ideas
-Add a config file for info such as Raylib location and such.
-Possible ones are:
-"raylibSource/lib/libraylib.so" Windows
-"raylibSource/lib/raylib.dll" Linux
