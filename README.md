@@ -6,7 +6,7 @@ Breaking changes to any feature in raylib.bqn should be expected for now, as thi
 raylib.ffi is only for bindings and therefore shouldn't change, so you can probably rely on those, but no guarantees.
 
 # Getting started
-Make a config file named "config.txt" at `./rayed_bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and value to set that config to.
+Make a config file named "config.txt" at `./rayed_bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to.
 
 The only values supported for now is the path to binary. 
 
