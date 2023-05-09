@@ -8,7 +8,7 @@
  _bitwise, rayffi⟩⇐  
 
 rayFFI ⇐ •Import "rayffi.bqn"
-
+•Show ×⌜´⟨7‿8‿9, 1‿2‿3, 4‿5‿6⟩
 IsInt ← {𝕩⊣(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
 
 _bitwise ⇐ {
@@ -34,18 +34,19 @@ mouse ← {
   WheelMoved ⇐rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
 }
 monitor ← {
-  ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
+  ⟨Selected ⋄ Count
+   RefreshRate ⋄ Size
    Sizemm ⋄ Name⟩⇐
   Selected    ← rayFFI.GetCurrentMonitor∘⟨⟩
   Count       ← rayFFI.GetMonitorCount∘⟨⟩
   RefreshRate ← rayFFI.GetMonitorRefreshRate
-  Size        ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)
-  Sizemm      ← (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)
+  Size        ← rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight
+  Sizemm      ← rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight
   Name        ← rayFFI.GetMonitorName
   
-  ⟨RefreshRate, Size, Sizemm, Name⟩{𝕏@⊸≢◶Selected‿{
-      𝕩⊣(⊑𝕩∊↕Count@)!˜"Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
-    }}¨↩
+  ⟨RefreshRate, Size, Sizemm, Name⟩{𝕏@⊸≢◶⟨Selected
+  {𝕩⊣(⊑𝕩∊↕Count@)!˜"Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
+  }⟩}¨↩
   ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
    Sizemm ⋄ Name⟩ {𝕏⊣NeedsWindow}¨↩
 }
@@ -54,7 +55,7 @@ window ← {
   ⟨_openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
    ShouldClose ⋄ isOpen ⋄ Open ⋄ Close⟩⇐
   isOpen ← 0
-  fps⇐{
+  fps ← {
     Get ⇐ rayFFI.GetFPS∘⟨⟩NeedsWindow
     Set ⇐ {
       NeedsWindow@
@@ -182,43 +183,53 @@ font ← { # TODO: This is untested, please test this later
 }
 
 color ← {
-  hex ⇐ {
-    From ⇐ 16⊸×⊸+˜´∘⌽˘·(∾"0A"+⟜↕¨10‿6)⊸⊐˘∘‿2⥊⊢
-  }
+  FromHex ⇐ 16⊸×⊸+˜´∘⌽˘·(∾"0A"+⟜↕¨10‿6)⊸⊐˘∘‿2⥊⊢
   exact⇐{
     white ⇐ 4⥊255 ⋄ black ⇐ ¯4↑255
     [red ‿green  ‿blue
      cyan‿magenta‿yellow] ⇐ 255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
-  
   }
-  raywhite   ⇐ 245‿245‿245‿255
-  lightgreen ⇐ 144‿238‿144‿255
-  darkgreen  ⇐ 0‿100‿0‿255
-  lightred   ⇐ 255‿102‿102‿255
-  darkred    ⇐ 139‿0‿0‿255
-  lightblue  ⇐ 173‿216‿230‿255
-  darkblue   ⇐ 0‿0‿139‿255
-  orange     ⇐ 255‿165‿0‿255
-  brown      ⇐ 165‿42‿42‿255
-  green      ⇐ 0‿255‿0‿255
-  white      ⇐ 4⥊255
-  black      ⇐ ¯4↑255
-  red        ⇐ 230‿41‿55‿255
-  yellow     ⇐ 255‿255‿0‿255
-  cyan       ⇐ 0‿255‿255‿255
-  magenta    ⇐ 255‿0‿255‿255
-  pink       ⇐ 255‿192‿203‿255
-  purple     ⇐ 128‿0‿128‿255
-  teal       ⇐ 0‿128‿128‿255
-  navy       ⇐ 0‿0‿128‿255
-  lavender   ⇐ 230‿230‿250‿255
-  gold       ⇐ 255‿215‿0‿255
-  silver     ⇐ 192‿192‿192‿255
-  blue       ⇐ 0‿121‿241‿255
-  skyBlue    ⇐ 102‿191‿255‿255
-  gray       ⇐ 128‿128‿128‿255
-  lightGray  ⇐ 200‿200‿200‿255
-  darkGray   ⇐ 70‿78‿81‿255
+  beige       ⇐ 211‿176‿131‿255
+  black       ⇐ 0  ‿0  ‿0  ‿255
+  transparent ⇐ 0  ‿0  ‿0  ‿0
+  blue        ⇐ 0  ‿121‿241‿255
+  brown       ⇐ 127‿106‿79 ‿255
+  cyan        ⇐ 0  ‿255‿255‿255
+  darkGray    ⇐ 80 ‿80 ‿80 ‿255
+  darkblue    ⇐ 0  ‿82 ‿172‿255
+  darkbrown   ⇐ 76 ‿63 ‿47 ‿255
+  darkgreen   ⇐ 0  ‿117‿44 ‿255
+  darkpurple  ⇐ 112‿31 ‿126‿255
+  darkred     ⇐ 139‿0  ‿0  ‿255
+  gold        ⇐ 255‿203‿0  ‿255
+  gray        ⇐ 130‿130‿130‿255
+  green       ⇐ 0  ‿228‿48 ‿255
+  lavender    ⇐ 230‿230‿250‿255
+  lightGray   ⇐ 200‿200‿200‿255
+  lightblue   ⇐ 173‿216‿230‿255
+  lightgreen  ⇐ 144‿238‿144‿255
+  lightred    ⇐ 255‿102‿102‿255
+  lime        ⇐ 0  ‿158‿47 ‿255
+  magenta     ⇐ 255‿  0‿255‿255
+  maroon      ⇐ 190‿33 ‿55 ‿255
+  navy        ⇐ 0  ‿0  ‿128‿255
+  orange      ⇐ 255‿161‿0  ‿255
+  pink        ⇐ 255‿109‿194‿255
+  purple      ⇐ 200‿122‿255‿255
+  raywhite    ⇐ 245‿245‿245‿255
+  red         ⇐ 230‿41 ‿55 ‿255
+  silver      ⇐ 192‿192‿192‿255
+  skyblue     ⇐ 102‿191‿255‿255
+  teal        ⇐ 0  ‿128‿128‿255
+  violet      ⇐ 135‿60 ‿190‿255
+  white       ⇐ 255‿255‿255‿255
+  yellow      ⇐ 253‿249‿0  ‿255
+}
+mouse ⇐ {
+  button ⇐ {
+    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕7
+  }
+  
 }
 key ← {
   ⟨IsPressed, GetPressed⟩⇐
@@ -230,6 +241,12 @@ key ← {
     NeedsWindow@
     rayFFI.GetKeyPressed⟨⟩
   }
+  
+  }
+  # Keyboard keys (US keyboard layout)
+  # NOTE: Use GetKeyPressed() to allow redefining
+  # required keys for alternative layouts
+
   # consider switching to `letter-@` when possible.
 
   # vars           Keycodes   Keys
