@@ -9,12 +9,6 @@ raylibPath←"raylibSource/lib/raylib.dll"
   "raylibPath"𝕊𝕩:raylibPath↩1↓𝕩
 }´¨+`∘=⟜':'⊸⊔¨•FLines "config.txt"
 
-# making FFI nicer to use
-_R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
-  a←(⋈'>'⊸∾)⍟((0≠≠)∧1=≡)⟨⟩⍟(@⊸≡)𝕩
-  raylibPath•FFI outType‿𝕗∾a
-}
-
 #region Structs
 
 Struct ⇐{'{'∾'}'«∾','∾¨𝕩}
@@ -200,6 +194,12 @@ nPatchInfo ⇐ Struct ⟨
 #endregion Structs
 
 #region FFIFunctions
+
+# making FFI nicer to use
+_R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
+  a←(⋈'>'⊸∾)⍟((0≠≠)∧1=≡)⟨⟩⍟(@⊸≡)𝕩
+  raylibPath•FFI outType‿𝕗∾a
+}
 
 # Window-related functions
 initWindow               ⇐     "InitWindow"              _R i‿i‿str # width height title # Initialize window and OpenGL context
@@ -456,11 +456,10 @@ genMeshCube  ⇐ mesh "GenMeshCube" _R f‿f‿f   # width height length        
 # RLAPI Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);                               # Generate cubes-based map mesh from image data
 
 # Compression/Encoding functionality
-
 compressData     ⇐ void "CompressData"    _R uStr‿i‿"&i32"  # data dataSize compDataSize      # Compress data (DEFLATE algorithm), memory must be MemFree()
 decompressData   ⇐ void "DecompressData"  _R uStr‿i‿"&i32"  # compData compDataSize dataSize  # Decompress data (DEFLATE algorithm), memory must be MemFree()
-encodeDataBase64 ⇐ str  "EncodeDataBase64"_R uStr‿i‿i       # data dataSize *outputSize       # Encode data to Base64 string, memory must be MemFree()
-decodeDataBase64 ⇐ uStr "DecodeDataBase64"_R uStr‿i‿('*'∾i) # data *outputSize                # Decode Base64 string data, memory must be MemFree()
+encodeDataBase64 ⇐ void "EncodeDataBase64"_R uStr‿i‿i       # data dataSize *outputSize       # Encode data to Base64 string, memory must be MemFree()
+decodeDataBase64 ⇐ void "DecodeDataBase64"_R uStr‿i‿('*'∾i) # data *outputSize                # Decode Base64 string data, memory must be MemFree()
 
 # Camera System Functions (Module: rcamera)
 updateCamera    ⇐ "UpdateCamera"   _R ('*'∾camera3d)‿i       # Camera mode                   # Update camera position for selected mode
