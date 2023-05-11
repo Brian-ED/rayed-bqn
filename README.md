@@ -6,9 +6,9 @@ Breaking changes to any feature in raylib.bqn should be expected for now, as thi
 raylib.ffi is only for bindings and therefore shouldn't change, so you can probably rely on those, but no guarantees.
 
 # Getting started
-Make a config file named "config.txt" at `./rayed_bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to.
+Make a config file named "config.txt" at `./rayed_bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to. If there are two lines with same config, then the bottom most line is picked.
 
-The only values supported for now is the path to binary. 
+The only values supported for now is the path to binary.
 
 The binary being one of the following raylib.ddl/libraylib.so/etc.
 examples are below:
@@ -25,6 +25,7 @@ First download [Raylib](https://github.com/raysan5/raylib/releases/) with releas
 
 ## Linux
 Build [raylib](https://github.com/raysan5/raylib/) from source, and place the binaries generated from compiling into the folder ./raylib/lib.
+You build raylib by first cloning 
 
 ## Mac
 I have never tested mac, but it could be similar to Linux.
@@ -41,7 +42,7 @@ I have never tested mac, but it could be similar to Linux.
   None yet
 
 # Extra info
-The most important file in ./raylib/lib/ is the binary file, which should be located at:
+The most important file in ./raylib/lib/ is the binary file, which could be located at:
 ./rayed-bqn/raylib/lib/(BINARY).
 
 The name of this binary file differs from OS to OS,
