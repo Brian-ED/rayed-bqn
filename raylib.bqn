@@ -32,6 +32,9 @@ texture ← {
 mouse ← {
   GetPos     ⇐rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
   WheelMoved ⇐rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
+  button ⇐ {
+    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕7
+  }
 }
 monitor ← {
   ⟨Selected ⋄ Count
@@ -109,7 +112,7 @@ window ← {
     highDPI          # Set to support HighDPI
     mousePassthrough # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
     interlaced       # Set to try enabling interlaced video format (for V3D)
-  ⟩⇐2⋆1⊸+⌾(⊑⌽)1+↕15}
+  ⟩⇐2⋆16∾˜1+↕14}
 }
 
 draw ← {
@@ -225,12 +228,6 @@ color ← {
   white       ⇐ 255‿255‿255‿255
   yellow      ⇐ 253‿249‿0  ‿255
 }
-mouse ⇐ {
-  button ⇐ {
-    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕7
-  }
-  
-}
 key ← {
   ⟨IsPressed, GetPressed⟩⇐
   IsPressed ← {𝕊 key:
@@ -241,8 +238,7 @@ key ← {
     NeedsWindow@
     rayFFI.GetKeyPressed⟨⟩
   }
-  
-  }
+
   # Keyboard keys (US keyboard layout)
   # NOTE: Use GetKeyPressed() to allow redefining
   # required keys for alternative layouts
