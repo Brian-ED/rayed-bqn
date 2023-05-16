@@ -26,4 +26,12 @@ fontSize draw.Text _colored_ black _At_ 20‿20 text
 
 # stacking mutluple _At_'s has the effect of adding positions to window.pos
 
-# 2: 
+# 2; This brainstorm is on-going
+"
+have a global index list which is the list that gets inputted to perFrame.
+perFrame sequencually applies each function on 𝕩 under variables which each represent an index of the global list.
+
+# global index list
+⟨poses, ⟩ ← ↕1
+
+"
