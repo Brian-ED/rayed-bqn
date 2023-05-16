@@ -56,7 +56,7 @@ On Linux: libraylib.so
 # Ideologies
 Having as little magic as possible, magic meaning magic numbers and global values (available to the user) changing outside user's control.
 
-Mutations localized in namespaces like "button" are probably fine though. Nothing does this yet though.
+Mutations localized in namespaces like "button" are probably fine, Nothing does this yet though.
 # Credits
 Lots of thanks to [@dzaima](https://github.com/dzaima) for helping with FFI.
 
