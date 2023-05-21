@@ -5,13 +5,12 @@
 
 ⟨draw, image, texture, monitor, window, mouse
  font, color, key, # obj (removed obj temporarily for push, because i don't like the current version of it)
- _bitwise, rayffi⟩⇐  
+ _bitwise, rayffi⟩⇐
 
-rayFFI ⇐ •Import "rayffi.bqn"
-•Show ×⌜´⟨7‿8‿9, 1‿2‿3, 4‿5‿6⟩
+rayFFI ← •Import "rayffi.bqn"
 IsInt ← {𝕩⊣(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
 
-_bitwise ⇐ {
+_bitwise ← {
   _into ← {𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
@@ -82,7 +81,7 @@ window ← {
     ⟨rayFFI.GetScreenWidth⟨⟩
      rayFFI.GetScreenHeight⟨⟩⟩
   }
-  ShouldClose ← 0≠rayFFI.WindowShouldClose∘⟨⟩∘NeedsWindow
+  ShouldClose ← rayFFI.WindowShouldClose∘⟨⟩∘NeedsWindow
   Close ← {
     NeedsWindow@
     rayFFI.CloseWindow⟨⟩
@@ -232,7 +231,7 @@ key ← {
   ⟨IsPressed, GetPressed⟩⇐
   IsPressed ← {𝕊 key:
     NeedsWindow@
-    0≠rayFFI.IsKeyPressed @-˜⍟<𝕩
+    rayFFI.IsKeyPressed @-˜⍟<𝕩
   }⚇0
   GetPressed ← {𝕤  # Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
     NeedsWindow@
