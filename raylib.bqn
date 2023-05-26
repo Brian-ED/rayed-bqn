@@ -23,7 +23,7 @@ _bitwise ← {
   _into ← {𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
-NeedsWindow ← {𝕊:𝕩⊣"Expected window to be open"!window.isOpen}
+NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 image ← {
   # TODO: remember to check if file exists before running.
@@ -78,10 +78,10 @@ monitor ← {
   Size        ← rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight
   Sizemm      ← rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight
   Name        ← rayFFI.GetMonitorName
-  
-  ⟨RefreshRate, Size, Sizemm, Name⟩{𝕏@⊸≢◶⟨Selected
-  {𝕩⊣(⊑𝕩∊↕Count@)!˜"Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
-  }⟩}¨↩
+  notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
+  AddMonitorCheck ← {𝕏@⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@}}
+  ⟨RefreshRate, Size, Sizemm, Name
+  ⟩AddMonitorCheck¨↩
   ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
    Sizemm ⋄ Name⟩ {𝕏⊣NeedsWindow}¨↩
 }
@@ -91,7 +91,7 @@ window ← {
    ShouldClose ⋄ isOpen ⋄ Open ⋄ Close⟩⇐
   isOpen ← 0
   fps ← {
-    Get ⇐ rayFFI.GetFPS∘⟨⟩NeedsWindow
+    Get ⇐ rayFFI.GetFPS⟨⟩⊣NeedsWindow
     Set ⇐ {
       NeedsWindow@
       (𝕩=⌈0⌈𝕩)!˜"FPS has to be a positive int"
@@ -114,7 +114,7 @@ window ← {
     ⟨rayFFI.GetScreenWidth⟨⟩
      rayFFI.GetScreenHeight⟨⟩⟩
   }
-  ShouldClose ← rayFFI.WindowShouldClose∘⟨⟩∘NeedsWindow
+  ShouldClose ← rayFFI.WindowShouldClose⟨⟩⊣NeedsWindow
   Close ← {
     NeedsWindow@
     rayFFI.CloseWindow⟨⟩
@@ -205,16 +205,17 @@ draw ← {
   }
 }
 font ← { # TODO: This is untested, please test this later
-  Load ⇐ rayFFI.LoadFontEx∘{
+  Load ⇐ rayFFI.LoadFontEx{
     𝕊fontFilePath:
       ⟨𝕩∾@, 40, ≍@, 0⟩; # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
-    charactersYouCanUse 𝕊 fontFilePath:
+    charactersAllowed 𝕊 fontFilePath:
       ⟨𝕩∾@, 40, 𝕨-@, ≠𝕨⟩
-  }NeedsWindow
+  }⟜NeedsWindow
   LoadBQN ⇐ {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
-    chars ← "⎕⍞∆⍙ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_^⌹⍳⍴!%*+,-<=>?|~⊢⊣⌷≤≥≠∨∧÷×∊↑↓○⌈⌊⊂⊃∩∪⊥⊤⍱⍲⍒⍋⍉⌽⊖⍟⍕⍎⍪≡≢⍷⍸⊆⊇⍧⍮√ϼ…¨⍨⌸⍁⍩ᑈᐵ⌶/\&.@∘⌺⍫⍣⍢⍤⍛⍡⍥⍠0123456789¯∞⍬#⍺⍵⍶⍹∇{}:⋄←→+-×÷⋆√⌊⌈∧∨¬|=≠≤<>≥≡≢⊣⊢⥊∾≍⋈↑↓↕⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔`˜˘¨⁼⌜´˝˙∘⊸⟜○⌾⎉⚇⍟⊘◶⎊π‿∞‿@↩←⇐→,⋄𝕨𝕩𝔽𝔾𝕎𝕏𝕗𝕘𝕊𝕤ℝ𝕣⦃⦄⟨⟩"
+    NeedsWindow@
+    chars ← •FChars "src/chars.txt"
     rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, 𝕩, chars-@, ≠chars⟩
-  }NeedsWindow
+  }
 }
 
 color ← {
@@ -261,16 +262,17 @@ color ← {
   yellow      ⇐ 253‿249‿0  ‿255
 }
 key ← {
-  ⟨IsPressed, GetPressed⟩⇐
-  IsPressed ← {𝕊 key:
-    NeedsWindow@
+  IsPressed ⇐ {𝕊 key:
     rayFFI.IsKeyPressed @-˜⍟<𝕩
-  }⚇0
-  GetPressed ← {𝕤  # Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
-    NeedsWindow@
-    rayFFI.GetKeyPressed⟨⟩
-  }
+  }⚇0⊣NeedsWindow
 
+  # These funcs are queues, call multiple times if needed. Returns 0 when the queue is empty
+  PressedKey ⇐ {𝕤  # Get key pressed (keycode)
+    rayFFI.GetKeyPressed⟨⟩
+  }⚇0⊣NeedsWindow
+  PressedChar ⇐ {𝕤
+    rayffi.GetcharPressed⟨⟩
+  }⚇0⊣NeedsWindow
   # Keyboard keys (US keyboard layout)
   # NOTE: Use GetKeyPressed() to allow redefining
   # required keys for alternative layouts

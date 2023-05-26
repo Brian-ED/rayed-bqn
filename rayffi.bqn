@@ -256,7 +256,7 @@ _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
 
 # Window-related functions
 initWindow               ⇐     "InitWindow"              _R i‿i‿str # width height title # Initialize window and OpenGL context
-windowShouldClose        ⇐ i   "WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
+windowShouldClose        ⇐ i8  "WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
 closeWindow              ⇐     "CloseWindow"             _R@                             # Close window and unload OpenGL context
 isWindowReady            ⇐ i8  "IsWindowReady"           _R@                             # Check if window has been initialized successfully
 isWindowFullscreen       ⇐ i8  "IsWindowFullscreen"      _R@                             # Check if window is currently fullscreen
@@ -689,7 +689,7 @@ colorAlpha ⇐ color "ColorAlpha"_R color‿f # color alpha # Get color with alp
 # Font loading/unloading functions
 getFontDefault    ⇐ font "GetFontDefault"_R@                                                          # Get the default Font
 loadFont          ⇐ font "LoadFont"         _R str           # fileName                               # Load font from file into GPU memory (VRAM)
-loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿(P i)‿i     # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿(P i)‿i # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
 loadFontFromImage ⇐ font "LoadFontFromImage"_R image‿color‿i # image color(key?) firstChar            # Load font from Image (XNA style)
 #Font LoadFontFromMemory str fileType, ustr fileData, int dataSize, int fontSize, int *fontChars, int glyphCount); # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
 #bool IsFontReady(Font font);                                                          # Check if a font is ready
@@ -700,12 +700,12 @@ unloadFont        ⇐      "UnloadFont"       _R font                           
 #bool ExportFontAsCode(Font font, str fileName);                               # Export font as code file, returns true on success
 
 # Text drawing
-drawFPS            ⇐ "DrawFPS"           _R i‿i                         # posX posY                                                # Draw current FPS
-drawText           ⇐ "DrawText"          _R str‿i‿i‿i‿color             # text posX posY fontSize color                            # Draw text (using default font)
-drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color       # font text position spacing fontSize tint                 # Draw text using font and additional parameters     # Warning, does not support unicode
-drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color  # font text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation) # Warning, does not support unicode
-drawTextCodepoint  ⇐ "DrawTextCodepoint" _R font‿i‿v2‿f‿color           # font codepoint position fontSize tint                    # Draw one character (codepoint)
-drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿(P i)‿i‿v2‿f‿f‿color # font codepoints count position fontSize spacing tint     # Draw multiple character (codepoint)
+drawFPS            ⇐ "DrawFPS"           _R i‿i                        # posX posY                                                # Draw current FPS
+drawText           ⇐ "DrawText"          _R str‿i‿i‿i‿color            # text posX posY fontSize color                            # Draw text (using default font)
+drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color      # font text position spacing fontSize tint                 # Draw text using font and additional parameters     # Warning, does not support unicode
+drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color # font text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation) # Warning, does not support unicode
+drawTextCodepoint  ⇐ "DrawTextCodepoint" _R font‿i‿v2‿f‿color          # font codepoint position fontSize tint                    # Draw one character (codepoint)
+drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿(P i)‿i‿v2‿f‿f‿color  # font codepoints count position fontSize spacing tint     # Draw multiple character (codepoint)
 
 # Text font info functions
 measureText      ⇐ i         "MeasureText"     _R str‿i        # text fontSize              # Measure string width for default font
