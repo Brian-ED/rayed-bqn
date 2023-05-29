@@ -4,10 +4,15 @@
 # • This file is FFI for almost everything in raylib.h: https:#github.com/raysan5/raylib/blob/fec96137e8d10ee6c88914fbe5e5429c13ee1dac/src/raylib.h
 # • FFI functions are not tested before release. There are simply too many for the moment. The functions in raylib.bqn are tested, atleast minimally.
 
-rAYLIB_VERSION_MAJOR ⇐ 4    
-rAYLIB_VERSION_MINOR ⇐ 5    
-rAYLIB_VERSION_PATCH ⇐ 0    
-rAYLIB_VERSION       ⇐ "4.5"
+# • You may change defaults in raylib/src/config.h for smaller build size.
+
+# • if a function here can be implemented in BQN, that ffi definition can be replaced.
+
+
+# every instantce of i8 is a bool
+
+# Functions that have been excluded:
+#   TextFormat, 
 
 raylibPath←"raylibSource/lib/raylib.dll" # Default path
 {
@@ -17,7 +22,7 @@ raylibPath←"raylibSource/lib/raylib.dll" # Default path
 #region Structs
 P⇐'*'⊸∾             # '*' means a pointer
 S⇐{'{'∾'}'«∾','∾¨𝕩} # Parse types into one struct
-
+c ⇐ "i8"
 i‿f‿u‿i8‿·‿u8⇐⥊"32"‿"8"∾˜⌜"ifu"
 str‿uStr⇐P¨"iu"∾¨<"8:c8"
 ptr⇐"*:i8"
@@ -75,12 +80,12 @@ glyphInfo ⇐ S i‿i‿i‿i‿image
 
 # Font, font texture and GlyphInfo array data
 font ⇐ S ⟨i,i,i,texture,ptr,ptr⟩
-# baseSize           # Base size (default chars height)
-# glyphCount         # Number of glyph characters
-# glyphPadding       # Padding around the glyph characters
-# Texture atlas containing the glyphs
-# recs        # Rectangles in texture for the glyphs
-# glyphs      # Glyphs info data
+# baseSize     # Base size (default chars height)
+# glyphCount   # Number of glyph characters
+# glyphPadding # Padding around the glyph characters
+# Texture      # atlas containing the glyphs
+# recs         # Rectangles in texture for the glyphs
+# glyphs       # Glyphs info data
 
 # Camera, defines position/orientation in 3d space
 camera3D ⇐ S v3‿v3‿v3‿f‿i
@@ -162,7 +167,7 @@ model ⇐ S ⟨
   transform # Transform *bindPose # Bones base transformation (pose)
 ⟩
 # ModelAnimation
-modelAnimation ⇐ ⟨
+modelAnimation ⇐ S ⟨
     i # boneCount          # Number of bones
     i # frameCount         # Number of animation frames
     boneInfo #  *bones        # Bones information (skeleton)
@@ -171,7 +176,7 @@ modelAnimation ⇐ ⟨
 ray ⇐ S v3‿v3 # position direction # ray for raycasting
 
 # RayCollision, ray hit information
-rayCollision ⇐ ⟨
+rayCollision ⇐ S ⟨
     i8 # bool hit # Did the ray hit something?
     f  # distance # Distance to the nearest hit
     v3 # point    # Point of the nearest hit
@@ -180,7 +185,7 @@ rayCollision ⇐ ⟨
 boundingBox ⇐ S v3‿v3 # min max # min corner to max corner
 
 # Wave, audio wave data
-wave ⇐ ⟨
+wave ⇐ S ⟨
   i # frameCount    # Total number of frames (considering channels)
   i # sampleRate    # Frequency (samples per second)
   i # sampleSize    # Bit depth (bits per sample): 8, 16, 32 (24 not supported)
@@ -200,7 +205,7 @@ sound ⇐ S audioStream‿u
 # frameCount         # Total number of frames (considering channels)
 
 # Music, audio stream, anything longer than ~10 seconds should be streamed
-music ⇐ ⟨
+music ⇐ S ⟨
     audioStream # stream       # Audio stream
     u           # frameCount   # Total number of frames (considering channels)
     i8          # bool looping # Music looping enable
@@ -209,7 +214,7 @@ music ⇐ ⟨
 ⟩
 
 # VrDeviceInfo, Head-Mounted-Display device parameters
-vrDeviceInfo ⇐ ⟨
+vrDeviceInfo ⇐ S ⟨
     i   # hResolution;            # Horizontal resolution in pixels
     i   # vResolution;            # Vertical resolution in pixels
     f   # hScreenSize             # Horizontal size in meters
@@ -248,7 +253,6 @@ _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
   a←(⋈'>'⊸∾)⍟(×∘≠∧1=≡)@⟨⟩⍟≡𝕩
   raylibPath•FFI⎊{•Show 𝕩 ⋄ 𝕨•FFI𝕩} outType‿𝕗∾a
 }
-
 
 #------------------------------------------------------------------------------------
 # Window and Graphics Device Functions (Module: core)
@@ -348,9 +352,9 @@ loadShaderFromMemory    ⇐ shader"LoadShaderFromMemory"   _R str‿str         
 isShaderReady           ⇐ i8    "IsShaderReady"          _R shader                                                      # Check if a shader is ready
 getShaderLocation       ⇐ i     "GetShaderLocation"      _R shader‿str        # shader uniformName                      # Get shader uniform location
 getShaderLocationAttrib ⇐ i     "GetShaderLocationAttrib"_R shader‿str        # shader attribName                       # Get shader attribute location
-setShaderValue          ⇐       "SetShaderValue"         _R shader‿i‿(P f)‿i   # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
-setShaderValue2         ⇐       "SetShaderValue"         _R shader‿i‿ptr‿i   # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
-setShaderValueV         ⇐       "SetShaderValueV"        _R shader‿i‿ptr‿i‿i # shader locIndex value uniformType count # Set shader uniform value vector
+setShaderValue          ⇐       "SetShaderValue"         _R shader‿i‿(P f)‿i  # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
+  setShaderValueVoid    ⇐       "SetShaderValue"         _R shader‿i‿ptr‿i    # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
+setShaderValueV         ⇐       "SetShaderValueV"        _R shader‿i‿ptr‿i‿i  # shader locIndex value uniformType count # Set shader uniform value vector
 setShaderValueMatrix    ⇐       "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                     # Set shader uniform value (matrix 4x4)
 setShaderValueTexture   ⇐       "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                 # Set shader uniform value for texture (sampler2d)
 unloadShader            ⇐       "UnloadShader"           _R shader                                                      # Unload shader from GPU memory (VRAM)
@@ -585,59 +589,59 @@ genImagePerlinNoise    ← image "GenImagePerlinNoise"   _R i‿i‿i‿i‿f   
 genImageCellular       ← image "GenImageCellular"      _R i‿i‿i               # width hight tileSize                  # Generate image: cellular algorithm, bigger tileSize means bigger cells
 genImageText           ← image "GenImageText"          _R i‿i‿str             # width hight *text                     # Generate image: grayscale image from text data
 
-# # Image manipulation functions
-# Image ImageCopy(Image image);                                                                      # Create an image duplicate (useful for transformations)
-# Image ImageFromImage(Image image, Rectangle rec);                                                  # Create an image from another image piece
-# Image ImageText str text, int fontSize, Color color);                                      # Create an image from text (default font)
-# Image ImageTextEx(Font font, str text, float fontSize, float spacing, Color tint);         # Create an image from text (custom sprite font)
-# void ImageFormat(Image *image, int newFormat);                                                     # Convert image data to desired format
-# void ImageToPOT(Image *image, Color fill);                                                         # Convert image to POT (power-of-two)
-# void ImageCrop(Image *image, Rectangle crop);                                                      # Crop an image to a defined rectangle
-# void ImageAlphaCrop(Image *image, float threshold);                                                # Crop image depending on alpha value
-# void ImageAlphaClear(Image *image, Color color, float threshold);                                  # Clear alpha channel to desired color
-# void ImageAlphaMask(Image *image, Image alphaMask);                                                # Apply alpha mask to image
-# void ImageAlphaPremultiply(Image *image);                                                          # Premultiply alpha channel
-# void ImageBlurGaussian(Image *image, int blurSize);                                                # Apply Gaussian blur using a box blur approximation
-# void ImageResize(Image *image, int newWidth, int newHeight);                                       # Resize image (Bicubic scaling algorithm)
-# void ImageResizeNN(Image *image, int newWidth,int newHeight);                                      # Resize image (Nearest-Neighbor scaling algorithm)
-# void ImageResizeCanvas(Image *image, int newWidth, int newHeight, int offsetX, int offsetY, Color fill);  # Resize canvas and fill with color
-# void ImageMipmaps(Image *image);                                                                   # Compute all mipmap levels for a provided image
-# void ImageDither(Image *image, int rBpp, int gBpp, int bBpp, int aBpp);                            # Dither image data to 16bpp or lower (Floyd-Steinberg dithering)
-# void ImageFlipVertical(Image *image);                                                              # Flip image vertically
-# void ImageFlipHorizontal(Image *image);                                                            # Flip image horizontally
-# void ImageRotateCW(Image *image);                                                                  # Rotate image clockwise 90deg
-# void ImageRotateCCW(Image *image);                                                                 # Rotate image counter-clockwise 90deg
-# void ImageColorTint(Image *image, Color color);                                                    # Modify image color: tint
-# void ImageColorInvert(Image *image);                                                               # Modify image color: invert
-# void ImageColorGrayscale(Image *image);                                                            # Modify image color: grayscale
-# void ImageColorContrast(Image *image, float contrast);                                             # Modify image color: contrast (-100 to 100)
-# void ImageColorBrightness(Image *image, int brightness);                                           # Modify image color: brightness (-255 to 255)
-# void ImageColorReplace(Image *image, Color color, Color replace);                                  # Modify image color: replace color
-# Color *LoadImageColors(Image image);                                                               # Load color data from image as a Color array (RGBA - 32bit)
-# Color *LoadImagePalette(Image image, int maxPaletteSize, int *colorCount);                         # Load colors palette from image as a Color array (RGBA - 32bit)
-# void UnloadImageColors(Color *colors);                                                             # Unload color data loaded with LoadImageColors()
-# void UnloadImagePalette(Color *colors);                                                            # Unload colors palette loaded with LoadImagePalette()
-# Rectangle GetImageAlphaBorder(Image image, float threshold);                                       # Get image alpha border rectangle
-# Color GetImageColor(Image image, int x, int y);                                                    # Get image pixel color at (x, y) position
+# Image manipulation functions
+imageCopy             ⇐ image     "ImageCopy"             _R image                                                                   # Create an image duplicate (useful for transformations)
+imageFromImage        ⇐ image     "ImageFromImage"        _R image‿rectangle                                                         # Create an image from another image piece
+imageText             ⇐ image     "ImageText"             _R str‿i‿color             # text fontSize color                           # Create an image from text (default font)
+imageTextEx           ⇐ image     "ImageTextEx"           _R font‿str‿f‿f‿color      # font text fontSize spacing tint               # Create an image from text (custom sprite font)
+imageFormat           ⇐           "ImageFormat"           _R (P image)‿i             # image newFormat                               # Convert image data to desired format
+imageToPOT            ⇐           "ImageToPOT"            _R (P image)‿color         # image fill                                    # Convert image to POT (power-of-two)
+imageCrop             ⇐           "ImageCrop"             _R (P image)‿rectangle     # image crop                                    # Crop an image to a defined rectangle
+imageAlphaCrop        ⇐           "ImageAlphaCrop"        _R (P image)‿f             # threshold                                     # Crop image depending on alpha value
+imageAlphaClear       ⇐           "ImageAlphaClear"       _R (P image)‿color‿f       # color threshold                               # Clear alpha channel to desired color
+imageAlphaMask        ⇐           "ImageAlphaMask"        _R (P image)‿image         # image alphaMask                               # Apply alpha mask to image
+imageAlphaPremultiply ⇐           "ImageAlphaPremultiply" _R  P image                                                                # Premultiply alpha channel
+imageBlurGaussian     ⇐           "ImageBlurGaussian"     _R (P image)‿i             # image blurSize                                # Apply Gaussian blur using a box blur approximation
+imageResize           ⇐           "ImageResize"           _R (P image)‿i‿i           # image newWidth newHeight                      # Resize image (Bicubic scaling algorithm)
+imageResizeNN         ⇐           "ImageResizeNN"         _R (P image)‿i‿i           # image newWidth newHeight                      # Resize image (Nearest-Neighbor scaling algorithm)
+imageResizeCanvas     ⇐           "ImageResizeCanvas"     _R (P image)‿i‿i‿i‿i‿color # image newWidth newHeight offsetX offsetY fill # Resize canvas and fill with color
+imageMipmaps          ⇐           "ImageMipmaps"          _R  P image                                                                # Compute all mipmap levels for a provided image
+imageDither           ⇐           "ImageDither"           _R (P image)‿i‿i‿i‿i       # rBpp gBpp bBpp aBpp                           # Dither image data to 16bpp or lower (Floyd-Steinberg dithering)
+imageFlipVertical     ⇐           "ImageFlipVertical"     _R  P image                                                                # Flip image vertically
+imageFlipHorizontal   ⇐           "ImageFlipHorizontal"   _R  P image                                                                # Flip image horizontally
+imageRotateCW         ⇐           "ImageRotateCW"         _R  P image                                                                # Rotate image clockwise 90deg
+imageRotateCCW        ⇐           "ImageRotateCCW"        _R  P image                                                                # Rotate image counter-clockwise 90deg
+imageColorTint        ⇐           "ImageColorTint"        _R (P image)‿color                                                         # Modify image color: tint
+imageColorInvert      ⇐           "ImageColorInvert"      _R  P image                                                                # Modify image color: invert
+imageColorGrayscale   ⇐           "ImageColorGrayscale"   _R  P image                                                                # Modify image color: grayscale
+imageColorContrast    ⇐           "ImageColorContrast"    _R (P image)‿f             # image contrast                                # Modify image color: contrast (-100 to 100)
+imageColorBrightness  ⇐           "ImageColorBrightness"  _R (P image)‿i             # brightness                                    # Modify image color: brightness (-255 to 255)
+imageColorReplace     ⇐           "ImageColorReplace"     _R (P image)‿color‿color   # image color replace                           # Modify image color: replace color
+loadImageColors       ⇐ ptr       "LoadImageColors"       _R image                   # *Color #                                      # Load color data from image as a Color array (RGBA - 32bit)
+loadImagePalette      ⇐ ptr       "LoadImagePalette"      _R image‿i‿(P i)           # *Color # image maxPaletteSize *colorCount     # Load colors palette from image as a Color array (RGBA - 32bit)
+unloadImageColors     ⇐           "UnloadImageColors"     _R  P color                                                                # Unload color data loaded with LoadImageColors()
+unloadImagePalette    ⇐           "UnloadImagePalette"    _R  P color                                                                # Unload colors palette loaded with LoadImagePalette()
+getImageAlphaBorder   ⇐ rectangle "GetImageAlphaBorder"   _R image‿f                 # image threshold                               # Get image alpha border rectangle
+getImageColor         ⇐ color     "GetImageColor"         _R image‿i‿i               # image x y                                     # Get image pixel color at (x, y) position
 
 # Image drawing functions
 # NOTE: Image software-rendering functions (CPU)
-imageClearBackground ⇐ "ImageClearBackground"_R(P image)‿color # *dst # Clear image background with given color
-# ImageDrawPixel(Image *dst, int posX, int posY, Color color);                                  # Draw pixel within an image
-# ImageDrawPixelV(Image *dst, Vector2 position, Color color);                                   # Draw pixel within an image (Vector version)
-# ImageDrawLine(Image *dst, int startPosX, int startPosY, int endPosX, int endPosY, Color color); # Draw line within an image
-# ImageDrawLineV(Image *dst, Vector2 start, Vector2 end, Color color);                          # Draw line within an image (Vector version)
-# ImageDrawCircle(Image *dst, int centerX, int centerY, int radius, Color color);               # Draw a filled circle within an image
-# ImageDrawCircleV(Image *dst, Vector2 center, int radius, Color color);                        # Draw a filled circle within an image (Vector version)
-# ImageDrawCircleLines(Image *dst, int centerX, int centerY, int radius, Color color);          # Draw circle outline within an image
-# ImageDrawCircleLinesV(Image *dst, Vector2 center, int radius, Color color);                   # Draw circle outline within an image (Vector version)
-# ImageDrawRectangle(Image *dst, int posX, int posY, int width, int height, Color color);       # Draw rectangle within an image
-# ImageDrawRectangleV(Image *dst, Vector2 position, Vector2 size, Color color);                 # Draw rectangle within an image (Vector version)
-# ImageDrawRectangleRec(Image *dst, Rectangle rec, Color color);                                # Draw rectangle within an image
-# ImageDrawRectangleLines(Image *dst, Rectangle rec, int thick, Color color);                   # Draw rectangle lines within an image
-# ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint);             # Draw a source image within a destination image (tint applied to source)
-# ImageDrawText(Image *dst, str text, int posX, int posY, int fontSize, Color color);   # Draw text (using default font) within an image (destination)
-# ImageDrawTextEx(Image *dst, Font font, str text, Vector2 position, float fontSize, float spacing, Color tint); # Draw text (custom sprite font) within an image (destination)
+imageClearBackground    ⇐ "ImageClearBackground"    _R (P image)‿color                           # *dst color # Clear image background with given color
+imageDrawPixel          ⇐ "ImageDrawPixel"          _R (P image)‿i‿i‿color                       # *dst posX posY color                                 # Draw pixel within an image
+imageDrawPixelV         ⇐ "ImageDrawPixelV"         _R (P image)‿v2‿color                        # *dst position color                                   # Draw pixel within an image (Vector version)
+imageDrawLine           ⇐ "ImageDrawLine"           _R (P image)‿i‿i‿i‿i‿color                   # *dst startPosX startPosY endPosX endPosY color # Draw line within an image
+imageDrawLineV          ⇐ "ImageDrawLineV"          _R (P image)‿v2‿v2‿color                     # *dst start end color                           # Draw line within an image (Vector version)
+imageDrawCircle         ⇐ "ImageDrawCircle"         _R (P image)‿i‿i‿i‿color                     # *dst centerX centerY radius color              # Draw a filled circle within an image
+imageDrawCircleV        ⇐ "ImageDrawCircleV"        _R (P image)‿v2‿i‿color                      # *dst center radius color                       # Draw a filled circle within an image (Vector version)
+imageDrawCircleLines    ⇐ "ImageDrawCircleLines"    _R (P image)‿i‿i‿i‿color                     # *dst centerX centerY radius color              # Draw circle outline within an image
+imageDrawCircleLinesV   ⇐ "ImageDrawCircleLinesV"   _R (P image)‿v2‿i‿color                      # *dst center radius color                       # Draw circle outline within an image (Vector version)
+imageDrawRectangle      ⇐ "ImageDrawRectangle"      _R (P image)‿i‿i‿i‿i‿color                   # *dst posX posY width hight color               # Draw rectangle within an image
+imageDrawRectangleV     ⇐ "ImageDrawRectangleV"     _R (P image)‿v2‿v2‿color                     # *dst position size color                       # Draw rectangle within an image (Vector version)
+imageDrawRectangleRec   ⇐ "ImageDrawRectangleRec"   _R (P image)‿rectangle‿color                 # *dst rec color                                 # Draw rectangle within an image
+imageDrawRectangleLines ⇐ "ImageDrawRectangleLines" _R (P image)‿rectangle‿i‿color               # *dst rec thick color                           # Draw rectangle lines within an image
+imageDraw               ⇐ "ImageDraw"               _R (P image)‿image‿rectangle‿rectangle‿color # *dst src srcRec dstRec tint                    # Draw a source image within a destination image (tint applied to source)
+imageDrawText           ⇐ "ImageDrawText"           _R (P image)‿str‿i‿i‿i‿color                 # *dst text posX posY fontSize color             # Draw text (using default font) within an image (destination)
+imageDrawTextEx         ⇐ "ImageDrawTextEx"         _R (P image)‿font‿str‿v2‿f‿f‿color           # *dst font text position fontSize spacing tint  # Draw text (custom sprite font) within an image (destination)
 
 # Texture loading functions
 # NOTE: These functions require GPU access
@@ -666,21 +670,21 @@ drawTexturePro    ⇐ "DrawTexturePro"   _R texture‿rectangle ‿rectangle‿v
 drawTextureNPatch ⇐ "DrawTextureNPatch"_R texture‿nPatchInfo‿rectangle‿v2‿f‿color # texture nPatchInfo dest origin rotation tint # Draws a texture (or part of it) that stretches or shrinks nicely
 
 # Color/pixel related functions
-#Color Fade(Color color, float alpha);                                 # Get color with alpha applied, alpha goes from 0.0f to 1.0f
-#int ColorToInt(Color color);                                          # Get hexadecimal value for a Color
-#Vector4 ColorNormalize(Color color);                                  # Get Color normalized as float [0..1]
-#Color ColorFromNormalized(Vector4 normalized);                        # Get Color from normalized values [0..1]
-#Vector3 ColorToHSV(Color color);                                      # Get HSV values for a Color, hue [0..360], saturation/value [0..1]
-#Color ColorFromHSV(float hue, float saturation, float value);         # Get a Color from HSV values, hue [0..360], saturation/value [0..1]
-#Color ColorTint(Color color, Color tint);                             # Get color multiplied with another color
-#Color ColorBrightness(Color color, float factor);                     # Get color with brightness correction, brightness factor goes from -1.0f to 1.0f
-#Color ColorContrast(Color color, float contrast);                     # Get color with contrast correction, contrast values between -1.0f and 1.0f
-colorAlpha ⇐ color "ColorAlpha"_R color‿f # color alpha # Get color with alpha applied, alpha goes from 0.0f to 1.0f
-#Color ColorAlphaBlend(Color dst, Color src, Color tint);              # Get src alpha-blended into dst color with tint
-#Color GetColor(unsigned int hexValue);                                # Get Color structure from hexadecimal value
-#Color GetPixelColor(void *srcPtr, int format);                        # Get Color from a source pixel pointer of certain format
-#void SetPixelColor(void *dstPtr, Color color, int format);            # Set color formatted into destination pixel pointer
-#int GetPixelDataSize(int width, int height, int format);              # Get pixel data size in bytes for certain format
+fade                ⇐ color "Fade"                _R color‿f           # color alpha           # Get color with alpha applied, alpha goes from 0.0f to 1.0f
+colorToInt          ⇐ i     "ColorToInt"          _R color                                     # Get hexadecimal value for a Color
+colorNormalize      ⇐ v4    "ColorNormalize"      _R color                                     # Get Color normalized as float [0..1]
+colorFromNormalized ⇐ color "ColorFromNormalized" _R v4                # normalized            # Get Color from normalized values [0..1]
+colorToHSV          ⇐ v3    "ColorToHSV"          _R color                                     # Get HSV values for a Color, hue [0..360], saturation/value [0..1]
+colorFromHSV        ⇐ color "ColorFromHSV"        _R f‿f‿f             # hue saturation value  # Get a Color from HSV values, hue [0..360], saturation/value [0..1]
+colorTint           ⇐ color "ColorTint"           _R color‿color       # color tint            # Get color multiplied with another color
+colorBrightness     ⇐ color "ColorBrightness"     _R color‿f           # color factor          # Get color with brightness correction, brightness factor goes from -1.0f to 1.0f
+colorContrast       ⇐ color "ColorContrast"       _R color‿f           # color contrast        # Get color with contrast correction, contrast values between -1.0f and 1.0f
+colorAlpha          ⇐ color "ColorAlpha"          _R color‿f           # color alpha           # Get color with alpha applied, alpha goes from 0.0f to 1.0f
+colorAlphaBlend     ⇐ color "ColorAlphaBlend"     _R color‿color‿color # dst src tint          # Get src alpha-blended into dst color with tint
+getColor            ⇐ color "GetColor"            _R u                 # hexValue              # Get Color structure from hexadecimal value
+getPixelColor       ⇐ color "GetPixelColor"       _R ptr‿i             # *srcPtr format        # Get Color from a source pixel pointer of certain format
+setPixelColor       ⇐       "SetPixelColor"       _R ptr‿color‿i       # *dstPtr color format  # Set color formatted into destination pixel pointer
+getPixelDataSize    ⇐ i     "GetPixelDataSize"    _R i‿i‿i             # width height format   # Get pixel data size in bytes for certain format
 
 #------------------------------------------------------------------------------------
 # Font Loading and Text Drawing Functions (Module: text)
@@ -715,33 +719,32 @@ getGlyphInfo     ⇐ glyphInfo "GetGlyphInfo"    _R font‿i       # font codepo
 getGlyphAtlasRec ⇐ rectangle "GetGlyphAtlasRec"_R font‿i       # font codepoint             # Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
 
 # Text codepoints management functions (unicode characters)
-# str LoadUTF8(int *codepoints, int length);                # Load UTF-8 text encoded from codepoints array
-# void UnloadUTF8(str text);                                      # Unload UTF-8 text encoded from codepoints array
-# int *LoadCodepoints str text, int *count);                # Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
-# void UnloadCodepoints(int *codepoints);                           # Unload codepoints data from memory
-# int GetCodepointCount str text);                          # Get total number of codepoints in a UTF-8 encoded string
-# int GetCodepoint str text, int *codepointSize);           # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-# int GetCodepointNext str text, int *codepointSize);       # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-# int GetCodepointPrevious str text, int *codepointSize);   # Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-# str CodepointToUTF8(int codepoint, int *utf8Size);        # Encode one codepoint into UTF-8 byte array (array length returned as parameter)
+loadUTF8             ⇐ ptr "LoadUTF8"             _R (P i)‿i # str ""_R *codepoints length   # Load UTF-8 text encoded from codepoints array
+unloadUTF8           ⇐     "UnloadUTF8"           _R str     # *text                # Unload UTF-8 text encoded from codepoints array
+loadCodepoints       ⇐ ptr "LoadCodepoints"       _R str⋈P i # *i ""_R *text *count # Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
+unloadCodepoints     ⇐     "UnloadCodepoints"     _R P i     # *codepoints          # Unload codepoints data from memory
+getCodepointCount    ⇐ i   "GetCodepointCount"    _R str     # *text                # Get total number of codepoints in a UTF-8 encoded string
+getCodepoint         ⇐ i   "GetCodepoint"         _R str⋈P i # *text *codepointSize # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+getCodepointNext     ⇐ i   "GetCodepointNext"     _R str⋈P i # *text *codepointSize # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+getCodepointPrevious ⇐ i   "GetCodepointPrevious" _R str⋈P i # *text *codepointSize # Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R codepoint *utf8Size  # Encode one codepoint into UTF-8 byte array (array length returned as parameter)
 
 # Text strings management functions (no UTF-8 strings, only byte chars)
 # NOTE: Some strings allocate memory internally for returned strings, just be careful!
-# int TextCopy(str dst, str src);                                             # Copy one string to another, returns bytes copied
-# bool TextIsEqual str text1, str text2);                               # Check if two text string are equal
-# unsigned int TextLength str text);                                            # Get text length, checks for '\0' ending
-# str TextFormat str text, ...);                                        # Text formatting with variables (sprintf() style)
-# str TextSubtext str text, int position, int length);                  # Get a piece of a text string
-# str TextReplace(str text, str replace, str by);                   # Replace text string (WARNING: memory must be freed!)
-# str TextInsert str text, str insert, int position);                 # Insert text in a position (WARNING: memory must be freed!)
-# str TextJoin str *textList, int count, str delimiter);        # Join text strings with delimiter
-# str *TextSplit str text, char delimiter, int *count);                 # Split text into multiple strings
-# void TextAppend(str text, str append, int *position);                       # Append text at specific position and move cursor!
-# int TextFindIndex str text, str find);                                # Find first text occurrence within a string
-# str TextToUpper str text);                      # Get upper case version of provided string
-# str TextToLower str text);                      # Get lower case version of provided string
-# str TextToPascal str text);                     # Get Pascal case notation version of provided string
-# int TextToInteger str text);                            # Get integer value from text (negative values not supported)
+textCopy      ⇐ i   "TextCopy"      _R str‿str       # dst src                                  # Copy one string to another, returns bytes copied
+textIsEqual   ⇐ u8  "TextIsEqual"   _R str‿str                                                  # Check if two text string are equal
+textLength    ⇐ u   "TextLength"    _R str                                                      # Get text length, checks for '\0' ending
+textSubtext   ⇐ ptr "TextSubtext"   _R str           # *str ""_R *text int position, int length # Get a piece of a text string
+textReplace   ⇐ ptr "TextReplace"   _R str‿str‿str   # *str ""_R *text *replace *by             # Replace text string (WARNING: memory must be freed!)
+textInsert    ⇐ ptr "TextInsert"    _R str‿str‿i     # *str ""_R *text *insert position         # Insert text in a position (WARNING: memory must be freed!)
+textJoin      ⇐ ptr "TextJoin"      _R str‿i‿str     # *str ""_R *textList count *delimiter     # Join text strings with delimiter
+textSplit     ⇐ ptr "TextSplit"     _R str‿c‿(P i)   # **str ""_R *text delimiter *count        # Split text into multiple strings
+textAppend    ⇐     "TextAppend"    _R str‿str‿(P i) # text append *position                    # Append text at specific position and move cursor!
+textFindIndex ⇐ i   "TextFindIndex" _R str‿str       # text find                                # Find first text occurrence within a string
+textToUpper   ⇐ ptr "TextToUpper"   _R str           # *str ""_R                                # Get upper case version of provided string
+textToLower   ⇐ ptr "TextToLower"   _R str           # *str ""_R                                # Get lower case version of provided string
+textToPascal  ⇐ ptr "TextToPascal"  _R str           # *str ""_R                                # Get Pascal case notation version of provided string
+textToInteger ⇐ i   "TextToInteger" _R str                                                      # Get integer value from text (negative values not supported)
 
 #------------------------------------------------------------------------------------
 # Basic 3d Shapes Drawing Functions (Module: models)
@@ -792,52 +795,52 @@ drawBillboardRec ⇐ "DrawBillboardRec"_R camera3d‿texture‿rectangle‿v3‿
 drawBillboardPro ⇐ "DrawBillboardPro"_R camera3d‿texture‿rectangle‿v3‿v3‿v2‿v2‿f‿color # camera texture source position up size origin rotation tint # Draw a billboard texture defined by source and rotation
 
 # Mesh management functions
-#void UploadMesh(Mesh *mesh, bool dynamic);                                            # Upload mesh vertex data in GPU and provide VAO/VBO ids
-#void UpdateMeshBuffer(Mesh mesh, int index, void *data, int dataSize, int offset); # Update mesh vertex data in GPU for a specific buffer index
-#void UnloadMesh(Mesh mesh);                                                           # Unload mesh data from CPU and GPU
-#void DrawMesh(Mesh mesh, Material material, Matrix transform);                        # Draw a 3d mesh with material and transform
-#void DrawMeshInstanced(Mesh mesh, Material material, Matrix *transforms, int instances); # Draw multiple mesh instances with material and different transforms
-#bool ExportMesh(Mesh mesh, str fileName);                                     # Export mesh data to file, returns true on success
-#BoundingBox GetMeshBoundingBox(Mesh mesh);                                            # Compute mesh bounding box limits
-#void GenMeshTangents(Mesh *mesh);                                                     # Compute mesh tangents
+uploadMesh         ⇐             "UploadMesh"         _R (P mesh)‿i8 # *mesh dynamic                                            # Upload mesh vertex data in GPU and provide VAO/VBO ids
+updateMeshBuffer   ⇐             "UpdateMeshBuffer"   _R mesh‿i‿ptr‿i‿i # mesh int index, void *data, int dataSize, int offset); # Update mesh vertex data in GPU for a specific buffer index
+unloadMesh         ⇐             "UnloadMesh"         _R mesh # mesh);                                                           # Unload mesh data from CPU and GPU
+drawMesh           ⇐             "DrawMesh"           _R mesh # mesh, Material material, Matrix transform);                        # Draw a 3d mesh with material and transform
+drawMeshInstanced  ⇐             "DrawMeshInstanced"  _R mesh # mesh, Material material, Matrix *transforms, int instances); # Draw multiple mesh instances with material and different transforms
+exportMesh         ⇐ i8          "ExportMesh"         _R mesh # mesh, str fileName);                                     # Export mesh data to file, returns true on success
+getMeshBoundingBox ⇐ boundingBox "GetMeshBoundingBox" _R mesh # mesh);                                            # Compute mesh bounding box limits
+genMeshTangents    ⇐             "GenMeshTangents"    _R mesh # *mesh);                                                     # Compute mesh tangents
 
 # Mesh generation functions
-#Mesh GenMeshPoly(int sides, float radius);                                            # Generate polygonal mesh
-genMeshPlane ⇐ mesh "GenMeshPlane"_R f‿f‿i‿i # width length resX resZ                         # Generate plane mesh (with subdivisions)
-genMeshCube  ⇐ mesh "GenMeshCube" _R f‿f‿f   # width height length                            # Generate cuboid mesh
-#Mesh GenMeshSphere(float radius, int rings, int slices);                              # Generate sphere mesh (standard sphere)
-#Mesh GenMeshHemiSphere(float radius, int rings, int slices);                          # Generate half-sphere mesh (no bottom cap)
-#Mesh GenMeshCylinder(float radius, float height, int slices);                         # Generate cylinder mesh
-#Mesh GenMeshCone(float radius, float height, int slices);                             # Generate cone/pyramid mesh
-#Mesh GenMeshTorus(float radius, float size, int radSeg, int sides);                   # Generate torus mesh
-#Mesh GenMeshKnot(float radius, float size, int radSeg, int sides);                    # Generate trefoil knot mesh
-#Mesh GenMeshHeightmap(Image heightmap, Vector3 size);                                 # Generate heightmap mesh from image data
-#Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);                               # Generate cubes-based map mesh from image data
+genMeshPoly       ⇐ mesh "GenMeshPoly"       _R i‿f      # sides radius             # Generate polygonal mesh
+genMeshPlane      ⇐ mesh "GenMeshPlane"      _R f‿f‿i‿i  # width length resX resZ   # Generate plane mesh (with subdivisions)
+genMeshCube       ⇐ mesh "GenMeshCube"       _R f‿f‿f    # width height length      # Generate cuboid mesh
+genMeshSphere     ⇐ mesh "GenMeshSphere"     _R f‿i‿i    # radius rings slices      # Generate sphere mesh (standard sphere)
+genMeshHemiSphere ⇐ mesh "GenMeshHemiSphere" _R f‿i‿i    # radius rings slices      # Generate half-sphere mesh (no bottom cap)
+genMeshCylinder   ⇐ mesh "GenMeshCylinder"   _R f‿f‿i    # radius height slices     # Generate cylinder mesh
+genMeshCone       ⇐ mesh "GenMeshCone"       _R f‿f‿i    # radius height slices     # Generate cone/pyramid mesh
+genMeshTorus      ⇐ mesh "GenMeshTorus"      _R f‿f‿i‿i  # radius size radSeg sides # Generate torus mesh
+genMeshKnot       ⇐ mesh "GenMeshKnot"       _R f‿f‿i‿i  # radius size radSeg sides # Generate trefoil knot mesh
+genMeshHeightmap  ⇐ mesh "GenMeshHeightmap"  _R image‿v3 # heightmap size           # Generate heightmap mesh from image data
+genMeshCubicmap   ⇐ mesh "GenMeshCubicmap"   _R image‿v3 # cubicmap cubeSize        # Generate cubes-based map mesh from image data
 
 # Material loading/unloading functions
-#Material *LoadMaterials str fileName, int *materialCount);                    # Load materials from model file
-#Material LoadMaterialDefault @                                                   # Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
-#bool IsMaterialReady(Material material);                                              # Check if a material is ready
-#void UnloadMaterial(Material material);                                               # Unload material from GPU memory (VRAM)
-#void SetMaterialTexture(Material *material, int mapType, Texture2D texture);          # Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
-#void SetModelMeshMaterial(Model *model, int meshId, int materialId);                  # Set material for a mesh
+loadMaterials        ⇐ ptr      "LoadMaterials"        _R str‿(P i)              # *Material ""_R *fileName *materialCount # Load materials from model file
+loadMaterialDefault  ⇐ material "LoadMaterialDefault"  _R@                                                                 # Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
+isMaterialReady      ⇐ i8       "IsMaterialReady"      _R material                                                         # Check if a material is ready
+unloadMaterial       ⇐          "UnloadMaterial"       _R material                                                         # Unload material from GPU memory (VRAM)
+setMaterialTexture   ⇐          "SetMaterialTexture"   _R (P material)‿i‿texture # *material mapType texture               # Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
+setModelMeshMaterial ⇐          "SetModelMeshMaterial" _R (P model)‿i‿i          # *model meshId materialId                # Set material for a mesh
 
 # Model animations loading/unloading functions
-#modelAnimation *LoadModelAnimations str fileName, unsigned int *animCount);   # Load model animations from file
-#void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);               # Update model animation pose
-#void UnloadModelAnimation(ModelAnimation anim);                                       # Unload animation data
-#void UnloadModelAnimations(ModelAnimation *animations, unsigned int count);           # Unload animation array data
-#bool IsModelAnimationValid(Model model, ModelAnimation anim);                         # Check model animation skeleton match
+loadModelAnimations   ⇐ ptr "LoadModelAnimations"   _R str⋈P u               # *modelAnimation ""_R filename *anumCount # Load model animations from file
+updateModelAnimation  ⇐     "UpdateModelAnimation"  _R model‿modelAnimation‿i # model anim frame                         # Update model animation pose
+unloadModelAnimation  ⇐     "UnloadModelAnimation"  _R modelAnimation                                                    # Unload animation data
+unloadModelAnimations ⇐     "UnloadModelAnimations" _R (P modelAnimation)‿u   # *animations count                        # Unload animation array data
+isModelAnimationValid ⇐ i8  "IsModelAnimationValid" _R model‿modelAnimation                                              # Check model animation skeleton match
 
 # Collision detection functions
-#bool CheckCollisionSpheres(Vector3 center1, float radius1, Vector3 center2, float radius2);   # Check collision between two spheres
-#bool CheckCollisionBoxes(BoundingBox box1, BoundingBox box2);                                 # Check collision between two bounding boxes
-#bool CheckCollisionBoxSphere(BoundingBox box, Vector3 center, float radius);                  # Check collision between box and sphere
-#RayCollision GetRayCollisionSphere(Ray ray, Vector3 center, float radius);                    # Get collision info between ray and sphere
-#RayCollision GetRayCollisionBox(Ray ray, BoundingBox box);                                    # Get collision info between ray and box
-#RayCollision GetRayCollisionMesh(Ray ray, Mesh mesh, Matrix transform);                       # Get collision info between ray and mesh
-#RayCollision GetRayCollisionTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3);            # Get collision info between ray and triangle
-#RayCollision GetRayCollisionQuad(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4);    # Get collision info between ray and quad
+checkCollisionSpheres   ⇐ i8           "CheckCollisionSpheres"   _R v3‿f‿v3‿f               # center1 radius1 center2 radius2 # Check collision between two spheres
+checkCollisionBoxes     ⇐ i8           "CheckCollisionBoxes"     _R boundingBox‿boundingBox # box1 box2                       # Check collision between two bounding boxes
+checkCollisionBoxSphere ⇐ i8           "CheckCollisionBoxSphere" _R boundingBox‿v3‿f        # box center radius               # Check collision between box and sphere
+getRayCollisionSphere   ⇐ rayCollision "GetRayCollisionSphere"   _R ray‿v3‿f                # ray center radius               # Get collision info between ray and sphere
+getRayCollisionBox      ⇐ rayCollision "GetRayCollisionBox"      _R ray‿boundingBox         # ray box                         # Get collision info between ray and box
+getRayCollisionMesh     ⇐ rayCollision "GetRayCollisionMesh"     _R ray‿mesh‿matrix         # ray mesh transform              # Get collision info between ray and mesh
+getRayCollisionTriangle ⇐ rayCollision "GetRayCollisionTriangle" _R ray‿v3‿v3‿v3            # ray p1 p2 p3                    # Get collision info between ray and triangle
+getRayCollisionQuad     ⇐ rayCollision "GetRayCollisionQuad"     _R ray‿v3‿v3‿v3‿v3         # ray p1 p2 p3 p4                 # Get collision info between ray and quad
 
 
 #------------------------------------------------------------------------------------
@@ -845,78 +848,78 @@ genMeshCube  ⇐ mesh "GenMeshCube" _R f‿f‿f   # width height length        
 #------------------------------------------------------------------------------------
 
 # Audio device management functions
-#void InitAudioDevice @                                     # Initialize audio device and context
-#void CloseAudioDevice @                                    # Close the audio device and context
-#bool IsAudioDeviceReady @                                  # Check if audio device has been initialized successfully
-#void SetMasterVolume(float volume);                             # Set master volume (listener)
+initAudioDevice    ⇐    "InitAudioDevice"    _R@           # Initialize audio device and context
+closeAudioDevice   ⇐    "CloseAudioDevice"   _R@           # Close the audio device and context
+isAudioDeviceReady ⇐ i8 "IsAudioDeviceReady" _R@           # Check if audio device has been initialized successfully
+setMasterVolume    ⇐    "SetMasterVolume"    _R f # volume # Set master volume (listener)
 
 # Wave/Sound loading/unloading functions
-#Wave LoadWave str fileName);                            # Load wave data from file
-#Wave LoadWaveFromMemory str fileType, ustr fileData, int dataSize); # Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
-#bool IsWaveReady(Wave wave);                                    # Checks if wave data is ready
-#Sound LoadSound str fileName);                          # Load sound from file
-#Sound LoadSoundFromWave(Wave wave);                             # Load sound from wave data
-#bool IsSoundReady(Sound sound);                                 # Checks if a sound is ready
-#void UpdateSound(Sound sound, void *data, int sampleCount); # Update sound buffer with new data
-#void UnloadWave(Wave wave);                                     # Unload wave data
-#void UnloadSound(Sound sound);                                  # Unload sound
-#bool ExportWave(Wave wave, str fileName);               # Export wave data to file, returns true on success
-#bool ExportWaveAsCode(Wave wave, str fileName);         # Export wave sample data to code (.h), returns true on success
+loadWave           ⇐ wave  "LoadWave"           _R str         # *fileName                    # Load wave data from file
+loadWaveFromMemory ⇐ wave  "LoadWaveFromMemory" _R str‿ustr‿i  # *fileType *fileData dataSize # Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
+isWaveReady        ⇐ i8    "IsWaveReady"        _R wave                                       # Checks if wave data is ready
+loadSound          ⇐ sound "LoadSound"          _R str         # *fileName                    # Load sound from file
+loadSoundFromWave  ⇐ sound "LoadSoundFromWave"  _R wave                                       # Load sound from wave data
+isSoundReady       ⇐ i8    "IsSoundReady"       _R sound                                      # Checks if a sound is ready
+updateSound        ⇐       "UpdateSound"        _R sound‿ptr‿i # sound *data sampleCount      # Update sound buffer with new data
+unloadWave         ⇐       "UnloadWave"         _R wave                                       # Unload wave data
+unloadSound        ⇐       "UnloadSound"        _R sound                                      # Unload sound
+exportWave         ⇐ i8    "ExportWave"         _R wave‿str    # wave fileName                # Export wave data to file, returns true on success
+exportWaveAsCode   ⇐ i8    "ExportWaveAsCode"   _R wave‿str    # wave fileName                # Export wave sample data to code (.h), returns true on success
 
 # Wave/Sound management functions
-#void PlaySound(Sound sound);                                    # Play a sound
-#void StopSound(Sound sound);                                    # Stop playing a sound
-#void PauseSound(Sound sound);                                   # Pause a sound
-#void ResumeSound(Sound sound);                                  # Resume a paused sound
-#bool IsSoundPlaying(Sound sound);                               # Check if a sound is currently playing
-#void SetSoundVolume(Sound sound, float volume);                 # Set volume for a sound (1.0 is max level)
-#void SetSoundPitch(Sound sound, float pitch);                   # Set pitch for a sound (1.0 is base level)
-#void SetSoundPan(Sound sound, float pan);                       # Set pan for a sound (0.5 is center)
-#Wave WaveCopy(Wave wave);                                       # Copy a wave to a new wave
-#void WaveCrop(Wave *wave, int initSample, int finalSample);     # Crop a wave to defined samples range
-#void WaveFormat(Wave *wave, int sampleRate, int sampleSize, int channels); # Convert wave data to desired format
-#float *LoadWaveSamples(Wave wave);                              # Load samples data from wave as a 32bit float data array
-#void UnloadWaveSamples(float *samples);                         # Unload samples data loaded with LoadWaveSamples()
+playSound         ⇐      "PlaySound"         _R sound                                                 # Play a sound
+stopSound         ⇐      "StopSound"         _R sound                                                 # Stop playing a sound
+pauseSound        ⇐      "PauseSound"        _R sound                                                 # Pause a sound
+resumeSound       ⇐      "ResumeSound"       _R sound                                                 # Resume a paused sound
+isSoundPlaying    ⇐ i8   "IsSoundPlaying"    _R sound                                                 # Check if a sound is currently playing
+setSoundVolume    ⇐      "SetSoundVolume"    _R sound‿f        # sound volume                         # Set volume for a sound (1.0 is max level)
+setSoundPitch     ⇐      "SetSoundPitch"     _R sound‿f        # sound pitch                          # Set pitch for a sound (1.0 is base level)
+setSoundPan       ⇐      "SetSoundPan"       _R sound‿f        # sound pan                            # Set pan for a sound (0.5 is center)
+waveCopy          ⇐ wave "WaveCopy"          _R wave                                                  # Copy a wave to a new wave
+waveCrop          ⇐      "WaveCrop"          _R (P wave)‿i‿i   # *wave initSample finalSample         # Crop a wave to defined samples range
+waveFormat        ⇐      "WaveFormat"        _R (P wave)‿i‿i‿i # *wave sampleRate sampleSize channels # Convert wave data to desired format
+loadWaveSamples   ⇐ ptr  "LoadWaveSamples"   _R wave           # *f ""_R wave                                       # Load samples data from wave as a 32bit float data array
+unloadWaveSamples ⇐      "UnloadWaveSamples" _R P f            # *samples                             # Unload samples data loaded with LoadWaveSamples()
 
 # Music management functions
-#Music LoadMusicStream str fileName);                    # Load music stream from file
-#Music LoadMusicStreamFromMemory str fileType, ustr data, int dataSize); # Load music stream from data
-#bool IsMusicReady(Music music);                                 # Checks if a music stream is ready
-#void UnloadMusicStream(Music music);                            # Unload music stream
-#void PlayMusicStream(Music music);                              # Start music playing
-#bool IsMusicStreamPlaying(Music music);                         # Check if music is playing
-#void UpdateMusicStream(Music music);                            # Updates buffers for music streaming
-#void StopMusicStream(Music music);                              # Stop music playing
-#void PauseMusicStream(Music music);                             # Pause music playing
-#void ResumeMusicStream(Music music);                            # Resume playing paused music
-#void SeekMusicStream(Music music, float position);              # Seek music to a position (in seconds)
-#void SetMusicVolume(Music music, float volume);                 # Set volume for music (1.0 is max level)
-#void SetMusicPitch(Music music, float pitch);                   # Set pitch for a music (1.0 is base level)
-#void SetMusicPan(Music music, float pan);                       # Set pan for a music (0.5 is center)
-#float GetMusicTimeLength(Music music);                          # Get music time length (in seconds)
-#float GetMusicTimePlayed(Music music);                          # Get current music time played (in seconds)
+loadMusicStream           ⇐ music "LoadMusicStream"           _R str        # fileName                # Load music stream from file
+loadMusicStreamFromMemory ⇐ music "LoadMusicStreamFromMemory" _R str‿ustr‿i # fileType *data dataSize # Load music stream from data
+isMusicReady              ⇐ i8    "IsMusicReady"              _R music                                # Checks if a music stream is ready
+unloadMusicStream         ⇐       "UnloadMusicStream"         _R music                                # Unload music stream
+playMusicStream           ⇐       "PlayMusicStream"           _R music                                # Start music playing
+isMusicStreamPlaying      ⇐ i8    "IsMusicStreamPlaying"      _R music                                # Check if music is playing
+updateMusicStream         ⇐       "UpdateMusicStream"         _R music                                # Updates buffers for music streaming
+stopMusicStream           ⇐       "StopMusicStream"           _R music                                # Stop music playing
+pauseMusicStream          ⇐       "PauseMusicStream"          _R music                                # Pause music playing
+resumeMusicStream         ⇐       "ResumeMusicStream"         _R music                                # Resume playing paused music
+seekMusicStream           ⇐       "SeekMusicStream"           _R music‿f    # music position          # Seek music to a position (in seconds)
+setMusicVolume            ⇐       "SetMusicVolume"            _R music‿f    # music volume            # Set volume for music (1.0 is max level)
+setMusicPitch             ⇐       "SetMusicPitch"             _R music‿f    # music pitch             # Set pitch for a music (1.0 is base level)
+setMusicPan               ⇐       "SetMusicPan"               _R music‿f    # music pan               # Set pan for a music (0.5 is center)
+getMusicTimeLength        ⇐ f     "GetMusicTimeLength"        _R music                                # Get music time length (in seconds)
+getMusicTimePlayed        ⇐ f     "GetMusicTimePlayed"        _R music                                # Get current music time played (in seconds)
 
 # AudioStream management functions
-#AudioStream LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, unsigned int channels); # Load audio stream (to stream raw audio pcm data)
-#bool IsAudioStreamReady(AudioStream stream);                    # Checks if an audio stream is ready
-#void UnloadAudioStream(AudioStream stream);                     # Unload audio stream and free memory
-#void UpdateAudioStream(AudioStream stream, void *data, int frameCount); # Update audio stream buffers with data
-#bool IsAudioStreamProcessed(AudioStream stream);                # Check if any audio stream buffers requires refill
-#void PlayAudioStream(AudioStream stream);                       # Play audio stream
-#void PauseAudioStream(AudioStream stream);                      # Pause audio stream
-#void ResumeAudioStream(AudioStream stream);                     # Resume audio stream
-#bool IsAudioStreamPlaying(AudioStream stream);                  # Check if audio stream is playing
-#void StopAudioStream(AudioStream stream);                       # Stop audio stream
-#void SetAudioStreamVolume(AudioStream stream, float volume);    # Set volume for audio stream (1.0 is max level)
-#void SetAudioStreamPitch(AudioStream stream, float pitch);      # Set pitch for audio stream (1.0 is base level)
-#void SetAudioStreamPan(AudioStream stream, float pan);          # Set pan for audio stream (0.5 is centered)
-#void SetAudioStreamBufferSizeDefault(int size);                 # Default size for new audio streams
-#void SetAudioStreamCallback(AudioStream stream, AudioCallback callback);  # Audio thread callback to request new data
+loadAudioStream                 ⇐ ptr "LoadAudioStream"                 _R u‿u‿u             # sampleRate sampleSize channels # Load audio stream (to stream raw audio pcm data)
+isAudioStreamReady              ⇐ i8  "IsAudioStreamReady"              _R audioStream       # stream                         # Checks if an audio stream is ready
+unloadAudioStream               ⇐     "UnloadAudioStream"               _R audioStream       # stream                         # Unload audio stream and free memory
+updateAudioStream               ⇐     "UpdateAudioStream"               _R audioStream‿ptr‿i # stream *data frameCount        # Update audio stream buffers with data
+isAudioStreamProcessed          ⇐ i8  "IsAudioStreamProcessed"          _R audioStream       # stream                         # Check if any audio stream buffers requires refill
+playAudioStream                 ⇐     "PlayAudioStream"                 _R audioStream       # stream                         # Play audio stream
+pauseAudioStream                ⇐     "PauseAudioStream"                _R audioStream       # stream                         # Pause audio stream
+resumeAudioStream               ⇐     "ResumeAudioStream"               _R audioStream       # stream                         # Resume audio stream
+isAudioStreamPlaying            ⇐ i8  "IsAudioStreamPlaying"            _R audioStream       # stream                         # Check if audio stream is playing
+stopAudioStream                 ⇐     "StopAudioStream"                 _R audioStream       # stream                         # Stop audio stream
+setAudioStreamVolume            ⇐     "SetAudioStreamVolume"            _R audioStream‿f     # stream volume                  # Set volume for audio stream (1.0 is max level)
+setAudioStreamPitch             ⇐     "SetAudioStreamPitch"             _R audioStream‿f     # stream pitch                   # Set pitch for audio stream (1.0 is base level)
+setAudioStreamPan               ⇐     "SetAudioStreamPan"               _R audioStream‿f     # stream pan                     # Set pan for audio stream (0.5 is centered)
+setAudioStreamBufferSizeDefault ⇐     "SetAudioStreamBufferSizeDefault" _R i                 # size                           # Default size for new audio streams
+setAudioStreamCallback          ⇐     "SetAudioStreamCallback"          _R audioStream‿ptr   # stream callback                # Audio thread callback to request new data
 
-#void AttachAudioStreamProcessor(AudioStream stream, AudioCallback processor); # Attach audio stream processor to stream
-#void DetachAudioStreamProcessor(AudioStream stream, AudioCallback processor); # Detach audio stream processor from stream
+attachAudioStreamProcessor ⇐ "AttachAudioStreamProcessor" _R audioStream‿ptr # stream (audioCallback processor) # Attach audio stream processor to stream
+detachAudioStreamProcessor ⇐ "DetachAudioStreamProcessor" _R audioStream‿ptr # stream (audioCallback processor) # Detach audio stream processor from stream
 
-#void AttachAudioMixedProcessor(AudioCallback processor); # Attach audio stream processor to the entire audio pipeline
-#void DetachAudioMixedProcessor(AudioCallback processor); # Detach audio stream processor from the entire audio pipeline
+attachAudioMixedProcessor ⇐ "AttachAudioMixedProcessor" _R ptr # (audioCallback processor) # Attach audio stream processor to the entire audio pipeline
+detachAudioMixedProcessor ⇐ "DetachAudioMixedProcessor" _R ptr # (audioCallback processor) # Detach audio stream processor from the entire audio pipeline
 
 #endregion
