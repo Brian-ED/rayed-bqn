@@ -1,5 +1,5 @@
 ## Metaprogram rayffi.bqn automatically.
-## INCOMPLETE
+## INCOMPLETE the current rayffi file is all manually made.
 
 nl ← @+10 # newline
 json ← •Import (∾5⥊<"../")∾"bqn-libs/json.bqn"

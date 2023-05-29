@@ -1,52 +1,47 @@
 ## Conventions:
-# if position is an argument, it's always 𝕩.
-# if color is an argument, it's always 𝕗.
-# if function has no intended output, output 𝕩, it makes chaining look nicer.
+# If position is an argument, it's always 𝕩.
+# If color is an argument, it's always 𝕗.
+# If function has no intended output, output 𝕩, it makes chaining look nicer.
+# One big goal of this lib is to eliminate as many bugs as possible,
+# for example, opening the window twice is impossible because it is not intended in raylib, and causes many bugs.
 
-isLinux ← ¬⊑•SH⎊1 "lsb_release"‿"-i"
-
+isLinux ← 1∘•SH⎊0 "lsb_release"‿"-i"
+FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
 ⟨draw, image, texture, monitor, window, mouse
- font, color, key, _bitwise, rayffi, NeedsWindow⟩⇐
+ font, color, key, _bitwise, rayffi⟩⇐
 
 rayFFI ← •Import "rayffi.bqn"
-IsInt ← {𝕩⊣(⌈⟜=𝕩)!˜" has to be int"∾˜𝕨⊣"𝕩"}
+color ← •Import "src/colors.bqn"
+NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 pointer ⇐ {
   MovePtr8 ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128) 256|⌊÷⟜b 𝕨+´b×256|𝕩}
-  ⟨readI8
-   make⟩ ⇐ {𝕊:⟨
-    @•FFI""‿"bqn_readI8Arr"‿">a"‿("𝕨>"∾rayffi.ptr)    # write to ptr
-    @•FFI"a"‿"bqn_makeI8Vec"‿"𝕨>u64"‿(">"∾rayffi.ptr) # materialize
-  ⟩}⍟isLinux@‿@
+  ⟨readI8,make⟩ ⇐ @•FFI⎊(!∘"Not implemented on your platform"˙)¨⟨
+    ""‿"bqn_readI8Arr"‿">a"‿("𝕨>"∾rayffi.ptr)    # write to ptr
+    "a"‿"bqn_makeI8Vec"‿"𝕨>u64"‿(">"∾rayffi.ptr) # materialize
+  ⟩
 }
 _bitwise ← {
   _into ← {𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
   𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
-NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
-
 image ← {
   # TODO: remember to check if file exists before running.
-  Load   ⇐ {𝕊strPath   : NeedsWindow@ ⋄ rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
-  Unload ⇐ {𝕊image     : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
-  _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄ Unload 𝔽 Load𝕩}
-
+  Load   ⇐ {  𝕊 strPath: NeedsWindow@ ⋄   rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
+  Unload ⇐ {  𝕊 image  : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
+  _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄ (Unload⊢𝔽)Load𝕩}
   New ⇐ {
     NeedsWindow@
     l pointer.ReadI8˜ptr←rayffi.MemAlloc≠l←⥊𝕩
-    ptr<⊸∾(¯1↓≢𝕩)∾1∾pixelFormat.uncompressed_r8g8b8a8
-  }⍟isLinux
+    ptr<⊸∾(¯1↓≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
+  }
 }
 texture ← {
   # TODO: remember to check if file exists before running.
   Load      ⇐ {𝕊strPath: NeedsWindow@ ⋄   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
   Unload    ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
-  #FromImage ⇐ {𝕊image: 
-  #}
-  
-  #_with ⇐ {𝔽_𝕣 strPath: NeedsWindow@
-  #  (Unload⊢𝔽⟜𝕩)Load⚇1 𝕘
-  #}
+  FromImage ⇐ {𝕊image  : NeedsWindow@ ⋄   rayffi.LoadImageFromTexture𝕩}
+  _with ⇐ {𝔽_𝕣 strPath : NeedsWindow@ ⋄ (Unload⊢𝔽)Load𝕩}
 }
 mouse ← {
   GetPos     ⇐ rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
@@ -80,30 +75,28 @@ monitor ← {
   Name        ← rayFFI.GetMonitorName
   notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
   AddMonitorCheck ← {𝕏@⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@}}
+  
   ⟨RefreshRate, Size, Sizemm, Name
   ⟩AddMonitorCheck¨↩
+  
   ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
    Sizemm ⋄ Name⟩ {𝕏⊣NeedsWindow}¨↩
 }
 
 window ← {
-  ⟨_openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
-   ShouldClose ⋄ isOpen ⋄ Open ⋄ Close⟩⇐
+  ⟨
+   isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
+   ShouldClose ⋄ Needed
+  ⟩⇐
+  Needed ← NeedsWindow
   isOpen ← 0
-  fps ← {
-    Get ⇐ rayFFI.GetFPS⟨⟩⊣NeedsWindow
-    Set ⇐ {
-      NeedsWindow@
-      (𝕩=⌈0⌈𝕩)!˜"FPS has to be a positive int"
-      𝕩⊣rayFFI.SetTargetFPS𝕩
-    }
-  }
   Open ← {𝕨𝕊 title: scale←𝕨⊣1
     (¬isOpen)!˜"The window cannot be opened twice"
     (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢scale)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
     rayFFI.InitWindow 0‿0∾<𝕩∾@
     isOpen↩1
+    rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
     rayFFI.SetWindowPosition 0‿42 # 42 here is the window header size (might be windows only)
     rayFFI.SetWindowSize monitor.Size∘@⊸× scale
     fps.Set monitor.RefreshRate@
@@ -120,45 +113,60 @@ window ← {
     rayFFI.CloseWindow⟨⟩
     𝕩⊣isOpen↩0
   }
-  _openAs ← {𝕨 App _𝕣 title: scale←𝕨⊣1
-    scale(Close⊢𝔽⊣Open)𝕩
+  _openAs ← {𝕨 App _𝕣 title: scale←2⥊𝕨⊣1
+    scale Open𝕩
+    Close⊸⊢{
+      bqnFont⇐font.LoadBQN 100
+      raylibFont⇐font.LoadRaylib
+    }𝔽@
   }
   # TODO: Needs to test input for image
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩}
-  
+
+  fps ← {
+    Get ⇐ rayFFI.GetFPS⟨⟩⊣NeedsWindow
+    Set ⇐ {
+      (𝕩=⌈0⌈𝕩)!˜"FPS has to be a positive int"
+      𝕩⊣rayFFI.SetTargetFPS𝕩
+    }⊣NeedsWindow
+  }
+
   # NOTE: Every bit registers one state (use it with bit masks)
   # By default all flags are set to 0
   configFlags ⇐{
-    fLAG_VSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU
     fLAG_FULLSCREEN_MODE          ⇐ 2      # Set to run program in fullscreen
     fLAG_WINDOW_RESIZABLE         ⇐ 4      # Set to allow resizable window
     fLAG_WINDOW_UNDECORATED       ⇐ 8      # Set to disable window decoration (frame and buttons)
+    fLAG_WINDOW_TRANSPARENT       ⇐ 16     # Set to allow transparent framebuffer
+    fLAG_MSAA_4X_HINT             ⇐ 32     # Set to try enabling MSAA 4X
+    fLAG_VSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU
     fLAG_WINDOW_HIDDEN            ⇐ 128    # Set to hide window
+    fLAG_WINDOW_ALWAYS_RUN        ⇐ 256    # Set to allow windows running while minimized
     fLAG_WINDOW_MINIMIZED         ⇐ 512    # Set to minimize window (iconify)
     fLAG_WINDOW_MAXIMIZED         ⇐ 1024   # Set to maximize window (expanded to monitor)
     fLAG_WINDOW_UNFOCUSED         ⇐ 2048   # Set to window non focused
     fLAG_WINDOW_TOPMOST           ⇐ 4096   # Set to window always on top
-    fLAG_WINDOW_ALWAYS_RUN        ⇐ 256    # Set to allow windows running while minimized
-    fLAG_WINDOW_TRANSPARENT       ⇐ 16     # Set to allow transparent framebuffer
     fLAG_WINDOW_HIGHDPI           ⇐ 8192   # Set to support HighDPI
     fLAG_WINDOW_MOUSE_PASSTHROUGH ⇐ 16384  # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-    fLAG_MSAA_4X_HINT             ⇐ 32     # Set to try enabling MSAA 4X
     fLAG_INTERLACED_HINT          ⇐ 65536  # Set to try enabling interlaced video format (for V3D)
   }
 }
 
 draw ← {
-  ⟨Start     ⋄ End        ⋄ _withCanvas_
-   _Circle   ⋄ _Rectangle ⋄ _Text_   ⋄ _Line
-  Background ⋄ _Texture_  ⋄ _Ellipse ⋄ _EllipseOutline
+  ⟨
+    # These aren't exported because they are useless if you use _withCanvas_.
+    # They also don't behave well if ran in the wrong order, and you only want to run them in 1 sequence.
+    # Start ⋄ End ⋄ Background    
+   _withCanvas_ ⋄ _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line
+   _Texture_ ⋄ _Ellipse ⋄ _EllipseOutline
   ⟩⇐
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
     (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     rayFFI.ClearBackground 𝕩
   }
-  Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩∘NeedsWindow
-  End   ← ⊢⊣rayFFI.EndDrawing  ∘⟨⟩∘NeedsWindow
+  Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩⊣NeedsWindow
+  End   ← ⊢⊣rayFFI.EndDrawing  ∘⟨⟩⊣NeedsWindow
   _withCanvas_ ← {𝕨Func _𝕣_ Func_Returning_A_Color𝕩:
     Start@
     Background 𝕨𝔾𝕩
@@ -175,9 +183,9 @@ draw ← {
     "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕩∾𝕨∾𝕗
     rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
   }
-  _Text_ ← {text ⟨r,g,b,a⟩_𝕣_ fontSize ⟨posX,posY⟩:
+  _Text_ ← {font‿width⟨r,g,b,a⟩_𝕣_ fontSize ⟨posX,posY⟩‿text:
     NeedsWindow@
-    rayFFI.DrawText (𝕨∾@)<⊸∾⌊𝕩∾𝕘‿𝕗
+    rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, width, 𝕗⟩
   }
   _Line ← { #TODO add asserts
     ⟨r,g,b,a⟩_𝕣 startPos‿endPos:
@@ -205,61 +213,21 @@ draw ← {
   }
 }
 font ← { # TODO: This is untested, please test this later
+  #⟨ Load ⋄ bqn ⟩⇐
   Load ⇐ rayFFI.LoadFontEx{
     𝕊fontFilePath:
       ⟨𝕩∾@, 40, ≍@, 0⟩; # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
     charactersAllowed 𝕊 fontFilePath:
       ⟨𝕩∾@, 40, 𝕨-@, ≠𝕨⟩
-  }⟜NeedsWindow
+  }⊣NeedsWindow
   LoadBQN ⇐ {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
     NeedsWindow@
     chars ← •FChars "src/chars.txt"
-    rayFFI.LoadFontEx ⟨"BQN386.ttf"∾@, 𝕩, chars-@, ≠chars⟩
+    rayFFI.LoadFontEx ⟨@∾˜FileAt"src/BQN386.ttf", 𝕩, chars-@, ≠chars⟩
   }
-}
-
-color ← {
-  FromHex ⇐ 16⊸×⊸+˜´∘⌽˘·(∾"0A"+⟜↕¨10‿6)⊸⊐˘∘‿2⥊⊢
-  exact⇐{
-    white ⇐ 4⥊255 ⋄ black ⇐ ¯4↑255
-    [red ‿green  ‿blue
-     cyan‿magenta‿yellow] ⇐ 255×1∾˜¨⍉(-↕3)⌽⌜⋈⟜¬3↑1
+  LoadRaylib ⇐ {𝕊fontSize:
+    •rayffi.GetFontDefault
   }
-  beige       ⇐ 211‿176‿131‿255
-  black       ⇐ 0  ‿0  ‿0  ‿255
-  transparent ⇐ 0  ‿0  ‿0  ‿0
-  blue        ⇐ 0  ‿121‿241‿255
-  brown       ⇐ 127‿106‿79 ‿255
-  cyan        ⇐ 0  ‿255‿255‿255
-  darkGray    ⇐ 80 ‿80 ‿80 ‿255
-  darkblue    ⇐ 0  ‿82 ‿172‿255
-  darkbrown   ⇐ 76 ‿63 ‿47 ‿255
-  darkgreen   ⇐ 0  ‿117‿44 ‿255
-  darkpurple  ⇐ 112‿31 ‿126‿255
-  darkred     ⇐ 139‿0  ‿0  ‿255
-  gold        ⇐ 255‿203‿0  ‿255
-  gray        ⇐ 130‿130‿130‿255
-  green       ⇐ 0  ‿228‿48 ‿255
-  lavender    ⇐ 230‿230‿250‿255
-  lightGray   ⇐ 200‿200‿200‿255
-  lightblue   ⇐ 173‿216‿230‿255
-  lightgreen  ⇐ 144‿238‿144‿255
-  lightred    ⇐ 255‿102‿102‿255
-  lime        ⇐ 0  ‿158‿47 ‿255
-  magenta     ⇐ 255‿  0‿255‿255
-  maroon      ⇐ 190‿33 ‿55 ‿255
-  navy        ⇐ 0  ‿0  ‿128‿255
-  orange      ⇐ 255‿161‿0  ‿255
-  pink        ⇐ 255‿109‿194‿255
-  purple      ⇐ 200‿122‿255‿255
-  raywhite    ⇐ 245‿245‿245‿255
-  red         ⇐ 230‿41 ‿55 ‿255
-  silver      ⇐ 192‿192‿192‿255
-  skyblue     ⇐ 102‿191‿255‿255
-  teal        ⇐ 0  ‿128‿128‿255
-  violet      ⇐ 135‿60 ‿190‿255
-  white       ⇐ 255‿255‿255‿255
-  yellow      ⇐ 253‿249‿0  ‿255
 }
 key ← {
   IsPressed ⇐ {𝕊 key:
@@ -269,10 +237,11 @@ key ← {
   # These funcs are queues, call multiple times if needed. Returns 0 when the queue is empty
   PressedKey ⇐ {𝕤  # Get key pressed (keycode)
     rayFFI.GetKeyPressed⟨⟩
-  }⚇0⊣NeedsWindow
+  }⊣NeedsWindow
   PressedChar ⇐ {𝕤
     rayffi.GetcharPressed⟨⟩
-  }⚇0⊣NeedsWindow
+  }⊣NeedsWindow
+
   # Keyboard keys (US keyboard layout)
   # NOTE: Use GetKeyPressed() to allow redefining
   # required keys for alternative layouts
@@ -394,7 +363,6 @@ key ← {
   volume_up     ⇐ 24       # Android volume up button
   volume_down   ⇐ 25       # Android volume down button
 }
-
 traceLogLevel ⇐ { # Trace log level
   all     ⇐ 0  # Display all logs                                                                   
   trace   ⇐ 1  # Trace logging, intended for internal use only                                      
