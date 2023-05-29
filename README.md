@@ -34,7 +34,8 @@ I have never tested mac, but it could be similar to Linux.
 # Tested Raylib versions:
 
 ## Windows
-  "raylib-4.5.0_win64_mingw-w64" on Windows 10.
+  "raylib-4.5.0_win64_mingw-w64" on Windows 10, using CBQN version [cbqn-cygwin-gcc-mintty-standalone-x86_64](https://github.com/actalley/WinBQN/releases/tag/v0.0.8-alpha)
+  
 ## Linux
   Raylib version 4.5.0 built from source on Pop!_OS.
   Raylib version 4.5.0 built from source on Ubuntu 22.04.2 LTS.
@@ -56,7 +57,7 @@ On Linux: libraylib.so
 # Ideologies
 Having as little magic as possible, magic meaning magic numbers and global values (available to the user) changing outside user's control.
 
-Mutations localized in namespaces like "button" are probably fine, Nothing does this yet though.
+Mutations localized in namespaces like "button" are fine.
 # Credits
 Lots of thanks to [@dzaima](https://github.com/dzaima) for helping with FFI.
 
