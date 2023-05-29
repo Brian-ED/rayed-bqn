@@ -29,4 +29,3 @@ PerFrame ← {
   100|1+𝕩
 } rl.draw._withCanvas_ rl.color.black
 PerFrame•_While_(¬rl.window.ShouldClose)∘0 rl.window._openAs "Hello!!!"
-•Show ⍷⊸≡¨⊸/⥊↕3‿3‿3
