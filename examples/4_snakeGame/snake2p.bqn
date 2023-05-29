@@ -35,7 +35,7 @@ OnStart ← {𝕤
   gameState‿frame‿snakes‿fruit‿facing‿speed‿buffer‿palete
 }
 PerGameFrame ← {𝕊gameState‿snakes‿fruit‿facing‿buffer:
-  nowFacing      ← facing{𝕨⌽˜-´𝕩=⊑1↑buffer}¨⟨k.kLeft‿k.kRight, k.kA‿ k.kD⟩
+  nowFacing      ← facing{𝕨⌽˜-´𝕩=⊑1↑buffer}¨⟨k.left‿k.right, k.a‿ k.d⟩
   extendedSnakes ← nowfacing(⊢∾˜size|+○⊏)¨snakes
   SpawnFruit     ← {•rand.Range∘≠⊸⊑𝕨<˘⊸(¬∘∊˜/⊢)⥊↕2⥊size}
   newFruit       ← extendedSnakes SpawnFruit⍟(∨´⊏⊸≡⚇¯1‿∞) fruit
@@ -50,7 +50,7 @@ PerGameFrame ← {𝕊gameState‿snakes‿fruit‿facing‿buffer:
 }⌾(0‿2‿3‿4‿6⊸⊏)
 
 PerFrame ←{con𝕊⟨gameState,frame,snakes,fruit,facing,speed,buffer,pal⟩:
-  pauseP ← k.kRIGHT_SHIFT = key ← k.GetPressed@
+  pauseP ← k.right_shift = key ← k.PressedKey@
   10‿10 c.black draw._Text_ 40 ˜4↓∾"    "⊸∾¨•Repr¨ ¯1+≠¨snakes
   ⊑◶⟨ # each function is one scene
     {
@@ -63,12 +63,12 @@ PerFrame ←{con𝕊⟨gameState,frame,snakes,fruit,facing,speed,buffer,pal⟩:
       pal.snakes{snake𝕊𝕩:{(con.tileSize-2) snake draw._Rectangle○(2⊸⥊)𝕩}˘𝕩}¨1+con.tileSize×1+snakes
       ⟨frame+1
        speed
-       key∾⍟(⊑∊⟜k.kLeft‿k.kRight‿k.kA‿k.kD) buffer⟩ # Key buffer
+       key∾⍟(⊑∊⟜k.left‿k.right‿k.a‿k.d) buffer⟩ # Key buffer
     }⌾(1‿5‿6⊸⊏)
     {
       pauseText←"Paused"∾(@+10)∾"d for dark"
       pauseText pal.text draw._Text_ textSize 2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize
-      {𝕩≡nonDarkMode?darkMode;nonDarkMode}⌾(7⊑⊢)⍟(key=k.kD)𝕩
+      {𝕩≡nonDarkMode?darkMode;nonDarkMode}⌾(7⊑⊢)⍟(key=k.d)𝕩
     }
   ⟩  {1:2;2:1;𝕩}⍟pauseP⌾⊑ 𝕩
 } draw._withCanvas_ {(7⊑𝕩).background}
