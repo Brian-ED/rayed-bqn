@@ -1,29 +1,24 @@
 ## Conventions:
-# If position is an argument, it's always 𝕩.
-# If color is an argument, it's always 𝕗.
-# If function has no intended output, output 𝕩, it makes chaining look nicer.
-# One big goal of this lib is to eliminate as many bugs as possible,
+# If function has no intended output, output @.
+# One big goal of this lib is to eliminate as many bugs of raylib as possible,
 # for example, opening the window twice is impossible because it is not intended in raylib, and causes many bugs.
 
-isLinux ← 1∘•SH⎊0 "lsb_release"‿"-i"
-FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
 ⟨draw, image, texture, monitor, window, mouse
- font, color, key, _bitwise, rayffi⟩⇐
+ font, color, key, rayffi, utils⟩⇐
 
-rayFFI ← •Import "rayffi.bqn"
-color ← •Import "src/colors.bqn"
+isLinux ← 1∘•SH⎊0 "lsb_release"‿"-i"
+rayFFI  ← •Import "rayffi.bqn"
+color   ← •Import "src/colors.bqn"
+
+FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 pointer ⇐ {
-  MovePtr8 ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128) 256|⌊÷⟜b 𝕨+´b×256|𝕩}
+  MovePtr8 ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128)256|⌊b÷˜𝕨+´b×256|𝕩}
   ⟨readI8,make⟩ ⇐ @•FFI⎊(!∘"Not implemented on your platform"˙)¨⟨
     ""‿"bqn_readI8Arr"‿">a"‿("𝕨>"∾rayffi.ptr)    # write to ptr
     "a"‿"bqn_makeI8Vec"‿"𝕨>u64"‿(">"∾rayffi.ptr) # materialize
   ⟩
-}
-_bitwise ← {
-  _into ← {𝕗_𝕣⁼𝕩: 𝕗⊸×⊸+˜´𝕩; 𝕗|⌊∘÷⟜𝕗⍟(↕1+·⌊𝕗⋆⁼1⌈⊢)𝕩}
-  𝕗{_𝕣:(𝔽´⌈○≠↑¨⋈)⌾(2 _into)}
 }
 image ← {
   # TODO: remember to check if file exists before running.
@@ -86,10 +81,11 @@ monitor ← {
 window ← {
   ⟨
    isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
-   ShouldClose ⋄ Needed
+   ShouldClose ⋄ Needed ⋄ SetPos
   ⟩⇐
   Needed ← NeedsWindow
   isOpen ← 0
+  SetPos ← {rayFFI.SetWindowPosition NeedsWindow𝕩}
   Open ← {𝕨𝕊 title: scale←𝕨⊣1
     (¬isOpen)!˜"The window cannot be opened twice"
     (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
@@ -115,10 +111,10 @@ window ← {
   }
   _openAs ← {𝕨 App _𝕣 title: scale←2⥊𝕨⊣1
     scale Open𝕩
-    Close⊸⊢{
+    Close⊸⊢𝔽{
       bqnFont⇐font.LoadBQN 100
-      raylibFont⇐font.LoadRaylib
-    }𝔽@
+      raylibFont⇐font.LoadRaylib@
+    }
   }
   # TODO: Needs to test input for image
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩}
@@ -134,21 +130,21 @@ window ← {
   # NOTE: Every bit registers one state (use it with bit masks)
   # By default all flags are set to 0
   configFlags ⇐{
-    fLAG_FULLSCREEN_MODE          ⇐ 2      # Set to run program in fullscreen
-    fLAG_WINDOW_RESIZABLE         ⇐ 4      # Set to allow resizable window
-    fLAG_WINDOW_UNDECORATED       ⇐ 8      # Set to disable window decoration (frame and buttons)
-    fLAG_WINDOW_TRANSPARENT       ⇐ 16     # Set to allow transparent framebuffer
-    fLAG_MSAA_4X_HINT             ⇐ 32     # Set to try enabling MSAA 4X
-    fLAG_VSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU
-    fLAG_WINDOW_HIDDEN            ⇐ 128    # Set to hide window
-    fLAG_WINDOW_ALWAYS_RUN        ⇐ 256    # Set to allow windows running while minimized
-    fLAG_WINDOW_MINIMIZED         ⇐ 512    # Set to minimize window (iconify)
-    fLAG_WINDOW_MAXIMIZED         ⇐ 1024   # Set to maximize window (expanded to monitor)
-    fLAG_WINDOW_UNFOCUSED         ⇐ 2048   # Set to window non focused
-    fLAG_WINDOW_TOPMOST           ⇐ 4096   # Set to window always on top
-    fLAG_WINDOW_HIGHDPI           ⇐ 8192   # Set to support HighDPI
-    fLAG_WINDOW_MOUSE_PASSTHROUGH ⇐ 16384  # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-    fLAG_INTERLACED_HINT          ⇐ 65536  # Set to try enabling interlaced video format (for V3D)
+    fLAG_FULLSCREEN_MODE          ⇐ 2⋆1  # Set to run program in fullscreen
+    fLAG_WINDOW_RESIZABLE         ⇐ 2⋆2  # Set to allow resizable window
+    fLAG_WINDOW_UNDECORATED       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
+    fLAG_WINDOW_TRANSPARENT       ⇐ 2⋆4  # Set to allow transparent framebuffer
+    fLAG_MSAA_4X_HINT             ⇐ 2⋆5  # Set to try enabling MSAA 4X
+    fLAG_VSYNC_HINT               ⇐ 2⋆6  # Set to try enabling V-Sync on GPU
+    fLAG_WINDOW_HIDDEN            ⇐ 2⋆7  # Set to hide window
+    fLAG_WINDOW_ALWAYS_RUN        ⇐ 2⋆8  # Set to allow windows running while minimized
+    fLAG_WINDOW_MINIMIZED         ⇐ 2⋆9  # Set to minimize window (iconify)
+    fLAG_WINDOW_MAXIMIZED         ⇐ 2⋆10 # Set to maximize window (expanded to monitor)
+    fLAG_WINDOW_UNFOCUSED         ⇐ 2⋆11 # Set to window non focused
+    fLAG_WINDOW_TOPMOST           ⇐ 2⋆12 # Set to window always on top
+    fLAG_WINDOW_HIGHDPI           ⇐ 2⋆13 # Set to support HighDPI
+    fLAG_WINDOW_MOUSE_PASSTHROUGH ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+    fLAG_INTERLACED_HINT          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
   }
 }
 
@@ -156,9 +152,9 @@ draw ← {
   ⟨
     # These aren't exported because they are useless if you use _withCanvas_.
     # They also don't behave well if ran in the wrong order, and you only want to run them in 1 sequence.
-    # Start ⋄ End ⋄ Background    
-   _withCanvas_ ⋄ _Circle ⋄ _Rectangle ⋄ _Text_ ⋄ _Line
-   _Texture_ ⋄ _Ellipse ⋄ _EllipseOutline
+    # Start ⋄ End ⋄ Background
+   _withCanvas_ ⋄ _Circle ⋄ _Rectangle ⋄ Text ⋄ _Line
+   Texture ⋄ _Ellipse ⋄ _EllipseOutline
   ⟩⇐
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
@@ -167,79 +163,80 @@ draw ← {
   }
   Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩⊣NeedsWindow
   End   ← ⊢⊣rayFFI.EndDrawing  ∘⟨⟩⊣NeedsWindow
-  _withCanvas_ ← {𝕨Func _𝕣_ Func_Returning_A_Color𝕩:
+  _withCanvas_ ← {𝕨DrawingFunc _𝕣_ Func_Returning_A_Color𝕩:
     Start@
     Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
   }
-  _Circle ← {radius ⟨r,g,b,a⟩_𝕣 posX‿posY :
+  _Circle ← {radius r‿g‿b‿a _𝕣 posX‿posY :
     NeedsWindow@
     "Circle only accepts ints as args"!(∧´⌈⊸=∨∞=|)n←𝕩∾𝕨∾𝕗
     "Incorrect amount of arguments"!7=≠n
     rayFFI.DrawCircle ⌊𝕩∾𝕨‿𝕗
   }
-  _Rectangle ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
+  _Rectangle ← {width‿height r‿g‿b‿a _𝕣 posX‿posY :
     NeedsWindow@
     "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕩∾𝕨∾𝕗
     rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
   }
-  _Text_ ← {font‿width⟨r,g,b,a⟩_𝕣_ fontSize ⟨posX,posY⟩‿text:
+  Text ← {𝕨𝕊⟨posX‿posY, text⟩:
     NeedsWindow@
-    rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, width, 𝕗⟩
+    ⟨r,g,b,a⟩‿font‿fontSize‿spacing ⇐ ∾⟜1⍟(3≡≠)𝕨
+    rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, spacing, r‿g‿b‿a⟩
   }
-  _Line ← { #TODO add asserts
-    ⟨r,g,b,a⟩_𝕣 startPos‿endPos:
-      NeedsWindow@
-      rayFFI.DrawLine (∾𝕩)∾<𝕗;
-    thickness ⟨r,g,b,a⟩ _𝕣 startPos‿endPos:
-      NeedsWindow@
-      rayFFI.DrawLineEx 𝕩∾𝕨∾<𝕗
-  }
-  _Texture_ ← {scale‿rotation color _𝕣_ texture pos:
+  Line ← { #TODO add asserts
+    ⟨r,g,b,a⟩𝕊⟨x‿y, x1‿y1⟩: # startPos endPos
+      rayFFI.DrawLine𝕩∾⊸∾<𝕨;
+    ⟨r,g,b,a⟩‿thickness𝕊startPos‿endPos: 
+      1≠1⊑𝕨?rayFFI.DrawLineEx𝕩∾⌽𝕨;𝕨⊑⊸𝕊𝕩
+  }⊣NeedsWindow
+  Texture ← {⟨rotation,texture,r‿g‿b‿a⟩ 𝕊 scale‿pos:
     NeedsWindow@
     rayFFI.DrawTextureEx⟨texture,pos,rotation,scale,color⟩
   }
-  _Ellipse ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
+  Ellipse ← {r‿g‿b‿a𝕊⟨posX‿posY, width‿height⟩:
     NeedsWindow@
-    ((∧´⌈⊸=∨∞=|)𝕩)!˜"Ellipse only accepts ints as args"
-    (∧´𝕗∊↕256)!˜"𝕗 _Ellipse: 𝕗 (color) only accepts ints in the range 0-255 inclusive"
-    rayffi.DrawEllipse (𝕩∾𝕨)∾<𝕗
+    ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
+    (∧´𝕨∊↕256)!˜"𝕗 (color) only accepts ints in the range 0-255 inclusive"
+    rayffi.DrawEllipse (⥊+˝𝕩)∾<𝕨
   }
-  _EllipseOutline ← {width‿height ⟨r,g,b,a⟩_𝕣 posX‿posY :
-    NeedsWindow@
-    ((∧´⌈⊸=∨∞=|)𝕩∾𝕗)!˜"EllipseOutline only accepts ints as args"
-    (∧´𝕗∊↕256)!˜"𝕗 _Ellipse: 𝕗 (color) only accepts ints in the range 0-255 inclusive"
-    rayffi.DrawEllipseLines (𝕩∾𝕨)∾<𝕗
-  }
+  EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
+    rayffi.DrawEllipseLines 𝕨∾⟜<˜(⊢∾⊢-⊏∘𝕩)⌈(+˝÷≠)𝕩
+  }⎉1‿2⟜(⍉˘⍉⁼) # These permutations do not affect 2≤=𝕩
 }
-font ← { # TODO: This is untested, please test this later
-  #⟨ Load ⋄ bqn ⟩⇐
-  Load ⇐ rayFFI.LoadFontEx{
+font ← { 
+  ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib⟩⇐
+  Load ← rayFFI.LoadFontEx{ # TODO: This is untested, please test this later
     𝕊fontFilePath:
       ⟨𝕩∾@, 40, ≍@, 0⟩; # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
     charactersAllowed 𝕊 fontFilePath:
       ⟨𝕩∾@, 40, 𝕨-@, ≠𝕨⟩
   }⊣NeedsWindow
-  LoadBQN ⇐ {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
+  LoadBQN ← {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
     NeedsWindow@
     chars ← •FChars "src/chars.txt"
     rayFFI.LoadFontEx ⟨@∾˜FileAt"src/BQN386.ttf", 𝕩, chars-@, ≠chars⟩
   }
-  LoadRaylib ⇐ {𝕊fontSize:
-    •rayffi.GetFontDefault
-  }
+  LoadRaylib ← rayffi.GetFontDefault∘@
+}
+utils ← {
+  ⟨_FC, _bitwise⟩⇐
+  _FC ← {c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩} # FromCenter
+  #•Show 2⊸×_FC[10‿15⋄15‿20⋄20‿25] # [x1‿x2‿x3, y1‿y2‿y3, z1‿z2‿z3]
+  #•Show 2⊸×_FC[10‿15‿15⋄15‿20‿20] # [x1‿x2‿x3, y1‿y2‿y3, z1‿z2‿z3]
+  _bitwise ← {2⊸×⊸+˜´(𝔽´⌈○≠↑¨⋈)2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢)𝕩}
 }
 key ← {
   IsPressed ⇐ {𝕊 key:
     rayFFI.IsKeyPressed @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
-
+  IsDown ⇐ {rayffi.IsKeyDown𝕩}
   # These funcs are queues, call multiple times if needed. Returns 0 when the queue is empty
   PressedKey ⇐ {𝕤  # Get key pressed (keycode)
     rayFFI.GetKeyPressed⟨⟩
   }⊣NeedsWindow
   PressedChar ⇐ {𝕤
-    rayffi.GetcharPressed⟨⟩
+    @+rayffi.GetcharPressed⟨⟩
   }⊣NeedsWindow
 
   # Keyboard keys (US keyboard layout)
