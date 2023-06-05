@@ -691,17 +691,17 @@ getPixelDataSize    ⇐ i     "GetPixelDataSize"    _R i‿i‿i             # w
 #------------------------------------------------------------------------------------
 
 # Font loading/unloading functions
-getFontDefault    ⇐ font "GetFontDefault"_R@                                                          # Get the default Font
-loadFont          ⇐ font "LoadFont"         _R str           # fileName                               # Load font from file into GPU memory (VRAM)
-loadFontEx        ⇐ font "LoadFontEx"       _R str‿i‿(P i)‿i # fileName fontSize fontChars glyphCount # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
-loadFontFromImage ⇐ font "LoadFontFromImage"_R image‿color‿i # image color(key?) firstChar            # Load font from Image (XNA style)
-#Font LoadFontFromMemory str fileType, ustr fileData, int dataSize, int fontSize, int *fontChars, int glyphCount); # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
-#bool IsFontReady(Font font);                                                          # Check if a font is ready
-#GlyphInfo *LoadFontData(ustr fileData, int dataSize, int fontSize, int *fontChars, int glyphCount, int type); # Load font data for further use
-#Image GenImageFontAtlas(GlyphInfo *chars, Rectangle **recs, int glyphCount, int fontSize, int padding, int packMethod); # Generate image font atlas using chars info
-#void UnloadFontData(GlyphInfo *chars, int glyphCount);                                # Unload font chars info data (RAM)
-unloadFont        ⇐      "UnloadFont"       _R font                                                   # Unload font from GPU memory (VRAM)
-#bool ExportFontAsCode(Font font, str fileName);                               # Export font as code file, returns true on success
+getFontDefault     ⇐ font  "GetFontDefault"     _R@                                                                                                  # Get the default Font
+loadFont           ⇐ font  "LoadFont"           _R str                                   # fileName                                                  # Load font from file into GPU memory (VRAM)
+loadFontEx         ⇐ font  "LoadFontEx"         _R str‿i‿(P i)‿i                         # fileName fontSize fontChars glyphCount                    # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+loadFontFromImage  ⇐ font  "LoadFontFromImage"  _R image‿color‿i                         # image color(key?) firstChar                               # Load font from Image (XNA style)
+loadFontFromMemory ⇐ font  "LoadFontFromMemory" _R str‿ustr‿i‿i‿(P i)‿i                  # fileType fileData dataSize fontSize *fontChars glyphCount # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
+isFontReady        ⇐ i8    "IsFontReady"        _R font                                                                                              # Check if a font is ready
+loadFontData       ⇐ ptr   "LoadFontData"       _R ustr‿i‿i‿(P i)‿i‿i                    # fileData dataSize fontSize fontChars glyphCount type      # *glyphInfo ""_R # Load font data for further use
+genImageFontAtlas  ⇐ image "GenImageFontAtlas"  _R (P glyphInfo)‿(P⍟2 rectangle)‿i‿i‿i‿i # *chars **recs glyphCount fontSize padding packMethod      # Generate image font atlas using chars info
+unloadFontData     ⇐       "UnloadFontData"     _R (P glyphInfo)‿i                       # *chars glyphCount                                         # Unload font chars info data (RAM)
+exportFontAsCode   ⇐ i8    "ExportFontAsCode"   _R font‿str                              # font fileName                                             # Export font as code file, returns true on success
+unloadFont         ⇐       "UnloadFont"         _R font                                                                                              # Unload font from GPU memory (VRAM)
 
 # Text drawing
 drawFPS            ⇐ "DrawFPS"           _R i‿i                        # posX posY                                                # Draw current FPS
