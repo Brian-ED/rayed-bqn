@@ -6,7 +6,8 @@
 ⟨draw, image, texture, monitor, window, mouse
  font, color, key, rayffi, utils⟩⇐
 
-isLinux ← 1∘•SH⎊0 "lsb_release"‿"-i"
+isLinux ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
+
 rayFFI  ← •Import "rayffi.bqn"
 color   ← •Import "src/colors.bqn"
 
@@ -130,21 +131,21 @@ window ← {
   # NOTE: Every bit registers one state (use it with bit masks)
   # By default all flags are set to 0
   configFlags ⇐{
-    fLAG_FULLSCREEN_MODE          ⇐ 2⋆1  # Set to run program in fullscreen
-    fLAG_WINDOW_RESIZABLE         ⇐ 2⋆2  # Set to allow resizable window
-    fLAG_WINDOW_UNDECORATED       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
-    fLAG_WINDOW_TRANSPARENT       ⇐ 2⋆4  # Set to allow transparent framebuffer
-    fLAG_MSAA_4X_HINT             ⇐ 2⋆5  # Set to try enabling MSAA 4X
-    fLAG_VSYNC_HINT               ⇐ 2⋆6  # Set to try enabling V-Sync on GPU
-    fLAG_WINDOW_HIDDEN            ⇐ 2⋆7  # Set to hide window
-    fLAG_WINDOW_ALWAYS_RUN        ⇐ 2⋆8  # Set to allow windows running while minimized
-    fLAG_WINDOW_MINIMIZED         ⇐ 2⋆9  # Set to minimize window (iconify)
-    fLAG_WINDOW_MAXIMIZED         ⇐ 2⋆10 # Set to maximize window (expanded to monitor)
-    fLAG_WINDOW_UNFOCUSED         ⇐ 2⋆11 # Set to window non focused
-    fLAG_WINDOW_TOPMOST           ⇐ 2⋆12 # Set to window always on top
-    fLAG_WINDOW_HIGHDPI           ⇐ 2⋆13 # Set to support HighDPI
-    fLAG_WINDOW_MOUSE_PASSTHROUGH ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-    fLAG_INTERLACED_HINT          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
+    flag_fullscreen_mode          ⇐ 2⋆1  # Set to run program in fullscreen
+    flag_window_resizable         ⇐ 2⋆2  # Set to allow resizable window
+    flag_window_undecorated       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
+    flag_window_transparent       ⇐ 2⋆4  # Set to allow transparent framebuffer
+    flag_msaa_4x_hint             ⇐ 2⋆5  # Set to try enabling MSAA 4X
+    flag_vsync_hint               ⇐ 2⋆6  # Set to try enabling V-Sync on GPU
+    flag_window_hidden            ⇐ 2⋆7  # Set to hide window
+    flag_window_always_run        ⇐ 2⋆8  # Set to allow windows running while minimized
+    flag_window_minimized         ⇐ 2⋆9  # Set to minimize window (iconify)
+    flag_window_maximized         ⇐ 2⋆10 # Set to maximize window (expanded to monitor)
+    flag_window_unfocused         ⇐ 2⋆11 # Set to window non focused
+    flag_window_topmost           ⇐ 2⋆12 # Set to window always on top
+    flag_window_highdpi           ⇐ 2⋆13 # Set to support HighDPI
+    flag_window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+    flag_interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
   }
 }
 
@@ -184,29 +185,27 @@ draw ← {
     ⟨r,g,b,a⟩‿font‿fontSize‿spacing ⇐ ∾⟜1⍟(3≡≠)𝕨
     rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, spacing, r‿g‿b‿a⟩
   }
-  Line ← { #TODO add asserts
-    ⟨r,g,b,a⟩𝕊⟨x‿y, x1‿y1⟩: # startPos endPos
-      rayFFI.DrawLine𝕩∾⊸∾<𝕨;
-    ⟨r,g,b,a⟩‿thickness𝕊startPos‿endPos: 
-      1≠1⊑𝕨?rayFFI.DrawLineEx𝕩∾⌽𝕨;𝕨⊑⊸𝕊𝕩
+  Line ← {𝕨𝕊[x‿x1⋄y‿y1]: # ⍉[startPos,endPos]
+    rayFFI.DrawLineEx(<˘⍉𝕩)∾{
+      𝕊r‿g‿b‿a:1⋈𝕩;
+      𝕊⟨r‿g‿b‿a⋄thickness⟩:⌽𝕩
+    }𝕨
   }⊣NeedsWindow
 
   Texture ← {⟨r‿g‿b‿a,texture,scale,rotation⟩ 𝕊 x‿y:
-    NeedsWindow@
     rayFFI.DrawTextureEx •Show ⟨texture,x‿y,rotation,scale,r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
-  }⎉1‿2⟜(⍉˘⍉⁼)
+  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
 
   Ellipse ← {r‿g‿b‿a𝕊⟨posX‿posY, width‿height⟩:
-    NeedsWindow@
     ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
     (∧´𝕨∊↕256)!˜"𝕗 (color) only accepts ints in the range 0-255 inclusive"
     rayffi.DrawEllipse (⥊+˝𝕩)∾<𝕨
-  }
+  }⊣NeedsWindow
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩 # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
-  }⎉1‿2⟜(⍉˘⍉⁼) # These permutations do not affect 2≤=𝕩
+  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow # ⍉˘⍉⁼ does not affect 2≥=𝕩
 }
-font ← { 
+font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib⟩⇐
   Load ← rayFFI.LoadFontEx{ # TODO: This is untested, please test this later
     𝕊fontFilePath:

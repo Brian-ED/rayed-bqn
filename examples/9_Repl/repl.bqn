@@ -55,9 +55,6 @@ Game ← {𝕤
 }
 0.5 Game window._openAs "BQN Repl"
 
-
-"⟨m⇐mouse,⟨white⟩⇐color,⟨rectangle⟩⇐draw,texture⟩←r←•r
-back←•back"
 # white _Rectangle˜100‿100˙
 # Back@
 # frame←pos←wheel←0
