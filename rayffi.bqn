@@ -27,7 +27,7 @@ i‿f‿u‿i8‿·‿u8⇐⥊"32"‿"8"∾˜⌜"ifu"
 str‿uStr⇐P¨"iu"∾¨<"8:c8"
 ptr⇐"*:i8"
 
-v2‿v3‿v4  ⇐ S¨2↓↑4⥊<"f32"
+v2‿v3‿v4  ⇐ S¨2↓↑4⥊<f
 
 # Matrix, 4x4 components, column major, OpenGL style, right handed
 matrix ⇐ S 16⥊<f
@@ -37,7 +37,7 @@ matrix ⇐ S 16⥊<f
 # m3 m7 m11 m15
 
 color     ⇐ S 4⥊<u8
-rectangle ⇐ S 4⥊<f
+rectangle ⇐ v4
 
 # Image, pixel data stored in CPU memory (RAM)
 image ⇐ S ptr<⊸∾4⥊<i
@@ -140,7 +140,7 @@ shader ⇐ S u‿ptr
 material ⇐ S ⟨
   shader        # Material shader
   P materialMap # Material maps array (MAX_MATERIAL_MAPS)
-  S 4⥊<f     # params[4] # Material generic parameters (if required)
+  v4            # params[4] # Material generic parameters (if required)
 ⟩
 # Transform, vertex transformation data
 transform ⇐ S ⟨
@@ -662,12 +662,12 @@ setTextureFilter  ⇐ "SetTextureFilter"  _R texture‿i # texture filter # Set 
 setTextureWrap    ⇐ "SetTextureWrap"    _R texture‿i # texture wrap   # Set texture wrapping mode
 
 # Texture drawing functions
-drawTexture       ⇐ "DrawTexture"      _R texture‿i‿i‿color                       # texture posX posY tint                       # Draw a Texture2D
-drawTextureV      ⇐ "DrawTextureV"     _R texture‿v2‿color                        # texture position tint                        # Draw a Texture2D with position defined as Vector2
-drawTextureEx     ⇐ "DrawTextureEx"    _R texture‿v2‿f‿f‿color                    # texture position rotation scale tint         # Draw a Texture2D with extended parameters
-drawTextureRec    ⇐ "DrawTextureRec"   _R texture‿rectangle‿v2‿color              # texture source position tint                 # Draw a part of a texture defined by a rectangle
-drawTexturePro    ⇐ "DrawTexturePro"   _R texture‿rectangle ‿rectangle‿v2‿f‿color # texture source dest origin rotation tint     # Draw a part of a texture defined by a rectangle with 'pro' parameters
-drawTextureNPatch ⇐ "DrawTextureNPatch"_R texture‿nPatchInfo‿rectangle‿v2‿f‿color # texture nPatchInfo dest origin rotation tint # Draws a texture (or part of it) that stretches or shrinks nicely
+drawTexture       ⇐ "DrawTexture"       _R texture‿i‿i‿color                       # texture posX posY tint                       # Draw a Texture2D
+drawTextureV      ⇐ "DrawTextureV"      _R texture‿v2‿color                        # texture position tint                        # Draw a Texture2D with position defined as Vector2
+drawTextureEx     ⇐ "DrawTextureEx"     _R texture‿v2‿f‿f‿color                    # texture position rotation scale tint         # Draw a Texture2D with extended parameters
+drawTextureRec    ⇐ "DrawTextureRec"    _R texture‿rectangle‿v2‿color              # texture source position tint                 # Draw a part of a texture defined by a rectangle
+drawTexturePro    ⇐ "DrawTexturePro"    _R texture‿rectangle ‿rectangle‿v2‿f‿color # texture source dest origin rotation tint     # Draw a part of a texture defined by a rectangle with 'pro' parameters
+drawTextureNPatch ⇐ "DrawTextureNPatch" _R texture‿nPatchInfo‿rectangle‿v2‿f‿color # texture nPatchInfo dest origin rotation tint # Draws a texture (or part of it) that stretches or shrinks nicely
 
 # Color/pixel related functions
 fade                ⇐ color "Fade"                _R color‿f           # color alpha           # Get color with alpha applied, alpha goes from 0.0f to 1.0f

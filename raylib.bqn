@@ -190,10 +190,12 @@ draw ← {
     ⟨r,g,b,a⟩‿thickness𝕊startPos‿endPos: 
       1≠1⊑𝕨?rayFFI.DrawLineEx𝕩∾⌽𝕨;𝕨⊑⊸𝕊𝕩
   }⊣NeedsWindow
-  Texture ← {⟨rotation,texture,r‿g‿b‿a⟩ 𝕊 scale‿pos:
+
+  Texture ← {⟨r‿g‿b‿a,texture,scale,rotation⟩ 𝕊 x‿y:
     NeedsWindow@
-    rayFFI.DrawTextureEx⟨texture,pos,rotation,scale,color⟩
-  }
+    rayFFI.DrawTextureEx •Show ⟨texture,x‿y,rotation,scale,r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
+  }⎉1‿2⟜(⍉˘⍉⁼)
+
   Ellipse ← {r‿g‿b‿a𝕊⟨posX‿posY, width‿height⟩:
     NeedsWindow@
     ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
@@ -201,7 +203,7 @@ draw ← {
     rayffi.DrawEllipse (⥊+˝𝕩)∾<𝕨
   }
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
-    rayffi.DrawEllipseLines 𝕨∾⟜<˜(⊢∾⊢-⊏∘𝕩)⌈(+˝÷≠)𝕩
+    rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩 # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
   }⎉1‿2⟜(⍉˘⍉⁼) # These permutations do not affect 2≤=𝕩
 }
 font ← { 
