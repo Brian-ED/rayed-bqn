@@ -27,11 +27,20 @@ fontSize draw.Text _colored_ black _At_ 20‿20 text
 # stacking mutluple _At_'s has the effect of adding positions to window.pos
 
 # 2; This brainstorm is on-going
-"
-have a global index list which is the list that gets inputted to perFrame.
-perFrame sequencually applies each function on 𝕩 under variables which each represent an index of the global list.
+# Lots of game-engines i see around the place have a tree structure.
+# Godot has nodes, with parents and children
+# unity has a similar parent system.
 
-# global index list
-⟨poses, ⟩ ← ↕1
+# i would like to see the benifits of tree structures.
+# try to find out a functional pattern to achive whatever they accomplish.
+ 
+# one thing that could work would be having functions be 
+# executing its children sequentually (children and parents being functions)
+# and the output of the children would be their data such as position.
+# these positions would be collected into the usual position arrays of [x‿x1‿x2‿...⋄ y‿y1‿y2‿...]
+# which would all be used by the parent.
 
-"
+
+# after looking a bit into godot, it seems that most of the uses of 
+# nodes can be accomplished through •Import, importing functions that would 
+# accomplish camera movement, skeleton, and such. 
