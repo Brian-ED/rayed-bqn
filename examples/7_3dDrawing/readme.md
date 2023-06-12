@@ -9,7 +9,7 @@ Page down increases camera z by 1, right arrow decreases z by 1.
 
 |    | x       | y | z
 |----|---------|---|---
-| +1 | Page up | ↑ | page down  
+| +1 | Page up | ↑ | page down
 | -1 | ←       | ↓ | →
 
 ## Toggle color of circles
