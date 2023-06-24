@@ -277,13 +277,13 @@ maximizeWindow           ⇐     "MaximizeWindow"          _R@                  
 minimizeWindow           ⇐     "MinimizeWindow"          _R@                             # Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
 restoreWindow            ⇐     "RestoreWindow"           _R@                             # Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
 setWindowIcon            ⇐     "SetWindowIcon"           _R image                        # Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
-setWindowIcons           ⇐     "SetWindowIcons"          _R(P image)‿i # images count  # Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
-setWindowTitle           ⇐     "SetWindowTitle"          _R str # title                  # Set title for window (only PLATFORM_DESKTOP)
-setWindowPosition        ⇐     "SetWindowPosition"       _R i‿i # x y                    # Set window position on screen (only PLATFORM_DESKTOP)
-setWindowMonitor         ⇐     "SetWindowMonitor"        _R i   # monitor                # Set monitor for the current window (fullscreen mode)
-setWindowMinSize         ⇐     "SetWindowMinSize"        _R i‿i # width height           # Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
-setWindowSize            ⇐     "SetWindowSize"           _R i‿i # width height           # Set window dimensions
-setWindowOpacity         ⇐     "SetWindowOpacity"        _R f # opacity                  # Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
+setWindowIcons           ⇐     "SetWindowIcons"          _R(P image)‿i # images count    # Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
+setWindowTitle           ⇐     "SetWindowTitle"          _R str        # title           # Set title for window (only PLATFORM_DESKTOP)
+setWindowPosition        ⇐     "SetWindowPosition"       _R i‿i        # x y             # Set window position on screen (only PLATFORM_DESKTOP)
+setWindowMonitor         ⇐     "SetWindowMonitor"        _R i          # monitor         # Set monitor for the current window (fullscreen mode)
+setWindowMinSize         ⇐     "SetWindowMinSize"        _R i‿i        # width height    # Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
+setWindowSize            ⇐     "SetWindowSize"           _R i‿i        # width height    # Set window dimensions
+setWindowOpacity         ⇐     "SetWindowOpacity"        _R f          # opacity         # Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
 getWindowHandle          ⇐ ptr "GetWindowHandle"         _R@                             # Get native window handle
 getScreenWidth           ⇐ i   "GetScreenWidth"          _R@                             # Get current screen width
 getScreenHeight          ⇐ i   "GetScreenHeight"         _R@                             # Get current screen height
@@ -299,9 +299,9 @@ getMonitorPhysicalHeight ⇐ i   "GetMonitorPhysicalHeight"_R i # monitor       
 getMonitorRefreshRate    ⇐ i   "GetMonitorRefreshRate"   _R i # monitor                  # Get specified monitor refresh rate
 getWindowPosition        ⇐ v2  "GetWindowPosition"       _R@                             # Get window position XY on monitor
 getWindowScaleDPI        ⇐ v2  "GetWindowScaleDPI"       _R@                             # Get window scale DPI factor
-getMonitorName           ⇐ ptr "GetMonitorName"          _R i # utf-8 _R monitor         # Get the human-readable, UTF-8 encoded name of the primary monitor
-setClipboardText         ⇐     "SetClipboardText"        _R str # text                   # Set clipboard text content
-getClipboardText         ⇐ ptr "GetClipboardText"        _R@ # utf-8                     # Get clipboard text content
+getMonitorName           ⇐ ptr "GetMonitorName"          _R i   # utf-8 _R monitor       # Get the human-readable, UTF-8 encoded name of the primary monitor
+setClipboardText         ⇐     "SetClipboardText"        _R str # text                   # Set clipboard text content                                                   # NOTE changed *:c8
+getClipboardText         ⇐ ptr "GetClipboardText"        _R@    # utf-8                  # Get clipboard text content
 enableEventWaiting       ⇐     "EnableEventWaiting"      _R@                             # Enable waiting for events on EndDrawing(), no automatic event polling
 disableEventWaiting      ⇐     "DisableEventWaiting"     _R@                             # Disable waiting for events on EndDrawing(), automatic events polling
 
@@ -361,7 +361,11 @@ unloadShader            ⇐       "UnloadShader"           _R shader            
 
 # # Screen-space-related functions
 getMouseRay        ⇐ ray    "GetMouseRay"        _R v2‿camera3D      # mousePosition camera         # Get a ray trace from mouse position
-getCameraMatrix    ⇐ matrix "GetCameraMatrix"    _R camera3D                                        # Get camera transform matrix (view matrix)
+math←•Import "src/raymath.bqn"
+
+GetCameraMatrix ← {𝕊camera: math.MatrixLookAt 3↑𝕩}
+getCameraMatrixRaylib ⇐ matrix "GetCameraMatrix"    _R camera3D                                        # Get camera transform matrix (view matrix)
+
 getCameraMatrix2D  ⇐ matrix "GetCameraMatrix2D"  _R camera3D                                        # Get camera 2d transform matrix
 getWorldToScreen   ⇐ v2     "GetWorldToScreen"   _R v3‿camera3D      # position camera              # Get the screen space position for a 3d world space position
 getScreenToWorld2D ⇐ v2     "GetScreenToWorld2D" _R v2‿camera3D      # position camera              # Get the world space position for a 2d camera screen space position
@@ -653,7 +657,7 @@ isTextureReady       ⇐ i8            "IsTextureReady"      _R texture         
 unloadTexture        ⇐               "UnloadTexture"       _R texture                                          # Unload texture from GPU memory (VRAM)
 isRenderTextureReady ⇐ i8            "IsRenderTextureReady"_R renderTexture # target                           # Check if a render texture is ready
 unloadRenderTexture  ⇐               "UnloadRenderTexture" _R renderTexture # target                           # Unload render texture from GPU memory (VRAM)
-updateTexture        ⇐               "UpdateTexture"       _R texture‿"*i8"                                    # Update GPU texture with new data                                    ## Executive change: changed "void *" type into "*i8" because *i8 just makes more sense. what else would you input into color?
+updateTexture        ⇐               "UpdateTexture"       _R texture‿"*i8" # texture color                    # Update GPU texture with new data                                    ## Executive change: changed "void *" type into "*i8" because *i8 just makes more sense. what else would you input into color?
 updateTextureRec     ⇐               "UpdateTextureRec"    _R texture‿rectangle‿ptr                            # Update GPU texture rectangle with new data
 
 # Texture configuration functions
@@ -720,13 +724,14 @@ getGlyphAtlasRec ⇐ rectangle "GetGlyphAtlasRec"_R font‿i       # font codepo
 
 # Text codepoints management functions (unicode characters)
 loadUTF8             ⇐ ptr "LoadUTF8"             _R (P i)‿i # str ""_R *codepoints length   # Load UTF-8 text encoded from codepoints array
-unloadUTF8           ⇐     "UnloadUTF8"           _R str     # *text                # Unload UTF-8 text encoded from codepoints array
-loadCodepoints       ⇐ ptr "LoadCodepoints"       _R str⋈P i # *i ""_R *text *count # Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
-unloadCodepoints     ⇐     "UnloadCodepoints"     _R P i     # *codepoints          # Unload codepoints data from memory
-getCodepointCount    ⇐ i   "GetCodepointCount"    _R str     # *text                # Get total number of codepoints in a UTF-8 encoded string
-getCodepoint         ⇐ i   "GetCodepoint"         _R str⋈P i # *text *codepointSize # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-getCodepointNext     ⇐ i   "GetCodepointNext"     _R str⋈P i # *text *codepointSize # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-getCodepointPrevious ⇐ i   "GetCodepointPrevious" _R str⋈P i # *text *codepointSize # Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+unloadUTF8           ⇐     "UnloadUTF8"           _R str     # *text                         # Unload UTF-8 text encoded from codepoints array
+loadCodepoints       ⇐ ptr "LoadCodepoints"       _R str⋈P i # *i ""_R *text *count          # Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
+unloadCodepoints     ⇐     "UnloadCodepoints"     _R P i     # *codepoints                   # Unload codepoints data from memory
+getCodepointCount    ⇐ i   "GetCodepointCount"    _R str     # *text                         # Get total number of codepoints in a UTF-8 encoded string
+  getCodepointCountP ⇐ i   "GetCodepointCount"    _R ptr     # pointer version
+getCodepoint         ⇐ i   "GetCodepoint"         _R str⋈P i # *text *codepointSize          # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+getCodepointNext     ⇐ i   "GetCodepointNext"     _R str⋈P i # *text *codepointSize          # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+getCodepointPrevious ⇐ i   "GetCodepointPrevious" _R str⋈P i # *text *codepointSize          # Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
 codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R codepoint *utf8Size  # Encode one codepoint into UTF-8 byte array (array length returned as parameter)
 
 # Text strings management functions (no UTF-8 strings, only byte chars)
