@@ -1,83 +1,65 @@
 ⟨c⇐color,window,draw,k⇐key⟩←r←•Import "../../raylib.bqn"
-⟨DrawBoard⇐Draw⟩←•Import"spritesLoad.bqn"
+drawBoard←•Import"drawBoard.bqn"
+⟨_Template⟩←•Import "../../src/imports/bqn-libs/strings.bqn"
+Template↩"@"_Template
 
-g←{
-  chars  ← " @o⭍#/\-|+<>^v" # the characters that are used in the level representation
-  ⟨empty,player,machine,pmachine,wall
-  lmirror,rmirror,hbeam,vbeam,xbeam,llaser
-  rlaser,ulaser,dlaser⟩⇐↕≠chars
 
-  mirrors⇐lmirror‿rmirror
-  beams←hbeam‿vbeam‿xbeam
-  lasers←llaser‿rlaser‿ulaser‿dlaser
-  movables←player∾mirrors
-  opaque←player‿machine‿wall∾lasers
 
-  Move←{a‿b:⟨1↓a,a⊑⊸∾b⟩}⍟{∨´(⥊movables≍⌜beams)≡¨<⊑¨𝕩}
-  # 𝕩: ⟨⟨1,0⟩,⟨2,0⟩,⟨0,0)⟩ (3 tiles) | result: ⟨⟨0⟩,⟨1,0⟩,⟨2,0)⟩
-  # Given 3 tiles try to Push the second tile (possibly a movable object)
-  # and afterwards try to move the first one (the player) if possible
-  Push←Move⌾(2↑⊢)Move⌾(1↓⊢)
+lf ← @+10
+
+# level example
+##############
+#            #
+#   ######o  #
+#            #
+#            #
+#  >   /     #
+#  #   @     #
+##############
+
+
+⟨empty ⋄player⋄goalOff⋄wall  ⋄lMirror
+rMirror⋄lLaser⋄rLaser⋄uLaser ⋄dLaser
+⟩⇐↕≠chars←" @o#\/<>^v"                      # the characters that are used in the level representation
+
+goalOn‿beamU←2↕⊸+≠chars
+•Exit@
+
+levels←chars⊸⊐∘>¨((⊢-˜+`×¬)0=≠¨)⊸⊔•FLines "levels.txt"
+
+Scene ← {Scene‿Close𝕊start:
+  C←Scene draw._withCanvas_ c.black
+  C•_While_(window.ShouldClose<Close)𝕩
+}
+
+OnStart ← {𝕤
+  font←r.font.LoadBQN 100
+  DT ← ⟨c.white⋄font⋄30⟩ draw.Text⟜⌽»⊸∨∘≠⟜' '⊸/⊸⋈˜
   
-  Tiles←{(𝕩+𝕨×⊢)¨↕3} # given object (including itself)
-  # We (try to) push the tile in front of the player
-  Step⇐{Push⌾((𝕨 Tiles ⊑player /○⥊⟜(↕≢)∘⍷ ⊑¨𝕩)⊸⊑)𝕩} # 𝕨 S 𝕩 | 𝕨: direction | 𝕩:level | Step the game
+  StartScreen ← ⟨30‿30 DT"
+    Power the machines by moving the mirrors
+    Controls: wasd to move, u to undo, r to reset level, q to quit
+  "˙,@≡k.PressedChar⟩⊸Scene
+  
+  MiddleScreen ← {𝕩⊣300‿300 DT"
+    Good job! Took only "∾•Repr∘𝕩⊸∾" move"∾("s"/˜1≠𝕩)∾".
+    Press any key to continue to the next level!
+  "}‿(@≡k.PressedChar)⊸Scene
+  
+  EndScreen ← ⟨300‿300 DT"
+    Congratulations!!
+    You're done with the game, thanks for playing! :)
+    Press any key to restart
+  "˙,@≡k.PressedChar⟩⊸Scene
 
-  Bounce←{d‿w S x:{ # Base case:
-    ⊑opaque∊˜w⊑x? # When the beam touches an opaque object (not a mirror):
+  {𝕊level‿moves:
+    key←k.PressedChar@
+    DrawBoard level⊑levels
+    𝕩⊣0‿0 DT "Level "∾•Repr 1+level
+  }‿1 Scene 0‿⟨⟩
 
-      (machine=w⊑x)◶⟨x,pmachine⌾(w⊸⊑)x⟩@;
-      ⊑(lasers∾empty)∊˜w⊑x ?
-        ⟨d,w+d⟩S{
-          cTile←empty‿hbeam‿vbeam‿xbeam⊐𝕩
-          cBeam←(×⊑d)⊑⟨hbeam‿hbeam‿xbeam‿xbeam,vbeam‿xbeam‿vbeam‿xbeam⟩
-          ⊑cTile⊏cBeam
-        }⌾(w⊸⊑)x;
-        d←⌽d×-⊸¬lmirror=w⊑x # calculate the mirror bounce direction
-        ⟨d,w+d⟩S x           # and recurse to the next position
-      }
-  }
-  Shoot⇐{𝕩Bounce´⌽∾⟨0‿¯1,0‿1,¯1‿0,1‿0⟩(<∘⊣⋈¨<⊸+)¨/○⥊⟜(↕≢)¨𝕩⊸=¨lasers}
-  colors ← c.blue‿c.yellow‿c.cyan‿c.red
-  cols   ← colors⊏˜⌈´(≠chars)↑¨(↕3)×/⁼¨⟨pmachine⟩‿mirrors‿beams    
-
-  Ascii2Level←{(↕≠chars)⊑˜⊑chars⊐𝕩}¨
-  levels⇐Ascii2Level∘>¨((⊢-˜+`×¬)0=≠¨)⊸⊔•FLines "levels.txt"
+  r.font.Unload font
 }
-onStart ← {
-  gameState ← 1
-  moves ← ⟨0‿0⟩ # list of moves, each move is a direction, we start without moving
-  currentLevel←0
-  ⟨gameState, moves, currentLevel⟩
-}
-PerFrame ← {𝕊⟨gameState, moves, currentLevel⟩:
-  key←k.GetPressed @
-  30‿30 c.white draw._Text_ 40˜"Level "∾•Repr 1+currentLevel
-  gameState◶⟨
-    {𝕤 # Playing
-      # Draw not implemented. map each int as sprite
-      10 DrawBoard level←g.Shoot(currentLevel⊑g.levels) g.Step´⌽moves
-      won ← ¬⊑g.machine∊⥊level
-        # has the user beaten all of the levels?
-      ⟨
-        1⌾⊑⍟won gameState
-        ⟨0‿0⟩⍟('r'=key)(-1<≠)⊸↓⍟('u'=key) moves∾⟨0‿¯1,1‿0,¯1‿0,0‿1⟩/˜∨˝["hjkl","aswd"]=key
-        1+⍟won currentLevel
-      ⟩
-    }
-    {𝕤 # info screen
-      {currentLevel=0?
-        1↓∾(@+10)∾¨⟨
-        "Power the machines by moving the mirrors"
-        "Controls: (hjkl or wasd) to move, u to undo, r to reset level, q to quit"
-        ⟩;
-        "Good job! took only "∾(moves)∾" moves. press any key to continue to the next level!"
-      }c.white draw._Text_ 30 300‿300
-      ⟨0,⟨0‿0⟩,1⊸+⟩{𝕎𝕩}¨⍟(0≢key) 𝕩
-    }
-  ⟩𝕩
-}draw._withCanvas_ c.black
+
 # On end, show "Well played, you win!"
-
-Game ← PerFrame•_While_ {(window.ShouldClose@)¬⊸∧(2⊑𝕩)<≠g.levels}OnStart
-Game window._openAs "Arc"
+OnStart window._openAs "Arc"

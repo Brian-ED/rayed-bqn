@@ -1,4 +1,4 @@
-## NOT finished
+## NOT FINISHED
 
 # All shader features working on linux only
 
@@ -8,13 +8,13 @@ shader_uniform_vec3 ← 2
 shader_uniform_vec4 ← 3
 
 # Create a light and get shader locations
-CreateLight ← {lightsCount𝕊v3Pos‿color¯‿shader:
+CreateLight ← {lightsCount𝕊v3Pos‿color‿shader:
   shader UpdateLightValues {
     type           ⇐ 1
     enabled‿Toggle ⇐ 1‿{𝕊: enabled¬↩}
-    pos            ⇐ v3Pos 
+    pos            ⇐ v3Pos
     target         ⇐ 0‿0‿0
-    color          ⇐ color¯
+    color          ⇐ color
   # NOTE: Lighting shader naming must be the provided ones
     ⟨enabledLoc, typeLoc, posLoc, targetLoc, colorLoc
     ⟩ ⇐ (rayffi.GetShaderLocation shader⋈"lights["∾lightsCount•Repr⊸∾"]."∾∾⟜@)¨"enabled"‿"type"‿"position"‿"target"‿"color"
@@ -34,7 +34,7 @@ UpdateLightValues ← {shader𝕊light:
 }
 
 _withConsts ← {𝕨𝔽_𝕣𝕩:
-  rayFFI.SetConfigFlags window.configFlags.msaa_4x  # Enable Multi Sampling Anti Aliasing 4x (if available)
+  rayFFI.SetConfigFlags window.configFlags.msaa_4x_hint  # Enable Multi Sampling Anti Aliasing 4x (if available)
   camera ← ⟨
     1‿4‿6 # position
     0‿0‿0 # target
@@ -42,6 +42,7 @@ _withConsts ← {𝕨𝔽_𝕣𝕩:
     45    # fovy       # Camera field-of-view Y
     0     # projection # Camera projection type
   ⟩
+  font  ← r.font.LoadBQN 100
   plane ← rayffi.LoadModelFromMesh rayffi.GenMeshPlane 10‿10‿3‿3
   cube  ← rayffi.LoadModelFromMesh rayffi.GenMeshCube   2‿ 4‿2
 
@@ -64,13 +65,13 @@ _withConsts ← {𝕨𝔽_𝕣𝕩:
     ⟨ 2‿1‿¯2, color.blue  , shader⟩
   ⟩
 
-  shader‿plane‿cube‿xxx 𝔽 camera‿lights
+  shader‿plane‿cube‿xxx‿font 𝔽 camera‿lights
 
   rayffi.UnloadModel plane
   rayffi.UnloadModel cube
   rayffi.UnloadShader shader
 }
-PerFrame ← {shader‿model‿cube‿xxx𝕊camera‿lights:
+PerFrame ← {shader‿model‿cube‿xxx‿font𝕊camera‿lights:
   rayffi.UpdateCamera⟨camera⟩‿2
 
   # Update the shader with the camera view vector (points towards { 0.0f, 0.0f, 0.0f })
@@ -78,7 +79,7 @@ PerFrame ← {shader‿model‿cube‿xxx𝕊camera‿lights:
   rayffi.SetShaderValue⟨shader, xxx, cameraPos, shader_uniform_vec3⟩        
 
   # Check key inputs to enable/disable lights
-  lights{𝕨.Toggle@}⍟⊢¨key.IsPressed¨⟨key.ky, key.kr, key.kg, key.kb⟩
+  lights{𝕨.Toggle@}⍟⊢¨key.IsPressed¨⟨key.y, key.r, key.g, key.b⟩
 
   # Update light values (actually, only enable/disable them)
   shader⊸UpdateLightValues¨lights
@@ -97,8 +98,8 @@ PerFrame ← {shader‿model‿cube‿xxx𝕊camera‿lights:
   rayffi.EndMode3D⟨⟩
   rayffi.DrawFPS 10‿10
 
-  "Use keys [Y][R][G][B] to toggle lights"color.darkGray draw._Text_ 20 10‿40
-  MoveCamera ← (key.kq‿key.kup‿key.ke -○(key.IsPressed¨) key.kleft‿key.kdown‿key.kright)⊸+⌾⊑
+  color.darkGray‿font‿20 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
+  MoveCamera ← (key.q‿key.up‿key.e -○(key.IsPressed¨) key.left‿key.down‿key.right)⊸+⌾⊑
   ⟨
     MoveCamera camera
     lights

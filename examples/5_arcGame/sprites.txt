@@ -14,14 +14,6 @@ gray
 .000.
 .....
 
-GoalOn
-yellow
-.....
-.000.
-.0.0.
-.000.
-.....
-
 wall
 darkGray
 00000
@@ -30,7 +22,7 @@ darkGray
 00.00
 00000
 
-MirrorL
+LMirror
 DarkGray lightblue
 1....
 .1...
@@ -38,7 +30,7 @@ DarkGray lightblue
 ...1.
 ....1
 
-MirrorR
+RMirror
 DarkGray Lightblue
 ....1
 ...1.
@@ -46,55 +38,7 @@ DarkGray Lightblue
 .1...
 1....
 
-BeamH
-red
-.....
-.....
-00000
-.....
-.....
-
-BeamV
-red
-..0..
-..0..
-..0..
-..0..
-..0..
-
-StableBeamU
-red
-..0..
-..0..
-..0..
-.....
-.....
-
-StableBeamD
-red
-.....
-.....
-..0..
-..0..
-..0..
-
-StableBeamL
-red
-.....
-.....
-000..
-.....
-.....
-
-StableBeamR
-red
-.....
-.....
-..000
-.....
-.....
-
-LaserL
+LLaser
 LightBlue Red Gray White
 2222.
 ..222
@@ -102,7 +46,7 @@ LightBlue Red Gray White
 ..222
 2222.
 
-LaserR
+RLaser
 LightBlue Red Gray White
 .2222
 222..
@@ -110,7 +54,7 @@ LightBlue Red Gray White
 222..
 .2222
 
-LaserU
+ULaser
 LightBlue Red Gray White
 2.1.2
 2.1.2
@@ -118,10 +62,26 @@ LightBlue Red Gray White
 22222
 .2.2.
 
-LaserD
+DLaser
 LightBlue Red Gray White
 .2.2.
 22222
 22222
 2.1.2
 2.1.2
+
+GoalOn
+yellow
+.....
+.000.
+.0.0.
+.000.
+.....
+
+UBeam
+red
+..0..
+..0..
+..0..
+.....
+.....

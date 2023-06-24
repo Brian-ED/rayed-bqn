@@ -4,29 +4,38 @@
 # for example, opening the window twice is impossible because it is not intended in raylib, and causes many bugs.
 
 ⟨draw, image, texture, monitor, window, mouse
- font, color, key, rayffi, utils⟩⇐
+ font, color, key, rayffi, utils, clipboard⟩⇐
 
+# TODO: These need to be more accurate
 isLinux ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
+isWindows ← ¬isLinux
 
-rayFFI  ← •Import "rayffi.bqn"
-color   ← •Import "src/colors.bqn"
+rayFFI    ← •Import "rayffi.bqn"
+color     ← •Import "src/colors.bqn"
+⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
 
 FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 pointer ⇐ {
   MovePtr8 ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128)256|⌊b÷˜𝕨+´b×256|𝕩}
-  ⟨readI8,make⟩ ⇐ @•FFI⎊(!∘"Not implemented on your platform"˙)¨⟨
-    ""‿"bqn_readI8Arr"‿">a"‿("𝕨>"∾rayffi.ptr)    # write to ptr
-    "a"‿"bqn_makeI8Vec"‿"𝕨>u64"‿(">"∾rayffi.ptr) # materialize
+  ⟨ReadI8⋄Make⋄MakeUTF8⋄StrLen⟩ ⇐ @•FFI⎊(!∘"@•FFI𝕩: Not implemented on your platform"˙)¨⟨
+    ""‿"bqn_readI8Arr"‿">a"‿"𝕨>*:i8"    # write to ptr
+    "a"‿"bqn_makeI8Vec"‿"𝕨>u64"‿">*:i8" # materialize
+    "a"‿"bqn_makeUTF8Str"‿"u64"‿"*:i8"  # ptr to string 
+    "i32"‿"strlen"‿">*:u8"              # length of unicode C-string
   ⟩
 }
 image ← {
+  ⟨Load⋄Unload⋄_with
+   New # Experimental
+  ⟩⇐
   # TODO: remember to check if file exists before running.
-  Load   ⇐ {  𝕊 strPath: NeedsWindow@ ⋄   rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
-  Unload ⇐ {  𝕊 image  : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
-  _with  ⇐ {𝔽_𝕣 strPath: NeedsWindow@ ⋄ (Unload⊢𝔽)Load𝕩}
-  New ⇐ {
+  Load   ← {  𝕊 strPath: NeedsWindow@ ⋄   rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
+  Unload ← {  𝕊 image  : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
+  _with  ← {𝔽_𝕣 strPath: NeedsWindow@ ⋄ (Unload⊢𝔽)Load𝕩}
+
+  New ← {
     NeedsWindow@
     l pointer.ReadI8˜ptr←rayffi.MemAlloc≠l←⥊𝕩
     ptr<⊸∾(¯1↓≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
@@ -63,20 +72,16 @@ monitor ← {
   ⟨Selected ⋄ Count
    RefreshRate ⋄ Size
    Sizemm ⋄ Name⟩⇐
-  Selected    ← rayFFI.GetCurrentMonitor∘⟨⟩
-  Count       ← rayFFI.GetMonitorCount∘⟨⟩
-  RefreshRate ← rayFFI.GetMonitorRefreshRate
-  Size        ← rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight
-  Sizemm      ← rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight
-  Name        ← rayFFI.GetMonitorName
+  Selected    ← rayFFI.GetCurrentMonitor∘⟨⟩NeedsWindow
+  Count       ← rayFFI.GetMonitorCount∘⟨⟩NeedsWindow
+
   notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
-  AddMonitorCheck ← {𝕏@⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@}}
-  
-  ⟨RefreshRate, Size, Sizemm, Name
-  ⟩AddMonitorCheck¨↩
-  
-  ⟨Selected ⋄ Count ⋄ RefreshRate ⋄ Size
-   Sizemm ⋄ Name⟩ {𝕏⊣NeedsWindow}¨↩
+  M ← @⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@} # No need for NeedsWindow because Selected and Count need it so error still works 
+
+  RefreshRate ← rayFFI.GetMonitorRefreshRate M
+  Size        ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)M
+  Sizemm      ← (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)M
+  Name        ← rayFFI.GetMonitorName M
 }
 
 window ← {
@@ -94,7 +99,7 @@ window ← {
     rayFFI.InitWindow 0‿0∾<𝕩∾@
     isOpen↩1
     rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
-    rayFFI.SetWindowPosition 0‿42 # 42 here is the window header size (might be windows only)
+    rayFFI.SetWindowPosition⍟isWindows 0‿42 # 42 here is the window header on windows only
     rayFFI.SetWindowSize monitor.Size∘@⊸× scale
     fps.Set monitor.RefreshRate@
     𝕩⊣rayFFI.SetWindowState 4
@@ -112,10 +117,7 @@ window ← {
   }
   _openAs ← {𝕨 App _𝕣 title: scale←2⥊𝕨⊣1
     scale Open𝕩
-    Close⊸⊢𝔽{
-      bqnFont⇐font.LoadBQN 100
-      raylibFont⇐font.LoadRaylib@
-    }
+    Close⊸⊢𝔽@
   }
   # TODO: Needs to test input for image
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩}
@@ -127,39 +129,47 @@ window ← {
       𝕩⊣rayFFI.SetTargetFPS𝕩
     }⊣NeedsWindow
   }
-
   # NOTE: Every bit registers one state (use it with bit masks)
   # By default all flags are set to 0
   configFlags ⇐{
-    flag_fullscreen_mode          ⇐ 2⋆1  # Set to run program in fullscreen
-    flag_window_resizable         ⇐ 2⋆2  # Set to allow resizable window
-    flag_window_undecorated       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
-    flag_window_transparent       ⇐ 2⋆4  # Set to allow transparent framebuffer
-    flag_msaa_4x_hint             ⇐ 2⋆5  # Set to try enabling MSAA 4X
-    flag_vsync_hint               ⇐ 2⋆6  # Set to try enabling V-Sync on GPU
-    flag_window_hidden            ⇐ 2⋆7  # Set to hide window
-    flag_window_always_run        ⇐ 2⋆8  # Set to allow windows running while minimized
-    flag_window_minimized         ⇐ 2⋆9  # Set to minimize window (iconify)
-    flag_window_maximized         ⇐ 2⋆10 # Set to maximize window (expanded to monitor)
-    flag_window_unfocused         ⇐ 2⋆11 # Set to window non focused
-    flag_window_topmost           ⇐ 2⋆12 # Set to window always on top
-    flag_window_highdpi           ⇐ 2⋆13 # Set to support HighDPI
-    flag_window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-    flag_interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
+    fullscreen_mode          ⇐ 2⋆1  # Set to run program in fullscreen
+    window_resizable         ⇐ 2⋆2  # Set to allow resizable window
+    window_undecorated       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
+    window_transparent       ⇐ 2⋆4  # Set to allow transparent framebuffer
+    msaa_4x_hint             ⇐ 2⋆5  # Set to try enabling MSAA 4X
+    vsync_hint               ⇐ 2⋆6  # Set to try enabling V-Sync on GPU
+    window_hidden            ⇐ 2⋆7  # Set to hide window
+    window_always_run        ⇐ 2⋆8  # Set to allow windows running while minimized
+    window_minimized         ⇐ 2⋆9  # Set to minimize window (iconify)
+    window_maximized         ⇐ 2⋆10 # Set to maximize window (expanded to monitor)
+    window_unfocused         ⇐ 2⋆11 # Set to window non focused
+    window_topmost           ⇐ 2⋆12 # Set to window always on top
+    window_highdpi           ⇐ 2⋆13 # Set to support HighDPI
+    window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+    interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
   }
 }
-
 draw ← {
   ⟨
-    # These aren't exported because they are useless if you use _withCanvas_.
-    # They also don't behave well if ran in the wrong order, and you only want to run them in 1 sequence.
-    # Start ⋄ End ⋄ Background
-   _withCanvas_ ⋄ _Circle ⋄ _Rectangle ⋄ Text ⋄ _Line
-   Texture ⋄ _Ellipse ⋄ _EllipseOutline
+    # These aren't recommended because they are useless if you use _withCanvas_.
+    # They also don't behave well if ran in the wrong order,
+    # you only want to run them in the "start, background, end" sequence.
+    Start ⋄ End ⋄ Background
+
+   _withCanvas_ ⋄ Rectangle ⋄ Text ⋄ Line
+   Texture ⋄ Ellipse ⋄ EllipseOutline ⋄ _in3D
   ⟩⇐
+  _in3D ← {
+    𝕨 Drawing3D _𝕣 camera:
+    NeedsWindow@          # pos  target up   FOV Camera projection type
+    !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
+    rayffi.BeginMode3D 𝕩
+    rayffi.EndMode3D∘@⊸⊢𝔽𝕩
+  }
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
     (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
+    !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
     rayFFI.ClearBackground 𝕩
   }
   Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩⊣NeedsWindow
@@ -169,71 +179,73 @@ draw ← {
     Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
   }
-  _Circle ← {radius r‿g‿b‿a _𝕣 posX‿posY :
-    NeedsWindow@
-    "Circle only accepts ints as args"!(∧´⌈⊸=∨∞=|)n←𝕩∾𝕨∾𝕗
-    "Incorrect amount of arguments"!7=≠n
-    rayFFI.DrawCircle ⌊𝕩∾𝕨‿𝕗
-  }
-  _Rectangle ← {width‿height r‿g‿b‿a _𝕣 posX‿posY :
-    NeedsWindow@
-    "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕩∾𝕨∾𝕗
-    rayFFI.DrawRectangle⌊(𝕩∾𝕨)∾<𝕗
-  }
   Text ← {𝕨𝕊⟨posX‿posY, text⟩:
-    NeedsWindow@
-    ⟨r,g,b,a⟩‿font‿fontSize‿spacing ⇐ ∾⟜1⍟(3≡≠)𝕨
+    t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
+    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i', "ii"⋈'c'¨text⟩
     rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, spacing, r‿g‿b‿a⟩
-  }
-  Line ← {𝕨𝕊[x‿x1⋄y‿y1]: # ⍉[startPos,endPos]
-    rayFFI.DrawLineEx(<˘⍉𝕩)∾{
-      𝕊r‿g‿b‿a:1⋈𝕩;
-      𝕊⟨r‿g‿b‿a⋄thickness⟩:⌽𝕩
-    }𝕨
   }⊣NeedsWindow
-
+  Line ← {𝕨𝕊[x‿y⋄x1‿y1]: # ⍉[startPos,endPos]
+    t←{
+      𝕊r‿g‿b‿a:1⋈˜𝕩;
+      𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
+    }𝕨
+    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i', 2‿2⥊'i'⟩
+    rayFFI.DrawLineEx(<˘⍉𝕩)∾⌽t
+  }⊣NeedsWindow
   Texture ← {⟨r‿g‿b‿a,texture,scale,rotation⟩ 𝕊 x‿y:
-    rayFFI.DrawTextureEx •Show ⟨texture,x‿y,rotation,scale,r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
+    !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
+    rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
+  }⊣NeedsWindow
+  Rectangle ← {r‿g‿b‿a𝕊[x‿y⋄x2‿y2]:
+    "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩
+    !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
+    rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝𝕩
   }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
-
-  Ellipse ← {r‿g‿b‿a𝕊⟨posX‿posY, width‿height⟩:
+  Ellipse ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
     ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
     (∧´𝕨∊↕256)!˜"𝕗 (color) only accepts ints in the range 0-255 inclusive"
-    rayffi.DrawEllipse (⥊+˝𝕩)∾<𝕨
-  }⊣NeedsWindow
+    rayffi.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
+  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
-    rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩 # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
-  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow # ⍉˘⍉⁼ does not affect 2≥=𝕩
+    rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
+  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow                                        # ⍉˘⍉⁼ does not affect 2≥=𝕩
 }
 font ← {
-  ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib⟩⇐
-  Load ← rayFFI.LoadFontEx{ # TODO: This is untested, please test this later
-    𝕊fontFilePath:
-      ⟨𝕩∾@, 40, ≍@, 0⟩; # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
-    charactersAllowed 𝕊 fontFilePath:
-      ⟨𝕩∾@, 40, 𝕨-@, ≠𝕨⟩
+  ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload⟩⇐
+  IsFont ← ⊢                                                     # TODO: make a special error for if a non-valid-font is given
+
+  Unload ← rayFFI.UnloadFont∘IsFont NeedsWindow
+  
+  Load ← IsFont∘rayFFI.LoadFontEx{                                # TODO: This is untested, please test this later
+    𝕊size‿filePath:
+      ⟨@∾˜filePath, size, ≍@, 0⟩;                                           # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
+    charactersAllowed 𝕊 size‿filePath:
+      ⟨@∾˜filePath, size, 𝕨-@, ≠𝕨⟩
   }⊣NeedsWindow
-  LoadBQN ← {𝕊fontSize: # Sorce of font and chars: https://dzaima.github.io/BQN386/
+  
+  LoadBQN ← {𝕊fontSize:                                           # Sorce of font and chars: https://dzaima.github.io/BQN386/
     NeedsWindow@
     chars ← •FChars "src/chars.txt"
-    rayFFI.LoadFontEx ⟨@∾˜FileAt"src/BQN386.ttf", 𝕩, chars-@, ≠chars⟩
+    rayFFI.LoadFontEx⟨@∾˜FileAt"src/BQN386.ttf", 100⍟(@⊸≡)𝕩, chars-@, ≠chars⟩
   }
   LoadRaylib ← rayffi.GetFontDefault∘@
 }
+clipboard ← {
+  Get ⇐ pointer.MakeUTF8 pointer.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
+  Set ⇐ rayffi.SetClipboardText@∾˜ToBytes⊣NeedsWindow
+}
 utils ← {
-  ⟨_FC, _bitwise⟩⇐
-  _FC ← {c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩} # FromCenter
-  #•Show 2⊸×_FC[10‿15⋄15‿20⋄20‿25] # [x1‿x2‿x3, y1‿y2‿y3, z1‿z2‿z3]
-  #•Show 2⊸×_FC[10‿15‿15⋄15‿20‿20] # [x1‿x2‿x3, y1‿y2‿y3, z1‿z2‿z3]
-  _bitwise ← {2⊸×⊸+˜´(𝔽´⌈○≠↑¨⋈)2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢)𝕩}
+  ⟨_FromCenter, _bitwise⟩⇐
+  _FromCenter ← {c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩}                             # example of 𝕩: [x1‿x2‿x3, y1‿y2‿y3, z1‿z2‿z3]
+  _bitwise ← {2⊸×⊸+˜´𝕨(0⊘1⊣◶⟨𝔽∘⊑⊢,𝔽´⊢⟩⌈○≠↑¨⋈)○(2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢))𝕩}
 }
 key ← {
   IsPressed ⇐ {𝕊 key:
     rayFFI.IsKeyPressed @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
   IsDown ⇐ {rayffi.IsKeyDown𝕩}
-  # These funcs are queues, call multiple times if needed. Returns 0 when the queue is empty
-  PressedKey ⇐ {𝕤  # Get key pressed (keycode)
+
+  PressedKey ⇐ {𝕤                                                 # Get key pressed as keycode
     rayFFI.GetKeyPressed⟨⟩
   }⊣NeedsWindow
   PressedChar ⇐ {𝕤
@@ -243,8 +255,6 @@ key ← {
   # Keyboard keys (US keyboard layout)
   # NOTE: Use GetKeyPressed() to allow redefining
   # required keys for alternative layouts
-
-  # consider switching to `letter-@` when possible.
 
   # vars           Keycodes   Keys
   null          ⇐ 0        # NULL, used for no key pressed
@@ -518,7 +528,7 @@ blendMode ⇐ { # Color blending modes (pre-defined)
   custom            ⇐ 6  # Blend textures using custom src/dst factors (use rlSetBlendFactors())                           
   custom_separate   ⇐ 7  # Blend textures using custom rgb/alpha separate src/dst factors (use rlSetBlendFactorsSeparate())
 }
-gesture ⇐ { # Gesture
+gesture ⇐ {
   none        ⇐ 0    # No gesture         
   tap         ⇐ 1    # Tap gesture        
   doubletap   ⇐ 2    # Double tap gesture 
@@ -531,7 +541,7 @@ gesture ⇐ { # Gesture
   pinch_in    ⇐ 256  # Pinch in gesture   
   pinch_out   ⇐ 512  # Pinch out gesture  
 }
-cameramode ⇐ { # Camera system modes
+cameramode ⇐ {
   custom       ⇐ 0  # Custom camera      
   free         ⇐ 1  # Free camera        
   orbital      ⇐ 2  # Orbital camera     
@@ -542,7 +552,7 @@ cameraProjection ⇐ { # Camera projection
   perspective  ⇐ 0  # Perspective projection 
   orthographic ⇐ 1  # Orthographic projection
 }
-nPatchLayout ⇐ { # N-patch layout
+nPatchLayout ⇐ {
   nine_patch             ⇐ 0  # Npatch layout: 3x3 tiles
   three_patch_vertical   ⇐ 1  # Npatch layout: 1x3 tiles
   three_patch_horizontal ⇐ 2  # Npatch layout: 3x1 tiles

@@ -15,10 +15,9 @@ LoadConsts ← {𝕊:{
   winSize       ⇐ window.GetSize@
   textPixelSize ⇐ r.rayFFI.MeasureText¨textSize⋈˜¨"Paused"‿"GAME OVER"
   tileSize      ⇐ ⌊winSize⌊´⊸÷size+2
-  lines         ⇐ ⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
+  lines         ⇐ ≍´˘•SHow ⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
+  font          ⇐ r.font.LoadBQN 100
 }}
-
-
 OnStart ← {𝕤
   frame ← 0 ⋄ speed ← 10
   # 0 is gameOver, 1 is playing, 2 is paused
@@ -50,23 +49,23 @@ PerGameFrame ← {𝕊gameState‿snake‿fruit‿facing‿buffer:
 }⌾(0‿2‿3‿4‿6⊸⊏)
 PerFrame ←{con𝕊⟨gameState,frame,snake,fruit,facing,speed,buffer,pal⟩:
   pauseP ← k.right_shift = key ← k.PressedKey@
-  10‿10 c.black draw._Text_ 40 ˜•Repr ¯1+≠snake
+  c.black‿con.font‿40 draw.Text 10‿10⋈•Repr ¯1+≠snake
   ⊑◶⟨ # each function is one scene
     {
       "GAME OVER"pal.text draw._Text_ textSize 2⥊2÷˜con.winSize-1⊑con.textPixelSize
       pal⌾(7⊑⊢)OnStart⍟pauseP 𝕩 # nums mean values to reset
     }
     PerGameFrame⍟(1=speed|frame) {𝕤
-      c.white draw._Line˘con.lines
-      ( con.tileSize-2) pal.fruit draw._Rectangle○(2⊸⥊)    1+con.tileSize×1+fruit
-      {(con.tileSize-2) pal.snake draw._Rectangle○(2⊸⥊) 𝕩}˘1+con.tileSize×1+snake
+      c.white⊸draw.Line∘⍉˘con.lines
+      pal.fruit draw.Rectangle ⍉+`(1+con.tileSize×1+fruit)≍2⥊con.tileSize-2
+      pal.snake⊸draw.Rectangle˘(con.tileSize-2)(⍉+≍⊢)˘1+con.tileSize×1+snake
       ⟨frame+1
        2⌈speed+-´key=k.down‿k.up        # speed
        key∾⍟(⊑∊⟜k.left‿k.right) buffer⟩ # Key buffer
     }⌾(1‿5‿6⊸⊏)
     {
       pauseText←"Paused"∾(@+10)∾"d for dark"
-      pauseText pal.text draw._Text_ textSize 2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize
+      pal.text‿con.font‿textSize draw.Text (2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize)‿pauseText
       {𝕩≡nonDarkMode?darkMode;nonDarkMode}⌾(7⊑⊢)⍟(key=k.d)𝕩
     }
   ⟩  {1:2;2:1;𝕩}⍟pauseP⌾⊑ 𝕩

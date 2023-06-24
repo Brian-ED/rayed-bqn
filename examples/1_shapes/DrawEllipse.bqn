@@ -8,4 +8,4 @@ PerFrame ← {
   100|𝕩+1
 }r.draw._withCanvas_ black
 
-0.5 PerFrame•_While_(¬r.window.ShouldClose)∘0 r.window._openAs "Hello!!!" 
+0.5 PerFrame•_While_(¬r.window.ShouldClose)∘0 r.window._openAs "Hello!!!"
