@@ -3,3 +3,6 @@ raylib
 
 # config files (new addition, no documentation)
 config.txt
+
+# Tests that aren't done
+0_inProgress
