@@ -23,7 +23,6 @@ rMirror⋄lLaser⋄rLaser⋄uLaser ⋄dLaser
 ⟩⇐↕≠chars←" @o#\/<>^v"                      # the characters that are used in the level representation
 
 goalOn‿beamU←2↕⊸+≠chars
-•Exit@
 
 levels←chars⊸⊐∘>¨((⊢-˜+`×¬)0=≠¨)⊸⊔•FLines "levels.txt"
 
