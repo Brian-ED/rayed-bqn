@@ -359,7 +359,7 @@ setShaderValueMatrix    ⇐       "SetShaderValueMatrix"   _R shader‿i‿matri
 setShaderValueTexture   ⇐       "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                 # Set shader uniform value for texture (sampler2d)
 unloadShader            ⇐       "UnloadShader"           _R shader                                                      # Unload shader from GPU memory (VRAM)
 
-# # Screen-space-related functions
+# Screen-space-related functions
 getMouseRay        ⇐ ray    "GetMouseRay"        _R v2‿camera3D      # mousePosition camera         # Get a ray trace from mouse position
 math←•Import "src/raymath.bqn"
 
