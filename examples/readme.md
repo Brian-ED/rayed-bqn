@@ -15,7 +15,7 @@ If you're new to this library, and maybe even bqn, you can check out the simpler
 - 9_repl, the repl has quite a lot of nice text handling and events.
 
 ## Complicated
-- 4_snakeGame, I intentionally experiemnted with syntax here.
+- 4_snakeGame, I intentionally experimented with syntax here.
 - 5_arcGame, i just wanted to make a more complicated game. Details in the readme in the folder.
 - 6_shader, implementing shader is a bit of work and a lot of pointers.
 
