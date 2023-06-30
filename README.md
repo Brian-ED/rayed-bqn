@@ -58,6 +58,14 @@ On Linux: libraylib.so
 Having as little magic as possible, magic meaning magic numbers and global values (available to the user) changing outside user's control.
 
 Mutations localized in namespaces like "button" are fine.
+
+# Contributing
+If you have any questions on contributing to this project, feel free to mention me on the bqn forum that's mentioned on the [bqn-wiki](https://mlochbaum.github.io/BQN/index.html#where-can-i-find-bqn-users), my username is Brian E.
+
+You can submit however many issues as you'd like, I see them as a TODO list.
+
+You can make pull requests and submit them for merges if you'd like, though be sure to discuss with me for any features you add to make sure you didn't put in wasted effort, though if it's mentioned in a github-issue and isn't taken do make sure you say you're working on it. Also say when you've stopped working on it, and share the roadblocks and progress, so someone can continue where you left off.   
+
 # Credits
 Lots of thanks to [@dzaima](https://github.com/dzaima) for helping with FFI.
 
