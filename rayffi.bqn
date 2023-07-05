@@ -79,7 +79,7 @@ glyphInfo ⇐ S i‿i‿i‿i‿image
 # image    # Character image data
 
 # Font, font texture and GlyphInfo array data
-font ⇐ S ⟨i,i,i,texture,ptr,ptr⟩
+font ⇐ S i‿i‿i‿texture‿ptr‿ptr
 # baseSize     # Base size (default chars height)
 # glyphCount   # Number of glyph characters
 # glyphPadding # Padding around the glyph characters

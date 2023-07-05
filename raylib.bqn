@@ -1,5 +1,4 @@
 ## Conventions:
-# If function has no intended output, output @.
 # One big goal of this lib is to eliminate as many bugs of raylib as possible,
 # for example, opening the window twice is impossible because it is not intended in raylib, and causes many bugs.
 
@@ -25,28 +24,44 @@ pointer ⇐ {
     "a"‿"bqn_makeUTF8Str"‿"u64"‿"*:i8"  # ptr to string 
     "i32"‿"strlen"‿">*:u8"              # length of unicode C-string
   ⟩
+  MAlloc ⇐ rayffi.MemAlloc
 }
 image ← {
   ⟨Load⋄Unload⋄_with
-   New # Experimental
+   LoadBQN ⋄ New # Experimental
   ⟩⇐
   # TODO: remember to check if file exists before running.
-  Load   ← {  𝕊 strPath: NeedsWindow@ ⋄   rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
+  
   Unload ← {  𝕊 image  : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
-  _with  ← {𝔽_𝕣 strPath: NeedsWindow@ ⋄ (Unload⊢𝔽)Load𝕩}
+  _with  ← {𝔽_𝕣 strPath: Unload 𝔽 Load𝕩}
 
   New ← {
     NeedsWindow@
-    l pointer.ReadI8˜ptr←rayffi.MemAlloc≠l←⥊𝕩
+    l pointer.ReadI8˜ptr←pointer.MAlloc≠l←⥊𝕩
     ptr<⊸∾(¯1↓≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
   }
+  ToArr ← {
+    𝕊dataPtr‿width‿hight‿mipmaps‿format:
+    ## TODO support formats somehow
+      !format≡pixelFormat.uncompressed_r8g8b8a8
+      4‿width‿hight(⊣⥊×´⊸pointer.Make)dataPtr
+  ;
+    𝕊⁼img:
+      ⟨⥊𝕩⟩∾(4⊸∾⁼{𝔽⌾⌽⎊𝔽}≢𝕩)∾1‿r.pixelFormat.uncompressed_r8g8b8a8
+  }
+  LoadRaylib ← {  𝕊 strPath: NeedsWindow@ ⋄ rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
+  LoadBQN ← (Unload⊢ToArr)Load
 }
 texture ← {
   # TODO: remember to check if file exists before running.
-  Load      ⇐ {𝕊strPath: NeedsWindow@ ⋄   rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
+  Load      ⇐ {𝕊strPath: NeedsWindow@ ⋄ rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
   Unload    ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
-  FromImage ⇐ {𝕊image  : NeedsWindow@ ⋄   rayffi.LoadImageFromTexture𝕩}
-  _with ⇐ {𝔽_𝕣 strPath : NeedsWindow@ ⋄ (Unload⊢𝔽)Load𝕩}
+  FromImage ⇐ {𝕊image  : NeedsWindow@ ⋄ rayffi.LoadTextureFromImage𝕩}
+  _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
+  
+  FromImageBQN ⇐ {𝕊image:
+    rayffi.LoadImageFromTexture𝕩
+  }
 }
 mouse ← {
   GetPos     ⇐ rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
@@ -76,7 +91,7 @@ monitor ← {
   Count       ← rayFFI.GetMonitorCount∘⟨⟩NeedsWindow
 
   notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
-  M ← @⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@} # No need for NeedsWindow because Selected and Count need it so error still works 
+  M ← @⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@} # No need for NeedsWindow because Selected and Count need it so error still works
 
   RefreshRate ← rayFFI.GetMonitorRefreshRate M
   Size        ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)M
@@ -208,11 +223,15 @@ draw ← {
   }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
-  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow                                        # ⍉˘⍉⁼ does not affect 2≥=𝕩
+  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
 }
 font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload⟩⇐
-  IsFont ← ⊢                                                     # TODO: make a special error for if a non-valid-font is given
+  IsFont ← {
+    (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜8⥊'i')!˜"Expected a valid font"   # Type info can be found in rayffi.bqn https://github.com/Brian-ED/rayed-bqn/blob/1ccf239c9167307c36bcd882c7f1031640f67032/rayffi.bqn#L81
+    𝕩⊣(¬∨´∧´¨0=¯2↑𝕩)!˜"Invalid font. font has null pointers, making it invalid"
+  }
+  glyphInfo←{value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
 
   Unload ← rayFFI.UnloadFont∘IsFont NeedsWindow
   
