@@ -11,19 +11,11 @@ PerFrame ← {tex‿font𝕊scrolled:
   90|m.WheelMoved⊸+𝕩
 } d._withCanvas_ c.black
 
-BQNToRayImg←{𝕊img:⟨⥊img⟩∾(4⊸∾⁼{𝔽⌾⌽⎊𝔽}≢img)∾1‿r.pixelFormat.uncompressed_r8g8b8a8}
-
-loadTextureFromImage ⇐ {
-  _R‿S‿P‿i8‿i‿texture←r.rayffi
-  f ← texture "LoadTextureFromImage"_R S i8<∘P⊸∾4⥊<i
-  F BQNToRayImg
-}
 {𝕤
   font ← r.font.LoadBQN@
-  #r.image.LoadBQN "logo.png"
-  x←•Show∘≢⊸⊢>∾((∾˜1280÷2)⥊<)¨⌽⊸≍c.blue‿c.red
-  tex ← LoadTextureFromImage x
-  tex‿font PerFrame•_While_(¬w.ShouldClose) 0
-  r.font   .Unload •Show font
-  r.texture.Unload tex
+  x ← [c.blue,c.red]⊏˜∾((∾˜1280÷2)⥊<)¨⌽⊸≍↕2
+  {𝕊tex:
+    tex‿font PerFrame•_While_(¬w.ShouldClose) 0
+  } r.texture._WithImage x
+  r.font   .Unload font
 } w._openAs "test"
