@@ -255,6 +255,19 @@ _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
 }
 
 #------------------------------------------------------------------------------------
+# BQN low-level function utils
+#------------------------------------------------------------------------------------
+
+# BQN Pointer functions
+# neccesary for low level programming in bqn
+MovePtr  ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128)256|⌊b÷˜𝕨+´b×256|𝕩}     #      bytes 𝕊 pointer # Move pointer by an amount of bytes
+read     ⇐ @•FFI "" ‿"bqn_readI8Arr"  ‿">a"     ‿("𝕨>"∾ptr) #       data 𝕊 pointer # write data to pointer
+make     ⇐ @•FFI "a"‿"bqn_makeI8Vec"  ‿"𝕨>u64"  ‿(">"∾ptr)  # bytesCount 𝕊 pointer # turn data at pointer into a number array
+makeUTF8 ⇐ @•FFI "a"‿"bqn_makeUTF8Str"‿"u64"    ‿ptr        #     length 𝕊 pointer # turn string at pointer into a bqn string
+strLen   ⇐ @•FFI i  ‿"strlen"         ‿('>'∾ptr)            #            𝕊 pointer # length of unicode C-string
+
+
+#------------------------------------------------------------------------------------
 # Window and Graphics Device Functions (Module: core)
 #------------------------------------------------------------------------------------
 
@@ -390,7 +403,7 @@ memAlloc         ⇐ ptr "MemAlloc"        _R u                             # si
 memRealloc       ⇐ ptr "MemRealloc"      _R ptr‿u                         # ptr size          # Internal memory reallocator
 memFree          ⇐     "MemFree"         _R ptr                           # ptr               # Internal memory free
 
-openURL ⇐ "OpenURL"_R str #url # Open URL with default system browser (if available)
+openURL ⇐ "OpenURL"_R str # url # Open URL with default system browser (if available)
 
 # Set custom callbacks
 # WARNING: Callbacks setup is intended for advance users
