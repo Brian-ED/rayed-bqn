@@ -5,66 +5,52 @@
 ⟨draw, image, texture, monitor, window, mouse
  font, color, key, rayffi, utils, clipboard⟩⇐
 
-# TODO: These need to be more accurate
-isLinux ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
-isWindows ← ¬isLinux
-
 rayFFI    ← •Import "rayffi.bqn"
 color     ← •Import "src/colors.bqn"
 ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
 
+# TODO: These need to be more accurate
+isLinux ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
+isWindows ← ¬isLinux
+
 FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
-pointer ⇐ {
-  MovePtr8 ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128)256|⌊b÷˜𝕨+´b×256|𝕩}
-  ⟨ReadI8⋄Make⋄MakeUTF8⋄StrLen⟩ ⇐ @•FFI⎊(!∘"@•FFI𝕩: Not implemented on your platform"˙)¨⟨
-    ""‿"bqn_readI8Arr"‿">a"‿"𝕨>*:i8"    # write to ptr
-    "a"‿"bqn_makeI8Vec"‿"𝕨>u64"‿">*:i8" # materialize
-    "a"‿"bqn_makeUTF8Str"‿"u64"‿"*:i8"  # ptr to string 
-    "i32"‿"strlen"‿">*:u8"              # length of unicode C-string
-  ⟩
-  MAlloc ⇐ rayffi.MemAlloc
-}
 image ← {
-  ⟨Load⋄Unload⋄_with
-   LoadBQN ⋄ New # Experimental
+  ⟨FromFile ⋄ _WithRayImg ⋄ ToArr
   ⟩⇐
-  # TODO: remember to check if file exists before running.
-  
-  Unload ← {  𝕊 image  : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
-  _with  ← {𝔽_𝕣 strPath: Unload 𝔽 Load𝕩}
-
-  New ← {
-    NeedsWindow@
-    l pointer.ReadI8˜ptr←pointer.MAlloc≠l←⥊𝕩
-    ptr<⊸∾(¯1↓≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
-  }
-  ToArr ← {
+  ToArr ← {                                       # TODO support formats somehow 
     𝕊dataPtr‿width‿hight‿mipmaps‿format:
-    ## TODO support formats somehow
       !format≡pixelFormat.uncompressed_r8g8b8a8
-      4‿width‿hight(⊣⥊×´⊸pointer.Make)dataPtr
+      width‿hight‿4(⊣⥊×´⊸rayffi.Make)dataPtr
   ;
     𝕊⁼img:
-      ⟨⥊𝕩⟩∾(4⊸∾⁼{𝔽⌾⌽⎊𝔽}≢𝕩)∾1‿r.pixelFormat.uncompressed_r8g8b8a8
+    NeedsWindow@
+    l rayffi.Read˜ptr←rayffi.MemAlloc≠l←⥊𝕩
+    ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
+#      ⟨<⥊𝕩⟩∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressed_r8g8b8a8
   }
-  LoadRaylib ← {  𝕊 strPath: NeedsWindow@ ⋄ rayFFI.LoadImage𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
-  LoadBQN ← (Unload⊢ToArr)Load
+  
+  _WithRayImg  ← {
+    Load   ← {𝕊 strPath: NeedsWindow@ ⋄ !•file.Exists𝕩 ⋄ rayFFI.LoadImage 𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
+    Unload ← {𝕊 image  : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
+    (Unload⊢𝔽)Load
+  }
+  FromFile ← ToArr _WithRayImg
 }
 texture ← {
   # TODO: remember to check if file exists before running.
-  Load      ⇐ {𝕊strPath: NeedsWindow@ ⋄ rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
+  Load      ⇐ {𝕊strPath: NeedsWindow@ ⋄ !•file.Exists𝕩 ⋄ rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
   Unload    ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
-  FromImage ⇐ {𝕊image  : NeedsWindow@ ⋄ rayffi.LoadTextureFromImage𝕩}
   _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
   
-  FromImageBQN ⇐ {𝕊image:
-    rayffi.LoadImageFromTexture𝕩
+  _WithImage ⇐ {
+    NeedsWindow@
+    (Unload⊢𝔽)rayffi.LoadTextureFromImage image.ToArr⁼𝕩
   }
 }
 mouse ← {
-  GetPos     ⇐ rayFFI.GetMousePosition⟨⟩⊣NeedsWindow
+  GetPos     ⇐ rayFFI.GetMousePosition ⟨⟩⊣NeedsWindow
   WheelMoved ⇐ rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
   button ⇐ {
     left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕7
@@ -250,7 +236,7 @@ font ← {
   LoadRaylib ← rayffi.GetFontDefault∘@
 }
 clipboard ← {
-  Get ⇐ pointer.MakeUTF8 pointer.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
+  Get ⇐ rayffi.MakeUTF8 rayffi.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText@∾˜ToBytes⊣NeedsWindow
 }
 utils ← {
