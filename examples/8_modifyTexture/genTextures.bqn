@@ -1,12 +1,11 @@
 ⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "../../raylib.bqn"
 
 _OnStart ← {𝕤
-  img ← r.image.New imgData←1000‿1000‿4⥊100/∾˘´≍¨´1000⥊¨c.blue⋈○<c.red
-  tex ← r.rayffi.LoadTextureFromImage img
-  r.image.Unload img
+  img ← 1000‿1000‿4⥊100/∾˘´≍¨´1000⥊¨c.blue⋈○<c.red
   font ← r.font.LoadBQN 100
-  tex‿font𝔽imgData‿0
-  r.texture.Unload tex
+  { tex
+    tex‿font𝔽imgData‿0
+  } r.texture._WithImage img
 }
 PerFrame ← {tex‿font𝕊img‿rot:
   c.white‿font‿30  d.Text 20‿20⋈•Repr∘w.fps.Get⊸∾" FPS"  

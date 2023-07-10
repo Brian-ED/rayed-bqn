@@ -16,34 +16,36 @@ isWindows ← ¬isLinux
 FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
-image ← {
-  ⟨FromFile ⋄ _WithRayImg ⋄ ToArr
+image ← { # TODO support  more formats somehow
+  ⟨ _WithRayImg ⋄ ToArr 
+    LoadFile ⋄ FromArrLoad ⋄ Unload
   ⟩⇐
-  ToArr ← {                                       # TODO support formats somehow 
-    𝕊dataPtr‿width‿hight‿mipmaps‿format:
-      !format≡pixelFormat.uncompressed_r8g8b8a8
-      width‿hight‿4(⊣⥊×´⊸rayffi.Make)dataPtr
-  ;
-    𝕊⁼img:
+  ToArr ← {𝕊dataPtr‿width‿hight‿mipmaps‿format:
+    !format≡pixelFormat.uncompressed_r8g8b8a8
+    width‿hight‿4(⊣⥊×´⊸rayffi.Make)dataPtr
+  }
+  FromArrLoad ←{𝕊img:
     NeedsWindow@
     l rayffi.Read˜ptr←rayffi.MemAlloc≠l←⥊𝕩
     ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
-#      ⟨<⥊𝕩⟩∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressed_r8g8b8a8
   }
-  
-  _WithRayImg  ← {
-    Load   ← {𝕊 strPath: NeedsWindow@ ⋄ !•file.Exists𝕩 ⋄ rayFFI.LoadImage 𝕩∾@} # ⊑ is used because LoadImage outputs image‿strPath for unknown reasons.
-    Unload ← {𝕊 image  : NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
-    (Unload⊢𝔽)Load
+  Unload ← {𝕊image: NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
+  LoadFile ← {𝕊strPath:
+    NeedsWindow@
+    !•file.Exists𝕩
+    rayFFI.LoadImage𝕩∾@
   }
+  _WithRayImg ← {(Unload⊢𝔽)Load}
   FromFile ← ToArr _WithRayImg
 }
 texture ← {
-  # TODO: remember to check if file exists before running.
-  Load      ⇐ {𝕊strPath: NeedsWindow@ ⋄ !•file.Exists𝕩 ⋄ rayFFI.LoadTexture𝕩∾@} # Load texture from file into GPU memory (VRAM)
+  Load      ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
+    NeedsWindow@
+    !•file.Exists𝕩
+    rayFFI.LoadTexture𝕩∾@
+  }
   Unload    ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
   _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
-  
   _WithImage ⇐ {
     NeedsWindow@
     (Unload⊢𝔽)rayffi.LoadTextureFromImage image.ToArr⁼𝕩
@@ -223,11 +225,12 @@ font ← {
   
   Load ← IsFont∘rayFFI.LoadFontEx{                                # TODO: This is untested, please test this later
     𝕊size‿filePath:
-      ⟨@∾˜filePath, size, ≍@, 0⟩;                                           # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
+      ⟨@∾˜filePath, size, ≍@, 0⟩
+  ;                                           # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
     charactersAllowed 𝕊 size‿filePath:
       ⟨@∾˜filePath, size, 𝕨-@, ≠𝕨⟩
   }⊣NeedsWindow
-  
+
   LoadBQN ← {𝕊fontSize:                                           # Sorce of font and chars: https://dzaima.github.io/BQN386/
     NeedsWindow@
     chars ← •FChars "src/chars.txt"

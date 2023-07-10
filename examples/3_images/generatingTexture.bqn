@@ -1,10 +1,5 @@
 ⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "../../raylib.bqn"
 
-#  Texture ← {⟨r‿g‿b‿a,rotation,texture⟩ 𝕊 scale‿pos:
-#    NeedsWindow@
-#    rayFFI.DrawTextureEx⟨texture,pos,rotation,scale,color⟩
-#  }
-
 PerFrame ← {tex‿font𝕊scrolled:
   c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.fps.Get⊸∾" FPS"
   {d.Texture⟜m.GetPos c.white‿tex∾𝕩∾˜÷5}¨𝕩+90×↕4
@@ -13,9 +8,9 @@ PerFrame ← {tex‿font𝕊scrolled:
 
 {𝕤
   font ← r.font.LoadBQN@
-  x ← r.image.FromFile •file.At "logo.png"
+  x ← [c.blue,c.red]⊏˜∾((∾˜1280÷2)⥊<)¨⌽⊸≍↕2
   {𝕊tex:
     tex‿font PerFrame•_While_(¬w.ShouldClose) 0
   } r.texture._WithImage x
-  r.font.Unload font
+  r.font   .Unload font
 } w._openAs "test"
