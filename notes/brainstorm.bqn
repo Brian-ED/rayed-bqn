@@ -3,11 +3,10 @@
 
 ### Contributors may add brainstorms (they're numbered). Removing contributions of others is discouraged.
 
-# 1; This brainstorm is ongoing 
+# 1; This brainstorm is old
 # layouts for basic function use
 
-
-# current
+# One example
 text black draw._Text_ fontSize 20‿20
 
 {𝕤
@@ -25,6 +24,10 @@ fontSize draw.Text _colored_ black _At_ 20‿20 text
 (fontSize draw.Text text˙) _colored_ c.black _At_ 20‿20 @
 
 # stacking mutluple _At_'s has the effect of adding positions to window.pos
+
+# 10th juli 2023:
+# Decided to change all operators that take values into functions accepting multiple args
+
 
 # 2; This brainstorm is on-going
 # Lots of game-engines i see around the place have a tree structure.
