@@ -29,7 +29,10 @@ image ← { # TODO support  more formats somehow
     l rayffi.Read˜ptr←rayffi.MemAlloc≠l←⥊𝕩
     ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
   }
-  Unload ← {𝕊image: NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
+  Unload ← {𝕊img:
+    NeedsWindow@
+    @⊣rayFFI.UnloadImage𝕩
+  }
   FromFile ← {𝕊strPath:
     NeedsWindow@
     !•file.Exists𝕩
