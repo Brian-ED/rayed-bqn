@@ -9,8 +9,8 @@ PerFrame ← {tex‿font𝕊scrolled:
 {𝕤
   font ← r.font.LoadBQN@
   x ← [c.blue,c.red]⊏˜∾((∾˜1280÷2)⥊<)¨⌽⊸≍↕2
-  {𝕊tex:
-    tex‿font PerFrame•_While_(¬w.ShouldClose) 0
+  {
+    𝕩‿font PerFrame•_While_(¬w.ShouldClose) 0
   } r.texture._WithImage x
-  r.font   .Unload font
+  r.font.Unload font
 } w._openAs "test"

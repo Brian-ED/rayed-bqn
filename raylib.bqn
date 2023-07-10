@@ -17,8 +17,8 @@ FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 image ← { # TODO support  more formats somehow
-  ⟨ _WithRayImg ⋄ ToArr 
-    LoadFile ⋄ FromArrLoad ⋄ Unload
+  ⟨ _WithRayImg ⋄ ToArr
+    FromFile ⋄ FromArrLoad ⋄ Unload
   ⟩⇐
   ToArr ← {𝕊dataPtr‿width‿hight‿mipmaps‿format:
     !format≡pixelFormat.uncompressed_r8g8b8a8
@@ -30,13 +30,12 @@ image ← { # TODO support  more formats somehow
     ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
   }
   Unload ← {𝕊image: NeedsWindow@ ⋄ @⊣rayFFI.UnloadImage𝕩}
-  LoadFile ← {𝕊strPath:
+  FromFile ← {𝕊strPath:
     NeedsWindow@
     !•file.Exists𝕩
-    rayFFI.LoadImage𝕩∾@
+    (Unload⊢ToArr) rayFFI.LoadImage𝕩∾@
   }
-  _WithRayImg ← {(Unload⊢𝔽)Load}
-  FromFile ← ToArr _WithRayImg
+  _WithRayImg ← {(Unload⊢𝔽)FromArrLoad}
 }
 texture ← {
   Load      ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
@@ -48,7 +47,7 @@ texture ← {
   _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
   _WithImage ⇐ {
     NeedsWindow@
-    (Unload⊢𝔽)rayffi.LoadTextureFromImage image.ToArr⁼𝕩
+    (Unload⊢𝔽)rayffi.LoadTextureFromImage image._WithRayImg 𝕩
   }
 }
 mouse ← {
