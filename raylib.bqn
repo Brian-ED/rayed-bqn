@@ -136,7 +136,7 @@ window ← {
   }
   # NOTE: Every bit registers one state (use it with bit masks)
   # By default all flags are set to 0
-  configFlags ⇐{
+  configFlags ⇐ {
     fullscreen_mode          ⇐ 2⋆1  # Set to run program in fullscreen
     window_resizable         ⇐ 2⋆2  # Set to allow resizable window
     window_undecorated       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
@@ -391,7 +391,6 @@ traceLogLevel ⇐ { # Trace log level
   fatal   ⇐ 6  # Fatal logging, used to abort program: exit(EXIT_FAILURE)                           
   none    ⇐ 7  # Disable logging                                                                    
 }
-
 gamepadButton ⇐ { # Gamepad buttons
   unknown          ⇐ 0   # Unknown button, just for error checking                               
   left_face_up     ⇐ 1   # Gamepad left DPAD up button                                           
