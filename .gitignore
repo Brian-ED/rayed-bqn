@@ -1,7 +1,7 @@
 # raylib sorce files, that need to be downloaded seperately.
 raylib
 
-# config files (new addition, no documentation)
+# config file
 config.txt
 
 # Tests that aren't done
