@@ -2,7 +2,7 @@
   "out"‿•Out
   "show"‿•Show
   "type"‿•Type
-  "sh"‿•Sh
+#  "sh"‿•Sh  # Sh removed since it doesn't exist on cbqn built on windows currently as of 23/july/2023
   "decompose"‿•Decompose
   "while"‿•While
   "bqn"‿•BQN
@@ -13,7 +13,7 @@
   "delay"‿•Delay
   "hash"‿•Hash
   "repr"‿•Repr
-#  "parsefloat"‿•ParseFloat
+  "parsefloat"‿•ParseFloat
   "fmt"‿•FMT
   "glyph"‿•Glyph
   "makerand"‿•MakeRand
@@ -37,5 +37,5 @@
   "file"‿•file
   "state"‿•state
   "args"‿⟨⟩
-#  "ns"‿•ns
+  "ns"‿•ns
 ⟩
