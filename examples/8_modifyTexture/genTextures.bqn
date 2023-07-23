@@ -1,10 +1,10 @@
 ⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "../../raylib.bqn"
 
-_OnStart ← {𝕤
+_OnStart ← {𝕨 Func _𝕣 𝕩:
   img ← 1000‿1000‿4⥊100/∾˘´≍¨´1000⥊¨c.blue⋈○<c.red
   font ← r.font.LoadBQN 100
-  { tex
-    tex‿font𝔽imgData‿0
+  {𝕊tex:
+    tex‿font Func img‿0
   } r.texture._WithImage img
 }
 PerFrame ← {tex‿font𝕊img‿rot:
