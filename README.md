@@ -6,6 +6,8 @@ Breaking changes to any feature in raylib.bqn should be expected for now, as thi
 raylib.ffi is only for bindings and therefore shouldn't change, so you can probably rely on those, but no guarantees.
 
 # Getting started
+You may need to run `git submodule update --init --recursive` to install the required bqn-libs submodule.
+
 Make a config file named "config.txt" at `./rayed_bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to. If there are two lines with same config, then the bottom most line is picked.
 
 The only values supported for now is the path to binary.
@@ -34,7 +36,7 @@ I have never tested mac, but it could be similar to Linux.
 # Tested Raylib versions:
 
 ## Windows
-  "raylib-4.5.0_win64_mingw-w64" on Windows 10, using CBQN version [cbqn-cygwin-gcc-mintty-standalone-x86_64](https://github.com/actalley/WinBQN/releases/tag/v0.0.8-alpha)
+  "raylib-4.5.0_win64_mingw-w64" on Windows 10
   
 ## Linux
   Raylib version 4.5.0 built from source on Pop!_OS.
