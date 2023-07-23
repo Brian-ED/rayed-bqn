@@ -26,7 +26,7 @@ image ← { # TODO support  more formats somehow
   }
   FromArrLoad ←{𝕊img:
     NeedsWindow@
-    l rayffi.Read˜ptr←rayffi.MemAlloc≠l←⥊𝕩
+    l rayffi.Read ptr←rayffi.MemAlloc≠l←⥊𝕩
     ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
   }
   Unload ← {𝕊img:
