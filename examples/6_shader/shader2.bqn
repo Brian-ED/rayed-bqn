@@ -2,42 +2,6 @@
 ⟨materialStruct⇐material⟩ ← rayffi
 Show ← {•Out ('␀'-@)⊸+⌾((@=f)⊸/)f←•Fmt𝕩 ⋄ •term.Flush@ ⋄ 𝕩}
 
-# RLights
-
-# Light data
-###typedef struct {   
-###    int type;
-###    bool enabled;
-###    Vector3 position;
-###    Vector3 target;
-###    Color color;
-###    float attenuation;
-###    
-###    # Shader locations
-###    int enabledLoc;
-###    int typeLoc;
-###    int positionLoc;
-###    int targetLoc;
-###    int colorLoc;
-###    int attenuationLoc;
-###} Light;
-
-# LightToArr ← {l:⟨
-#     l.type
-#     l.enabled
-#     l.position
-#     l.target
-#     l.color
-#     l.attenuation
-# 
-#     l.enabledLoc
-#     l.typeLoc
-#     l.positionLoc
-#     l.targetLoc
-#     l.colorLoc
-#     l.attenuationLoc
-# ⟩}
-
 # Light type
 ###typedef enum {
 lightType ← {
@@ -62,45 +26,8 @@ shaderType ← {
     locs    ⇐ 1 # ptr (P i) # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 }
 
-# Create a light and get shader locations
-CreateLight ⇐ 4⊸⊑{shader𝕊𝕩:UpdateLightValues shader‿𝕩⋄𝕩}{
-    𝕊⟨
-        type        # int
-        position    # Vector3
-        target      # Vector3
-        color       # Color
-        shader      # Shader
-        lightsCount # int
-    ⟩:
-    type‿position‿target‿color⇐
-    enabled ⇐ 1
-    SetType     ⇐ {type     ↩ 𝕩}
-    SetPosition ⇐ {position ↩ 𝕩}
-    SetTarget   ⇐ {target   ↩ 𝕩}
-    SetColor    ⇐ {color    ↩ 𝕩}
-
-    # NOTE: Lighting shader naming must be the provided ones
-    F ← rayffi.GetShaderLocation shader⋈@∾˜("lights["∾"]."∾˜•Repr lightsCount)⊸∾
-    enabledLoc  ⇐ F "enabled"
-    typeLoc     ⇐ F "type"
-    positionLoc ⇐ F "position"
-    targetLoc   ⇐ F "target"
-    colorLoc    ⇐ F "color"
-    Toggle ⇐ {𝕊:enabled¬↩}
-}
-
 # Send light properties to shader
 # NOTE: Light shader locations should be available 
-UpdateLightValues ← {shader‿light:
-    # Send light to shader
-    F ← rayffi.SetShaderValue⟨shader⟩⊸∾
-    su ← r.shaderUniformDataType
-    F ⟨light.enabledLoc , ⋈light.enabled , su.int ⟩ # TODO: may not work. replaced & at light.enabled with ⋈
-    F ⟨light.typeLoc    , ⋈light.type    , su.int ⟩ # TODO: may not work. replaced & at light.type with ⋈
-    F ⟨light.positionLoc, light.position , su.vec3⟩
-    F ⟨light.targetLoc  , light.target   , su.vec3⟩
-    F ⟨light.colorLoc   , light.color÷255, su.vec4⟩
-}
 #RLights END
 
 rayffi.SetConfigFlags r.window.configFlags.msaa_4x_hint  # Enable Multi Sampling Anti Aliasing 4x (if available)
@@ -141,11 +68,37 @@ _withConsts ← {𝔽_𝕣 𝕩:
     # cube .materials[0].shader ← shader;
 
     # Create lights
-    lights ← CreateLight¨↕∘≠⊸({l𝕊a‿b:⟨lightType.point⋄a⋄3⥊0⋄b⋄shader⋄l⟩}¨)⟨
-        ¯2‿1‿¯2 ⋈ color.yellow
-         2‿1‿ 2 ⋈ color.red
-        ¯2‿1‿ 2 ⋈ color.green
-         2‿1‿¯2 ⋈ color.blue
+    CreateLight ← {𝕊⟨
+            position    # Vector3
+            target      # Vector3
+            color       # Color
+            pKey
+            lightsCount
+        ⟩:
+        type‿position‿target‿color⇐
+        color÷↩255
+        enabled ⇐ 1
+        type ← lightType.point
+
+        # NOTE: Lighting shader naming must be the provided ones
+        F ← {type‿var:
+            loc ← rayffi.GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"]."∾var∾@
+            {𝕩⊣rayffi.SetShaderValue ⟨shader⋄loc⋄⥊𝕩⋄type⟩}
+        }
+        su ← r.shaderUniformDataType
+        setEnabled  ← {𝕊n: G←{enabled  ↩ N𝕩} ⋄ G enabled  ⋄ g} F su.int ‿"enabled"
+        setType     ⇐ {𝕊n: G←{type     ↩ N𝕩} ⋄ G type     ⋄ g} F su.int ‿"type"
+        setPosition ⇐ {𝕊n: G←{position ↩ N𝕩} ⋄ G position ⋄ g} F su.vec3‿"position"
+        setTarget   ⇐ {𝕊n: G←{target   ↩ N𝕩} ⋄ G target   ⋄ g} F su.vec3‿"target"
+        setColor    ⇐ {𝕊n: G←{color    ↩ N𝕩} ⋄ G color    ⋄ g} F su.vec4‿"color"
+        Toggle      ⇐ {𝕊: SetEnabled¬enabled}⍟(key.IsPressed∘pKey)
+        
+    }
+    lights ← CreateLight¨({a‿b‿k:⟨a⋄3⥊0⋄b⋄k⟩}¨∾¨↕∘≠)⟨
+        ⟨¯2‿1‿¯2 ⋄ color.yellow ⋄ key.y⟩
+        ⟨ 2‿1‿ 2 ⋄ color.red    ⋄ key.r⟩
+        ⟨¯2‿1‿ 2 ⋄ color.green  ⋄ key.g⟩
+        ⟨ 2‿1‿¯2 ⋄ color.blue   ⋄ key.b⟩
     ⟩
     font 𝔽 camera‿shader‿lights‿cube‿model
     r.font.Unload font
@@ -153,53 +106,39 @@ _withConsts ← {𝔽_𝕣 𝕩:
     rayffi.UnloadShader shader
 }
 
+# Draw a model (with texture if set)
+DrawModel ← {𝕊model‿position‿scale‿tint:
+    rotationAxis ← 0‿1‿0
+    rayffi.DrawModelEx⟨model, position, rotationAxis, 0, 3⥊scale, tint⟩
+}
+
 # Main game loop
 PerFrame ← {font𝕊camera‿shader‿lights‿cube‿model:
-    # Update
-    #----------------------------------------------------------------------------------
     rayffi.UpdateCamera ⟨camera⟩‿r.cameramode.orbital # TODO may not work, &camera → ⟨camera⟩
-
-    # Update the shader with the camera view vector (points towards { 0.0f, 0.0f, 0.0f })
     rayffi.SetShaderValue ⟨
         shader
         {
             locsPtr ← shaderType.locs⊑shader # shader.locs
-            ¯1⊑locsPtr rayffi.MakeI32˜1+r.shaderLocationIndex.vector_view  # locsPtr[SHADER_LOC_VECTOR_VIEW]
+            •Show ¯1⊑locsPtr rayffi.MakeI32˜1+r.shaderLocationIndex.vector_view  # locsPtr[SHADER_LOC_VECTOR_VIEW]
         }
         ⊑camera
         r.shaderUniformDataType.vec3
     ⟩
-
-    # Check key inputs to enable/disable lights
     lights {𝕨.Toggle@}⍟(key.IsPressed⊢)¨⟨key.y⋄key.r⋄key.g⋄key.b⟩
-    
-    # Update light values (actually, only enable/disable them)
-    (UpdateLightValues shader⊸⋈)¨lights
-    #----------------------------------------------------------------------------------
-
-    # Draw
-    #----------------------------------------------------------------------------------
     {𝕤
-        {𝕤
-            rayffi.DrawModel ⟨cube ⋄ 3⥊0 ⋄ 1 ⋄ color.white⟩
-            rayffi.DrawModel ⟨model ⋄ 3⥊0 ⋄ 1 ⋄ color.white⟩
+        DrawModel¨<⊸∾⟜⟨3⥊0 ⋄ 1 ⋄ color.white⟩¨cube‿model
+        # Draw spheres to show where the lights are
+        {𝕩.enabled? rayffi.DrawSphereEx 𝕩.position‿0.2‿8‿8‿(𝕩.color×255)
+        ;           rayffi.DrawSphereWires 76⌾⊑⌾⌽⌾⊑⌾⌽ ⟨𝕩.position, 0.2, 8, 8, 𝕩.color×255⟩
+        }¨lights
+        rayffi.DrawGrid 10‿1
+    } draw._in3D camera
 
-            # Draw spheres to show where the lights are
-            {𝕩.enabled? rayffi.DrawSphereEx 𝕩.position‿0.2‿8‿8‿𝕩.color
-            ;           rayffi.DrawSphereWires ⟨𝕩.position, 0.2, 8, 8, ∾⟜76 3↑𝕩.color⟩
-            }¨lights
+    rayffi.DrawFPS 10‿10
+    color.darkgray‿font‿30 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
 
-            rayffi.DrawGrid 10‿1
-
-        } draw._in3D camera
-
-        rayffi.DrawFPS 10‿10
-
-        color.darkgray‿font‿30 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
-
-    }draw._withCanvas_ color.raywhite@
     (key.right‿key.up‿key.e -○key.IsPressed key.left‿key.down‿key.q)⊸+⌾(⊑⊑)𝕩
-}
+}draw._withCanvas_ color.raywhite
 
 Game ← PerFrame•_While_(¬window.ShouldClose) _withConsts
 Game window._openAs "raylib [shaders] example - basic lighting"

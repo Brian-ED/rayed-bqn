@@ -8,16 +8,17 @@ shader_uniform_vec3 ← 2
 shader_uniform_vec4 ← 3
 
 # Create a light and get shader locations
-CreateLight ← {lightsCount𝕊v3Pos‿color‿shader:
+CreateLight ← {lightsCount𝕊⟨x‿y‿z⋄color⋄shader⟩:
+  shaderVars ← "enabled"‿"type"‿"position"‿"target"‿"color"
   shader UpdateLightValues {
     type           ⇐ 1
     enabled‿Toggle ⇐ 1‿{𝕊: enabled¬↩}
-    pos            ⇐ v3Pos
+    pos            ⇐ x‿y‿z
     target         ⇐ 0‿0‿0
     color          ⇐ color
   # NOTE: Lighting shader naming must be the provided ones
     ⟨enabledLoc, typeLoc, posLoc, targetLoc, colorLoc
-    ⟩ ⇐ (rayffi.GetShaderLocation shader⋈"lights["∾lightsCount•Repr⊸∾"]."∾∾⟜@)¨"enabled"‿"type"‿"position"‿"target"‿"color"
+    ⟩ ⇐ (rayffi.GetShaderLocation shader⋈"lights["∾lightsCount•Repr⊸∾"]."∾∾⟜@)¨shaderVars
   }
 }
 
