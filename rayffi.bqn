@@ -837,19 +837,19 @@ genMeshHeightmap  ⇐ mesh "GenMeshHeightmap"  _R image‿v3 # heightmap size   
 genMeshCubicmap   ⇐ mesh "GenMeshCubicmap"   _R image‿v3 # cubicmap cubeSize        # Generate cubes-based map mesh from image data
 
 # Material loading/unloading functions
-loadMaterials        ⇐ ptr      "LoadMaterials"        _R str‿(P i)              # *Material ""_R *fileName *materialCount # Load materials from model file
-loadMaterialDefault  ⇐ material "LoadMaterialDefault"  _R@                                                                 # Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
-isMaterialReady      ⇐ i8       "IsMaterialReady"      _R material                                                         # Check if a material is ready
-unloadMaterial       ⇐          "UnloadMaterial"       _R material                                                         # Unload material from GPU memory (VRAM)
-setMaterialTexture   ⇐          "SetMaterialTexture"   _R (P material)‿i‿texture # *material mapType texture               # Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
-setModelMeshMaterial ⇐          "SetModelMeshMaterial" _R (P model)‿i‿i          # *model meshId materialId                # Set material for a mesh
+loadMaterials        ⇐ (ptr⊣P material) "LoadMaterials"        _R str‿(P i)              # *fileName *materialCount  # Load materials from model file
+loadMaterialDefault  ⇐ material         "LoadMaterialDefault"  _R@                                                   # Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
+isMaterialReady      ⇐ i8               "IsMaterialReady"      _R material                                           # Check if a material is ready
+unloadMaterial       ⇐                  "UnloadMaterial"       _R material                                           # Unload material from GPU memory (VRAM)
+setMaterialTexture   ⇐                  "SetMaterialTexture"   _R (P material)‿i‿texture # *material mapType texture # Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
+setModelMeshMaterial ⇐                  "SetModelMeshMaterial" _R (P model)‿i‿i          # *model meshId materialId  # Set material for a mesh
 
 # Model animations loading/unloading functions
-loadModelAnimations   ⇐ ptr "LoadModelAnimations"   _R str⋈P u               # *modelAnimation ""_R filename *anumCount # Load model animations from file
-updateModelAnimation  ⇐     "UpdateModelAnimation"  _R model‿modelAnimation‿i # model anim frame                         # Update model animation pose
-unloadModelAnimation  ⇐     "UnloadModelAnimation"  _R modelAnimation                                                    # Unload animation data
-unloadModelAnimations ⇐     "UnloadModelAnimations" _R (P modelAnimation)‿u   # *animations count                        # Unload animation array data
-isModelAnimationValid ⇐ i8  "IsModelAnimationValid" _R model‿modelAnimation                                              # Check model animation skeleton match
+loadModelAnimations   ⇐ (ptr⊣P modelAnimation) "LoadModelAnimations"   _R str⋈P u                # filename *anumCount # Load model animations from file
+updateModelAnimation  ⇐                        "UpdateModelAnimation"  _R model‿modelAnimation‿i # model anim frame    # Update model animation pose
+unloadModelAnimation  ⇐                        "UnloadModelAnimation"  _R modelAnimation                               # Unload animation data
+unloadModelAnimations ⇐                        "UnloadModelAnimations" _R (P modelAnimation)‿u   # *animations count   # Unload animation array data
+isModelAnimationValid ⇐ i8                     "IsModelAnimationValid" _R model‿modelAnimation                         # Check model animation skeleton match
 
 # Collision detection functions
 checkCollisionSpheres   ⇐ i8           "CheckCollisionSpheres"   _R v3‿f‿v3‿f               # center1 radius1 center2 radius2 # Check collision between two spheres
@@ -886,19 +886,19 @@ exportWave         ⇐ i8    "ExportWave"         _R wave‿str    # wave fileNa
 exportWaveAsCode   ⇐ i8    "ExportWaveAsCode"   _R wave‿str    # wave fileName                # Export wave sample data to code (.h), returns true on success
 
 # Wave/Sound management functions
-playSound         ⇐      "PlaySound"         _R sound                                                 # Play a sound
-stopSound         ⇐      "StopSound"         _R sound                                                 # Stop playing a sound
-pauseSound        ⇐      "PauseSound"        _R sound                                                 # Pause a sound
-resumeSound       ⇐      "ResumeSound"       _R sound                                                 # Resume a paused sound
-isSoundPlaying    ⇐ i8   "IsSoundPlaying"    _R sound                                                 # Check if a sound is currently playing
-setSoundVolume    ⇐      "SetSoundVolume"    _R sound‿f        # sound volume                         # Set volume for a sound (1.0 is max level)
-setSoundPitch     ⇐      "SetSoundPitch"     _R sound‿f        # sound pitch                          # Set pitch for a sound (1.0 is base level)
-setSoundPan       ⇐      "SetSoundPan"       _R sound‿f        # sound pan                            # Set pan for a sound (0.5 is center)
-waveCopy          ⇐ wave "WaveCopy"          _R wave                                                  # Copy a wave to a new wave
-waveCrop          ⇐      "WaveCrop"          _R (P wave)‿i‿i   # *wave initSample finalSample         # Crop a wave to defined samples range
-waveFormat        ⇐      "WaveFormat"        _R (P wave)‿i‿i‿i # *wave sampleRate sampleSize channels # Convert wave data to desired format
-loadWaveSamples   ⇐ ptr  "LoadWaveSamples"   _R wave           # *f ""_R wave                                       # Load samples data from wave as a 32bit float data array
-unloadWaveSamples ⇐      "UnloadWaveSamples" _R P f            # *samples                             # Unload samples data loaded with LoadWaveSamples()
+playSound         ⇐           "PlaySound"         _R sound                                                 # Play a sound
+stopSound         ⇐           "StopSound"         _R sound                                                 # Stop playing a sound
+pauseSound        ⇐           "PauseSound"        _R sound                                                 # Pause a sound
+resumeSound       ⇐           "ResumeSound"       _R sound                                                 # Resume a paused sound
+isSoundPlaying    ⇐ i8        "IsSoundPlaying"    _R sound                                                 # Check if a sound is currently playing
+setSoundVolume    ⇐           "SetSoundVolume"    _R sound‿f        # sound volume                         # Set volume for a sound (1.0 is max level)
+setSoundPitch     ⇐           "SetSoundPitch"     _R sound‿f        # sound pitch                          # Set pitch for a sound (1.0 is base level)
+setSoundPan       ⇐           "SetSoundPan"       _R sound‿f        # sound pan                            # Set pan for a sound (0.5 is center)
+waveCopy          ⇐ wave      "WaveCopy"          _R wave                                                  # Copy a wave to a new wave
+waveCrop          ⇐           "WaveCrop"          _R (P wave)‿i‿i   # *wave initSample finalSample         # Crop a wave to defined samples range
+waveFormat        ⇐           "WaveFormat"        _R (P wave)‿i‿i‿i # *wave sampleRate sampleSize channels # Convert wave data to desired format
+loadWaveSamples   ⇐ (ptr⊣P f) "LoadWaveSamples"   _R wave           # wave                                 # Load samples data from wave as a 32bit float data array
+unloadWaveSamples ⇐           "UnloadWaveSamples" _R P f            # *samples                             # Unload samples data loaded with LoadWaveSamples()
 
 # Music management functions
 loadMusicStream           ⇐ music "LoadMusicStream"           _R str        # fileName                # Load music stream from file
