@@ -42,12 +42,12 @@ _withConsts ← {𝔽_𝕣 𝕩:
         0       # projection # Camera projection type
     ⟩
     # Load plane model from a generated mesh
-    model ← rayffi.LoadModelFromMesh rayffi.GenMeshPlane 10‿10‿3‿3
-    cube  ← rayffi.LoadModelFromMesh rayffi.GenMeshCube  2 ‿4 ‿2
+    model‿cube ← rayffi.LoadModelFromMesh¨⟨rayffi.GenMeshPlane 10‿10‿3‿3 
+                                           rayffi.GenMeshCube  2‿4‿2⟩
 
     # Load basic lighting shader
     # loadShader ← "../../C/raylib/src/libraylib.so" •FFI "*:i8"‿"LoadShader"‿"*i8:c8"‿"*i8:c8"
-    shader ← rayffi.LoadShader@∾˜¨"lighting."⊸∾¨"vs"‿"fs"
+    shader ← rayffi.LoadShader •file.At¨"lighting."⊸∾¨"vs"‿"fs"
     font ← r.font.LoadBQN 100
     # Get some required shader locations
     { # shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
@@ -119,7 +119,7 @@ PerFrame ← {font𝕊camera‿shader‿lights‿cube‿model:
         shader
         {
             locsPtr ← shaderType.locs⊑shader # shader.locs
-            •Show ¯1⊑locsPtr rayffi.MakeI32˜1+r.shaderLocationIndex.vector_view  # locsPtr[SHADER_LOC_VECTOR_VIEW]
+            ⊑1 rayffi.MakeI32 (r.shaderLocationIndex.vector_view×4) rayffi.MovePtr locsPtr  # locsPtr[SHADER_LOC_VECTOR_VIEW]
         }
         ⊑camera
         r.shaderUniformDataType.vec3
