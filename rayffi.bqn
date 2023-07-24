@@ -19,6 +19,8 @@ raylibPath←"raylibSource/lib/raylib.dll" # Default path
   "raylibPath"𝕊𝕩:raylibPath↩1↓𝕩
 }´¨+`∘=⟜':'⊸⊔¨•FLines "config.txt"
 
+math←•Import "src/raymath.bqn"
+
 #region Structs
 P⇐'*'⊸∾             # '*' means a pointer
 S⇐{'{'∾'}'«∾','∾¨𝕩} # Parse types into one struct
@@ -79,7 +81,7 @@ glyphInfo ⇐ S i‿i‿i‿i‿image
 # image    # Character image data
 
 # Font, font texture and GlyphInfo array data
-font ⇐ S i‿i‿i‿texture‿ptr‿ptr
+font ⇐ S ⟨i⋄i⋄i⋄texture⋄ptr⊣P rectangle⋄ptr⊣P glyphInfo⟩
 # baseSize     # Base size (default chars height)
 # glyphCount   # Number of glyph characters
 # glyphPadding # Padding around the glyph characters
@@ -361,9 +363,12 @@ endVrStereoMode   ⇐ "EndVrStereoMode"  _R@                                  # 
 
 # Shader management functions
 # NOTE: Shader functionality is not available on OpenGL 1.1
-loadShader              ⇐ shader "LoadShader"             _R str‿str           # vsFileName fsFileName                   # Load shader from files and bind default locations
+LoadShader ⇐ {𝕊vsFileName‿fsFileName: LoadShaderFromMemory @∾˜¨•FChars¨𝕩}                                         # Load shader from files and bind default locations
 loadShaderFromMemory    ⇐ shader "LoadShaderFromMemory"   _R str‿str           # vsCode fsCode                           # Load shader from code strings and bind default locations
-isShaderReady           ⇐ i8     "IsShaderReady"          _R shader                                                      # Check if a shader is ready
+IsShaderReady ⇐ {𝕊shader: # Check if a shader is ready
+  id‿locsPtr ← 𝕩
+  (id>0)∧locsPtr≢8⥊0      # id>0 means loaded successfully and non-null pointer means memory has been succesfully allocated
+}
 getShaderLocation       ⇐ i      "GetShaderLocation"      _R shader‿str        # shader uniformName                      # Get shader uniform location
 getShaderLocationAttrib ⇐ i      "GetShaderLocationAttrib"_R shader‿str        # shader attribName                       # Get shader attribute location
 setShaderValue          ⇐        "SetShaderValue"         _R shader‿i‿(P f)‿i  # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
@@ -375,11 +380,11 @@ unloadShader            ⇐        "UnloadShader"           _R shader           
 
 # Screen-space-related functions
 getMouseRay        ⇐ ray    "GetMouseRay"        _R v2‿camera3D      # mousePosition camera         # Get a ray trace from mouse position
-math←•Import "src/raymath.bqn"
 
-GetCameraMatrix ← {𝕊camera: math.MatrixLookAt 3↑𝕩}
-getCameraMatrixRaylib ⇐ matrix "GetCameraMatrix"    _R camera3D                                        # Get camera transform matrix (view matrix)
-
+GetCameraMatrix ← {𝕊camera:
+  position‿target‿up‿fovy‿projection ← 𝕩
+  math.MatrixLookAt position‿target‿up
+}
 getCameraMatrix2D  ⇐ matrix "GetCameraMatrix2D"  _R camera3D                                        # Get camera 2d transform matrix
 getWorldToScreen   ⇐ v2     "GetWorldToScreen"   _R v3‿camera3D      # position camera              # Get the screen space position for a 3d world space position
 getScreenToWorld2D ⇐ v2     "GetScreenToWorld2D" _R v2‿camera3D      # position camera              # Get the world space position for a 2d camera screen space position
@@ -804,13 +809,13 @@ unloadModel         ⇐             "UnloadModel"        _R model           # Un
 getModelBoundingBox ⇐ boundingBox "GetModelBoundingBox"_R model           # Compute model bounding box limits (considers all meshes)
 
 # Model drawing functions
-drawModel        ⇐ "DrawModel"       _R model‿v3‿f‿color # model position scale tint              # Draw a model (with texture if set)
-drawModelEx      ⇐ "DrawModelEx"     _R model‿v3‿v3‿f‿v3‿color # model position rotationAxis rotationAngle scale tint # Draw a model with extended parameters
-drawModelWires   ⇐ "DrawModelWires"  _R model‿v3‿f‿color # model position scale tint          # Draw a model wires (with texture if set)
-drawModelWiresEx ⇐ "DrawModelWiresEx"_R model‿v3‿v3‿f‿v3‿color # model position rotationAxis rotationAngle scale tint # Draw a model wires (with texture if set) with extended parameters
-drawBoundingBox  ⇐ "DrawBoundingBox" _R boundingBox‿color # box color                                   # Draw bounding box (wires)
-drawBillboard    ⇐ "DrawBillboard"   _R camera3d‿texture‿v3‿f‿color # camera texture position size tint   # Draw a billboard texture
-drawBillboardRec ⇐ "DrawBillboardRec"_R camera3d‿texture‿rectangle‿v3‿v2‿color # camera texture source position size tint # Draw a billboard texture defined by source
+drawModel        ⇐ "DrawModel"       _R model‿v3‿f‿color                               # model position scale tint                                   # Draw a model (with texture if set)
+drawModelEx      ⇐ "DrawModelEx"     _R model‿v3‿v3‿f‿v3‿color                         # model position rotationAxis rotationAngle scale tint        # Draw a model with extended parameters
+drawModelWires   ⇐ "DrawModelWires"  _R model‿v3‿f‿color                               # model position scale tint                                   # Draw a model wires (with texture if set)
+drawModelWiresEx ⇐ "DrawModelWiresEx"_R model‿v3‿v3‿f‿v3‿color                         # model position rotationAxis rotationAngle scale tint        # Draw a model wires (with texture if set) with extended parameters
+drawBoundingBox  ⇐ "DrawBoundingBox" _R boundingBox‿color                              # box color                                                   # Draw bounding box (wires)
+drawBillboard    ⇐ "DrawBillboard"   _R camera3d‿texture‿v3‿f‿color                    # camera texture position size tint                           # Draw a billboard texture
+drawBillboardRec ⇐ "DrawBillboardRec"_R camera3d‿texture‿rectangle‿v3‿v2‿color         # camera texture source position size tint                    # Draw a billboard texture defined by source
 drawBillboardPro ⇐ "DrawBillboardPro"_R camera3d‿texture‿rectangle‿v3‿v3‿v2‿v2‿f‿color # camera texture source position up size origin rotation tint # Draw a billboard texture defined by source and rotation
 
 # Mesh management functions
