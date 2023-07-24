@@ -34,44 +34,6 @@ UpdateLightValues ← {shader𝕊light:
   light
 }
 
-_withConsts ← {𝕨𝔽_𝕣𝕩:
-  rayFFI.SetConfigFlags window.configFlags.msaa_4x_hint  # Enable Multi Sampling Anti Aliasing 4x (if available)
-  camera ← ⟨
-    1‿4‿6 # position
-    0‿0‿0 # target
-    0‿1‿0 # up         # Camera up vector
-    45    # fovy       # Camera field-of-view Y
-    0     # projection # Camera projection type
-  ⟩
-  font  ← r.font.LoadBQN 100
-  plane ← rayffi.LoadModelFromMesh rayffi.GenMeshPlane 10‿10‿3‿3
-  cube  ← rayffi.LoadModelFromMesh rayffi.GenMeshCube   2‿ 4‿2
-
-  # Load basic lighting shader
-  shader ← rayffi.LoadShader"lighting.vs"‿"lighting.fs"∾¨@
-
-  # Get some required shader locations
-  xxx←rayffi.GetShaderLocation shader⋈"viewPos"∾@
-
-  # Ambient light level (some basic lighting)
-  ambientLoc ← rayffi.GetShaderLocation shader⋈"ambient"∾@
-
-  rayffi.SetShaderValue⟨shader, ambientLoc, 1∾˜3⥊0.1, shader_uniform_vec4⟩
-
-  # Create lights
-  lights ← CreateLight¨˜⟜(↕≠)⟨
-    ⟨¯2‿1‿¯2, color.yellow, shader⟩
-    ⟨ 2‿1‿ 2, color.red   , shader⟩
-    ⟨¯2‿1‿ 2, color.green , shader⟩
-    ⟨ 2‿1‿¯2, color.blue  , shader⟩
-  ⟩
-
-  shader‿plane‿cube‿xxx‿font 𝔽 camera‿lights
-
-  rayffi.UnloadModel plane
-  rayffi.UnloadModel cube
-  rayffi.UnloadShader shader
-}
 PerFrame ← {shader‿model‿cube‿xxx‿font𝕊camera‿lights:
   rayffi.UpdateCamera⟨camera⟩‿2
 
@@ -107,5 +69,41 @@ PerFrame ← {shader‿model‿cube‿xxx‿font𝕊camera‿lights:
   ⟩
 }draw._withCanvas_ color.black
 
-Game ← PerFrame•_While_(¬window.ShouldClose) _withConsts
-Game window._openAs "raylib [shaders] example - basic lighting"
+{𝕤
+  rayFFI.SetConfigFlags window.configFlags.msaa_4x_hint  # Enable Multi Sampling Anti Aliasing 4x (if available)
+  camera ← ⟨
+    1‿4‿6 # position
+    0‿0‿0 # target
+    0‿1‿0 # up         # Camera up vector
+    45    # fovy       # Camera field-of-view Y
+    0     # projection # Camera projection type
+  ⟩
+  font  ← r.font.LoadBQN 100
+  plane ← rayffi.LoadModelFromMesh rayffi.GenMeshPlane 10‿10‿3‿3
+  cube  ← rayffi.LoadModelFromMesh rayffi.GenMeshCube   2‿ 4‿2
+
+  # Load basic lighting shader
+  shader ← rayffi.LoadShader"lighting.vs"‿"lighting.fs"∾¨@
+
+  # Get some required shader locations
+  xxx←rayffi.GetShaderLocation shader⋈"viewPos"∾@
+
+  # Ambient light level (some basic lighting)
+  ambientLoc ← rayffi.GetShaderLocation shader⋈"ambient"∾@
+
+  rayffi.SetShaderValue⟨shader, ambientLoc, 1∾˜3⥊0.1, shader_uniform_vec4⟩
+
+  # Create lights
+  lights ← CreateLight¨˜⟜(↕≠)⟨
+    ⟨¯2‿1‿¯2, color.yellow, shader⟩
+    ⟨ 2‿1‿ 2, color.red   , shader⟩
+    ⟨¯2‿1‿ 2, color.green , shader⟩
+    ⟨ 2‿1‿¯2, color.blue  , shader⟩
+  ⟩
+
+  shader‿plane‿cube‿xxx‿font PerFrame•_While_(¬window.ShouldClose) camera‿lights
+
+  rayffi.UnloadModel plane
+  rayffi.UnloadModel cube
+  rayffi.UnloadShader shader
+} window._openAs "raylib [shaders] example - basic lighting"
