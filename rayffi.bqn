@@ -105,7 +105,7 @@ camera2D ⇐ S v2‿v2‿f‿f
 # zoom     # Camera zoom (scaling), should be 1.0f by default
 
 # Mesh, vertex data and vao/vbo
-mesh ← S ⟨
+mesh ⇐ S ⟨
   i # vertexCount   # Number of vertices stored in arrays
   i # triangleCount # Number of triangles stored (indexed or not)
 
@@ -135,14 +135,14 @@ materialMap ⇐ S ⟨
   f       # map value
 ⟩
 shader ⇐ S u‿ptr
-# Shader program id
-# Shader locations array (RL_MAX_SHADER_LOCATIONS)
+# u  Shader program id
+# *i Shader locations array (RL_MAX_SHADER_LOCATIONS)
 
 # Material, includes shader and maps
 material ⇐ S ⟨
-  shader        # Material shader
-  P materialMap # Material maps array (MAX_MATERIAL_MAPS)
-  v4            # params[4] # Material generic parameters (if required)
+  shader            # Material shader
+  ptr⊣P materialMap # Material maps array (MAX_MATERIAL_MAPS)
+  v4                # params[4] # Material generic parameters (if required)
 ⟩
 # Transform, vertex transformation data
 transform ⇐ S ⟨
@@ -153,7 +153,7 @@ transform ⇐ S ⟨
 # Bone, skeletal animation bone
 boneInfo ⇐ S ⟨
   S 32⥊<u8 # name[32] # Bone name
-  i       # parent   # Bone parent
+  i        # parent   # Bone parent
 ⟩
 # Model, meshes, materials and animation data
 model ⇐ S ⟨
@@ -166,23 +166,23 @@ model ⇐ S ⟨
   # Animation data
   i         # int boneCount       # Number of bones
   ptr       # BoneInfo *bones     # Bones information (skeleton)
-  transform # Transform *bindPose # Bones base transformation (pose)
+  ptr       # Transform *bindPose # Bones base transformation (pose)
 ⟩
 # ModelAnimation
 modelAnimation ⇐ S ⟨
-    i # boneCount          # Number of bones
-    i # frameCount         # Number of animation frames
-    boneInfo #  *bones        # Bones information (skeleton)
-    transform #  **framePoses # Poses array by frame
+  i   # boneCount          # Number of bones
+  i   # frameCount         # Number of animation frames
+  ptr #  *bones        # Bones information (skeleton)
+  ptr #  **framePoses # Poses array by frame
 ⟩
 ray ⇐ S v3‿v3 # position direction # ray for raycasting
 
 # RayCollision, ray hit information
 rayCollision ⇐ S ⟨
-    i8 # bool hit # Did the ray hit something?
-    f  # distance # Distance to the nearest hit
-    v3 # point    # Point of the nearest hit
-    v3 # normal   # Surface normal of hit
+  i8 # hit # Did the ray hit something?
+  f  # distance # Distance to the nearest hit
+  v3 # point    # Point of the nearest hit
+  v3 # normal   # Surface normal of hit
 ⟩
 boundingBox ⇐ S v3‿v3 # min max # min corner to max corner
 
@@ -208,25 +208,25 @@ sound ⇐ S audioStream‿u
 
 # Music, audio stream, anything longer than ~10 seconds should be streamed
 music ⇐ S ⟨
-    audioStream # stream       # Audio stream
-    u           # frameCount   # Total number of frames (considering channels)
-    i8          # bool looping # Music looping enable
-    i           # ctxType      # Type of music context (audio filetype)
-    ptr         # *ctxData     # Audio context data, depends on type
+  audioStream # stream     # Audio stream
+  u           # frameCount # Total number of frames (considering channels)
+  i8          # looping    # Music looping enable
+  i           # ctxType    # Type of music context (audio filetype)
+  ptr         # *ctxData   # Audio context data, depends on type
 ⟩
 
 # VrDeviceInfo, Head-Mounted-Display device parameters
 vrDeviceInfo ⇐ S ⟨
-    i   # hResolution;            # Horizontal resolution in pixels
-    i   # vResolution;            # Vertical resolution in pixels
-    f   # hScreenSize             # Horizontal size in meters
-    f   # vScreenSize             # Vertical size in meters
-    f   # vScreenCenter           # Screen center in meters
-    f   # eyeToScreenDistance     # Distance between eye and display in meters
-    f   # lensSeparationDistance  # Lens separation distance in meters
-    f   # interpupillaryDistance  # IPD (distance between pupils) in meters
-    f   # lensDistortionValues[4] # Lens distortion constant parameters
-    ptr # chromaAbCorrection[4]   # Chromatic aberration correction parameters
+  i      # hResolution;            # Horizontal resolution in pixels
+  i      # vResolution;            # Vertical resolution in pixels
+  f      # hScreenSize             # Horizontal size in meters
+  f      # vScreenSize             # Vertical size in meters
+  f      # vScreenCenter           # Screen center in meters
+  f      # eyeToScreenDistance     # Distance between eye and display in meters
+  f      # lensSeparationDistance  # Lens separation distance in meters
+  f      # interpupillaryDistance  # IPD (distance between pupils) in meters
+  S 4⥊<f # lensDistortionValues[4] # Lens distortion constant parameters
+  S 4⥊<f # chromaAbCorrection[4]   # Chromatic aberration correction parameters
 ⟩
 
 # VrStereoConfig, VR stereo rendering configuration for simulator
@@ -264,11 +264,24 @@ _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
 # neccesary for low level programming in bqn
 MovePtr  ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128)256|⌊b÷˜𝕨+´b×256|𝕩}     #      bytes 𝕊 pointer # Move pointer by an amount of bytes
 read     ⇐ @•FFI "" ‿"bqn_readI8Arr"  ‿"𝕨>a"     ‿(">"∾ptr) #       data 𝕊 pointer # write data to pointer
+readI32  ⇐ @•FFI "" ‿"bqn_readI32Arr" ‿"𝕨>a"     ‿(">"∾ptr) #       data 𝕊 pointer # write data to pointer
 make     ⇐ @•FFI "a"‿"bqn_makeI8Vec"  ‿"𝕨>u64"  ‿(">"∾ptr)  # bytesCount 𝕊 pointer # turn data at pointer into a number array
-makeI32  ⇐ @•FFI "a"‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿(">"∾ptr)  # bytesCount 𝕊 pointer # turn data at pointer into a number array
+makeI32  ⇐ @•FFI "a"‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿(">"∾ptr)  #   NumCount 𝕊 pointer # turn data at pointer into a number array
 makeUTF8 ⇐ @•FFI "a"‿"bqn_makeUTF8Str"‿"u64"    ‿ptr        #     length 𝕊 pointer # turn string at pointer into a bqn string
 strLen   ⇐ @•FFI i  ‿"strlen"         ‿('>'∾ptr)            #            𝕊 pointer # length of unicode C-string
 
+# NumCount 𝕊 pointer # turn data at pointer into a number array
+MakeF32 ⇐ (@•FFI"*:i8"‿"memcpy"‿"&f32"‿"*i8"‿"u64"){
+  bytes←∘‿4⥊𝕩 Make˜ 𝕨×4
+  1⊑∘⊑˘𝔽∘{⟨0⟩‿𝕩‿4}˘bytes
+}
+
+# NumCount 𝕊 pointer # turn data at pointer into a number array
+U32ToI8 ⇐ ⟨@•FFI"*:i8"‿"memcpy"‿"&i32"‿"*u32"‿"u64",@•FFI"*:i8"‿"memcpy"‿"&u32"‿"*i32"‿"u64"⟩{
+  𝔽_𝕣𝕩:F‿·←𝕗⋄⟨32‿'i'⋄8‿'i'⟩•bit._cast 1⊑F⟨0⟩‿⟨𝕩⟩‿4
+;
+  𝔽_𝕣⁼𝕩:·‿F←𝕗⋄⊑1⊑F{⟨0⟩‿𝕩‿4} ⟨8‿'i'⋄32‿'i'⟩•bit._cast 𝕩
+}
 
 #------------------------------------------------------------------------------------
 # Window and Graphics Device Functions (Module: core)
