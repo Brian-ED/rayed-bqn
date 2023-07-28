@@ -17,7 +17,7 @@
   fontType
   blendMode
   gesture
-  cameraProjection
+  cameramode ⋄ cameraProjection
   nPatchLayout
 ⟩ ⇐ •Import "src/indexNamespaces.bqn"
 
@@ -180,8 +180,7 @@ draw ← {
    _withCanvas_ ⋄ Rectangle ⋄ Text ⋄ Line
    Texture ⋄ Ellipse ⋄ EllipseOutline ⋄ _in3D
   ⟩⇐
-  _in3D ← {
-    𝕨 Drawing3D _𝕣 camera:
+  _in3D ← {𝕨 Drawing3D _𝕣 camera:
     NeedsWindow@          # pos  target up   FOV Camera projection type
     !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
     rayffi.BeginMode3D 𝕩
