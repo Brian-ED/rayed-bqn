@@ -1,7 +1,11 @@
 ⟨MP⋄MatrixLookAt
  MatrixScale⋄MatrixRotate
  GetCameraMatrix2D
+ MatrixRotateX⋄MatrixRotateY⋄MatrixRotateZ
+ Vector2Transform
 ⟩⇐
+
+Sin‿Cos←•math
 
 ⟨MP⟩ ← •Import "imports/bqn-libs/matrix.bqn"
 
@@ -18,6 +22,12 @@ MatrixLookAt ← {𝕊eye‿target‿up: # v3 v3 v3
     ⟨vx.z ⋄ vy.z ⋄ vz.z ⋄ 0⟩
     1∾˜-eye⊸×¨vx‿vy‿vz
   ]
+}
+
+# Transforms a Vector2 by a given Matrix
+Vector2Transform ← {𝕊v2‿matrix:
+    x‿y‿z ← v2∾0
+    +˝x‿y‿z‿1 × 0‿1⊸⊏˘matrix
 }
 
 # Get translation matrix
@@ -43,10 +53,19 @@ MatrixRotate ← {𝕊axis‿angle: # v3 f
     ⟨ z ⋄ 1 ⋄-x⟩
     ⟨-y ⋄ x ⋄ 1⟩
   ]
-  ∾[m‿⟨0,0,0⟩
-    ⟨0‿0‿0⋄1⟩]
+  ∾[ m ⋄3⥊0
+    3⥊0⋄1  ]
 }
 
+# NOTE: Angle must be provided in radians
+MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
+    _RotMat ← {cut2x2OfMat On2x2Arr _𝕣 degrees:
+        (𝔽(⋈⟜-´≍⌽)(•math.Cos∾•math.Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕4
+    }
+    ⟨1‿2 ⍉_RotMat ⊢
+     0‿2 ⊢_RotMat ⊢
+     0‿1 ⍉_RotMat ⊢⟩
+}
 
 ### rcore.c functions
 
