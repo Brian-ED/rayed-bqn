@@ -47,18 +47,6 @@ MakeShaderVarSetter ← {shader𝕊shaderVar‿shaderType:
     }
 }
 
-MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
-    CosSin ← {𝕏𝕨}¨⟜•math.Cos‿•math.Sin
-    _RotMat ← {cut2x2OfMat On2x2Arr _𝕣 degrees:
-        (𝔽(⋈⟜-´≍⌽)CosSin𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕4
-    }
-    # Get rotation matricies
-    # NOTE: Angle must be provided in radians
-    MatrixRotateX ⇐ 1‿2 ⍉_RotMat ⊢
-    MatrixRotateY ⇐ 0‿2 ⊢_RotMat ⊢
-    MatrixRotateZ ⇐ 0‿1 ⍉_RotMat ⊢
-}
-
 # Create a light and get shader locations
 CreateLight ← {lightsCount𝕊⟨x‿y‿z⋄color⋄shader⟩:
   shader UpdateLightValues {
