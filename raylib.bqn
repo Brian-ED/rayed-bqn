@@ -2,8 +2,10 @@
 # One big goal of this lib is to eliminate as many bugs of raylib as possible,
 # for example, opening the window twice is impossible because it is not intended in raylib, and causes many bugs.
 
+# -------
+# Exports
 ⟨draw, image, texture, monitor, window, mouse
- font, color, key, rayffi, utils, clipboard⟩⇐
+ font, key, utils, clipboard⟩⇐
 
 
 ⟨
@@ -17,22 +19,21 @@
   fontType
   blendMode
   gesture
-  cameramode ⋄ cameraProjection
+  cameramode, cameraProjection
   nPatchLayout
 ⟩ ⇐ •Import "src/indexNamespaces.bqn"
 
-rayFFI    ← •Import "rayffi.bqn"
-color     ← •Import "src/colors.bqn"
-⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
+rayFFI ⇐ •Import "rayffi.bqn"
+color  ⇐ •Import "src/colors.bqn"
+# -------
 
 # TODO: These need to be more accurate
 isLinux ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
 isWindows ← ¬isLinux
 
 FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
-NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
-image ← { # TODO support  more formats somehow
+image ← { # TODO support more formats somehow
   ⟨ _WithRayImg ⋄ ToArr
     FromFile ⋄ FromArrLoad ⋄ Unload
   ⟩⇐
@@ -261,6 +262,7 @@ font ← {
   LoadRaylib ← rayffi.GetFontDefault∘@
 }
 clipboard ← {
+  ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
   Get ⇐ rayffi.MakeUTF8 rayffi.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText@∾˜ToBytes⊣NeedsWindow
 }
