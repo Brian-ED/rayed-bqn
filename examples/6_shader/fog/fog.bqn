@@ -34,7 +34,7 @@ Print←{𝕤
 }
 
 MakeShaderVarSetter ← {shader𝕊shaderVar‿shaderType:
-    i←rf.GetShaderLocation shader⋈𝕩∾@
+    i ← rf.GetShaderLocation shader⋈𝕩∾@
     int‿vec3‿vec4⇐r.shaderUniformDataType
     {
         shaderType{
@@ -104,7 +104,7 @@ CreateLight ← {lightsCount𝕊⟨x‿y‿z⋄color⋄shader⟩:
         ptrToMaps ← memoryIndexOfMaps rf.MovePtr materialsPtr
         texture rf.Read r.materialMapIndex.albedo rf.MovePtr ptrToMaps
     }
-    F¨⟨donutModel ⋄ cubeModel ⋄ sphereModel⟩
+    F¨donutModel‿cubeModel‿sphereModel
 
     # Load shader and set up some uniforms
     shader ← rf.LoadShader •file.At¨"lighting.vs"‿"fog.fs"

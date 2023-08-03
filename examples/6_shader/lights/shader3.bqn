@@ -36,8 +36,7 @@ Show ← {•Out ('␀'-@)⊸+⌾((@=f)⊸/)f←•Fmt𝕩 ⋄ •term.Flush@ �
 
 ShaderVal ← {shader‿shaderType𝕊shaderVar:
     i←rf.GetShaderLocation shader⋈𝕩∾@
-    Set ⇐ {rf.SetShaderValue shader‿i‿𝕩‿shaderType}
-
+    Set ⇐ {rf.SetShaderValue shader‿i‿(⥊𝕩)‿shaderType}
 }
 
 {𝕤
@@ -55,10 +54,10 @@ ShaderVal ← {shader‿shaderType𝕊shaderVar:
     font ← r.font.LoadBQN 100
 
     # Get some required shader locations
-    { # shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
-        movedPtr ← shaderLocsPtr rf.MovePtr˜4×r.shaderLocationIndex.vector_view
-        movedPtr rf.ReadI32˜⋈rf.GetShaderLocation shader⋈"viewPos"∾@
-    }
+    # shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+    movedPtr ← shaderLocsPtr rf.MovePtr˜4×r.shaderLocationIndex.vector_view
+    movedPtr rf.ReadI32˜⋈rf.GetShaderLocation shader⋈"viewPos"∾@
+
     # Ambient light level (some basic lighting)
     ambientLoc ← rf.GetShaderLocation shader⋈"ambient"∾@
     rf.SetShaderValue ⟨shader, ambientLoc, ÷10‿10‿10‿1, r.shaderUniformDataType.vec4⟩
@@ -82,33 +81,29 @@ ShaderVal ← {shader‿shaderType𝕊shaderVar:
     # cube .materials[0].shader ← shader;
 
     # Create lights
-    CreateLight ← {𝕊⟨
-            position    # Vector3
-            target      # Vector3
-            color       # Color
+    lights ← {𝕊⟨
+            position
+            color
             pKey
             lightsCount
         ⟩:
-        type‿position‿target‿color⇐
-        color÷↩4⥊255
+        position‿color⇐
+        color÷↩255
         enabled ⇐ 1
-        type ← lightType.point
 
         # NOTE: Lighting shader naming must be the provided ones
-        F ← {type‿var:
+        _Setter ← {type‿var _𝕣:
             loc ← rf.GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"]."∾var∾@
             {𝕩⊣rf.SetShaderValue ⟨shader⋄loc⋄⥊𝕩⋄type⟩}
         }
         su ← r.shaderUniformDataType
-        setEnabled  ← {𝕊n: G←{enabled  ↩ N𝕩} ⋄ G enabled  ⋄ g} F su.int ‿"enabled"
-        setType     ⇐ {𝕊n: G←{type     ↩ N𝕩} ⋄ G type     ⋄ g} F su.int ‿"type"
-        setPosition ⇐ {𝕊n: G←{position ↩ N𝕩} ⋄ G position ⋄ g} F su.vec3‿"position"
-        setTarget   ⇐ {𝕊n: G←{target   ↩ N𝕩} ⋄ G target   ⋄ g} F su.vec3‿"target"
-        setColor    ⇐ {𝕊n: G←{color    ↩ N𝕩} ⋄ G color    ⋄ g} F su.vec4‿"color"
-        Toggle      ⇐ {𝕊: SetEnabled¬enabled}⍟(key.IsPressed∘pKey)
-        
-    }
-    lights ← CreateLight¨({a‿b‿k:⟨a⋄3⥊0⋄b⋄k⟩}¨∾¨↕∘≠)⟨
+        su.int ‿"type"     _Setter lightType.point
+        su.vec3‿"position" _Setter position
+        su.vec3‿"target"   _Setter 3⥊0
+        su.vec4‿"color"    _Setter color
+        (SetLight ← su.int‿"enabled" _Setter) enabled
+        Toggle ⇐ {𝕊:enabled SetLight∘¬↩}⍟(key.IsPressed∘pKey)
+    }∘∾¨⟜(↕≠)⟨
         ⟨¯2‿1‿¯2 ⋄ color.yellow ⋄ key.y⟩
         ⟨ 2‿1‿ 2 ⋄ color.red    ⋄ key.r⟩
         ⟨¯2‿1‿ 2 ⋄ color.green  ⋄ key.g⟩
@@ -117,7 +112,7 @@ ShaderVal ← {shader‿shaderType𝕊shaderVar:
 
     # Main game loop
     {𝕤
-        rf.UpdateCamera ⟨camera⟩‿r.cameramode.orbital
+        rf.UpdateCamera camera⋈⊸⋈r.cameramode.orbital
         rf.SetShaderValue ⟨
             shader
             ⊢´(r.shaderLocationIndex.vector_view+1) rf.MakeI32 shaderLocsPtr # locsPtr[SHADER_LOC_VECTOR_VIEW]
@@ -126,10 +121,10 @@ ShaderVal ← {shader‿shaderType𝕊shaderVar:
         ⟩
         {𝕩.Toggle@}¨lights
         {𝕤 
-            Show¨ cube
-            rf.DrawModel ⟨model ⋄ 3⥊0 ⋄ 1 ⋄ color.white⟩
-            Show "Hi2"
-            rf.DrawModel ⟨cube ⋄ 3⥊0 ⋄ 1 ⋄ color.white⟩
+#            Show¨ cube
+#            rf.DrawModel ⟨model ⋄ 3⥊0 ⋄ 1 ⋄ color.white⟩
+#            Show "Hi2"
+#            rf.DrawModel ⟨cube ⋄ 3⥊0 ⋄ 1 ⋄ color.white⟩
             # Draw spheres to show where the lights are
             {𝕩.enabled? rf.DrawSphereEx 𝕩.position‿0.2‿8‿8‿(𝕩.color×255)
             ;           rf.DrawSphereWires 76⌾⊑⌾⌽⌾⊑⌾⌽ ⟨𝕩.position, 0.2, 8, 8, 𝕩.color×255⟩

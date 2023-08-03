@@ -17,7 +17,7 @@ If you're new to this library, and maybe even bqn, you can check out the simpler
 ## Complicated
 - 4_snakeGame, I intentionally experimented with syntax here.
 - 5_arcGame, i just wanted to make a more complicated game. Details in the readme in the folder.
-- 6_shader, implementing shader is a bit of work and a lot of pointers.
+- 6_shader, implementing shader is a bit of work and a lot of pointers. Also not even done, segfault haven.
 
 # Examples that could be added
 These are tests and examples that I want to make into examples in rayed-bqn.
