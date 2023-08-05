@@ -7,7 +7,6 @@
 ⟨draw, image, texture, monitor, window, mouse
  font, key, utils, clipboard⟩⇐
 
-
 ⟨
   traceLogLevel
   gamepadButton, gamepadAxis
@@ -28,10 +27,11 @@ color  ⇐ •Import "src/colors.bqn"
 # -------
 
 # TODO: These need to be more accurate
-isLinux ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
+isLinux   ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
 isWindows ← ¬isLinux
 
-FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At
+FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
+NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 image ← { # TODO support more formats somehow
   ⟨ _WithRayImg ⋄ ToArr
