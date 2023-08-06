@@ -117,7 +117,23 @@ GetCameraMatrix2D ← {𝕊camera: # camera2d
 #----------------------------------------------------------------------------------
 
 # Too simple:
-#  Clamp, max⌊min⌈x
+#  Clamp, Vector2Clamp → max⌊min⌈x
+Vector2Zero ← 2⥊0˙
+Vector2One  ← 2⥊1˙
+Vector2Add     ← Vector2AddValue ← +
+Vector2Multiply ← Vector2Scale ← ×
+Vector2Subtract ← Vector2SubtractValue ← Vector2Negate ← Vector3Negate ← -
+Vector2Divide ← Vector2Invert ← Vector3Divide ← Vector3Invert ← ÷
+Vector3DistanceSqr ← Vector2DistanceSqr ← Vector3LengthSqr ← 2⋆˜VectorDistance
+
+Vector2Length     ← Vector3Length     ← VectorLength
+Vector2LengthSqr  ←                     VectorLengthSqr
+Vector2DotProduct ← Vector3DotProduct ← VectorDotProduct 
+Vector2Distance   ← Vector3Distance   ← VectorDistance
+Vector2Lerp       ← Vector3Lerp       ← VectorLerp
+Vector2Transform  ← Vector3Transform  ← VectorTransform
+Vector2ClampValue ← Vector3ClampValue ← VectorClampValue
+Vector2Equals     ← Vector3Equals     ← VectorEquals
 
 
 #----------------------------------------------------------------------------------
@@ -199,22 +215,6 @@ FloatEquals ← {𝕊x‿y:
 # Module Functions Definition - Vector2 math
 #----------------------------------------------------------------------------------
 
-Vector2Zero → 2⥊0
-Vector2One  → 2⥊1
-Vector2Add, Vector2AddValue → +
-
-Vector2Multiply, Vector2Scale → ×
-Vector2Subtract, Vector2SubtractValue, Vector2Negate → -
-Vector2Divide, Vector2Invert → ÷
-Vector2DistanceSqr → 2⋆˜VectorDistance
-
-Vector2Length     → VectorLength
-Vector2LengthSqr  → VectorLengthSqr
-Vector2DotProduct → VectorDotProduct 
-Vector2Distance   → VectorDistance
-Vector2Lerp       → VectorLerp
-Vector2Transform  → VectorTransform
-
 # Calculate vector length
 VectorLength ← +´⌾(×˜)
 
@@ -256,7 +256,7 @@ Vector2Reflect ← {normal𝕊v: # vector vector
   v-2×normal×+´v×normal
 }
 
-# Rotate vector by angle
+# Rotate vector by angle:  angle 𝕊 vector2
 Vector2Rotate ← (Cos∾Sin)⊸(-´∘×⋈·+´⌽⊸×)
 
 # Move Vector towards target
@@ -273,54 +273,21 @@ Vector2MoveTowards ← {𝕊v‿target‿maxDistance:
   }
 }
 
-
-# Clamp the components of the vector between
-# min and max values specified by the given vectors
-RMAPI Vector2 Vector2Clamp(Vector2 v, Vector2 min, Vector2 max)
-{
-    Vector2 result = { 0 };
-
-    result.x = fminf(max.x, fmaxf(min.x, v.x));
-    result.y = fminf(max.y, fmaxf(min.y, v.y));
-
-    return result;
-}
-
 # Clamp the magnitude of the vector between two min and max values
-RMAPI Vector2 Vector2ClampValue(Vector2 v, float min, float max)
-{
-    Vector2 result = v;
-
-    float length = (v.x*v.x) + (v.y*v.y);
-    if (length > 0.0f)
-    {
-        length = sqrtf(length);
-
-        if (length < min)
-        {
-            float scale = min/length;
-            result.x = v.x*scale;
-            result.y = v.y*scale;
-        }
-        else if (length > max)
-        {
-            float scale = max/length;
-            result.x = v.x*scale;
-            result.y = v.y*scale;
-        }
-    }
-
-    return result;
+VectorClampValue ← {𝕊v‿min‿max:
+  length ← +´∘⥊⌾(×˜)v
+  {length≤0?v;
+    length < min?
+      v×min÷length;
+    length > max?
+      v×max÷length;
+    v
+  }
 }
+#•Show VectorClampValue ⟨2‿2‿2‿2,10,22⟩
 
 # Check whether two given vectors are almost equal
-RMAPI int Vector2Equals(Vector2 p, Vector2 q)
-{
-    int result = ((fabsf(p.x - q.x)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.x), fabsf(q.x))))) &&
-                  ((fabsf(p.y - q.y)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.y), fabsf(q.y)))));
-
-    return result;
-}
+VectorEquals ← ∧´|∘-≤epsilon×1⌈⌈○|
 
 #----------------------------------------------------------------------------------
 # Module Functions Definition - Vector3 math
@@ -427,56 +394,6 @@ RMAPI Vector3 Vector3Perpendicular(Vector3 v)
     return result;
 }
 
-# Calculate vector length
-RMAPI float Vector3Length(const Vector3 v)
-{
-    float result = sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
-
-    return result;
-}
-
-# Calculate vector square length
-RMAPI float Vector3LengthSqr(const Vector3 v)
-{
-    float result = v.x*v.x + v.y*v.y + v.z*v.z;
-
-    return result;
-}
-
-# Calculate two vectors dot product
-RMAPI float Vector3DotProduct(Vector3 v1, Vector3 v2)
-{
-    float result = (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z);
-
-    return result;
-}
-
-# Calculate distance between two vectors
-RMAPI float Vector3Distance(Vector3 v1, Vector3 v2)
-{
-    float result = 0.0f;
-
-    float dx = v2.x - v1.x;
-    float dy = v2.y - v1.y;
-    float dz = v2.z - v1.z;
-    result = sqrtf(dx*dx + dy*dy + dz*dz);
-
-    return result;
-}
-
-# Calculate square distance between two vectors
-RMAPI float Vector3DistanceSqr(Vector3 v1, Vector3 v2)
-{
-    float result = 0.0f;
-
-    float dx = v2.x - v1.x;
-    float dy = v2.y - v1.y;
-    float dz = v2.z - v1.z;
-    result = dx*dx + dy*dy + dz*dz;
-
-    return result;
-}
-
 # Calculate angle between two vectors
 RMAPI float Vector3Angle(Vector3 v1, Vector3 v2)
 {
@@ -486,22 +403,6 @@ RMAPI float Vector3Angle(Vector3 v1, Vector3 v2)
     float len = sqrtf(cross.x*cross.x + cross.y*cross.y + cross.z*cross.z);
     float dot = (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z);
     result = atan2f(len, dot);
-
-    return result;
-}
-
-# Negate provided vector (invert direction)
-RMAPI Vector3 Vector3Negate(Vector3 v)
-{
-    Vector3 result = { -v.x, -v.y, -v.z };
-
-    return result;
-}
-
-# Divide vector by vector
-RMAPI Vector3 Vector3Divide(Vector3 v1, Vector3 v2)
-{
-    Vector3 result = { v1.x/v2.x, v1.y/v2.y, v1.z/v2.z };
 
     return result;
 }
@@ -559,33 +460,162 @@ RMAPI void Vector3OrthoNormalize(Vector3 *v1, Vector3 *v2)
     *v2 = vn2;
 }
 
-# Transforms a Vector3 by a given Matrix
-RMAPI Vector3 Vector3Transform(Vector3 v, Matrix mat)
-{
-    Vector3 result = { 0 };
-
-    float x = v.x;
-    float y = v.y;
-    float z = v.z;
-
-    result.x = mat.m0*x + mat.m4*y + mat.m8*z + mat.m12;
-    result.y = mat.m1*x + mat.m5*y + mat.m9*z + mat.m13;
-    result.z = mat.m2*x + mat.m6*y + mat.m10*z + mat.m14;
-
-    return result;
+# Transforms a Vector2 by a given Matrix
+VectorTransform ← {𝕊v‿matrix:
+  x‿y‿z ← 3↑v
+  +˝x‿y‿z‿1 × (↕≠v)⊸⊏˘matrix
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
+  ⟨
+    +´v×⟨(x× x) + (y×-y) + (z×-z) + (w× w) ⋄ (x× y) + (y× x) + (z×-w) + (w×-z) ⋄ (x× z) + (y× w) + (z× x) + (w× y)⟩
+    +´v×⟨(x× y) + (y× x) + (z× w) + (w× z) ⋄ (x×-x) + (y× y) + (z×-z) + (w× w) ⋄ (x×-w) + (y× z) + (z× y) + (w×-x)⟩
+    +´v×⟨(x× z) + (y×-w) + (z× x) + (w×-y) ⋄ (x× w) + (y× z) + (z× y) + (w× x) ⋄ (x×-x) + (y×-y) + (z× z) + (w× w)⟩
+  ⟩
+}
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
+  ⟨
+    +´v×⟨+´q×⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ (x× y) + (y× x) + (z×-w) + (w×-z) ⋄ (x× z) + (y× w) + (z× x) + (w× y)⟩
+    +´v×⟨+´q×⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ (x×-x) + (y× y) + (z×-z) + (w× w) ⋄ (x×-w) + (y× z) + (z× y) + (w×-x)⟩
+    +´v×⟨+´q×⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ (x× w) + (y× z) + (z× y) + (w× x) ⋄ (x×-x) + (y×-y) + (z× z) + (w× w)⟩
+  ⟩
+}
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
+  ⟨
+    +´v×⟨ +´q×⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ +´q×⟨ y ⋄ x ⋄ -w ⋄ -z⟩ ⋄ +´q×⟨ z ⋄  w ⋄ x ⋄  y⟩⟩
+    +´v×⟨ +´q×⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ +´q×⟨-x ⋄ y ⋄ -z ⋄  w⟩ ⋄ +´q×⟨-w ⋄  z ⋄ y ⋄ -x⟩⟩
+    +´v×⟨ +´q×⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ +´q×⟨ w ⋄ z ⋄  y ⋄  x⟩ ⋄ +´q×⟨-x ⋄ -y ⋄ z ⋄  w⟩⟩
+  ⟩
+}
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
+  +´¨v⊸×¨⟨
+    +´¨q⊸×¨ ⟨ ⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ ⟨ y ⋄ x ⋄ -w ⋄ -z⟩ ⋄ ⟨ z ⋄  w ⋄ x ⋄  y⟩⟩
+    +´¨q⊸×¨ ⟨ ⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ ⟨-x ⋄ y ⋄ -z ⋄  w⟩ ⋄ ⟨-w ⋄  z ⋄ y ⋄ -x⟩⟩
+    +´¨q⊸×¨ ⟨ ⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ ⟨ w ⋄ z ⋄  y ⋄  x⟩ ⋄ ⟨-x ⋄ -y ⋄ z ⋄  w⟩⟩
+  ⟩
+}
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
+  +´¨v⊸×¨ (+´¨q⊸×¨)¨ ⟨
+    ⟨ ⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ ⟨ y ⋄ x ⋄ -w ⋄ -z⟩ ⋄ ⟨ z ⋄  w ⋄ x ⋄  y⟩⟩
+    ⟨ ⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ ⟨-x ⋄ y ⋄ -z ⋄  w⟩ ⋄ ⟨-w ⋄  z ⋄ y ⋄ -x⟩⟩
+    ⟨ ⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ ⟨ w ⋄ z ⋄  y ⋄  x⟩ ⋄ ⟨-x ⋄ -y ⋄ z ⋄  w⟩⟩
+  ⟩
+}
+(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
+
+
+
+
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
+  L←{𝕎𝕩}¨
+  +´¨v⊸×¨•Show (+´¨q⊸×¨)¨ ⟨
+    ⟨ +‿-‿-‿+ L   q ⋄ +‿+‿-‿- L 2⌽⌽q ⋄         2⌽q ⟩
+    ⟨          2⌽⌽q ⋄ -‿+‿-‿+ L    q ⋄ -‿+‿+‿- L⌽q ⟩
+    ⟨ +‿-‿+‿- L 2⌽q ⋄             ⌽q ⋄ -‿-‿+‿+ L q ⟩
+  ⟩
+}
+(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
+
+
+
+
+
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
+  A←{𝕎𝕩}¨
+  +´¨v⊸×¨ •Show(+´¨q⊸×¨)¨ ⟨
+    ⟨    +‿-‿-‿+ A q ⋄ 2⌽⌽ +‿+‿-‿- A q ⋄ 2⌽ +‿+‿+‿+ A q ⟩
+    ⟨2⌽⌽ +‿+‿+‿+ A q ⋄     -‿+‿-‿+ A q ⋄  ⌽ -‿+‿+‿- A q ⟩
+    ⟨ 2⌽ +‿-‿+‿- A q ⋄   ⌽ +‿+‿+‿+ A q ⋄    -‿-‿+‿+ A q ⟩
+  ⟩
+}
+(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
+
+
+
+# Transform a vector by quaternion rotation
+Vector3RotateByQuaternion ← {q𝕊v:
+  L←{1‿¯1⊏˜"+-"⊐𝕩}
+  a←q×L"+-+-"
+  b←q×L"+--+"
+  c←q×L"--++"
+  d←q×L"++++"
+  +´˘˘v⊸×˘˘ •Show +´˘˘ q ×⌜˜ [
+    ⟨    b ⋄ 2⌽⌽ -c ⋄ 2⌽   d ⟩
+    ⟨2⌽⌽ d ⋄     -a ⋄   ⌽ -b ⟩
+    ⟨2⌽  a ⋄   ⌽  d ⋄      c ⟩
+  ]
+}
+(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
+
+
+•Show >(+´¨(↕4)⊸×¨)¨ •Show <˘•Show 3‿4⥊↕100
+•Show +´˘˘(↕4)×⌜˜ 3‿4⥊↕100
+
+•Show >>((↕4)⊸×¨)¨ •Show <˘3‿4⥊↕100
+•Show  (↕4)×⌜˜•Show 3‿4⥊↕100
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Transform a vector by quaternion rotation
 RMAPI Vector3 Vector3RotateByQuaternion(Vector3 v, Quaternion q)
 {
     Vector3 result = { 0 };
 
-    result.x = v.x*(q.x*q.x + q.w*q.w - q.y*q.y - q.z*q.z) + v.y*(2*q.x*q.y - 2*q.w*q.z) + v.z*(2*q.x*q.z + 2*q.w*q.y);
-    result.y = v.x*(2*q.w*q.z + 2*q.x*q.y) + v.y*(q.w*q.w - q.x*q.x + q.y*q.y - q.z*q.z) + v.z*(-2*q.w*q.x + 2*q.y*q.z);
-    result.z = v.x*(-2*q.w*q.y + 2*q.x*q.z) + v.y*(2*q.w*q.x + 2*q.y*q.z)+ v.z*(q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
+    result.x = v.x*(q.x*q.x + q.w*q.w - q.y*q.y - q.z*q.z) + v.y*(2*q.x*q.y - 2*q.w*q.z) + v.z*(2*q.x*q.z   + 2*q.w*q.y);
+    result.y = v.x*(2*q.w*q.z + 2*q.x*q.y) + v.y*(q.w*q.w - q.x*q.x + q.y*q.y - q.z*q.z) + v.z*(-2*q.w*q.x  + 2*q.y*q.z);
+    result.z = v.x*(-2*q.w*q.y + 2*q.x*q.z) + v.y*(2*q.w*q.x + 2*q.y*q.z)+ v.z*(q.w*q.w - q.x*q.x - q.y*q.y +   q.z*q.z);
 
     return result;
 }
+
+
 
 # Rotates a vector around an axis
 RMAPI Vector3 Vector3RotateByAxisAngle(Vector3 v, Vector3 axis, float angle)
@@ -635,18 +665,6 @@ RMAPI Vector3 Vector3RotateByAxisAngle(Vector3 v, Vector3 axis, float angle)
     result.x += wwv.x;
     result.y += wwv.y;
     result.z += wwv.z;
-
-    return result;
-}
-
-# Calculate linear interpolation between two vectors
-RMAPI Vector3 Vector3Lerp(Vector3 v1, Vector3 v2, float amount)
-{
-    Vector3 result = { 0 };
-
-    result.x = v1.x + amount*(v2.x - v1.x);
-    result.y = v1.y + amount*(v2.y - v1.y);
-    result.z = v1.z + amount*(v2.z - v1.z);
 
     return result;
 }
@@ -811,66 +829,6 @@ RMAPI float3 Vector3ToFloatV(Vector3 v)
     buffer.v[2] = v.z;
 
     return buffer;
-}
-
-# Invert the given vector
-RMAPI Vector3 Vector3Invert(Vector3 v)
-{
-    Vector3 result = { 1.0f/v.x, 1.0f/v.y, 1.0f/v.z };
-
-    return result;
-}
-
-# Clamp the components of the vector between
-# min and max values specified by the given vectors
-RMAPI Vector3 Vector3Clamp(Vector3 v, Vector3 min, Vector3 max)
-{
-    Vector3 result = { 0 };
-
-    result.x = fminf(max.x, fmaxf(min.x, v.x));
-    result.y = fminf(max.y, fmaxf(min.y, v.y));
-    result.z = fminf(max.z, fmaxf(min.z, v.z));
-
-    return result;
-}
-
-# Clamp the magnitude of the vector between two values
-RMAPI Vector3 Vector3ClampValue(Vector3 v, float min, float max)
-{
-    Vector3 result = v;
-
-    float length = (v.x*v.x) + (v.y*v.y) + (v.z*v.z);
-    if (length > 0.0f)
-    {
-        length = sqrtf(length);
-
-        if (length < min)
-        {
-            float scale = min/length;
-            result.x = v.x*scale;
-            result.y = v.y*scale;
-            result.z = v.z*scale;
-        }
-        else if (length > max)
-        {
-            float scale = max/length;
-            result.x = v.x*scale;
-            result.y = v.y*scale;
-            result.z = v.z*scale;
-        }
-    }
-
-    return result;
-}
-
-# Check whether two given vectors are almost equal
-RMAPI int Vector3Equals(Vector3 p, Vector3 q)
-{
-    int result = ((fabsf(p.x - q.x)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.x), fabsf(q.x))))) &&
-                  ((fabsf(p.y - q.y)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.y), fabsf(q.y))))) &&
-                  ((fabsf(p.z - q.z)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.z), fabsf(q.z)))));
-
-    return result;
 }
 
 # Compute the direction of a refracted ray where v specifies the
@@ -1927,19 +1885,10 @@ RMAPI Quaternion QuaternionTransform(Quaternion q, Matrix mat)
     return result;
 }
 
+epsilon ← 0.000001
+
 # Check whether two given quaternions are almost equal
-RMAPI int QuaternionEquals(Quaternion p, Quaternion q)
-{
-    int result = (((fabsf(p.x - q.x)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.x), fabsf(q.x))))) &&
-                  ((fabsf(p.y - q.y)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.y), fabsf(q.y))))) &&
-                  ((fabsf(p.z - q.z)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.z), fabsf(q.z))))) &&
-                  ((fabsf(p.w - q.w)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.w), fabsf(q.w)))))) ||
-                  (((fabsf(p.x + q.x)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.x), fabsf(q.x))))) &&
-                  ((fabsf(p.y + q.y)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.y), fabsf(q.y))))) &&
-                  ((fabsf(p.z + q.z)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.z), fabsf(q.z))))) &&
-                  ((fabsf(p.w + q.w)) <= (EPSILON*fmaxf(1.0f, fmaxf(fabsf(p.w), fabsf(q.w))))));
+QuaternionEquals ← ∨´·∧˝(|-≍˘+)≤epsilon×1⌈⌈○|
 
-    return result;
-}
-
-#endif  # RAYMATH_H
+•Show (-5+↕4) QuaternionEquals 5+↕4
+•Show (-4+↕4) QuaternionEquals 5+↕4
