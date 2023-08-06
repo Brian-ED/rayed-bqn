@@ -1,3 +1,6 @@
+# GOAL make raylib functions work on arbitrary vectors and matricies
+# ALSO try make arbitrary matricies aswell as switch from raylib's collumn model to leading axis model
+
 ⟨MP⋄MatrixLookAt
  MatrixScale⋄MatrixRotate
  GetCameraMatrix2D
@@ -34,7 +37,7 @@ MatrixTranslate ← {𝕊x‿y‿z:[# v3 → Matrix
 ]}
 
 # Get scaling matrix
-MatrixScale ← {𝕊x‿y‿z:(1+4↑𝕩-1)⌾(0‿0⊸⍉)4‿4⥊0}
+MatrixScale ← {𝕊x‿y‿z:(𝕩∾1)⌾(0‿0⊸⍉)4‿4⥊0}
 
 # Create rotation matrix from axis and angle
 # NOTE: Angle should be provided in radians
@@ -134,10 +137,11 @@ Vector2Lerp       ← Vector3Lerp       ← VectorLerp
 Vector2Transform  ← Vector3Transform  ← VectorTransform
 Vector2ClampValue ← Vector3ClampValue ← VectorClampValue
 Vector2Equals     ← Vector3Equals     ← VectorEquals
+Vector2Normalize  ← Vector3Normalize  ← VectorNormalize
 
 
 #----------------------------------------------------------------------------------
-# Defines and Macros
+# Defines
 #----------------------------------------------------------------------------------
 
 epsilon ← 1e¯6
@@ -233,12 +237,6 @@ Vector2Angle ← Atan2´-
 # NOTE: Parameters need to be normalized
 # Current implementation should be aligned with glm::angle
 Vector2LineAngle ← Cos⁼1⌈¯1⌈+´∘× # start 𝕊 end
-
-# Normalize provided vector
-Vector2Normalize ← {𝕊v:
-  length ← +´⌾(×˜) v
-  ÷⟜length⍟(length>0)v
-}
 
 # Transforms a Vector2 by a given Matrix
 VectorTransform ← {𝕊v‿matrix:
@@ -408,57 +406,25 @@ RMAPI float Vector3Angle(Vector3 v1, Vector3 v2)
 }
 
 # Normalize provided vector
-RMAPI Vector3 Vector3Normalize(Vector3 v)
-{
-    Vector3 result = v;
-
-    float length = sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
-    if (length != 0.0f)
-    {
-        float ilength = 1.0f/length;
-
-        result.x *= ilength;
-        result.y *= ilength;
-        result.z *= ilength;
-    }
-
-    return result;
-}
+VectorNormalize ← ÷⟜(0⊸=⊸++´⌾(×˜))
 
 # Orthonormalize provided vectors
 # Makes vectors normalized and orthogonal to each other
 # Gram-Schmidt function implementation
-RMAPI void Vector3OrthoNormalize(Vector3 *v1, Vector3 *v2)
-{
-    float length = 0.0f;
-    float ilength = 0.0f;
+Vector3OrthoNormalize{v1𝕊v2:
+  # Vector3Normalize v1
+  F ← ÷⟜(0⊸=⊸++´⌾(×˜))
 
-    # Vector3Normalize(*v1);
-    Vector3 v = *v1;
-    length = sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
-    if (length == 0.0f) length = 1.0f;
-    ilength = 1.0f/length;
-    v1->x *= ilength;
-    v1->y *= ilength;
-    v1->z *= ilength;
-
-    # Vector3CrossProduct(*v1, *v2)
-    Vector3 vn1 = { v1->y*v2->z - v1->z*v2->y, v1->z*v2->x - v1->x*v2->z, v1->x*v2->y - v1->y*v2->x };
-
-    # Vector3Normalize(vn1);
-    v = vn1;
-    length = sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
-    if (length == 0.0f) length = 1.0f;
-    ilength = 1.0f/length;
-    vn1.x *= ilength;
-    vn1.y *= ilength;
-    vn1.z *= ilength;
-
-    # Vector3CrossProduct(vn1, *v1)
-    Vector3 vn2 = { vn1.y*v1->z - vn1.z*v1->y, vn1.z*v1->x - vn1.x*v1->z, vn1.x*v1->y - vn1.y*v1->x };
-
-    *v2 = vn2;
+  # Vector3CrossProduct´v1‿v2
+  G ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
+  
+  v1 G˜○F v1 F⊸G v2
 }
+
+
+
+
+
 
 # Transforms a Vector2 by a given Matrix
 VectorTransform ← {𝕊v‿matrix:
@@ -466,156 +432,14 @@ VectorTransform ← {𝕊v‿matrix:
   +˝x‿y‿z‿1 × (↕≠v)⊸⊏˘matrix
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
-  ⟨
-    +´v×⟨(x× x) + (y×-y) + (z×-z) + (w× w) ⋄ (x× y) + (y× x) + (z×-w) + (w×-z) ⋄ (x× z) + (y× w) + (z× x) + (w× y)⟩
-    +´v×⟨(x× y) + (y× x) + (z× w) + (w× z) ⋄ (x×-x) + (y× y) + (z×-z) + (w× w) ⋄ (x×-w) + (y× z) + (z× y) + (w×-x)⟩
-    +´v×⟨(x× z) + (y×-w) + (z× x) + (w×-y) ⋄ (x× w) + (y× z) + (z× y) + (w× x) ⋄ (x×-x) + (y×-y) + (z× z) + (w× w)⟩
-  ⟩
-}
-
-
-# Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
-  ⟨
-    +´v×⟨+´q×⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ (x× y) + (y× x) + (z×-w) + (w×-z) ⋄ (x× z) + (y× w) + (z× x) + (w× y)⟩
-    +´v×⟨+´q×⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ (x×-x) + (y× y) + (z×-z) + (w× w) ⋄ (x×-w) + (y× z) + (z× y) + (w×-x)⟩
-    +´v×⟨+´q×⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ (x× w) + (y× z) + (z× y) + (w× x) ⋄ (x×-x) + (y×-y) + (z× z) + (w× w)⟩
-  ⟩
-}
-
-
-# Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
-  ⟨
-    +´v×⟨ +´q×⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ +´q×⟨ y ⋄ x ⋄ -w ⋄ -z⟩ ⋄ +´q×⟨ z ⋄  w ⋄ x ⋄  y⟩⟩
-    +´v×⟨ +´q×⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ +´q×⟨-x ⋄ y ⋄ -z ⋄  w⟩ ⋄ +´q×⟨-w ⋄  z ⋄ y ⋄ -x⟩⟩
-    +´v×⟨ +´q×⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ +´q×⟨ w ⋄ z ⋄  y ⋄  x⟩ ⋄ +´q×⟨-x ⋄ -y ⋄ z ⋄  w⟩⟩
-  ⟩
-}
-
-
-# Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
-  +´¨v⊸×¨⟨
-    +´¨q⊸×¨ ⟨ ⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ ⟨ y ⋄ x ⋄ -w ⋄ -z⟩ ⋄ ⟨ z ⋄  w ⋄ x ⋄  y⟩⟩
-    +´¨q⊸×¨ ⟨ ⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ ⟨-x ⋄ y ⋄ -z ⋄  w⟩ ⋄ ⟨-w ⋄  z ⋄ y ⋄ -x⟩⟩
-    +´¨q⊸×¨ ⟨ ⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ ⟨ w ⋄ z ⋄  y ⋄  x⟩ ⋄ ⟨-x ⋄ -y ⋄ z ⋄  w⟩⟩
-  ⟩
-}
-
-
-# Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
-  +´¨v⊸×¨ (+´¨q⊸×¨)¨ ⟨
-    ⟨ ⟨x ⋄ -y ⋄ -z ⋄  w⟩ ⋄ ⟨ y ⋄ x ⋄ -w ⋄ -z⟩ ⋄ ⟨ z ⋄  w ⋄ x ⋄  y⟩⟩
-    ⟨ ⟨y ⋄  x ⋄  w ⋄  z⟩ ⋄ ⟨-x ⋄ y ⋄ -z ⋄  w⟩ ⋄ ⟨-w ⋄  z ⋄ y ⋄ -x⟩⟩
-    ⟨ ⟨z ⋄ -w ⋄  x ⋄ -y⟩ ⋄ ⟨ w ⋄ z ⋄  y ⋄  x⟩ ⋄ ⟨-x ⋄ -y ⋄ z ⋄  w⟩⟩
-  ⟩
-}
-(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
-
-
-
-
-
-
-# Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
-  L←{𝕎𝕩}¨
-  +´¨v⊸×¨•Show (+´¨q⊸×¨)¨ ⟨
-    ⟨ +‿-‿-‿+ L   q ⋄ +‿+‿-‿- L 2⌽⌽q ⋄         2⌽q ⟩
-    ⟨          2⌽⌽q ⋄ -‿+‿-‿+ L    q ⋄ -‿+‿+‿- L⌽q ⟩
-    ⟨ +‿-‿+‿- L 2⌽q ⋄             ⌽q ⋄ -‿-‿+‿+ L q ⟩
-  ⟩
-}
-(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
-
-
-
-
-
-
-
-# Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v: vx‿vy‿vz←v ⋄ x‿y‿z‿w←q
-  A←{𝕎𝕩}¨
-  +´¨v⊸×¨ •Show(+´¨q⊸×¨)¨ ⟨
-    ⟨    +‿-‿-‿+ A q ⋄ 2⌽⌽ +‿+‿-‿- A q ⋄ 2⌽ +‿+‿+‿+ A q ⟩
-    ⟨2⌽⌽ +‿+‿+‿+ A q ⋄     -‿+‿-‿+ A q ⋄  ⌽ -‿+‿+‿- A q ⟩
-    ⟨ 2⌽ +‿-‿+‿- A q ⋄   ⌽ +‿+‿+‿+ A q ⋄    -‿-‿+‿+ A q ⟩
-  ⟩
-}
-(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
-
-
-
-# Transform a vector by quaternion rotation
-Vector3RotateByQuaternion ← {q𝕊v:
-  L←{1‿¯1⊏˜"+-"⊐𝕩}
-  a←q×L"+-+-"
-  b←q×L"+--+"
-  c←q×L"--++"
-  d←q×L"++++"
-  +´˘˘v⊸×˘˘ •Show +´˘˘ q ×⌜˜ [
-    ⟨    b ⋄ 2⌽⌽ -c ⋄ 2⌽   d ⟩
-    ⟨2⌽⌽ d ⋄     -a ⋄   ⌽ -b ⟩
-    ⟨2⌽  a ⋄   ⌽  d ⋄      c ⟩
+Vector3RotateByQuaternion ← {q𝕊v: x‿y‿z‿w←q
+  MP⟜v MP⟜q[
+    [ [x ⋄ -y ⋄ -z ⋄  w] ⋄ [ y ⋄ x ⋄ -w ⋄ -z] ⋄ [ z ⋄  w ⋄ x ⋄  y] ]
+    [ [y ⋄  x ⋄  w ⋄  z] ⋄ [-x ⋄ y ⋄ -z ⋄  w] ⋄ [-w ⋄  z ⋄ y ⋄ -x] ]
+    [ [z ⋄ -w ⋄  x ⋄ -y] ⋄ [ w ⋄ z ⋄  y ⋄  x] ⋄ [-x ⋄ -y ⋄ z ⋄  w] ]
   ]
 }
-(÷4⥊2) Vector3RotateByQuaternion 2‿3‿4
-
-
-•Show >(+´¨(↕4)⊸×¨)¨ •Show <˘•Show 3‿4⥊↕100
-•Show +´˘˘(↕4)×⌜˜ 3‿4⥊↕100
-
-•Show >>((↕4)⊸×¨)¨ •Show <˘3‿4⥊↕100
-•Show  (↕4)×⌜˜•Show 3‿4⥊↕100
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Transform a vector by quaternion rotation
-RMAPI Vector3 Vector3RotateByQuaternion(Vector3 v, Quaternion q)
-{
-    Vector3 result = { 0 };
-
-    result.x = v.x*(q.x*q.x + q.w*q.w - q.y*q.y - q.z*q.z) + v.y*(2*q.x*q.y - 2*q.w*q.z) + v.z*(2*q.x*q.z   + 2*q.w*q.y);
-    result.y = v.x*(2*q.w*q.z + 2*q.x*q.y) + v.y*(q.w*q.w - q.x*q.x + q.y*q.y - q.z*q.z) + v.z*(-2*q.w*q.x  + 2*q.y*q.z);
-    result.z = v.x*(-2*q.w*q.y + 2*q.x*q.z) + v.y*(2*q.w*q.x + 2*q.y*q.z)+ v.z*(q.w*q.w - q.x*q.x - q.y*q.y +   q.z*q.z);
-
-    return result;
-}
-
-
 
 # Rotates a vector around an axis
 RMAPI Vector3 Vector3RotateByAxisAngle(Vector3 v, Vector3 axis, float angle)
@@ -1023,86 +847,35 @@ RMAPI Matrix MatrixSubtract(Matrix left, Matrix right)
     return result;
 }
 
-# Get two matrix multiplication
-# NOTE: When multiplying matrices... the order matters!
-RMAPI Matrix MatrixMultiply(Matrix left, Matrix right)
-{
-    Matrix result = { 0 };
-
-    result.m0 = left.m0*right.m0 + left.m1*right.m4 + left.m2*right.m8 + left.m3*right.m12;
-    result.m1 = left.m0*right.m1 + left.m1*right.m5 + left.m2*right.m9 + left.m3*right.m13;
-    result.m2 = left.m0*right.m2 + left.m1*right.m6 + left.m2*right.m10 + left.m3*right.m14;
-    result.m3 = left.m0*right.m3 + left.m1*right.m7 + left.m2*right.m11 + left.m3*right.m15;
-    result.m4 = left.m4*right.m0 + left.m5*right.m4 + left.m6*right.m8 + left.m7*right.m12;
-    result.m5 = left.m4*right.m1 + left.m5*right.m5 + left.m6*right.m9 + left.m7*right.m13;
-    result.m6 = left.m4*right.m2 + left.m5*right.m6 + left.m6*right.m10 + left.m7*right.m14;
-    result.m7 = left.m4*right.m3 + left.m5*right.m7 + left.m6*right.m11 + left.m7*right.m15;
-    result.m8 = left.m8*right.m0 + left.m9*right.m4 + left.m10*right.m8 + left.m11*right.m12;
-    result.m9 = left.m8*right.m1 + left.m9*right.m5 + left.m10*right.m9 + left.m11*right.m13;
-    result.m10 = left.m8*right.m2 + left.m9*right.m6 + left.m10*right.m10 + left.m11*right.m14;
-    result.m11 = left.m8*right.m3 + left.m9*right.m7 + left.m10*right.m11 + left.m11*right.m15;
-    result.m12 = left.m12*right.m0 + left.m13*right.m4 + left.m14*right.m8 + left.m15*right.m12;
-    result.m13 = left.m12*right.m1 + left.m13*right.m5 + left.m14*right.m9 + left.m15*right.m13;
-    result.m14 = left.m12*right.m2 + left.m13*right.m6 + left.m14*right.m10 + left.m15*right.m14;
-    result.m15 = left.m12*right.m3 + left.m13*right.m7 + left.m14*right.m11 + left.m15*right.m15;
-
-    return result;
-}
-
 # Get translation matrix
-RMAPI Matrix MatrixTranslate(float x, float y, float z)
-{
-    Matrix result = { 1.0f, 0.0f, 0.0f, x,
-                      0.0f, 1.0f, 0.0f, y,
-                      0.0f, 0.0f, 1.0f, z,
-                      0.0f, 0.0f, 0.0f, 1.0f };
-
-    return result;
+MatrixTranslate ← {𝕊x‿y‿z:
+  [
+    1‿0‿0‿x
+    0‿1‿0‿y
+    0‿0‿1‿z
+    0‿0‿0‿1
+  ]
 }
 
 # Create rotation matrix from axis and angle
 # NOTE: Angle should be provided in radians
-RMAPI Matrix MatrixRotate(Vector3 axis, float angle)
-{
-    Matrix result = { 0 };
+MatrixRotate ← {angle𝕊axis: x‿y‿z←axis
+  {axis÷↩𝕩}⍟(∧´≠⟜0‿1)+´⌾(×˜)axis
 
-    float x = axis.x, y = axis.y, z = axis.z;
+  sinres ← Sin angle
+  cosres ← Cos angle
+  t ← 1 - cosres
 
-    float lengthSquared = x*x + y*y + z*z;
-
-    if ((lengthSquared != 1.0f) && (lengthSquared != 0.0f))
-    {
-        float ilength = 1.0f/sqrtf(lengthSquared);
-        x *= ilength;
-        y *= ilength;
-        z *= ilength;
-    }
-
-    float sinres = sinf(angle);
-    float cosres = cosf(angle);
-    float t = 1.0f - cosres;
-
-    result.m0 = x*x*t + cosres;
-    result.m1 = y*x*t + z*sinres;
-    result.m2 = z*x*t - y*sinres;
-    result.m3 = 0.0f;
-
-    result.m4 = x*y*t - z*sinres;
-    result.m5 = y*y*t + cosres;
-    result.m6 = z*y*t + x*sinres;
-    result.m7 = 0.0f;
-
-    result.m8 = x*z*t + y*sinres;
-    result.m9 = y*z*t - x*sinres;
-    result.m10 = z*z*t + cosres;
-    result.m11 = 0.0f;
-
-    result.m12 = 0.0f;
-    result.m13 = 0.0f;
-    result.m14 = 0.0f;
-    result.m15 = 1.0f;
-
-    return result;
+  r←[
+    ⟨  cosres ⋄ -z×sinres ⋄  y×sinres⟩
+    ⟨z×sinres ⋄    cosres ⋄ -x×sinres⟩
+    ⟨z×sinres ⋄    cosres ⋄ -x×sinres⟩
+  ]+t××⌜˜axis
+  
+  ∾[
+    r⋈l←3⥊0
+    l⋈1
+  ]
 }
 
 # Get x-rotation matrix
@@ -1304,32 +1077,13 @@ RMAPI Matrix MatrixPerspective(double fovy, double aspect, double near, double f
 }
 
 # Get orthographic projection matrix
-RMAPI Matrix MatrixOrtho(double left, double right, double bottom, double top, double near, double far)
-{
-    Matrix result = { 0 };
-
-    float rl = (float)(right - left);
-    float tb = (float)(top - bottom);
-    float fn = (float)(far - near);
-
-    result.m0 = 2.0f/rl;
-    result.m1 = 0.0f;
-    result.m2 = 0.0f;
-    result.m3 = 0.0f;
-    result.m4 = 0.0f;
-    result.m5 = 2.0f/tb;
-    result.m6 = 0.0f;
-    result.m7 = 0.0f;
-    result.m8 = 0.0f;
-    result.m9 = 0.0f;
-    result.m10 = -2.0f/fn;
-    result.m11 = 0.0f;
-    result.m12 = -((float)left + (float)right)/rl;
-    result.m13 = -((float)top + (float)bottom)/tb;
-    result.m14 = -((float)far + (float)near)/fn;
-    result.m15 = 1.0f;
-
-    return result;
+MatrixOrtho ← {𝕊left‿right‿bottom‿top‿near‿far:
+  [
+    ⟨ 2 ⋄ 0 ⋄  0 ⋄ - right+left   ⟩÷right-left
+    ⟨ 0 ⋄ 2 ⋄  0 ⋄ -   top+bottom ⟩÷  top-bottom
+    ⟨ 0 ⋄ 0 ⋄ ¯2 ⋄ -   far+near   ⟩÷  far-near
+    ⟨ 0 ⋄ 0 ⋄  0 ⋄ 1              ⟩
+  ]
 }
 
 # Get camera look-at matrix (view matrix)
@@ -1785,110 +1539,86 @@ RMAPI Quaternion QuaternionFromAxisAngle(Vector3 axis, float angle)
         result.z = q.z*ilength;
         result.w = q.w*ilength;
     }
-
-    return result;
 }
 
 # Get the rotation angle and axis for a given quaternion
-RMAPI void QuaternionToAxisAngle(Quaternion q, Vector3 *outAxis, float *outAngle)
-{
-    if (fabsf(q.w) > 1.0f)
-    {
-        # QuaternionNormalize(q);
-        float length = sqrtf(q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w);
-        if (length == 0.0f) length = 1.0f;
-        float ilength = 1.0f/length;
+QuaternionToAxisAngle ← {𝕊x‿y‿z‿w:
+    
+  
+    # QuaternionNormalize(q);
+    
+    ÷⟜(0⊸=⊸++´⌾(×˜))⍟(1<|w)𝕩
 
-        q.x = q.x*ilength;
-        q.y = q.y*ilength;
-        q.z = q.z*ilength;
-        q.w = q.w*ilength;
-    }
+  resAxis  ← 3⥊0
+  resAngle ← 2*acosf(q.w);
+  den      ← Sin Cos⁼w
 
-    Vector3 resAxis = { 0.0f, 0.0f, 0.0f };
-    float resAngle = 2.0f*acosf(q.w);
-    float den = sqrtf(1.0f - q.w*q.w);
+  if (den > 0.0001f)
+  {
+      resAxis.x = q.x/den;
+      resAxis.y = q.y/den;
+      resAxis.z = q.z/den;
+  }
+  else
+  {
+      # This occurs when the angle is zero.
+      # Not a problem: just set an arbitrary normalized axis.
+      resAxis.x = 1.0f;
+  }
 
-    if (den > 0.0001f)
-    {
-        resAxis.x = q.x/den;
-        resAxis.y = q.y/den;
-        resAxis.z = q.z/den;
-    }
-    else
-    {
-        # This occurs when the angle is zero.
-        # Not a problem: just set an arbitrary normalized axis.
-        resAxis.x = 1.0f;
-    }
-
-    *outAxis = resAxis;
-    *outAngle = resAngle;
+  *outAxis = resAxis;
+  *outAngle = resAngle;
 }
 
 # Get the quaternion equivalent to Euler angles
 # NOTE: Rotation order is ZYX
-RMAPI Quaternion QuaternionFromEuler(float pitch, float yaw, float roll)
-{
-    Quaternion result = { 0 };
-
-    float x0 = cosf(pitch*0.5f);
-    float x1 = sinf(pitch*0.5f);
-    float y0 = cosf(yaw*0.5f);
-    float y1 = sinf(yaw*0.5f);
-    float z0 = cosf(roll*0.5f);
-    float z1 = sinf(roll*0.5f);
-
-    result.x = x1*y0*z0 - x0*y1*z1;
-    result.y = x0*y1*z0 + x1*y0*z1;
-    result.z = x0*y0*z1 - x1*y1*z0;
-    result.w = x0*y0*z0 + x1*y1*z1;
-
-    return result;
+QuaternionFromEuler{pitch‿yaw‿roll:
+  a←¯1‿1‿¯1‿1××´˘(Sin Cos⁼)⌾(0‿0⍉⊢)4⊸⥊˘Cos 𝕩÷2
+  a×          ×´˘(Cos Sin⁼)⌾(0‿0⍉⊢)4⊸⥊˘Sin 𝕩÷2
 }
 
 # Get the Euler angles equivalent to quaternion (roll, pitch, yaw)
 # NOTE: Angles are returned in a Vector3 struct in radians
-RMAPI Vector3 QuaternionToEuler(Quaternion q)
-{
-    Vector3 result = { 0 };
-
+QuaternionToEuler ← {𝕊x‿y‿z‿w:
+  ⟨
     # Roll (x-axis rotation)
-    float x0 = 2.0f*(q.w*q.x + q.y*q.z);
-    float x1 = 1.0f - 2.0f*(q.x*q.x + q.y*q.y);
-    result.x = atan2f(x0, x1);
+    Atan2´⟨2×(w×x)+y×z ⋄ 1-2×+´×˜x‿y⟩
 
     # Pitch (y-axis rotation)
-    float y0 = 2.0f*(q.w*q.y - q.z*q.x);
-    y0 = y0 > 1.0f ? 1.0f : y0;
-    y0 = y0 < -1.0f ? -1.0f : y0;
-    result.y = asinf(y0);
+    Sin⁼¯1⌊1⌈2×-´×˝2‿2⥊𝕩
 
     # Yaw (z-axis rotation)
-    float z0 = 2.0f*(q.w*q.z + q.x*q.y);
-    float z1 = 1.0f - 2.0f*(q.y*q.y + q.z*q.z);
-    result.z = atan2f(z0, z1);
-
-    return result;
+    Atan2´⟨2×+´×´¨2(↑⋈↓)𝕩 ⋄ 1-2×+´×˜y‿z⟩
+  ⟩
 }
 
 # Transform a quaternion given a transformation matrix
-RMAPI Quaternion QuaternionTransform(Quaternion q, Matrix mat)
-{
-    Quaternion result = { 0 };
-
-    result.x = mat.m0*q.x + mat.m4*q.y + mat.m8*q.z + mat.m12*q.w;
-    result.y = mat.m1*q.x + mat.m5*q.y + mat.m9*q.z + mat.m13*q.w;
-    result.z = mat.m2*q.x + mat.m6*q.y + mat.m10*q.z + mat.m14*q.w;
-    result.w = mat.m3*q.x + mat.m7*q.y + mat.m11*q.z + mat.m15*q.w;
-
-    return result;
+QuaternionTransform{q𝕊mat: # →Quaternion
+  q⊸×˘mat
 }
-
-epsilon ← 0.000001
 
 # Check whether two given quaternions are almost equal
 QuaternionEquals ← ∨´·∧˝(|-≍˘+)≤epsilon×1⌈⌈○|
 
-•Show (-5+↕4) QuaternionEquals 5+↕4
-•Show (-4+↕4) QuaternionEquals 5+↕4
+
+
+
+# testing (moved later to testing.bqn)
+#•Show 1‿2‿3 Vector3OrthoNormalize 4‿5‿6
+
+#•Show (-5+↕4) QuaternionEquals 5+↕4
+#•Show (-4+↕4) QuaternionEquals 5+↕4
+
+
+# in MatrixOrtho please put x+b in the same order as x-b
+
+
+
+
+# 1⊸-⌾(×˜) → (Sin Cos⁼)
+# -⟜1⌾(×˜) → (Cos Sin⁼)
+#Sin‿Cos←•math
+#•Show (Cos Sin⁼)⍟ •Show •math.Cos 1
+#•Show •math.Sin 2
+#•Show 1⊸-⌾(×˜)
+#Sin Cos⁼
