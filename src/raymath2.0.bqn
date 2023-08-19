@@ -147,12 +147,11 @@ Vector2Transform  ← Vector3Transform  ← VectorTransform
 Vector2ClampValue ← Vector3ClampValue ← VectorClampValue
 Vector2Equals     ← Vector3Equals     ← VectorEquals
 Vector2Normalize  ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
-
-
-
+Vector2Angle      ← Vector3Angle      ← VectorAngle
 
 quaternionIdentity ← ¯4↑1
 
+MatrixAdd
 
 Vector3AddValue
 Vector3Subtract
@@ -253,7 +252,7 @@ VectorDistance ← +´⌾(×˜)-
 
 # Calculate angle between two vectors
 # NOTE: Angle is calculated from origin point (0, 0)
-Vector2Angle ← Atan2´-
+VectorAngle ← +´∘×Atan2·+´⌾(×˜){(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
 
 # Calculate angle defined by a two vectors line
 # NOTE: Parameters need to be normalized
@@ -343,17 +342,7 @@ RMAPI Vector3 Vector3Perpendicular(Vector3 v)
 }
 
 # Calculate angle between two vectors
-RMAPI float Vector3Angle(Vector3 v1, Vector3 v2)
-{
-    float result = 0.0f;
-
-    Vector3 cross = { v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x };
-    float len = sqrtf(cross.x*cross.x + cross.y*cross.y + cross.z*cross.z);
-    float dot = (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z);
-    result = atan2f(len, dot);
-
-    return result;
-}
+Vector3Angle ← +´∘×Atan2·+´⌾(×˜){(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
 
 # Normalize provided vector
 VectorNormalize ← ÷⟜(0⊸=⊸++´⌾(×˜))
@@ -371,11 +360,6 @@ Vector3OrthoNormalize{v1𝕊v2:
   v1 G˜○F v1 F⊸G v2
 }
 
-
-
-
-
-
 # Transforms a Vector2 by a given Matrix
 VectorTransform ← {𝕊v‿matrix:
   x‿y‿z ← 3↑v
@@ -385,105 +369,43 @@ VectorTransform ← {𝕊v‿matrix:
 # Transform a vector by quaternion rotation
 Vector3RotateByQuaternion ← {q𝕊v: x‿y‿z‿w←q
   MP⟜v MP⟜q[
-    [ [x ⋄ -y ⋄ -z ⋄  w] ⋄ [ y ⋄ x ⋄ -w ⋄ -z] ⋄ [ z ⋄  w ⋄ x ⋄  y] ]
-    [ [y ⋄  x ⋄  w ⋄  z] ⋄ [-x ⋄ y ⋄ -z ⋄  w] ⋄ [-w ⋄  z ⋄ y ⋄ -x] ]
-    [ [z ⋄ -w ⋄  x ⋄ -y] ⋄ [ w ⋄ z ⋄  y ⋄  x] ⋄ [-x ⋄ -y ⋄ z ⋄  w] ]
+    [
+      [ x ⋄ -y ⋄ -z ⋄  w]
+      [ y ⋄  x ⋄ -w ⋄ -z]
+      [ z ⋄  w ⋄  x ⋄  y]
+    ]
+    [
+      [ y ⋄  x ⋄  w ⋄  z]
+      [-x ⋄  y ⋄ -z ⋄  w]
+      [-w ⋄  z ⋄  y ⋄ -x]
+    ]
+    [
+      [ z ⋄ -w ⋄  x ⋄ -y]
+      [ w ⋄  z ⋄  y ⋄  x]
+      [-x ⋄ -y ⋄  z ⋄  w]
+    ]
   ]
 }
 
 # Rotates a vector around an axis
-RMAPI Vector3 Vector3RotateByAxisAngle(Vector3 v, Vector3 axis, float angle)
-{
-    # Using Euler-Rodrigues Formula
-    # Ref.: https:#en.wikipedia.org/w/index.php?title=Euler%E2%80%93Rodrigues_formula
-
-    Vector3 result = v;
-
-    # Vector3Normalize(axis);
-    float length = sqrtf(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
-    if (length == 0.0f) length = 1.0f;
-    float ilength = 1.0f / length;
-    axis.x *= ilength;
-    axis.y *= ilength;
-    axis.z *= ilength;
-
-    angle /= 2.0f;
-    float a = sinf(angle);
-    float b = axis.x * a;
-    float c = axis.y * a;
-    float d = axis.z * a;
-    a = cosf(angle);
-    Vector3 w = { b, c, d };
-
-    # Vector3CrossProduct(w, v)
-    Vector3 wv = { w.y * v.z - w.z * v.y, w.z * v.x - w.x * v.z, w.x * v.y - w.y * v.x };
-
-    # Vector3CrossProduct(w, wv)
-    Vector3 wwv = { w.y * wv.z - w.z * wv.y, w.z * wv.x - w.x * wv.z, w.x * wv.y - w.y * wv.x };
-
-    # Vector3Scale(wv, 2 * a)
-    a *= 2;
-    wv.x *= a;
-    wv.y *= a;
-    wv.z *= a;
-
-    # Vector3Scale(wwv, 2)
-    wwv.x *= 2;
-    wwv.y *= 2;
-    wwv.z *= 2;
-
-    result.x += wv.x;
-    result.y += wv.y;
-    result.z += wv.z;
-
-    result.x += wwv.x;
-    result.y += wwv.y;
-    result.z += wwv.z;
-
-    return result;
+Vector3RotateByAxisAngle ← {𝕊v‿axisV3‿angle:
+  # Using Euler-Rodrigues Formula
+  # Ref.: https://en.wikipedia.org/w/index.php?title=Euler%E2%80%93Rodrigues_formula
+  
+  a ← Cos angle÷2
+  w ← axisV3 ÷⟜(0⊸=⊸++´⌾(×˜))⊸× Sin angle÷2
+  F ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
+  wv ← w F v
+  v+2×(w⊸F+a⊸×) wv
 }
 
 # Calculate reflected vector to normal
-RMAPI Vector3 Vector3Reflect(Vector3 v, Vector3 normal)
-{
-    Vector3 result = { 0 };
-
-    # I is the original vector
-    # N is the normal of the incident plane
-    # R = I - (2*N*(DotProduct[I, N]))
-
-    float dotProduct = (v.x*normal.x + v.y*normal.y + v.z*normal.z);
-
-    result.x = v.x - (2.0f*normal.x)*dotProduct;
-    result.y = v.y - (2.0f*normal.y)*dotProduct;
-    result.z = v.z - (2.0f*normal.z)*dotProduct;
-
-    return result;
+VectorReflect ← {normal𝕊v3:
+  v - (+´v×normal)×2×normal
 }
 
-# Get min value for each pair of components
-RMAPI Vector3 Vector3Min(Vector3 v1, Vector3 v2)
-{
-    Vector3 result = { 0 };
-
-    result.x = fminf(v1.x, v2.x);
-    result.y = fminf(v1.y, v2.y);
-    result.z = fminf(v1.z, v2.z);
-
-    return result;
-}
-
-# Get max value for each pair of components
-RMAPI Vector3 Vector3Max(Vector3 v1, Vector3 v2)
-{
-    Vector3 result = { 0 };
-
-    result.x = fmaxf(v1.x, v2.x);
-    result.y = fmaxf(v1.y, v2.y);
-    result.z = fmaxf(v1.z, v2.z);
-
-    return result;
-}
+Vector3Min ← ⌊
+Vector3Max ← ⌈
 
 # Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
 # NOTE: Assumes P is on the plane of the triangle
@@ -511,52 +433,26 @@ RMAPI Vector3 Vector3Barycenter(Vector3 p, Vector3 a, Vector3 b, Vector3 c)
 
 # Projects a Vector3 from screen space into object space
 # NOTE: We are avoiding calling other raymath functions despite available
-RMAPI Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view)
-{
-    Vector3 result = { 0 };
+Vector3Unproject←{
+  𝕊⟨
+    source     # v3
+    projection # Matrix
+    view       # Matrix
+  ⟩
+  # Calculate unprojected matrix (multiply view matrix by projection matrix) and invert it
+  matViewProj ← veiw MP projection
 
-    # Calculate unprojected matrix (multiply view matrix by projection matrix) and invert it
-    matViewProj ← veiw MP projection
+  # Calculate inverted matrix -> MatrixInvert(matViewProj);  
+  matViewProjInv ← Inverse matViewProj
 
-    # Calculate inverted matrix -> MatrixInvert(matViewProj);
-    # Cache the matrix values (speed optimization)
-    a00 ← matViewProj.m0, a01 = matViewProj.m1, a02 = matViewProj.m2, a03 = matViewProj.m3;
-    a10 ← matViewProj.m4, a11 = matViewProj.m5, a12 = matViewProj.m6, a13 = matViewProj.m7;
-    a20 ← matViewProj.m8, a21 = matViewProj.m9, a22 = matViewProj.m10, a23 = matViewProj.m11;
-    a30 ← matViewProj.m12, a31 = matViewProj.m13, a32 = matViewProj.m14, a33 = matViewProj.m15;
+  # Create quaternion from source point
+  quat ← source∾1
 
-    b00 = a00*a11 - a01*a10;
-    b01 = a00*a12 - a02*a10;
-    b02 = a00*a13 - a03*a10;
-    b03 = a01*a12 - a02*a11;
-    b04 = a01*a13 - a03*a11;
-    b05 = a02*a13 - a03*a12;
-    b06 = a20*a31 - a21*a30;
-    b07 = a20*a32 - a22*a30;
-    b08 = a20*a33 - a23*a30;
-    b09 = a21*a32 - a22*a31;
-    b10 = a21*a33 - a23*a31;
-    b11 = a22*a33 - a23*a32;
+  # Multiply quat point by unprojecte matrix
+  qtransformed ← +˝quat⊸×˘matViewProjInv
 
-    
-    matViewProjInv ← Inverse matViewProj
-
-    # Create quaternion from source point
-    Quaternion quat = { source.x, source.y, source.z, 1.0f };
-
-    # Multiply quat point by unprojecte matrix
-    Quaternion qtransformed = {     # QuaternionTransform(quat, matViewProjInv)
-        matViewProjInv.m0*quat.x + matViewProjInv.m4*quat.y + matViewProjInv.m8*quat.z + matViewProjInv.m12*quat.w,
-        matViewProjInv.m1*quat.x + matViewProjInv.m5*quat.y + matViewProjInv.m9*quat.z + matViewProjInv.m13*quat.w,
-        matViewProjInv.m2*quat.x + matViewProjInv.m6*quat.y + matViewProjInv.m10*quat.z + matViewProjInv.m14*quat.w,
-        matViewProjInv.m3*quat.x + matViewProjInv.m7*quat.y + matViewProjInv.m11*quat.z + matViewProjInv.m15*quat.w };
-
-    # Normalized world points in vectors
-    result.x = qtransformed.x/qtransformed.w;
-    result.y = qtransformed.y/qtransformed.w;
-    result.z = qtransformed.z/qtransformed.w;
-
-    return result;
+  # Normalized world points in vectors
+  qtransformed÷3⊑qtransformed;
 }
 
 # Get Vector3 as float array
@@ -571,30 +467,15 @@ RMAPI float3 Vector3ToFloatV(Vector3 v)
     return buffer;
 }
 
-# Compute the direction of a refracted ray where v specifies the
-# normalized direction of the incoming ray, n specifies the
-# normalized normal vector of the interface of two optical media,
-# and r specifies the ratio of the refractive index of the medium
-# from where the ray comes to the refractive index of the medium
-# on the other side of the surface
-RMAPI Vector3 Vector3Refract(Vector3 v, Vector3 n, float r)
-{
-    Vector3 result = { 0 };
-
-    float dot = v.x*n.x + v.y*n.y + v.z*n.z;
-    float d = 1.0f - r*r*(1.0f - dot*dot);
-
-    if (d >= 0.0f)
-    {
-        d = sqrtf(d);
-        v.x = r*v.x - (r*dot + d)*n.x;
-        v.y = r*v.y - (r*dot + d)*n.y;
-        v.z = r*v.z - (r*dot + d)*n.z;
-
-        result = v;
-    }
-
-    return result;
+# Compute the direction of a refracted ray 
+Vector3Refract ← {𝕊⟨
+    v # v3: normalized direction of the incoming ray
+    n # v3: normalized normal vector of the interface of two optical media
+    r # f : ratio of the refractive index of the medium from where the ray comes to the refractive index of the medium on the other side of the surface
+  ⟩
+  dot ← +´v×n
+  d ← ¬(r⋆2)×¬dot⋆2
+  {r×v-n×(√d)+r×dot}⍟(d≥0)3⥊0
 }
 
 #----------------------------------------------------------------------------------
@@ -603,8 +484,6 @@ RMAPI Vector3 Vector3Refract(Vector3 v, Vector3 n, float r)
 
 # Get the trace of the matrix (sum of the values along the diagonal)
 MatrixTrace ← +´0‿0⍉⊢
-
-MatrixAdd
 
 # Get translation matrix
 MatrixTranslate ← {𝕊x‿y‿z:
@@ -635,46 +514,6 @@ MatrixRotate ← {angle𝕊axis: x‿y‿z←axis
     r⋈l←3⥊0
     l⋈1
   ]
-}
-
-# Get x-rotation matrix
-# NOTE: Angle must be provided in radians
-RMAPI Matrix MatrixRotateX(float angle)
-{
-    Matrix result = { 1.0f, 0.0f, 0.0f, 0.0f,
-                      0.0f, 1.0f, 0.0f, 0.0f,
-                      0.0f, 0.0f, 1.0f, 0.0f,
-                      0.0f, 0.0f, 0.0f, 1.0f }; # MatrixIdentity()
-
-    float cosres = cosf(angle);
-    float sinres = sinf(angle);
-
-    result.m5 = cosres;
-    result.m6 = sinres;
-    result.m9 = -sinres;
-    result.m10 = cosres;
-
-    return result;
-}
-
-# Get y-rotation matrix
-# NOTE: Angle must be provided in radians
-RMAPI Matrix MatrixRotateY(float angle)
-{
-    Matrix result = { 1.0f, 0.0f, 0.0f, 0.0f,
-                      0.0f, 1.0f, 0.0f, 0.0f,
-                      0.0f, 0.0f, 1.0f, 0.0f,
-                      0.0f, 0.0f, 0.0f, 1.0f }; # MatrixIdentity()
-
-    float cosres = cosf(angle);
-    float sinres = sinf(angle);
-
-    result.m0 = cosres;
-    result.m2 = -sinres;
-    result.m8 = sinres;
-    result.m10 = cosres;
-
-    return result;
 }
 
 # Get xyz-rotation matrix
