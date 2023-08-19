@@ -50,6 +50,12 @@ e!(•Repr 5 Round 2⊸×_FromCenter[10‿15‿15⋄15‿20‿20]) ≡ "2‿3⥊
 #•Show 1⊸-⌾(×˜)
 #Sin Cos⁼
 
+# cos‿sin←•math
+# •Show Vector3RotateByAxisAngle ⟨↕3, 0‿1‿0, 1⟩
+# # ⟨ 1.682941969615793 1 1.0806046117362795 ⟩
+
+#•Show 0.2‿0.5 (Vector2Angle=○•Show Vector3Angle) 0.2‿0.5
+
 
 "
 for the entire message, i define   f⁼ to be  f^-1. 
