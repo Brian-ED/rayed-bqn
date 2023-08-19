@@ -14,7 +14,7 @@
 # Functions that have been excluded:
 #   TextFormat, 
 
-raylibPath←"raylibSource/lib/raylib.dll" # Default path
+raylibPath←"raylib/lib/raylib.dll" # Default path
 {
   "raylibPath"𝕊𝕩:raylibPath↩1↓𝕩
 }´¨+`∘=⟜':'⊸⊔¨•FLines "config.txt"
@@ -616,9 +616,9 @@ exportImageAsCode    ⇐ i8    "ExportImageAsCode"   _R image‿str   # image fi
 
 # Image generation functions
 genImageColor          ← image "GenImageColor"         _R i‿i‿color           # width hight color                     # Generate image: plain color
-genImageGradientV      ← image "GenImageGradientV"     _R i‿i‿color‿color     # width hight top bottom                # Generate image: vertical gradient
-genImageGradientH      ← image "GenImageGradientH"     _R i‿i‿color‿color     # width hight left right                # Generate image: horizontal gradient
+genImageGradientLinear ← image "GenImageGradientLinear"_R i‿i‿i‿color‿color   # width hight direction start end       # Generate image: vertical gradient
 genImageGradientRadial ← image "GenImageGradientRadial"_R i‿i‿f‿color‿color   # width hight density inner outer       # Generate image: radial gradient
+genImageGradientSquare ← image "GenImageGradientSquare"_R i‿i‿f‿color‿color   # width hight density inner outer       # Generate image: square gradient
 genImageChecked        ← image "GenImageChecked"       _R i‿i‿i‿i‿color‿color # width hight checksX checksY col1 col2 # Generate image: checked
 genImageWhiteNoise     ← image "GenImageWhiteNoise"    _R i‿i‿f               # width hight factor                    # Generate image: white noise
 genImagePerlinNoise    ← image "GenImagePerlinNoise"   _R i‿i‿i‿i‿f           # width hight offsetX offsetY scale     # Generate image: perlin noise
