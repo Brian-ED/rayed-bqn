@@ -25,7 +25,7 @@ MatrixLookAt ← {𝕊eye‿target‿up: # v3 v3 v3
 }
 
 # Transforms a Vector2 by a given Matrix
-Vector2Transform ← {𝕊v2‿matrix:
+Vector2Transform ← {matrix𝕊v2:
     x‿y‿z ← v2∾0
     +˝x‿y‿z‿1 × 0‿1⊸⊏˘matrix
 }
@@ -60,7 +60,7 @@ MatrixRotate ← {𝕊axis‿angle: # v3 f
 # NOTE: Angle must be provided in radians
 MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
     _RotMat ← {cut2x2OfMat On2x2Arr _𝕣 degrees:
-        (𝔽(⋈⟜-´≍⌽)(•math.Cos∾•math.Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕4
+        (𝔽(⋈⟜-´≍⌽)(Cos∾Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕4
     }
     ⟨1‿2 ⍉_RotMat ⊢
      0‿2 ⊢_RotMat ⊢
