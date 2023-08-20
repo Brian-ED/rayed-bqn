@@ -2,80 +2,78 @@
  draw
  key
  rf⇐rayffi
+ rm⇐raymath
 ⟩←rl←•Import "../../raylib.bqn"
-rm←•Import "../../src/raymath.bqn"
+
+# Check if point is inside rectangle
+CheckCollision0ToRec ← ∧´(≤⟜0∾0⊸≤)˝∘⍉
 
 # intersection using the slab method
-# https:#tavianator.com/2011/ray_box.html#:~:text=The%20fastest%20method%20for%20performing,remains%2C%20it%20intersected%20the%20box.
-
-RayIntersectRect←{
-  𝕊⟨
-    box       # [v2,v2]
-    origin    # v2
-    direction # v2
-  ⟩:
-  minParam‿maxParam ← ⌈´⊸⋈⟜(⌊´)´<˘⍉{𝕊dir‿ori‿pos‿siz:
-    (⌊´⋈⌈´) dir÷˜pos‿siz-ori
-  }˘⍉[direction,origin]∾⍉box
-
-  intersection←∞‿∞
-  {𝕊:intersection}⊸⊣{
-    maxParam < 0?0;        # if maxParam < 0, ray is intersecting AABB, but the whole AABB is behind us
-    minParam > maxParam?0; # if minParam > maxParam, ray doesn't intersect AABB
-    intersection↩origin + direction × minParam
-    1
+# https://tavianator.com/2011/ray_box.html#:~:text=The%20fastest%20method%20for%20performing,remains%2C%20it%20intersected%20the%20box.
+RayIntersectRect ← {direction𝕊box: # v2𝕊[v2,v2] → v2
+  minParam‿maxParam ← ⌈´⊸∾⟜(⌊´)˝⍉{𝕊dir‿pos‿siz:
+    (⌊´⋈⌈´) dir÷˜pos‿siz
+  }˘⍉[direction]∾⍉box
+  {
+    ∧´(≤⟜0∾0⊸≤)˝∘⍉ box?
+      0‿0
+  ;
+    {𝕤
+      direction×minParam
+    }⍟(maxParam∧´∘≥0‿minParam)∞×0⊸=⊸+×direction  # if maxParam < 0, ray is intersecting AABB, but the whole AABB is behind us # if minParam > maxParam, ray doesn't intersect AABB
   }
 }
 
-CheckCollisionRay2dCircle ← {
-  𝕊⟨
-    origin     # v2
+CheckCollisionRay2dCircle ← {𝕊⟨
     direction  # v2
     center     # v2
     radius     # f
   ⟩:
   {
-    rf.CheckCollisionPointCircle origin‿center‿radius?
-      origin
-  ; 
-    dot ← 0⌈+´direction×center-origin
-    Nearest ← origin+direction×⊢
-    (+´⌾(×˜)center-Nearest dot){
-      Nearest dot--´⌾(×˜)radius⋈𝕨
-    }⍟(≤⟜radius)𝕩
-  }∞‿∞
+    rf.CheckCollisionPointCircle (0‿0)‿center‿radius?
+      0‿0
+  ;
+    dot ← 0⌈+´direction×center
+    (+´×˜center-direction×dot){
+      direction×dot-√ 0⊸=⊸+𝕨-˜×˜radius
+    }⍟(≤⟜(×˜radius))∞×0⊸=⊸+×direction
+  }
 }
+
 {𝕤
-  box ← [100‿300,
+  box ← [100‿300
          100‿150]
-  origin ← 450‿300
+  origin    ← 450‿300
   direction ← 0‿¯1
-  center ← 600‿200
-  radius ← 50
+  center    ← 600‿200
+  radius    ← 50
   intersect ← ∞‿∞
+  colors    ← color.gray‿color.red
+  walkSpeed ← 3
+  turnSpeed ← 3
+
   # Main game loop
+  
+  #ori ← 5‿5
+  #•Show ⌈˝⍉[1‿1,4‿4]
+  #•Show -⌊´-⟜ori¨⟨¯1‿1,4‿4⟩
+
+  Rotate ← (⋈⟜-´≍⌽)•math.Cos∾•math.Sin
   {𝕤
-    angleDelta ← rf.GetFrameTime⊸×-´rf.IsKeyDown¨key.right‿key.left
-    direction ↩ rm.Vector2Transform direction⋈rm.MatrixRotateZ 0.5×angleDelta×π
-
+    angleDelta ← turnSpeed×rf.GetFrameTime⊸×-´key.IsDown key.right‿key.left
+    direction rm.MP˜↩ Rotate angleDelta
+    origin +↩ walkSpeed×-˝key.IsDown ["DS","AW"]
     touchedRec‿touchedCir ← {
-      intersect ↩ ⌊´𝕩
-      ∞‿∞⊸≢¨𝕩
+      intersect ↩•Show origin⊸+(>○|⊑∾)¨´ 𝕩
+      ∞‿∞⊸≢¨|𝕩
     } ⟨
-      RayIntersectRect box‿origin‿direction
-      CheckCollisionRay2dCircle origin‿direction‿center‿radius
+      direction RayIntersectRect box-origin
+      CheckCollisionRay2dCircle direction‿(center-origin)‿radius
     ⟩
-    box rl.draw.Rectangle˜ color.red⍟touchedRec color.gray
+    box rl.draw.Rectangle˜ touchedRec⊑colors
+    rf.DrawCircleV⟨center⋄radius⋄touchedCir⊑colors⟩
     rf.DrawCircleV origin‿10‿color.yellow
-
-    rf.DrawCircleV¨touchedCir⊑⟨
-      ⟨center‿radius‿color.gray⟩
-      ⟨
-        center‿radius‿color.red
-        intersect‿5‿color.green
-      ⟩
-    ⟩
-    rf.DrawLineV⟨origin, origin+direction×500, color.blue⟩
     rf.DrawCircleV intersect‿5‿color.green
+    rf.DrawLineV⟨origin⋄origin+direction×500⋄color.blue⟩
   } draw._withCanvas_ color.black •_while_ (¬rl.window.ShouldClose)@
 } rl.window._openAs "raylib extras [Math2d] example - ray rect intersection"
