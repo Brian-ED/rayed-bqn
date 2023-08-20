@@ -22,8 +22,9 @@
   nPatchLayout
 ⟩ ⇐ •Import "src/indexNamespaces.bqn"
 
-rayFFI ⇐ •Import "rayffi.bqn"
-color  ⇐ •Import "src/colors.bqn"
+rayFFI  ⇐ •Import "rayffi.bqn"
+color   ⇐ •Import "src/colors.bqn"
+raymath ⇐ •Import "src/raymath.bqn"
 # -------
 
 # TODO: These need to be more accurate
@@ -275,7 +276,9 @@ key ← {
   IsPressed ⇐ {𝕊 key:
     rayFFI.IsKeyPressed @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
-  IsDown ⇐ {rayffi.IsKeyDown𝕩}
+  IsDown ⇐ {
+    rayffi.IsKeyDown @-˜⍟<𝕩
+  }⚇0⊣NeedsWindow
 
   PressedKey ⇐ {𝕤                                                 # Get key pressed as keycode
     rayFFI.GetKeyPressed⟨⟩
