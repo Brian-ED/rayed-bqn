@@ -592,7 +592,7 @@ checkCollisionPointRec      ⇐ i8        "CheckCollisionPointRec"      _R v2‿
 checkCollisionPointCircle   ⇐ i8        "CheckCollisionPointCircle"   _R v2‿v2‿f             # point center radius                                 # Check if point is inside circle
 checkCollisionPointTriangle ⇐ i8        "CheckCollisionPointTriangle" _R v2‿v2‿v2‿v2         # point p1 p2 p3                                      # Check if point is inside a triangle
 checkCollisionPointPoly     ⇐ i8        "CheckCollisionPointPoly"     _R v2‿(P v2)‿i         # point *points pointCount                            # Check if point is within a polygon described by array of vertices
-checkCollisionLines         ⇐ i8        "CheckCollisionLines"         _R v2‿v2‿v2‿v2‿(P v2)  # startPos1 endPos1 startPos2 endPos2 *collisionPoint # Check the collision between two lines defined by two points each, returns collision point by reference
+checkCollisionLines         ⇐ i8        "CheckCollisionLines"         _R v2‿v2‿v2‿v2‿('&'∾v2)  # startPos1 endPos1 startPos2 endPos2 *collisionPoint # Check the collision between two lines defined by two points each, returns collision point by reference
 checkCollisionPointLine     ⇐ i8        "CheckCollisionPointLine"     _R v2‿v2‿v2‿i          # point p1 p2 threshold                               # Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
 getCollisionRec             ⇐ rectangle "GetCollisionRec"             _R rectangle‿rectangle # rec1 rec2                                           # Get collision rectangle for two rectangles collision
 
