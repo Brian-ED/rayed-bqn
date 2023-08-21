@@ -202,11 +202,12 @@ draw ← {
     ⊣⟜End𝕨𝔽𝕩
   }
   Text ← {𝕨𝕊⟨posX‿posY, text⟩:
+    NeedsWindow@
     t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
-    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i', "ii"⋈'c'¨text⟩
+    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i', "ii"⋈'c'¨text⟩   # TODO: why is there an each in the type here? at ...⥊¨'i'
     rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, spacing, r‿g‿b‿a⟩
-  }⊣NeedsWindow
-  Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]: # ⍉[startPos,endPos]
+  }
+  Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     t←{
       𝕊r‿g‿b‿a:1⋈˜𝕩;
@@ -220,7 +221,7 @@ draw ← {
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
     rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
   }
-  Rectangle ← {r‿g‿b‿a𝕊[x‿y⋄x2‿y2]:
+  Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
