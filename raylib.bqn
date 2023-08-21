@@ -206,31 +206,36 @@ draw ← {
     !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i', "ii"⋈'c'¨text⟩
     rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, spacing, r‿g‿b‿a⟩
   }⊣NeedsWindow
-  Line ← {𝕨𝕊[x‿y⋄x1‿y1]: # ⍉[startPos,endPos]
+  Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]: # ⍉[startPos,endPos]
+    NeedsWindow@
     t←{
       𝕊r‿g‿b‿a:1⋈˜𝕩;
       𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
     }𝕨
     !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i', 2‿2⥊'i'⟩
-    rayFFI.DrawLineEx(<˘⍉𝕩)∾⌽t
-  }⊣NeedsWindow
+    rayFFI.DrawLineEx(<˘𝕩)∾⌽t
+  }
   Texture ← {⟨r‿g‿b‿a,texture,scale,rotation⟩ 𝕊 x‿y:
+    NeedsWindow@
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
     rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
-  }⊣NeedsWindow
+  }
   Rectangle ← {r‿g‿b‿a𝕊[x‿y⋄x2‿y2]:
+    NeedsWindow@
     "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
     rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝𝕩
-  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
+  }
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
+    NeedsWindow@
     ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
     (∧´𝕨∊↕256)!˜"𝕗 (color) only accepts ints in the range 0-255 inclusive"
     rayffi.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
-  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
+  }
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
+    NeedsWindow@
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
-  }⎉1‿2⟜(⍉˘⍉⁼)⊣NeedsWindow
+  }
 }
 font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload ⟩⇐
