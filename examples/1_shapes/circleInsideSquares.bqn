@@ -5,13 +5,14 @@
 # sizes of the shapes
 rec←60 ⋄ cir←400
 # positions of the squares
-outerRecs ← ⍉⁼rec⊸+⊸≍170×¯1+2×>⥊↕2‿2
+distFromMiddle ← 170
+outerRecs ← distFromMiddle×¯1+2×>⥊↕2‿2
 
 PerFrame ← {𝕤
   # mouse pos floored
   pos←r.mouse.GetPos@
-  red      draw.Ellipse   ⍉⁼cir⊸+⊸≍ pos-cir÷2
-  white    draw.Rectangle outerRecs+pos-rec÷2
+   red     draw.Ellipse   cir⊸+⊸≍  pos-cir÷2
+  {white   draw.Rectangle rec⊸+⊸≍𝕩+pos-rec÷2}˘outerRecs 
   # color, shape,         positions
   # this drawing function is being used to draw on a black canvas
 } draw._withCanvas_ black
