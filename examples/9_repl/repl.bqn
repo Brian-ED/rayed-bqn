@@ -52,7 +52,7 @@ Game ← {𝕤
     # Rendering
     {
       DrawText˜´¨(⊢⋈¨50∾¨50×↕∘≠)lf Split𝕩
-      co.white r.draw.Line [0‿0,0‿50]+ 50‿0+charSize×(∧`⌾⌽∘¬⋈○(+´)⊢)lf=p↑s
+      co.white r.draw.Line ⍉[0‿0,0‿50]+50‿0+charSize×(∧`⌾⌽∘¬⋈○(+´)⊢)lf=p↑s
     }_withCanvas_ co.black newS 
     
     rr
