@@ -174,13 +174,9 @@ window ← {
 }
 draw ← {
   ⟨
-    # These aren't recommended because they are useless if you use _withCanvas_.
-    # They also don't behave well if ran in the wrong order,
-    # you only want to run them in the "start, background, end" sequence.
-    Start ⋄ End ⋄ Background
-
    _withCanvas_ ⋄ Rectangle ⋄ Text ⋄ Line
    Texture ⋄ Ellipse ⋄ EllipseOutline ⋄ _in3D
+   advanced
   ⟩⇐
   _in3D ← {𝕨 Drawing3D _𝕣 camera:
     NeedsWindow@          # pos  target up   FOV Camera projection type
@@ -237,6 +233,11 @@ draw ← {
     NeedsWindow@
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
   }
+
+  # These aren't recommended because they are useless if you use _withCanvas_.
+  # They also don't behave well if ran in the wrong order,
+  # you only want to run them in the "start, background, end" sequence.
+  advanced ⇐ {Start‿Background‿End⇐Start‿Background‿End}
 }
 font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload ⟩⇐
