@@ -382,14 +382,14 @@ IsShaderReady ⇐ {𝕊shader: # Check if a shader is ready
   id‿locsPtr ← 𝕩
   (id>0)∧locsPtr≢8⥊0      # id>0 means loaded successfully and non-null pointer means memory has been succesfully allocated
 }
-getShaderLocation       ⇐ i      "GetShaderLocation"      _R shader‿str        # shader uniformName                      # Get shader uniform location
-getShaderLocationAttrib ⇐ i      "GetShaderLocationAttrib"_R shader‿str        # shader attribName                       # Get shader attribute location
-setShaderValue          ⇐        "SetShaderValue"         _R shader‿i‿(P f)‿i  # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
-  setShaderValuePtr     ⇐        "SetShaderValue"         _R shader‿i‿ptr‿i    # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
-setShaderValueV         ⇐        "SetShaderValueV"        _R shader‿i‿ptr‿i‿i  # shader locIndex value uniformType count # Set shader uniform value vector
-setShaderValueMatrix    ⇐        "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                     # Set shader uniform value (matrix 4x4)
-setShaderValueTexture   ⇐        "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                 # Set shader uniform value for texture (sampler2d)
-unloadShader            ⇐        "UnloadShader"           _R shader                                                      # Unload shader from GPU memory (VRAM)
+getShaderLocation       ⇐ i "GetShaderLocation"      _R shader‿str        # shader uniformName                      # Get shader uniform location
+getShaderLocationAttrib ⇐ i "GetShaderLocationAttrib"_R shader‿str        # shader attribName                       # Get shader attribute location
+setShaderValue          ⇐   "SetShaderValue"         _R shader‿i‿(P f)‿i  # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
+  setShaderValuePtr     ⇐   "SetShaderValue"         _R shader‿i‿ptr‿i    # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
+setShaderValueV         ⇐   "SetShaderValueV"        _R shader‿i‿ptr‿i‿i  # shader locIndex value uniformType count # Set shader uniform value vector
+setShaderValueMatrix    ⇐   "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                     # Set shader uniform value (matrix 4x4)
+setShaderValueTexture   ⇐   "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                 # Set shader uniform value for texture (sampler2d)
+unloadShader            ⇐   "UnloadShader"           _R shader                                                      # Unload shader from GPU memory (VRAM)
 
 # Screen-space-related functions
 getMouseRay        ⇐ ray    "GetMouseRay"        _R v2‿camera3D      # mousePosition camera         # Get a ray trace from mouse position
