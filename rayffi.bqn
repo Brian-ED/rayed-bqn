@@ -778,10 +778,10 @@ textJoin      ⇐ ptr "TextJoin"      _R str‿i‿str     # *str ""_R *textList
 textSplit     ⇐ ptr "TextSplit"     _R str‿c‿(P i)   # **str ""_R *text delimiter *count        # Split text into multiple strings
 textAppend    ⇐     "TextAppend"    _R str‿str‿(P i) # text append *position                    # Append text at specific position and move cursor!
 textFindIndex ⇐ i   "TextFindIndex" _R str‿str       # text find                                # Find first text occurrence within a string
-textToUpper   ⇐ -⟜(32×1="a{"⊸⍋)                      #                                          # Get upper case version of provided string
-textToLower   ⇐ +⟜(32×1="A["⊸⍋)                      #                                          # Get lower case version of provided string
-textToPascal  ⇐ {m←'_'≠𝕩⋄m/𝕩-32×¬»m}                 #                                          # Get Pascal case notation version of provided string
-textToInteger ⇐ •ParseFloat                          #                                          # Get number from text
+TextToUpper   ⇐ -⟜(32×1="a{"⊸⍋)                      #                                          # Get upper case version of provided string
+TextToLower   ⇐ +⟜(32×1="A["⊸⍋)                      #                                          # Get lower case version of provided string
+TextToPascal  ⇐ {m←'_'≠𝕩⋄m/𝕩-32×¬»m}                 #                                          # Get Pascal case notation version of provided string
+TextToInteger ⇐ •ParseFloat                          #                                          # Get number from text
 
 #------------------------------------------------------------------------------------
 # Basic 3d Shapes Drawing Functions (Module: models)
