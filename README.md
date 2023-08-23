@@ -8,7 +8,7 @@ raylib.ffi is only for bindings and therefore shouldn't change, so you can proba
 # Getting started
 You may need to run `git submodule update --init --recursive` to install the required bqn-libs submodule.
 
-Make a config file named "config.txt" at `./rayed_bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to. If there are two lines with same config, then the bottom most line is picked.
+Make a config file named "config.txt" at `./rayed-bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to. If there are two lines with same config, then the bottom most line is picked.
 
 The only values supported for now is the path to binary.
 
