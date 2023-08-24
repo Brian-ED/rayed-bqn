@@ -20,8 +20,8 @@
 #   genImageGradientSquare, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientSquare
 
 # Default paths
-raylibPath←"raylib/lib/raylib.dll" 
-bqnLibsPath←"src/imports/bqn-libs"
+raylibPath⇐"raylib/lib/raylib.dll" 
+bqnLibsPath⇐"src/imports/bqn-libs"
 {
   "raylibPath"  𝕊𝕩:•file.At raylibPath↩1↓𝕩;
   "bqn-libsPath"𝕊𝕩:•file.At bqnLibsPath↩1↓𝕩
@@ -695,7 +695,7 @@ isTextureReady       ⇐ bool          "IsTextureReady"      _R texture         
 unloadTexture        ⇐               "UnloadTexture"       _R texture                        # Unload texture from GPU memory (VRAM)
 isRenderTextureReady ⇐ bool          "IsRenderTextureReady"_R renderTexture  # target        # Check if a render texture is ready
 unloadRenderTexture  ⇐               "UnloadRenderTexture" _R renderTexture  # target        # Unload render texture from GPU memory (VRAM)
-updateTexture        ⇐               "UpdateTexture"       _R texture‿(P i8) # texture color # Update GPU texture with new data                                    ## Executive change: changed "void *" type into "*i8" because *i8 just makes more sense. what else would you input into color?
+updateTexture        ⇐               "UpdateTexture"       _R texture‿(P u8) # texture color # Update GPU texture with new data                                    ## Executive change: changed "void *" type into "*u8" because *u8 just makes more sense. what else would you input into color?
 updateTextureRec     ⇐               "UpdateTextureRec"    _R texture‿rectangle‿ptr          # Update GPU texture rectangle with new data
 
 # Texture configuration functions
