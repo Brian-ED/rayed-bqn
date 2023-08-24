@@ -772,16 +772,16 @@ codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R code
 
 # Text strings management functions
 
-TextSubtext   ⇐ {index‿len𝕊text:len↑index↓text}                                  #     i‿i𝕊str       → str      # Get a piece of a text string
-⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import "src/imports/bqn-libs/strings.bqn"            # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
-TextInsert    ⇐ {insert‿pos𝕊text:∾⟜insert⊸∾´pos(↑⋈↓)text}                        #   str‿i𝕊str       → str      # Insert text in a position
-TextJoin      ⇐ {delimiter𝕊texts:(≠delimiter)↓∾(<delimiter)∾¨texts}              #     str𝕊⟨str...⟩  → str      # textList delimiter # Join text strings with delimiter
-TextSplit     ⇐ {𝕊text‿delimiter‿count:count↑delimiter((⊢-˜¬×·+`»⊸<)∘∊˜⊔⊢)texts} #        𝕊str‿str‿i → ⟨str...⟩ # Split text into multiple strings
-TextFindIndex ⇐ ⊑∘/⍷                                                             #     str𝕊str       → num      # Find first text occurrence within a string
-TextToUpper   ⇐ -⟜(32×1="a{"⊸⍋)                                                  #        𝕊str       → str      # Get upper case version of provided string
-TextToLower   ⇐ +⟜(32×1="A["⊸⍋)                                                  #        𝕊str       → str      # Get lower case version of provided string
-TextToPascal  ⇐ {m←'_'≠𝕩⋄m/𝕩-32×¬»m}                                             #        𝕊str       → str      # Get Pascal case notation version of provided string
-TextToInteger ⇐ •ParseFloat                                                      #        𝕊str       → num      # Get number from text
+TextSubtext   ⇐ {index‿len𝕊text:len↑index↓text}                                 #     i‿i𝕊str       → str      # Get a piece of a text string
+⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import "src/imports/bqn-libs/strings.bqn"           # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
+TextInsert    ⇐ {insert‿pos𝕊text:∾⟜insert⊸∾´pos(↑⋈↓)text}                       #   str‿i𝕊str       → str      # Insert text in a position
+TextJoin      ⇐ {delimiter𝕊texts:(≠delimiter)↓∾(<delimiter)∾¨texts}             #     str𝕊⟨str...⟩  → str      # textList delimiter # Join text strings with delimiter
+TextSplit     ⇐ {𝕊text‿delimiter‿count:count↑delimiter((⊢-˜¬×·+`»⊸<)∘∊˜⊔⊢)text} #        𝕊str‿str‿i → ⟨str...⟩ # Split text into multiple strings
+TextFindIndex ⇐ ⊑∘/⍷                                                            #     str𝕊str       → num      # Find first text occurrence within a string
+TextToUpper   ⇐ -⟜(32×1="a{"⊸⍋)                                                 #        𝕊str       → str      # Get upper case version of provided string
+TextToLower   ⇐ +⟜(32×1="A["⊸⍋)                                                 #        𝕊str       → str      # Get lower case version of provided string
+TextToPascal  ⇐ {m←'_'≠𝕩⋄m/𝕩-32×¬»m}                                            #        𝕊str       → str      # Get Pascal case notation version of provided string
+TextToInteger ⇐ •ParseFloat                                                     #        𝕊str       → num      # Get number from text
 
 #------------------------------------------------------------------------------------
 # Basic 3d Shapes Drawing Functions (Module: models)
