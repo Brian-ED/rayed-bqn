@@ -3,7 +3,7 @@
 _setup ← {𝕨𝔽_𝕣𝕩:
   meshes ← rayffi.LoadModelFromMesh¨ ⟨
     rayffi.GenMeshPlane 10‿10‿3‿3
-    rayffi.GenMeshCube   2‿ 4‿2
+    rayffi.GenMeshCube 2‿4‿2
   ⟩
   font ← r.font.LoadBQN 50
   lights ← ⟨
