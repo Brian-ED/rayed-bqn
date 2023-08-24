@@ -19,9 +19,12 @@
 #   genImageGradientLinear, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientLinear
 #   genImageGradientSquare, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientSquare
 
-raylibPath←"raylib/lib/raylib.dll" # Default path
+# Default paths
+raylibPath←"raylib/lib/raylib.dll" 
+bqnLibsPath←"src/imports/bqn-libs"
 {
-  "raylibPath"𝕊𝕩:raylibPath↩1↓𝕩
+  "raylibPath"  𝕊𝕩:•file.At raylibPath↩1↓𝕩;
+  "bqn-libsPath"𝕊𝕩:•file.At bqnLibsPath↩1↓𝕩
 }´¨+`∘=⟜':'⊸⊔¨•FLines "config.txt"
 
 math←•Import "src/raymath.bqn"
@@ -772,7 +775,7 @@ codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R code
 
 # Text strings management functions
 TextSubtext   ⇐ {index‿len𝕊text:len↑index↓text}                                 #     i‿i𝕊str       → str      # Get a piece of a text string
-⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import "src/imports/bqn-libs/strings.bqn"           # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
+⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import bqnLibsPath∾"/strings.bqn"           # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
 TextInsert    ⇐ {insert‿pos𝕊text:∾⟜insert⊸∾´pos(↑⋈↓)text}                       #   str‿i𝕊str       → str      # Insert text in a position
 TextJoin      ⇐ {delimiter𝕊texts:(≠delimiter)↓∾(<delimiter)∾¨texts}             #     str𝕊⟨str...⟩  → str      # textList delimiter # Join text strings with delimiter
 TextSplit     ⇐ {𝕊text‿delimiter‿count:count↑delimiter((⊢-˜¬×·+`»⊸<)∘∊˜⊔⊢)text} #        𝕊str‿str‿i → ⟨str...⟩ # Split text into multiple strings
