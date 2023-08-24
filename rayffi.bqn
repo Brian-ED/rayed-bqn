@@ -8,11 +8,16 @@
 
 # • if a function here can be implemented in BQN, that ffi definition can be replaced.
 
-
-# every instantce of i8 is a bool
+# • the functions in this file are simply drop-in replacements for all raylib functions. 
 
 # Functions that have been excluded:
-#   TextFormat, 
+#   TextFormat, not needed.
+#   textCopy, not needed in bqn
+#   TextIsEqual, 𝕨≡𝕩
+#   textLength, ≠𝕩
+#   textAppend, the function abuses mutation, use ∾ and `pos+↩`
+#   genImageGradientLinear, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientLinear
+#   genImageGradientSquare, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientSquare
 
 raylibPath←"raylib/lib/raylib.dll" # Default path
 {
@@ -25,6 +30,7 @@ math←•Import "src/raymath.bqn"
 P⇐'*'⊸∾             # '*' means a pointer
 S⇐{'{'∾'}'«∾','∾¨𝕩} # Parse types into one struct
 c ⇐ "i8"
+bool ⇐ "i8"
 i‿f‿u‿i8‿·‿u8⇐⥊"32"‿"8"∾˜⌜"ifu"
 str‿uStr⇐P¨"iu"∾¨<"8:c8"
 ptr⇐"*:i8"
@@ -179,10 +185,10 @@ ray ⇐ S v3‿v3 # position direction # ray for raycasting
 
 # RayCollision, ray hit information
 rayCollision ⇐ S ⟨
-  i8 # hit # Did the ray hit something?
-  f  # distance # Distance to the nearest hit
-  v3 # point    # Point of the nearest hit
-  v3 # normal   # Surface normal of hit
+  bool # hit # Did the ray hit something?
+  f    # distance # Distance to the nearest hit
+  v3   # point    # Point of the nearest hit
+  v3   # normal   # Surface normal of hit
 ⟩
 boundingBox ⇐ S v3‿v3 # min max # min corner to max corner
 
@@ -210,7 +216,7 @@ sound ⇐ S audioStream‿u
 music ⇐ S ⟨
   audioStream # stream     # Audio stream
   u           # frameCount # Total number of frames (considering channels)
-  i8          # looping    # Music looping enable
+  bool        # looping    # Music looping enable
   i           # ctxType    # Type of music context (audio filetype)
   ptr         # *ctxData   # Audio context data, depends on type
 ⟩
@@ -289,16 +295,16 @@ U32ToI8 ⇐ ⟨@•FFI"*:i8"‿"memcpy"‿"&i32"‿"*u32"‿"u64",@•FFI"*:i8"�
 
 # Window-related functions
 initWindow               ⇐     "InitWindow"              _R i‿i‿str # width height title # Initialize window and OpenGL context
-windowShouldClose        ⇐ i8  "WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
+windowShouldClose        ⇐ bool"WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
 closeWindow              ⇐     "CloseWindow"             _R@                             # Close window and unload OpenGL context
-isWindowReady            ⇐ i8  "IsWindowReady"           _R@                             # Check if window has been initialized successfully
-isWindowFullscreen       ⇐ i8  "IsWindowFullscreen"      _R@                             # Check if window is currently fullscreen
-isWindowHidden           ⇐ i8  "IsWindowHidden"          _R@                             # Check if window is currently hidden (only PLATFORM_DESKTOP)
-isWindowMinimized        ⇐ i8  "IsWindowMinimized"       _R@                             # Check if window is currently minimized (only PLATFORM_DESKTOP)
-isWindowMaximized        ⇐ i8  "IsWindowMaximized"       _R@                             # Check if window is currently maximized (only PLATFORM_DESKTOP)
-isWindowFocused          ⇐ i8  "IsWindowFocused"         _R@                             # Check if window is currently focused (only PLATFORM_DESKTOP)
-isWindowResized          ⇐ i8  "IsWindowResized"         _R@                             # Check if window has been resized last frame
-isWindowState            ⇐ i8  "IsWindowState"           _R u # flag                     # Check if one specific window flag is enabled
+isWindowReady            ⇐ bool"IsWindowReady"           _R@                             # Check if window has been initialized successfully
+isWindowFullscreen       ⇐ bool"IsWindowFullscreen"      _R@                             # Check if window is currently fullscreen
+isWindowHidden           ⇐ bool"IsWindowHidden"          _R@                             # Check if window is currently hidden (only PLATFORM_DESKTOP)
+isWindowMinimized        ⇐ bool"IsWindowMinimized"       _R@                             # Check if window is currently minimized (only PLATFORM_DESKTOP)
+isWindowMaximized        ⇐ bool"IsWindowMaximized"       _R@                             # Check if window is currently maximized (only PLATFORM_DESKTOP)
+isWindowFocused          ⇐ bool"IsWindowFocused"         _R@                             # Check if window is currently focused (only PLATFORM_DESKTOP)
+isWindowResized          ⇐ bool"IsWindowResized"         _R@                             # Check if window has been resized last frame
+isWindowState            ⇐ bool"IsWindowState"           _R u # flag                     # Check if one specific window flag is enabled
 setWindowState           ⇐     "SetWindowState"          _R u # flags                    # Set window configuration state using flags (only PLATFORM_DESKTOP)
 clearWindowState         ⇐     "ClearWindowState"        _R u # flags                    # Clear window configuration state flags
 toggleFullscreen         ⇐     "ToggleFullscreen"        _R@                             # Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)
@@ -344,12 +350,12 @@ pollInputEvents  ⇐ "PollInputEvents" _R@                # Register all input e
 waitTime         ⇐ "WaitTime"        _R "f64" # seconds # Wait for some time (halt program execution)
 
 # Cursor-related functions
-showCursor       ⇐    "ShowCursor"      _R@ # Shows cursor
-hideCursor       ⇐    "HideCursor"      _R@ # Hides cursor
-isCursorHidden   ⇐ i8 "IsCursorHidden"  _R@ # Check if cursor is not visible
-enableCursor     ⇐    "EnableCursor"    _R@ # Enables cursor (unlock cursor)
-disableCursor    ⇐    "DisableCursor"   _R@ # Disables cursor (lock cursor)
-isCursorOnScreen ⇐ i8 "IsCursorOnScreen"_R@ # Check if cursor is on the screen
+showCursor       ⇐      "ShowCursor"      _R@ # Shows cursor
+hideCursor       ⇐      "HideCursor"      _R@ # Hides cursor
+isCursorHidden   ⇐ bool "IsCursorHidden"  _R@ # Check if cursor is not visible
+enableCursor     ⇐      "EnableCursor"    _R@ # Enables cursor (unlock cursor)
+disableCursor    ⇐      "DisableCursor"   _R@ # Disables cursor (lock cursor)
+isCursorOnScreen ⇐ bool "IsCursorOnScreen"_R@ # Check if cursor is on the screen
 
 # Drawing-related functions
 clearBackground   ⇐ "ClearBackground"  _R color                             # Set background color (framebuffer clear color)
@@ -435,14 +441,14 @@ setSaveFileTextCallback ⇐ "SetSaveFileTextCallback"_R ptr # saveFileTextCallba
 # Files management functions
 loadFileData            ⇐ (ptr⊣ustr)   "LoadFileData"            _R str‿(P u)    # fileName *bytesRead         # Load file data as byte array (read)
 unloadFileData          ⇐              "UnloadFileData"          _R ustr         # data                        # Unload file data allocated by LoadFileData()
-saveFileData            ⇐ i8           "SaveFileData"            _R str‿ptr‿u    # fileName *data bytesToWrite # Save data to file from byte array (write), returns true on success
-exportDataAsCode        ⇐ i8           "ExportDataAsCode"        _R ustr‿u‿str   # data size fileName          # Export data to code (.h), returns true on success
+saveFileData            ⇐ bool         "SaveFileData"            _R str‿ptr‿u    # fileName *data bytesToWrite # Save data to file from byte array (write), returns true on success
+exportDataAsCode        ⇐ bool         "ExportDataAsCode"        _R ustr‿u‿str   # data size fileName          # Export data to code (.h), returns true on success
 loadFileText            ⇐ ptr          "LoadFileText"            _R str          # fileName                    # Load text data from file (read), returns a '\0' terminated string
 unloadFileText          ⇐              "UnloadFileText"          _R str          # text                        # Unload file text data allocated by LoadFileText()
-saveFileText            ⇐ i8           "SaveFileText"            _R str‿str      # fileName text               # Save text data to file (write), string must be '\0' terminated, returns true on success
-fileExists              ⇐ i8           "FileExists"              _R str          # fileName                    # Check if file exists
-directoryExists         ⇐ i8           "DirectoryExists"         _R str          # dirPath                     # Check if a directory path exists
-isFileExtension         ⇐ i8           "IsFileExtension"         _R str‿str      # fileName ext                # Check file extension (including point: .png, .wav)
+saveFileText            ⇐ bool         "SaveFileText"            _R str‿str      # fileName text               # Save text data to file (write), string must be '\0' terminated, returns true on success
+fileExists              ⇐ bool         "FileExists"              _R str          # fileName                    # Check if file exists
+directoryExists         ⇐ bool         "DirectoryExists"         _R str          # dirPath                     # Check if a directory path exists
+isFileExtension         ⇐ bool         "IsFileExtension"         _R str‿str      # fileName ext                # Check file extension (including point: .png, .wav)
 getFileLength           ⇐ i            "GetFileLength"           _R str          # fileName                    # Get file length in bytes (NOTE: GetFileSize() conflicts with windows.h)
 getFileExtension        ⇐ (ptr⊣str)    "GetFileExtension"        _R str          # fileName                    # Get pointer to extension for a filename string (includes dot: '.png')
 getFileName             ⇐ (ptr⊣str)    "GetFileName"             _R str          # filePath                    # Get pointer to filename for a path string
@@ -451,12 +457,12 @@ getDirectoryPath        ⇐ (ptr⊣str)    "GetDirectoryPath"        _R str     
 getPrevDirectoryPath    ⇐ (ptr⊣str)    "GetPrevDirectoryPath"    _R str          # dirPath                     # Get previous directory path for a given path (uses static string)
 getWorkingDirectory     ⇐ (ptr⊣str)    "GetWorkingDirectory"     _R@                                           # Get current working directory (uses static string)
 getApplicationDirectory ⇐ (ptr⊣str)    "GetApplicationDirectory" _R@                                           # Get the directory if the running application (uses static string)
-changeDirectory         ⇐ i8           "ChangeDirectory"         _R str          # dir                         # Change working directory, return true on success
-lsPathFile              ⇐ i8           "IsPathFile"              _R str          # path                        # Check if a given path is a file or a directory
+changeDirectory         ⇐ bool         "ChangeDirectory"         _R str          # dir                         # Change working directory, return true on success
+isPathFile              ⇐ bool         "IsPathFile"              _R str          # path                        # Check if a given path is a file or a directory
 loadDirectoryFiles      ⇐ filePathList "LoadDirectoryFiles"      _R str          # dirPath                     # Load directory filepaths
-loadDirectoryFilesEx    ⇐ filePathList "LoadDirectoryFilesEx"    _R str‿str‿i8   # basePath filter scanSubdirs # Load directory filepaths with extension filtering and recursive directory scan
+loadDirectoryFilesEx    ⇐ filePathList "LoadDirectoryFilesEx"    _R str‿str‿bool # basePath filter scanSubdirs # Load directory filepaths with extension filtering and recursive directory scan
 unloadDirectoryFiles    ⇐              "UnloadDirectoryFiles"    _R filePathList # files                       # Unload filepaths
-isFileDropped           ⇐ i8           "IsFileDropped"           _R@                                           # Check if a file has been dropped into window
+isFileDropped           ⇐ bool         "IsFileDropped"           _R@                                           # Check if a file has been dropped into window
 loadDroppedFiles        ⇐ filePathList "LoadDroppedFiles"        _R@                                           # Load dropped filepaths
 unloadDroppedFiles      ⇐              "UnloadDroppedFiles"      _R filePathList # files                       # Unload dropped filepaths
 getFileModTime          ⇐ "f64"        "GetFileModTime"          _R str          # fileName                    # Get file modification time (last write time)
@@ -473,41 +479,41 @@ decodeDataBase64 ⇐ ptr "DecodeDataBase64" _R uStr‿i‿(P i) # data *outputSi
 #------------------------------------------------------------------------------------
 
 # Input-related functions: keyboard
-isKeyPressed   ⇐ i8 "IsKeyPressed"  _R i # Check if a key has been pressed once
-isKeyDown      ⇐ i8 "IsKeyDown"     _R i # Check if a key is being pressed
-isKeyReleased  ⇐ i8 "IsKeyReleased" _R i # Check if a key has been released once
-isKeyUp        ⇐ i8 "IsKeyUp"       _R i # Check if a key is NOT being pressed
-setExitKey     ⇐    "SetExitKey"    _R i # Set a custom key to exit program (default is ESC)
-getKeyPressed  ⇐ i  "GetKeyPressed" _R@  # Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
-getCharPressed ⇐ i  "GetCharPressed"_R@  # Get char pressed (unicode), call it multiple times for chars queued, returns 0 when the queue is empty
+isKeyPressed   ⇐ bool "IsKeyPressed"  _R i # Check if a key has been pressed once
+isKeyDown      ⇐ bool "IsKeyDown"     _R i # Check if a key is being pressed
+isKeyReleased  ⇐ bool "IsKeyReleased" _R i # Check if a key has been released once
+isKeyUp        ⇐ bool "IsKeyUp"       _R i # Check if a key is NOT being pressed
+setExitKey     ⇐      "SetExitKey"    _R i # Set a custom key to exit program (default is ESC)
+getKeyPressed  ⇐ i    "GetKeyPressed" _R@  # Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
+getCharPressed ⇐ i    "GetCharPressed"_R@  # Get char pressed (unicode), call it multiple times for chars queued, returns 0 when the queue is empty
 
 # Input-related functions: gamepads
-isGamepadAvailable      ⇐ i8       "IsGamepadAvailable"      _R i   # gamepad        # Check if a gamepad is available
+isGamepadAvailable      ⇐ bool     "IsGamepadAvailable"      _R i   # gamepad        # Check if a gamepad is available
 getGamepadName          ⇐ (ptr⊣str)"GetGamepadName"          _R i   # gamepad        # Get gamepad internal name id
-isGamepadButtonPressed  ⇐ i8       "IsGamepadButtonPressed"  _R i‿i # gamepad button # Check if a gamepad button has been pressed once
-isGamepadButtonDown     ⇐ i8       "IsGamepadButtonDown"     _R i‿i # gamepad button # Check if a gamepad button is being pressed
-isGamepadButtonReleased ⇐ i8       "IsGamepadButtonReleased" _R i‿i # gamepad button # Check if a gamepad button has been released once
-isGamepadButtonUp       ⇐ i8       "IsGamepadButtonUp"       _R i‿i # gamepad button # Check if a gamepad button is NOT being pressed
+isGamepadButtonPressed  ⇐ bool     "IsGamepadButtonPressed"  _R i‿i # gamepad button # Check if a gamepad button has been pressed once
+isGamepadButtonDown     ⇐ bool     "IsGamepadButtonDown"     _R i‿i # gamepad button # Check if a gamepad button is being pressed
+isGamepadButtonReleased ⇐ bool     "IsGamepadButtonReleased" _R i‿i # gamepad button # Check if a gamepad button has been released once
+isGamepadButtonUp       ⇐ bool     "IsGamepadButtonUp"       _R i‿i # gamepad button # Check if a gamepad button is NOT being pressed
 getGamepadButtonPressed ⇐ i        "GetGamepadButtonPressed" _R@                     # Get the last gamepad button pressed
 getGamepadAxisCount     ⇐ i        "GetGamepadAxisCount"     _R i   # gamepad        # Get gamepad axis count for a gamepad
 getGamepadAxisMovement  ⇐ f        "GetGamepadAxisMovement"  _R i‿i # gamepad axis   # Get axis movement value for a gamepad axis
 setGamepadMappings      ⇐ i        "SetGamepadMappings"      _R str # mappings       # Set internal gamepad mappings (SDL_GameControllerDB)
 
 # Input-related functions: mouse
-isMouseButtonPressed  ⇐ i8 "IsMouseButtonPressed" _R i   # button          # Check if a mouse button has been pressed once
-isMouseButtonDown     ⇐ i8 "IsMouseButtonDown"    _R i   # button          # Check if a mouse button is being pressed
-isMouseButtonReleased ⇐ i8 "IsMouseButtonReleased"_R i   # button          # Check if a mouse button has been released once
-isMouseButtonUp       ⇐ i8 "IsMouseButtonUp"      _R i   # button          # Check if a mouse button is NOT being pressed
-getMouseX             ⇐ i  "GetMouseX"            _R@                      # Get mouse position X
-getMouseY             ⇐ i  "GetMouseY"            _R@                      # Get mouse position Y
-getMousePosition      ⇐ v2 "GetMousePosition"     _R@                      # Get mouse position XY
-getMouseDelta         ⇐ v2 "GetMouseDelta"        _R@                      # Get mouse delta between frames
-setMousePosition      ⇐    "SetMousePosition"     _R i‿i # x y             # Set mouse position XY
-setMouseOffset        ⇐    "SetMouseOffset"       _R i‿i # offsetX offsetY # Set mouse offset
-setMouseScale         ⇐    "SetMouseScale"        _R f‿f # scaleX scaleY   # Set mouse scaling
-getMouseWheelMove     ⇐ f  "GetMouseWheelMove"    _R@                      # Get mouse wheel movement for X or Y, whichever is larger
-getMouseWheelMoveV    ⇐ v2 "GetMouseWheelMoveV"   _R@                      # Get mouse wheel movement for both X and Y
-setMouseCursor        ⇐    "SetMouseCursor"       _R i   # cursor          # Set mouse cursor
+isMouseButtonPressed  ⇐ bool "IsMouseButtonPressed" _R i   # button          # Check if a mouse button has been pressed once
+isMouseButtonDown     ⇐ bool "IsMouseButtonDown"    _R i   # button          # Check if a mouse button is being pressed
+isMouseButtonReleased ⇐ bool "IsMouseButtonReleased"_R i   # button          # Check if a mouse button has been released once
+isMouseButtonUp       ⇐ bool "IsMouseButtonUp"      _R i   # button          # Check if a mouse button is NOT being pressed
+getMouseX             ⇐ i    "GetMouseX"            _R@                      # Get mouse position X
+getMouseY             ⇐ i    "GetMouseY"            _R@                      # Get mouse position Y
+getMousePosition      ⇐ v2   "GetMousePosition"     _R@                      # Get mouse position XY
+getMouseDelta         ⇐ v2   "GetMouseDelta"        _R@                      # Get mouse delta between frames
+setMousePosition      ⇐      "SetMousePosition"     _R i‿i # x y             # Set mouse position XY
+setMouseOffset        ⇐      "SetMouseOffset"       _R i‿i # offsetX offsetY # Set mouse offset
+setMouseScale         ⇐      "SetMouseScale"        _R f‿f # scaleX scaleY   # Set mouse scaling
+getMouseWheelMove     ⇐ f    "GetMouseWheelMove"    _R@                      # Get mouse wheel movement for X or Y, whichever is larger
+getMouseWheelMoveV    ⇐ v2   "GetMouseWheelMoveV"   _R@                      # Get mouse wheel movement for both X and Y
+setMouseCursor        ⇐      "SetMouseCursor"       _R i   # cursor          # Set mouse cursor
 
 # Input-related functions: touch
 getTouchX          ⇐ i  "GetTouchX"          _R@          # Get touch position X for touch point 0 (relative to screen size)
@@ -520,14 +526,14 @@ getTouchPointCount ⇐ i  "GetTouchPointCount" _R@          # Get number of touc
 #------------------------------------------------------------------------------------
 # Gestures and Touch Handling Functions (Module: rgestures)
 #------------------------------------------------------------------------------------
-setGesturesEnabled     ⇐    "SetGesturesEnabled"     _R u # flags   # Enable a set of gestures using flags
-isGestureDetected      ⇐ i8 "IsGestureDetected"      _R i # gesture # Check if a gesture have been detected
-getGestureDetected     ⇐ i  "GetGestureDetected"     _R@            # Get latest detected gesture
-getGestureHoldDuration ⇐ f  "GetGestureHoldDuration" _R@            # Get gesture hold time in milliseconds
-getGestureDragVector   ⇐ v2 "GetGestureDragVector"   _R@            # Get gesture drag vector
-getGestureDragAngle    ⇐ f  "GetGestureDragAngle"    _R@            # Get gesture drag angle
-getGesturePinchVector  ⇐ v2 "GetGesturePinchVector"  _R@            # Get gesture pinch delta
-getGesturePinchAngle   ⇐ f  "GetGesturePinchAngle"   _R@            # Get gesture pinch angle
+setGesturesEnabled     ⇐      "SetGesturesEnabled"     _R u # flags   # Enable a set of gestures using flags
+isGestureDetected      ⇐ bool "IsGestureDetected"      _R i # gesture # Check if a gesture have been detected
+getGestureDetected     ⇐ i    "GetGestureDetected"     _R@            # Get latest detected gesture
+getGestureHoldDuration ⇐ f    "GetGestureHoldDuration" _R@            # Get gesture hold time in milliseconds
+getGestureDragVector   ⇐ v2   "GetGestureDragVector"   _R@            # Get gesture drag vector
+getGestureDragAngle    ⇐ f    "GetGestureDragAngle"    _R@            # Get gesture drag angle
+getGesturePinchVector  ⇐ v2   "GetGesturePinchVector"  _R@            # Get gesture pinch delta
+getGesturePinchAngle   ⇐ f    "GetGesturePinchAngle"   _R@            # Get gesture pinch angle
 
 #------------------------------------------------------------------------------------
 # Camera System Functions (Module: rcamera)
@@ -585,15 +591,15 @@ drawPolyLines             ⇐ "DrawPolyLines"             _R v2‿i‿f‿f‿co
 drawPolyLinesEx           ⇐ "DrawPolyLinesEx"           _R v2‿i‿f‿f‿f‿color      # center sides radius rotation lineThick                      # Draw a polygon outline of n sides with extended parameters
 
 # Basic shapes collision detection functions
-checkCollisionRecs          ⇐ i8        "CheckCollisionRecs"          _R rectangle‿rectangle # rec1 rec2                                           # Check collision between two rectangles
-checkCollisionCircles       ⇐ i8        "CheckCollisionCircles"       _R v2‿f‿v2‿f           # center1 radius1 center2 radius2                     # Check collision between two circles
-checkCollisionCircleRec     ⇐ i8        "CheckCollisionCircleRec"     _R v2‿f‿rectangle      # center radius rec                                   # Check collision between circle and rectangle
-checkCollisionPointRec      ⇐ i8        "CheckCollisionPointRec"      _R v2‿rectangle        # point rec                                           # Check if point is inside rectangle
-checkCollisionPointCircle   ⇐ i8        "CheckCollisionPointCircle"   _R v2‿v2‿f             # point center radius                                 # Check if point is inside circle
-checkCollisionPointTriangle ⇐ i8        "CheckCollisionPointTriangle" _R v2‿v2‿v2‿v2         # point p1 p2 p3                                      # Check if point is inside a triangle
-checkCollisionPointPoly     ⇐ i8        "CheckCollisionPointPoly"     _R v2‿(P v2)‿i         # point *points pointCount                            # Check if point is within a polygon described by array of vertices
-checkCollisionLines         ⇐ i8        "CheckCollisionLines"         _R v2‿v2‿v2‿v2‿('&'∾v2)  # startPos1 endPos1 startPos2 endPos2 *collisionPoint # Check the collision between two lines defined by two points each, returns collision point by reference
-checkCollisionPointLine     ⇐ i8        "CheckCollisionPointLine"     _R v2‿v2‿v2‿i          # point p1 p2 threshold                               # Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
+checkCollisionRecs          ⇐ bool      "CheckCollisionRecs"          _R rectangle‿rectangle # rec1 rec2                                           # Check collision between two rectangles
+checkCollisionCircles       ⇐ bool      "CheckCollisionCircles"       _R v2‿f‿v2‿f           # center1 radius1 center2 radius2                     # Check collision between two circles
+checkCollisionCircleRec     ⇐ bool      "CheckCollisionCircleRec"     _R v2‿f‿rectangle      # center radius rec                                   # Check collision between circle and rectangle
+checkCollisionPointRec      ⇐ bool      "CheckCollisionPointRec"      _R v2‿rectangle        # point rec                                           # Check if point is inside rectangle
+checkCollisionPointCircle   ⇐ bool      "CheckCollisionPointCircle"   _R v2‿v2‿f             # point center radius                                 # Check if point is inside circle
+checkCollisionPointTriangle ⇐ bool      "CheckCollisionPointTriangle" _R v2‿v2‿v2‿v2         # point p1 p2 p3                                      # Check if point is inside a triangle
+checkCollisionPointPoly     ⇐ bool      "CheckCollisionPointPoly"     _R v2‿(P v2)‿i         # point *points pointCount                            # Check if point is within a polygon described by array of vertices
+checkCollisionLines         ⇐ bool      "CheckCollisionLines"         _R v2‿v2‿v2‿v2‿('&'∾v2)  # startPos1 endPos1 startPos2 endPos2 *collisionPoint # Check the collision between two lines defined by two points each, returns collision point by reference
+checkCollisionPointLine     ⇐ bool      "CheckCollisionPointLine"     _R v2‿v2‿v2‿i          # point p1 p2 threshold                               # Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
 getCollisionRec             ⇐ rectangle "GetCollisionRec"             _R rectangle‿rectangle # rec1 rec2                                           # Get collision rectangle for two rectangles collision
 
 #------------------------------------------------------------------------------------
@@ -608,17 +614,14 @@ loadImageAnim        ⇐ image "LoadImageAnim"       _R str‿i       # fileName
 loadImageFromMemory  ⇐ image "LoadImageFromMemory" _R str‿str‿i   # fileType fileData dataSize             # Load image from memory buffer, fileType refers to extension: i.e. '.png'
 loadImageFromTexture ⇐ image "LoadImageFromTexture"_R texture     # texture2D                              # Load image from GPU texture data
 loadImageFromScreen  ⇐ image "LoadImageFromScreen" _R@                                                     # Load image from screen buffer and (screenshot)
-isImageReady         ⇐ i8    "IsImageReady"        _R image                                                # Check if an image is ready
+isImageReady         ⇐ bool  "IsImageReady"        _R image                                                # Check if an image is ready
 unloadImage          ⇐       "UnloadImage"         _R image                                                # Unload image from CPU memory (RAM)
-exportImage          ⇐ i8    "ExportImage"         _R image‿str   # image filename                         # Export image data to file, returns true on success
-exportImageAsCode    ⇐ i8    "ExportImageAsCode"   _R image‿str   # image fileName                         # Export image as code file defining an array of bytes, returns true on success
-
+exportImage          ⇐ bool  "ExportImage"         _R image‿str   # image filename                         # Export image data to file, returns true on success
+exportImageAsCode    ⇐ bool  "ExportImageAsCode"   _R image‿str   # image fileName                         # Export image as code file defining an array of bytes, returns true on success
 
 # Image generation functions
 genImageColor          ← image "GenImageColor"         _R i‿i‿color           # width hight color                     # Generate image: plain color
-genImageGradientLinear ← image "GenImageGradientLinear"_R i‿i‿i‿color‿color   # width hight direction start end       # Generate image: vertical gradient
 genImageGradientRadial ← image "GenImageGradientRadial"_R i‿i‿f‿color‿color   # width hight density inner outer       # Generate image: radial gradient
-genImageGradientSquare ← image "GenImageGradientSquare"_R i‿i‿f‿color‿color   # width hight density inner outer       # Generate image: square gradient
 genImageChecked        ← image "GenImageChecked"       _R i‿i‿i‿i‿color‿color # width hight checksX checksY col1 col2 # Generate image: checked
 genImageWhiteNoise     ← image "GenImageWhiteNoise"    _R i‿i‿f               # width hight factor                    # Generate image: white noise
 genImagePerlinNoise    ← image "GenImagePerlinNoise"   _R i‿i‿i‿i‿f           # width hight offsetX offsetY scale     # Generate image: perlin noise
@@ -681,19 +684,19 @@ imageDrawTextEx         ⇐ "ImageDrawTextEx"         _R (P image)‿font‿str�
 
 # Texture loading functions
 # NOTE: These functions require GPU access
-loadTexture          ⇐ texture       "LoadTexture"         _R str           # fileName                         # Load texture from file into GPU memory (VRAM)
-loadTextureFromImage ⇐ texture       "LoadTextureFromImage"_R image                                            # Load texture from image data
-loadTextureCubemap   ⇐ texture       "LoadTextureCubemap"  _R image‿i       # textureCubemap ""_R image layout # Load cubemap from image, multiple image cubemap layouts supported
-loadRenderTexture    ⇐ renderTexture "LoadRenderTexture"   _R i‿i           # width height                     # Load texture for rendering (framebuffer)
-isTextureReady       ⇐ i8            "IsTextureReady"      _R texture                                          # Check if a texture is ready
-unloadTexture        ⇐               "UnloadTexture"       _R texture                                          # Unload texture from GPU memory (VRAM)
-isRenderTextureReady ⇐ i8            "IsRenderTextureReady"_R renderTexture # target                           # Check if a render texture is ready
-unloadRenderTexture  ⇐               "UnloadRenderTexture" _R renderTexture # target                           # Unload render texture from GPU memory (VRAM)
-updateTexture        ⇐               "UpdateTexture"       _R texture‿"*i8" # texture color                    # Update GPU texture with new data                                    ## Executive change: changed "void *" type into "*i8" because *i8 just makes more sense. what else would you input into color?
-updateTextureRec     ⇐               "UpdateTextureRec"    _R texture‿rectangle‿ptr                            # Update GPU texture rectangle with new data
+loadTexture          ⇐ texture       "LoadTexture"         _R str            # fileName      # Load texture from file into GPU memory (VRAM)
+loadTextureFromImage ⇐ texture       "LoadTextureFromImage"_R image                          # Load texture from image data
+loadTextureCubemap   ⇐ texture       "LoadTextureCubemap"  _R image‿i        # image layout  # Load cubemap from image, multiple image cubemap layouts supported
+loadRenderTexture    ⇐ renderTexture "LoadRenderTexture"   _R i‿i            # width height  # Load texture for rendering (framebuffer)
+isTextureReady       ⇐ bool          "IsTextureReady"      _R texture                        # Check if a texture is ready
+unloadTexture        ⇐               "UnloadTexture"       _R texture                        # Unload texture from GPU memory (VRAM)
+isRenderTextureReady ⇐ bool          "IsRenderTextureReady"_R renderTexture  # target        # Check if a render texture is ready
+unloadRenderTexture  ⇐               "UnloadRenderTexture" _R renderTexture  # target        # Unload render texture from GPU memory (VRAM)
+updateTexture        ⇐               "UpdateTexture"       _R texture‿(P i8) # texture color # Update GPU texture with new data                                    ## Executive change: changed "void *" type into "*i8" because *i8 just makes more sense. what else would you input into color?
+updateTextureRec     ⇐               "UpdateTextureRec"    _R texture‿rectangle‿ptr          # Update GPU texture rectangle with new data
 
 # Texture configuration functions
-genTextureMipmaps ⇐ "GenTextureMipmaps" _R P texture   # *texture       # Generate GPU mipmaps for a texture
+genTextureMipmaps ⇐ "GenTextureMipmaps" _R P texture # *texture       # Generate GPU mipmaps for a texture
 setTextureFilter  ⇐ "SetTextureFilter"  _R texture‿i # texture filter # Set texture scaling filter mode
 setTextureWrap    ⇐ "SetTextureWrap"    _R texture‿i # texture wrap   # Set texture wrapping mode
 
@@ -727,17 +730,17 @@ getPixelDataSize    ⇐ i     "GetPixelDataSize"    _R i‿i‿i             # w
 #------------------------------------------------------------------------------------
 
 # Font loading/unloading functions
-getFontDefault     ⇐ font  "GetFontDefault"     _R@                                                                                                  # Get the default Font
-loadFont           ⇐ font  "LoadFont"           _R str                                   # fileName                                                  # Load font from file into GPU memory (VRAM)
-loadFontEx         ⇐ font  "LoadFontEx"         _R str‿i‿(P i)‿i                         # fileName fontSize fontChars glyphCount                    # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
-loadFontFromImage  ⇐ font  "LoadFontFromImage"  _R image‿color‿i                         # image color(key?) firstChar                               # Load font from Image (XNA style)
-loadFontFromMemory ⇐ font  "LoadFontFromMemory" _R str‿ustr‿i‿i‿(P i)‿i                  # fileType fileData dataSize fontSize *fontChars glyphCount # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
-isFontReady        ⇐ i8    "IsFontReady"        _R font                                                                                              # Check if a font is ready
-loadFontData       ⇐ ptr   "LoadFontData"       _R ustr‿i‿i‿(P i)‿i‿i                    # fileData dataSize fontSize fontChars glyphCount type      # *glyphInfo ""_R # Load font data for further use
-genImageFontAtlas  ⇐ image "GenImageFontAtlas"  _R (P glyphInfo)‿(P⍟2 rectangle)‿i‿i‿i‿i # *chars **recs glyphCount fontSize padding packMethod      # Generate image font atlas using chars info
-unloadFontData     ⇐       "UnloadFontData"     _R (P glyphInfo)‿i                       # *chars glyphCount                                         # Unload font chars info data (RAM)
-exportFontAsCode   ⇐ i8    "ExportFontAsCode"   _R font‿str                              # font fileName                                             # Export font as code file, returns true on success
-unloadFont         ⇐       "UnloadFont"         _R font                                                                                              # Unload font from GPU memory (VRAM)
+getFontDefault     ⇐ font              "GetFontDefault"     _R@                                                                                                  # Get the default Font
+loadFont           ⇐ font              "LoadFont"           _R str                                   # fileName                                                  # Load font from file into GPU memory (VRAM)
+loadFontEx         ⇐ font              "LoadFontEx"         _R str‿i‿(P i)‿i                         # fileName fontSize fontChars glyphCount                    # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+loadFontFromImage  ⇐ font              "LoadFontFromImage"  _R image‿color‿i                         # image color(key?) firstChar                               # Load font from Image (XNA style)
+loadFontFromMemory ⇐ font              "LoadFontFromMemory" _R str‿ustr‿i‿i‿(P i)‿i                  # fileType fileData dataSize fontSize *fontChars glyphCount # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
+isFontReady        ⇐ bool              "IsFontReady"        _R font                                                                                              # Check if a font is ready
+loadFontData       ⇐ (ptr⊣P glyphInfo) "LoadFontData"       _R ustr‿i‿i‿(P i)‿i‿i                    # fileData dataSize fontSize fontChars glyphCount type      # Load font data for further use
+genImageFontAtlas  ⇐ image             "GenImageFontAtlas"  _R (P glyphInfo)‿(P⍟2 rectangle)‿i‿i‿i‿i # *chars **recs glyphCount fontSize padding packMethod      # Generate image font atlas using chars info
+unloadFontData     ⇐                   "UnloadFontData"     _R (P glyphInfo)‿i                       # *chars glyphCount                                         # Unload font chars info data (RAM)
+exportFontAsCode   ⇐ bool              "ExportFontAsCode"   _R font‿str                              # font fileName                                             # Export font as code file, returns true on success
+unloadFont         ⇐                   "UnloadFont"         _R font                                                                                              # Unload font from GPU memory (VRAM)
 
 # Text drawing
 drawFPS            ⇐ "DrawFPS"           _R i‿i                        # posX posY                                                # Draw current FPS
@@ -766,22 +769,19 @@ getCodepointNext     ⇐ i   "GetCodepointNext"     _R str⋈P i # *text *codepo
 getCodepointPrevious ⇐ i   "GetCodepointPrevious" _R str⋈P i # *text *codepointSize          # Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
 codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R codepoint *utf8Size  # Encode one codepoint into UTF-8 byte array (array length returned as parameter)
 
-# Text strings management functions (no UTF-8 strings, only byte chars)
-# NOTE: Some strings allocate memory internally for returned strings, just be careful!
-textCopy      ⇐ i   "TextCopy"      _R str‿str       # dst src                                  # Copy one string to another, returns bytes copied
-textIsEqual   ⇐ u8  "TextIsEqual"   _R str‿str                                                  # Check if two text string are equal
-textLength    ⇐ u   "TextLength"    _R str                                                      # Get text length, checks for '\0' ending
-textSubtext   ⇐ ptr "TextSubtext"   _R str           # *str ""_R *text int position, int length # Get a piece of a text string
-textReplace   ⇐ ptr "TextReplace"   _R str‿str‿str   # *str ""_R *text *replace *by             # Replace text string (WARNING: memory must be freed!)
-textInsert    ⇐ ptr "TextInsert"    _R str‿str‿i     # *str ""_R *text *insert position         # Insert text in a position (WARNING: memory must be freed!)
-textJoin      ⇐ ptr "TextJoin"      _R str‿i‿str     # *str ""_R *textList count *delimiter     # Join text strings with delimiter
-textSplit     ⇐ ptr "TextSplit"     _R str‿c‿(P i)   # **str ""_R *text delimiter *count        # Split text into multiple strings
-textAppend    ⇐     "TextAppend"    _R str‿str‿(P i) # text append *position                    # Append text at specific position and move cursor!
-textFindIndex ⇐ i   "TextFindIndex" _R str‿str       # text find                                # Find first text occurrence within a string
-TextToUpper   ⇐ -⟜(32×1="a{"⊸⍋)                      #                                          # Get upper case version of provided string
-TextToLower   ⇐ +⟜(32×1="A["⊸⍋)                      #                                          # Get lower case version of provided string
-TextToPascal  ⇐ {m←'_'≠𝕩⋄m/𝕩-32×¬»m}                 #                                          # Get Pascal case notation version of provided string
-TextToInteger ⇐ •ParseFloat                          #                                          # Get number from text
+
+# Text strings management functions
+
+TextSubtext   ⇐ {index‿len𝕊text:len↑index↓text}                                  #     i‿i𝕊str       → str      # Get a piece of a text string
+⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import "src/imports/bqn-libs/strings.bqn"            # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
+TextInsert    ⇐ {insert‿pos𝕊text:∾⟜insert⊸∾´pos(↑⋈↓)text}                        #   str‿i𝕊str       → str      # Insert text in a position
+TextJoin      ⇐ {delimiter𝕊texts:(≠delimiter)↓∾(<delimiter)∾¨texts}              #     str𝕊⟨str...⟩  → str      # textList delimiter # Join text strings with delimiter
+TextSplit     ⇐ {𝕊text‿delimiter‿count:count↑delimiter((⊢-˜¬×·+`»⊸<)∘∊˜⊔⊢)texts} #        𝕊str‿str‿i → ⟨str...⟩ # Split text into multiple strings
+TextFindIndex ⇐ ⊑∘/⍷                                                             #     str𝕊str       → num      # Find first text occurrence within a string
+TextToUpper   ⇐ -⟜(32×1="a{"⊸⍋)                                                  #        𝕊str       → str      # Get upper case version of provided string
+TextToLower   ⇐ +⟜(32×1="A["⊸⍋)                                                  #        𝕊str       → str      # Get lower case version of provided string
+TextToPascal  ⇐ {m←'_'≠𝕩⋄m/𝕩-32×¬»m}                                             #        𝕊str       → str      # Get Pascal case notation version of provided string
+TextToInteger ⇐ •ParseFloat                                                      #        𝕊str       → num      # Get number from text
 
 #------------------------------------------------------------------------------------
 # Basic 3d Shapes Drawing Functions (Module: models)
@@ -817,7 +817,7 @@ drawGrid            ⇐ "DrawGrid"           _R i‿f                 # slices s
 # Model management functions
 loadModel           ⇐ model       "LoadModel"          _R str  # fileName # Load model from files (meshes and materials)
 loadModelFromMesh   ⇐ model       "LoadModelFromMesh"  _R mesh            # Load model from generated mesh (default material)
-isModelReady        ⇐ "i8"        "IsModelReady"       _R model           # Check if a model is ready
+isModelReady        ⇐ bool        "IsModelReady"       _R model           # Check if a model is ready
 unloadModel         ⇐             "UnloadModel"        _R model           # Unload model (including meshes) from memory (RAM and/or VRAM)
 getModelBoundingBox ⇐ boundingBox "GetModelBoundingBox"_R model           # Compute model bounding box limits (considers all meshes)
 
@@ -832,14 +832,14 @@ drawBillboardRec ⇐ "DrawBillboardRec"_R camera3d‿texture‿rectangle‿v3‿
 drawBillboardPro ⇐ "DrawBillboardPro"_R camera3d‿texture‿rectangle‿v3‿v3‿v2‿v2‿f‿color # camera texture source position up size origin rotation tint # Draw a billboard texture defined by source and rotation
 
 # Mesh management functions
-uploadMesh         ⇐             "UploadMesh"         _R (P mesh)‿i8 # *mesh dynamic                                            # Upload mesh vertex data in GPU and provide VAO/VBO ids
-updateMeshBuffer   ⇐             "UpdateMeshBuffer"   _R mesh‿i‿ptr‿i‿i # mesh int index, void *data, int dataSize, int offset); # Update mesh vertex data in GPU for a specific buffer index
-unloadMesh         ⇐             "UnloadMesh"         _R mesh # mesh);                                                           # Unload mesh data from CPU and GPU
-drawMesh           ⇐             "DrawMesh"           _R mesh # mesh, Material material, Matrix transform);                        # Draw a 3d mesh with material and transform
-drawMeshInstanced  ⇐             "DrawMeshInstanced"  _R mesh # mesh, Material material, Matrix *transforms, int instances); # Draw multiple mesh instances with material and different transforms
-exportMesh         ⇐ i8          "ExportMesh"         _R mesh # mesh, str fileName);                                     # Export mesh data to file, returns true on success
-getMeshBoundingBox ⇐ boundingBox "GetMeshBoundingBox" _R mesh # mesh);                                            # Compute mesh bounding box limits
-genMeshTangents    ⇐             "GenMeshTangents"    _R mesh # *mesh);                                                     # Compute mesh tangents
+uploadMesh         ⇐             "UploadMesh"         _R (P mesh)‿bool              # *mesh dynamic                       # Upload mesh vertex data in GPU and provide VAO/VBO ids
+updateMeshBuffer   ⇐             "UpdateMeshBuffer"   _R mesh‿i‿(P u8)‿i‿i          # mesh index data dataSize offset     # Update mesh vertex data in GPU for a specific buffer index
+unloadMesh         ⇐             "UnloadMesh"         _R mesh                       # mesh                                # Unload mesh data from CPU and GPU
+drawMesh           ⇐             "DrawMesh"           _R mesh‿material‿matrix       # mesh material transform             # Draw a 3d mesh with material and transform
+drawMeshInstanced  ⇐             "DrawMeshInstanced"  _R mesh‿material‿(P matrix)‿i # mesh material *transforms instances # Draw multiple mesh instances with material and different transforms
+exportMesh         ⇐ bool        "ExportMesh"         _R mesh‿str                   # mesh fileName                       # Export mesh data to file, returns true on success
+getMeshBoundingBox ⇐ boundingBox "GetMeshBoundingBox" _R mesh                       # mesh                                # Compute mesh bounding box limits
+genMeshTangents    ⇐             "GenMeshTangents"    _R mesh                       # mesh                                # Compute mesh tangents
 
 # Mesh generation functions
 genMeshPoly       ⇐ mesh "GenMeshPoly"       _R i‿f      # sides radius             # Generate polygonal mesh
@@ -857,7 +857,7 @@ genMeshCubicmap   ⇐ mesh "GenMeshCubicmap"   _R image‿v3 # cubicmap cubeSize
 # Material loading/unloading functions
 loadMaterials        ⇐ (ptr⊣P material) "LoadMaterials"        _R str‿(P i)              # *fileName *materialCount  # Load materials from model file
 loadMaterialDefault  ⇐ material         "LoadMaterialDefault"  _R@                                                   # Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
-isMaterialReady      ⇐ i8               "IsMaterialReady"      _R material                                           # Check if a material is ready
+isMaterialReady      ⇐ bool             "IsMaterialReady"      _R material                                           # Check if a material is ready
 unloadMaterial       ⇐                  "UnloadMaterial"       _R material                                           # Unload material from GPU memory (VRAM)
 setMaterialTexture   ⇐                  "SetMaterialTexture"   _R (P material)‿i‿texture # *material mapType texture # Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
 setModelMeshMaterial ⇐                  "SetModelMeshMaterial" _R (P model)‿i‿i          # *model meshId materialId  # Set material for a mesh
@@ -867,12 +867,12 @@ loadModelAnimations   ⇐ (ptr⊣P modelAnimation) "LoadModelAnimations"   _R st
 updateModelAnimation  ⇐                        "UpdateModelAnimation"  _R model‿modelAnimation‿i # model anim frame    # Update model animation pose
 unloadModelAnimation  ⇐                        "UnloadModelAnimation"  _R modelAnimation                               # Unload animation data
 unloadModelAnimations ⇐                        "UnloadModelAnimations" _R (P modelAnimation)‿u   # *animations count   # Unload animation array data
-isModelAnimationValid ⇐ i8                     "IsModelAnimationValid" _R model‿modelAnimation                         # Check model animation skeleton match
+isModelAnimationValid ⇐ bool                   "IsModelAnimationValid" _R model‿modelAnimation                         # Check model animation skeleton match
 
 # Collision detection functions
-checkCollisionSpheres   ⇐ i8           "CheckCollisionSpheres"   _R v3‿f‿v3‿f               # center1 radius1 center2 radius2 # Check collision between two spheres
-checkCollisionBoxes     ⇐ i8           "CheckCollisionBoxes"     _R boundingBox‿boundingBox # box1 box2                       # Check collision between two bounding boxes
-checkCollisionBoxSphere ⇐ i8           "CheckCollisionBoxSphere" _R boundingBox‿v3‿f        # box center radius               # Check collision between box and sphere
+checkCollisionSpheres   ⇐ bool         "CheckCollisionSpheres"   _R v3‿f‿v3‿f               # center1 radius1 center2 radius2 # Check collision between two spheres
+checkCollisionBoxes     ⇐ bool         "CheckCollisionBoxes"     _R boundingBox‿boundingBox # box1 box2                       # Check collision between two bounding boxes
+checkCollisionBoxSphere ⇐ bool         "CheckCollisionBoxSphere" _R boundingBox‿v3‿f        # box center radius               # Check collision between box and sphere
 getRayCollisionSphere   ⇐ rayCollision "GetRayCollisionSphere"   _R ray‿v3‿f                # ray center radius               # Get collision info between ray and sphere
 getRayCollisionBox      ⇐ rayCollision "GetRayCollisionBox"      _R ray‿boundingBox         # ray box                         # Get collision info between ray and box
 getRayCollisionMesh     ⇐ rayCollision "GetRayCollisionMesh"     _R ray‿mesh‿matrix         # ray mesh transform              # Get collision info between ray and mesh
@@ -885,30 +885,30 @@ getRayCollisionQuad     ⇐ rayCollision "GetRayCollisionQuad"     _R ray‿v3�
 #------------------------------------------------------------------------------------
 
 # Audio device management functions
-initAudioDevice    ⇐    "InitAudioDevice"    _R@           # Initialize audio device and context
-closeAudioDevice   ⇐    "CloseAudioDevice"   _R@           # Close the audio device and context
-isAudioDeviceReady ⇐ i8 "IsAudioDeviceReady" _R@           # Check if audio device has been initialized successfully
-setMasterVolume    ⇐    "SetMasterVolume"    _R f # volume # Set master volume (listener)
+initAudioDevice    ⇐      "InitAudioDevice"    _R@           # Initialize audio device and context
+closeAudioDevice   ⇐      "CloseAudioDevice"   _R@           # Close the audio device and context
+isAudioDeviceReady ⇐ bool "IsAudioDeviceReady" _R@           # Check if audio device has been initialized successfully
+setMasterVolume    ⇐      "SetMasterVolume"    _R f # volume # Set master volume (listener)
 
 # Wave/Sound loading/unloading functions
 loadWave           ⇐ wave  "LoadWave"           _R str         # *fileName                    # Load wave data from file
 loadWaveFromMemory ⇐ wave  "LoadWaveFromMemory" _R str‿ustr‿i  # *fileType *fileData dataSize # Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
-isWaveReady        ⇐ i8    "IsWaveReady"        _R wave                                       # Checks if wave data is ready
+isWaveReady        ⇐ bool  "IsWaveReady"        _R wave                                       # Checks if wave data is ready
 loadSound          ⇐ sound "LoadSound"          _R str         # *fileName                    # Load sound from file
 loadSoundFromWave  ⇐ sound "LoadSoundFromWave"  _R wave                                       # Load sound from wave data
-isSoundReady       ⇐ i8    "IsSoundReady"       _R sound                                      # Checks if a sound is ready
+isSoundReady       ⇐ bool  "IsSoundReady"       _R sound                                      # Checks if a sound is ready
 updateSound        ⇐       "UpdateSound"        _R sound‿ptr‿i # sound *data sampleCount      # Update sound buffer with new data
 unloadWave         ⇐       "UnloadWave"         _R wave                                       # Unload wave data
 unloadSound        ⇐       "UnloadSound"        _R sound                                      # Unload sound
-exportWave         ⇐ i8    "ExportWave"         _R wave‿str    # wave fileName                # Export wave data to file, returns true on success
-exportWaveAsCode   ⇐ i8    "ExportWaveAsCode"   _R wave‿str    # wave fileName                # Export wave sample data to code (.h), returns true on success
+exportWave         ⇐ bool  "ExportWave"         _R wave‿str    # wave fileName                # Export wave data to file, returns true on success
+exportWaveAsCode   ⇐ bool  "ExportWaveAsCode"   _R wave‿str    # wave fileName                # Export wave sample data to code (.h), returns true on success
 
 # Wave/Sound management functions
 playSound         ⇐           "PlaySound"         _R sound                                                 # Play a sound
 stopSound         ⇐           "StopSound"         _R sound                                                 # Stop playing a sound
 pauseSound        ⇐           "PauseSound"        _R sound                                                 # Pause a sound
 resumeSound       ⇐           "ResumeSound"       _R sound                                                 # Resume a paused sound
-isSoundPlaying    ⇐ i8        "IsSoundPlaying"    _R sound                                                 # Check if a sound is currently playing
+isSoundPlaying    ⇐ bool      "IsSoundPlaying"    _R sound                                                 # Check if a sound is currently playing
 setSoundVolume    ⇐           "SetSoundVolume"    _R sound‿f        # sound volume                         # Set volume for a sound (1.0 is max level)
 setSoundPitch     ⇐           "SetSoundPitch"     _R sound‿f        # sound pitch                          # Set pitch for a sound (1.0 is base level)
 setSoundPan       ⇐           "SetSoundPan"       _R sound‿f        # sound pan                            # Set pan for a sound (0.5 is center)
@@ -921,10 +921,10 @@ unloadWaveSamples ⇐           "UnloadWaveSamples" _R P f            # *samples
 # Music management functions
 loadMusicStream           ⇐ music "LoadMusicStream"           _R str        # fileName                # Load music stream from file
 loadMusicStreamFromMemory ⇐ music "LoadMusicStreamFromMemory" _R str‿ustr‿i # fileType *data dataSize # Load music stream from data
-isMusicReady              ⇐ i8    "IsMusicReady"              _R music                                # Checks if a music stream is ready
+isMusicReady              ⇐ bool  "IsMusicReady"              _R music                                # Checks if a music stream is ready
 unloadMusicStream         ⇐       "UnloadMusicStream"         _R music                                # Unload music stream
 playMusicStream           ⇐       "PlayMusicStream"           _R music                                # Start music playing
-isMusicStreamPlaying      ⇐ i8    "IsMusicStreamPlaying"      _R music                                # Check if music is playing
+isMusicStreamPlaying      ⇐ bool  "IsMusicStreamPlaying"      _R music                                # Check if music is playing
 updateMusicStream         ⇐       "UpdateMusicStream"         _R music                                # Updates buffers for music streaming
 stopMusicStream           ⇐       "StopMusicStream"           _R music                                # Stop music playing
 pauseMusicStream          ⇐       "PauseMusicStream"          _R music                                # Pause music playing
@@ -938,14 +938,14 @@ getMusicTimePlayed        ⇐ f     "GetMusicTimePlayed"        _R music        
 
 # AudioStream management functions
 loadAudioStream                 ⇐ ptr "LoadAudioStream"                 _R u‿u‿u             # sampleRate sampleSize channels # Load audio stream (to stream raw audio pcm data)
-isAudioStreamReady              ⇐ i8  "IsAudioStreamReady"              _R audioStream       # stream                         # Checks if an audio stream is ready
+isAudioStreamReady              ⇐ bool"IsAudioStreamReady"              _R audioStream       # stream                         # Checks if an audio stream is ready
 unloadAudioStream               ⇐     "UnloadAudioStream"               _R audioStream       # stream                         # Unload audio stream and free memory
 updateAudioStream               ⇐     "UpdateAudioStream"               _R audioStream‿ptr‿i # stream *data frameCount        # Update audio stream buffers with data
-isAudioStreamProcessed          ⇐ i8  "IsAudioStreamProcessed"          _R audioStream       # stream                         # Check if any audio stream buffers requires refill
+isAudioStreamProcessed          ⇐ bool"IsAudioStreamProcessed"          _R audioStream       # stream                         # Check if any audio stream buffers requires refill
 playAudioStream                 ⇐     "PlayAudioStream"                 _R audioStream       # stream                         # Play audio stream
 pauseAudioStream                ⇐     "PauseAudioStream"                _R audioStream       # stream                         # Pause audio stream
 resumeAudioStream               ⇐     "ResumeAudioStream"               _R audioStream       # stream                         # Resume audio stream
-isAudioStreamPlaying            ⇐ i8  "IsAudioStreamPlaying"            _R audioStream       # stream                         # Check if audio stream is playing
+isAudioStreamPlaying            ⇐ bool"IsAudioStreamPlaying"            _R audioStream       # stream                         # Check if audio stream is playing
 stopAudioStream                 ⇐     "StopAudioStream"                 _R audioStream       # stream                         # Stop audio stream
 setAudioStreamVolume            ⇐     "SetAudioStreamVolume"            _R audioStream‿f     # stream volume                  # Set volume for audio stream (1.0 is max level)
 setAudioStreamPitch             ⇐     "SetAudioStreamPitch"             _R audioStream‿f     # stream pitch                   # Set pitch for audio stream (1.0 is base level)
