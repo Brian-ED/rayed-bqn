@@ -56,9 +56,9 @@ PerFrame ←{con𝕊⟨gameState,frame,snake,fruit,facing,speed,buffer,pal⟩:
       pal⌾(7⊑⊢)OnStart⍟pauseP 𝕩 # nums mean values to reset
     }
     PerGameFrame⍟(1=speed|frame) {𝕤
-      c.white⊸draw.Line∘⍉˘con.lines
-      pal.fruit draw.Rectangle ⍉+`(1+con.tileSize×1+fruit)≍2⥊con.tileSize-2
-      pal.snake⊸draw.Rectangle˘(con.tileSize-2)(⍉+≍⊢)˘1+con.tileSize×1+snake
+      c.white⊸draw.Line˘con.lines
+      pal.fruit draw.Rectangle +`(1+con.tileSize×1+fruit)≍2⥊con.tileSize-2
+      pal.snake⊸draw.Rectangle⟜⍉˘(con.tileSize-2)(⍉+≍⊢)˘1+con.tileSize×1+snake
       ⟨frame+1
        2⌈speed+-´key=k.down‿k.up        # speed
        key∾⍟(⊑∊⟜k.left‿k.right) buffer⟩ # Key buffer
