@@ -1,5 +1,5 @@
-⟨k⇐key⟩←⟨color, window, draw, rayffi, ⟨IsPressed⟩⇐key⟩←r←•Import "../../raylib.bqn"
-
+⟨color, window, draw, rayffi, k⇐key⟩←r←•Import "../../raylib.bqn"
+⟨IsPressed⟩←k
 _setup ← {𝕨𝔽_𝕣𝕩:
   meshes ← rayffi.LoadModelFromMesh¨ ⟨
     rayffi.GenMeshPlane 10‿10‿3‿3
@@ -7,10 +7,10 @@ _setup ← {𝕨𝔽_𝕣𝕩:
   ⟩
   font ← r.font.LoadBQN 50
   lights ← ⟨
-    ⟨¯2‿1‿¯2, color.yellow⟩
-    ⟨ 2‿1‿ 2, color.red   ⟩
-    ⟨¯2‿1‿ 2, color.green ⟩
-    ⟨ 2‿1‿¯2, color.blue  ⟩
+    ¯2‿1‿¯2⋈color.yellow
+     2‿1‿ 2⋈color.red
+    ¯2‿1‿ 2⋈color.green
+     2‿1‿¯2⋈color.blue
   ⟩
   lightToggle ← 4⥊1
           #  pos    target  up     FOV Yaxis  Camera projection type
