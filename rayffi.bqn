@@ -771,7 +771,6 @@ codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R code
 
 
 # Text strings management functions
-
 TextSubtext   ⇐ {index‿len𝕊text:len↑index↓text}                                 #     i‿i𝕊str       → str      # Get a piece of a text string
 ⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import "src/imports/bqn-libs/strings.bqn"           # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
 TextInsert    ⇐ {insert‿pos𝕊text:∾⟜insert⊸∾´pos(↑⋈↓)text}                       #   str‿i𝕊str       → str      # Insert text in a position
