@@ -113,7 +113,7 @@ shaderAttributeDataType ← { # Shader attribute data types
   vec3  ⇐ 2  # Shader attribute type: vec3 (3 float)
   vec4  ⇐ 3  # Shader attribute type: vec4 (4 float)
 }
-pixelFormat ← { # Pixel formats
+pixelFormat ← { # Pixel formats for images
   uncompressed_grayscale    ⇐ 1   # 8 bit per pixel (no alpha)   
   uncompressed_gray_alpha   ⇐ 2   # 8*2 bpp (2 channels)         
   uncompressed_r5g6b5       ⇐ 3   # 16 bpp                       
