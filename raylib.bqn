@@ -276,7 +276,7 @@ font ← {
   LoadRaylib ← rayffi.GetFontDefault∘@
 }
 clipboard ← {
-  ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
+  ⟨ToBytes⟩ ← •Import rayffi.bqnLibsPath∾"/strings.bqn"
   Get ⇐ rayffi.MakeUTF8 rayffi.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText@∾˜ToBytes⊣NeedsWindow
 }
