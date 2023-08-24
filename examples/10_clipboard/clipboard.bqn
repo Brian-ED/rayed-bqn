@@ -1,3 +1,4 @@
+# puts "⍉↕⍉⊐⍉○↕⍉⍉⥊⥊⥊" into your clipboard
 r←•Import "../../raylib.bqn"
 Get‿Set←r.clipboard
 string←"⍉↕⍉⊐⍉○↕⍉⍉⥊⥊⥊"
