@@ -59,7 +59,7 @@ CheckCollisionRay2dCircle ← {𝕊⟨
 
   Rotate ← (⋈⟜-´≍⌽)•math.Cos∾•math.Sin
   {𝕤
-    angleDelta ← turnSpeed×rf.GetFrameTime⊸×-´key.IsDown key.right‿key.left
+    angleDelta ← turnSpeed×rf.GetFrameTime∘⟨⟩⊸×-´key.IsDown key.right‿key.left
     direction rm.MP˜↩ Rotate angleDelta
     origin +↩ walkSpeed×-˝key.IsDown ["DS","AW"]
     touchedRec‿touchedCir ← {
