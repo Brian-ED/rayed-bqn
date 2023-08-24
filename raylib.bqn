@@ -2,6 +2,8 @@
 # One big goal of this lib is to eliminate as many bugs of raylib as possible,
 # for example, opening the window twice is impossible because it is not intended in raylib, and causes many bugs.
 
+# x and y as variables (also x1 y1, x2 y2 etc) are always positions
+
 # -------
 # Exports
 ⟨draw, image, texture, monitor, window, mouse
@@ -37,7 +39,11 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 image ← { # TODO support more formats somehow
   ⟨ _WithRayImg ⋄ ToArr
     FromFile ⋄ FromArrLoad ⋄ Unload
+    gen
   ⟩⇐
+  # gen has image generation functions such as GradientLinear and GradientSquare
+  gen ← •Import "src/imageGen.bqn"
+  
   ToArr ← {𝕊dataPtr‿width‿hight‿mipmaps‿format:
     !format≡pixelFormat.uncompressed_r8g8b8a8
     width‿hight‿4(⊣⥊×´⊸rayffi.Make)dataPtr
