@@ -1,3 +1,6 @@
+# Credit to coolpeanut (discord username) 
+# they are the original creator of this example
+
 ⟨c⇐color,window,d⇐draw,m⇐mouse⟩←r←•Import "../../raylib.bqn"
 
 frame ← 0
