@@ -2,6 +2,7 @@
 # ALSO after i finish translating everything, i will try making arbitrary matricies
 # aswell as switch from raylib's collumn model to leading axis model.
 # Also raylib only uses 4x4 matricies, i'm considering limiting this since it pads matricies a lot
+# Also considering making Quaternions be real‿i‿j‿k instead of i‿j‿k‿real
 
 ⟨MP⋄MatrixLookAt
  MatrixScale⋄MatrixRotate
@@ -65,10 +66,8 @@ GetCameraMatrix2D ← {𝕊camera: # camera2d
 #       Example: In memory order, row0 is [m0 m4 m8 m12] but in semantic math row0 is [m0 m1 m2 m3]
 #     - Functions are always self-contained, no function use another raymath function inside,
 #       required code is directly re-implemented inside
-#     - Functions input parameters are always received by value (2 unavoidable exceptions)
 #     - Functions use always a "result" variable for return
-#     - Functions are always defined inline
-#     - Angles are always in radians (DEG2RAD/RAD2DEG macros provided for convenience)
+#     - Angles are always in radians
 #
 ###############################################################################################
 
@@ -93,7 +92,7 @@ GetCameraMatrix2D ← {𝕊camera: # camera2d
 #MatrixTranspose    ← ⍉
 #MatrixIdentity     ← =⌜˜↕∘4
 #MatrixInvert       ← matrix.Inverse
-#MatrixToFloatV    ← ⥊
+#MatrixToFloatV     ← ⥊
 
 # extended
 #Vector2Length      ← Vector3Length     ← QuaternionLength ← VectorLength
@@ -101,13 +100,13 @@ GetCameraMatrix2D ← {𝕊camera: # camera2d
 #Vector2DotProduct  ← Vector3DotProduct ← VectorDotProduct 
 #Vector2Distance    ← Vector3Distance   ← VectorDistance
 #Vector2Lerp        ← Vector3Lerp       ← QuaternionLerp ← VectorLerp
-#Vector2Transform   ← Vector3Transform  ← VectorTransform
+#Vector2Transform   ← Vector3Transform  ← VectorTransform ← (1∾˜3⊸↑)⊸MP
+#QuaternionTransform ← MP
 #Vector2ClampValue  ← Vector3ClampValue ← VectorClampValue
-#Vector2Equals      ← Vector3Equals     ← VectorEquals
+#Vector2Equals      ← Vector3Equals     ← VectorEquals ← VectorEquals
 #Vector2Normalize   ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
 #Vector2Angle       ← Vector3Angle      ← VectorAngle
 #Vector2MoveTowards ← VectorMoveTowards
-quaternionIdentity ← ¯4↑1
 
 # MatrixAdd
 # 
@@ -125,11 +124,6 @@ quaternionIdentity ← ¯4↑1
 
 epsilon ← 1e¯6
 rad2deg ← ÷deg2rad ← π÷180
-
-
-#----------------------------------------------------------------------------------
-# Types and Structures Definition
-#----------------------------------------------------------------------------------
 
 ⟨Sin, Cos, Tan, Atan2⟩←•math
 
@@ -157,10 +151,8 @@ Wrap ← {𝕊value‿min‿max:
   (value - max⊸- × value⊸- ⌊∘÷ max⊸-) min
 }
 
-# Check whether two given floats are almost equal
-FloatEquals ← {𝕊x‿y:
-  (|x-y) ≤ epsilon×1⌈x⌈○|y
-}
+# Check whether two given vectors are almost equal
+FloatEquals ← ∧´∘⥊|∘-≤epsilon×1⌈⌈○|
 
 #----------------------------------------------------------------------------------
 # Module Functions Definition - Vector2 math
@@ -206,26 +198,12 @@ VectorMoveTowards ← {target‿maxDistance𝕊v:
 
 # Clamp the magnitude of the vector between two min and max values
 VectorClampValue ← {𝕊v‿min‿max:
-  length ← +´∘⥊⌾(×˜)v
-  {length≤0?v;
-    length < min?
-      v×min÷length;
-    length > max?
-      v×max÷length;
-    v
-  }
+  (÷×max⌊min⌈⊢)⟜(0⊸=⊸++´⌾(×˜))v
 }
-#•Show VectorClampValue ⟨2‿2‿2‿2,10,22⟩
-
-# Check whether two given vectors are almost equal
-VectorEquals ← ∧´|∘-≤epsilon×1⌈⌈○|
 
 #----------------------------------------------------------------------------------
 # Module Functions Definition - Vector3 math
 #----------------------------------------------------------------------------------
-
-# Calculate angle between two vectors
-Vector3Angle ← +´∘×Atan2·+´⌾(×˜){(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
 
 # Normalize provided vector
 VectorNormalize ← ÷⟜(0⊸=⊸++´⌾(×˜))
@@ -241,12 +219,6 @@ Vector3OrthoNormalize ← {v1𝕊v2:
   G ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
   
   v1 G○F˜ v1 F⊸G v2
-}
-
-# Transforms a Vector2 by a given Matrix
-VectorTransform ← {𝕊v‿matrix:
-  x‿y‿z ← 3↑v
-  +˝x‿y‿z‿1 × (↕≠v)⊸⊏˘matrix
 }
 
 # Transform a vector by quaternion rotation
@@ -420,9 +392,9 @@ MatrixRotateZYX ← {𝕊angle:
 # Get perspective projection matrix
 MatrixFrustum ← {𝕊left‿right‿bottom‿top‿near‿far:
   [
-    ⟨near×2 ⋄ 0      ⋄ right+left   ⋄ 0         ⟩÷right-left
-    ⟨0      ⋄ near×2 ⋄   top+bottom ⋄ 0         ⟩÷  top-bottom
-    ⟨0      ⋄ 0      ⋄   far+near   ⋄ far×near×2⟩÷ near-far
+    ⟨near×2 ⋄ 0      ⋄ right+left   ⋄ 0         ⟩÷0⊸=⊸+right-left
+    ⟨0      ⋄ near×2 ⋄   top+bottom ⋄ 0         ⟩÷0⊸=⊸+  top-bottom
+    ⟨0      ⋄ 0      ⋄   far+near   ⋄ far×near×2⟩÷0⊸=⊸+ near-far
     ⟨0      ⋄ 0      ⋄ ¯1           ⋄ 0         ⟩
   ]
 }
@@ -437,9 +409,9 @@ MatrixPerspective ← {𝕊fovy‿aspect‿near‿far:
 
   # MatrixFrustum(-right, right, -top, top, near, far);
   [
-    ⟨near×2 ⋄ 0      ⋄ right+left   ⋄ 0         ⟩÷right-left
-    ⟨0      ⋄ near×2 ⋄   top+bottom ⋄ 0         ⟩÷  top-bottom
-    ⟨0      ⋄ 0      ⋄   far+near   ⋄ far×near×2⟩÷ near-far
+    ⟨near×2 ⋄ 0      ⋄ right+left   ⋄ 0         ⟩0⊸=⊸+÷right-left
+    ⟨0      ⋄ near×2 ⋄   top+bottom ⋄ 0         ⟩0⊸=⊸+÷  top-bottom
+    ⟨0      ⋄ 0      ⋄   far+near   ⋄ far×near×2⟩0⊸=⊸+÷ near-far
     ⟨0      ⋄ 0      ⋄ ¯1           ⋄ 0         ⟩
   ]
 }
@@ -456,11 +428,11 @@ MatrixOrtho ← {𝕊left‿right‿bottom‿top‿near‿far:
 
 # Get camera look-at matrix (view matrix)
 MatrixLookAt ← {𝕊eye‿target‿up: # all are Vector3
-  D ← ÷⟜(0⊸=⊸++´⌾(×˜))
-  C ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
-  vz ← D eye-target
-  vx ← D up C vz
-  vy ← vz C vx
+  Norm ← ÷⟜(0⊸=⊸++´⌾(×˜))
+  Cross ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
+  vz ← Norm eye-target
+  vx ← Norm up Cross vz
+  vy ← vz Cross vx
   ⍉[
     vx∾+´-vx×eye
     vy∾+´-vy×eye
@@ -473,6 +445,8 @@ MatrixLookAt ← {𝕊eye‿target‿up: # all are Vector3
 #----------------------------------------------------------------------------------
 # Module Functions Definition - Quaternion math
 #----------------------------------------------------------------------------------
+
+quaternionIdentity ← ¯4↑1
 
 # Invert provided quaternion
 QuaternionInvert ← ¯1‿¯1‿¯1‿1×÷⟜(0⊸=⊸++´○(×˜))
@@ -534,22 +508,23 @@ QuaternionFromVector3ToVector ← {to𝕊from:
 # Get rotation quaternion for an angle and axis
 # NOTE: Angle must be provided in radians
 QuaternionFromAxisAngle ← {angle𝕊axis:
-  axisNormalized ← ÷⟜(0⊸=⊸++´⌾(×˜)) axis    
-  ÷⟜(0⊸=⊸++´⌾(×˜)) (Cos∾˜axisNormalized×Sin) angle÷2
+  Norm ← ÷⟜(0⊸=⊸++´⌾(×˜))
+  Norm (Cos∾˜axisNormalized Norm⊸×Sin) angle÷2
 }
 
 # Get the rotation angle and axis for a given quaternion
-QuaternionToAxisAngle ← {𝕊q: x‿y‿z‿w ← q
+QuaternionToAxisAngle ← {𝕊q:
   # QuaternionNormalize(q);
-    
-  ÷⟜(0⊸=⊸++´⌾(×˜))⍟(1<|w)𝕩
+  q÷⟜(0⊸=⊸++´⌾(×˜))⍟(1<|w)↩
 
-  resAngle ← 2×Cos w
+  x‿y‿z‿w ← q
+
+  angle ← 2×Cos⁼w
 
   # when the angle is zero just set an arbitrary normalized axis. (0‿0‿1)
-  resAxis ← (Sin Cos⁼w){𝕨÷˜3↑q}⍟(≠⟜0)0‿0‿1
-  
-  resAxis‿resAngle
+  axis ← (Sin Cos⁼w){𝕨÷˜3↑q}⍟(≠⟜0)0‿0‿1
+
+  axis‿angle
 }
 
 # Get the quaternion equivalent to Euler angles
@@ -564,7 +539,7 @@ QuaternionFromEuler ← {pitch‿yaw‿roll:
 QuaternionToEuler ← {𝕊x‿y‿z‿w:
   ⟨
     # Roll (x-axis rotation)
-    Atan2´⟨2×(w×x)+y×z ⋄ 1-2×+´×˜x‿y⟩
+    Atan2⟜¬´2×+´¨⟨y×w‿z ⋄ ×˜x‿y⟩
 
     # Pitch (y-axis rotation)
     Sin⁼¯1⌊1⌈2×-´×˝2‿2⥊𝕩
@@ -574,12 +549,5 @@ QuaternionToEuler ← {𝕊x‿y‿z‿w:
   ⟩
 }
 
-# Transform a quaternion given a transformation matrix
-QuaternionTransform ← {q𝕊mat: # →Quaternion
-  q⊸×˘mat
-}
-
 # Check whether two given quaternions are almost equal
 QuaternionEquals ← ∨´·∧˝(|-≍˘+)≤epsilon×1⌈⌈○|
-
-
