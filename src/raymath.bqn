@@ -93,6 +93,8 @@ GetCameraMatrix2D ← {𝕊camera: # camera2d
 #MatrixIdentity     ← =⌜˜↕∘4
 #MatrixInvert       ← matrix.Inverse
 #MatrixToFloatV     ← ⥊
+#Vector3Min ← ⌊
+#Vector3Max ← ⌈
 
 # extended
 #Vector2Length      ← Vector3Length     ← QuaternionLength ← VectorLength
@@ -259,9 +261,6 @@ VectorReflect ← {normal𝕊v:
   v - (+´v×normal)×2×normal
 }
 
-Vector3Min ← ⌊
-Vector3Max ← ⌈
-
 # Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
 # NOTE: Assumes P is on the plane of the triangle
 Vector3Barycenter ← {𝕊p‿a‿b‿c: # v3‿v3‿v3‿v3→v3
@@ -339,36 +338,24 @@ MatrixRotate ← {𝕊axis‿angle: # v3 f
 # Get xyz-rotation matrix
 # NOTE: Angle must be provided in radians
 MatrixRotateXYZ ← {𝕊angle:
-  ⟨
+  [
     cx‿cy‿cz
     sx‿sy‿sz
-  ⟩ ← (Cos≍Sin) -angle
+  ] ← (Cos≍Sin) -angle
   [
-    ⟨
-      cz×cy
-      (cz×sy×sx) - sz×cx
-      (cz×sy×cx) + sz×sx
-    ⟩
-    ⟨
-      sz×cy
-      (sx×sy×sz) + cz×cx
-      (cx×sy×sz) - cz×sx
-    ⟩
-    ⟨
-      -sy
-      cy×sx
-      cy×cx
-    ⟩
+    ⟨ cz×cy ⋄ (cz×sy×sx) - sz×cx ⋄ (cz×sy×cx) + sz×sx ⟩
+    ⟨ sz×cy ⋄ (sx×sy×sz) + cz×cx ⋄ (cx×sy×sz) - cz×sx ⟩
+    ⟨ -sy   ⋄ cy×sx              ⋄ cy×cx⟩
   ]⌾(⍉3‿3⊸↑)=⌜˜↕4
 }
 
 # Get zyx-rotation matrix
 # NOTE: Angle must be provided in radians
 MatrixRotateZYX ← {𝕊angle:
-  ⟨
+  [
     cx‿cy‿cz
     sx‿sy‿sz
-  ⟩ ← (Cos≍Sin) angle
+  ] ← (Cos≍Sin) angle
 
   [
     ⟨
@@ -509,15 +496,14 @@ QuaternionFromVector3ToVector ← {to𝕊from:
 # NOTE: Angle must be provided in radians
 QuaternionFromAxisAngle ← {angle𝕊axis:
   Norm ← ÷⟜(0⊸=⊸++´⌾(×˜))
-  Norm (Cos∾˜axisNormalized Norm⊸×Sin) angle÷2
+  Norm (Cos∾˜axis Norm⊸×Sin) angle÷2
 }
 
 # Get the rotation angle and axis for a given quaternion
-QuaternionToAxisAngle ← {𝕊q:
+QuaternionToAxisAngle ← {𝕊𝕩:
   # QuaternionNormalize(q);
-  q÷⟜(0⊸=⊸++´⌾(×˜))⍟(1<|w)↩
 
-  x‿y‿z‿w ← q
+  x‿y‿z‿w ← q ←÷⟜(0⊸=⊸++´⌾(×˜))𝕩 # removed ⍟{1<|¯1⊑𝕩}
 
   angle ← 2×Cos⁼w
 
