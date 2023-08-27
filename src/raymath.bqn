@@ -4,6 +4,9 @@
 # Also raylib only uses 4x4 matricies, i'm considering limiting this since it pads matricies a lot
 # Also considering making Quaternions be real‿i‿j‿k instead of i‿j‿k‿real
 
+# raylib and 3d graphics in general uses 4x4 matricies for rotation and position, but 3x3 are enough for just rotation.
+
+
 ⟨MP⋄MatrixLookAt
  MatrixScale⋄MatrixRotate
  GetCameraMatrix2D
@@ -11,6 +14,8 @@
 ⟩⇐
 
 ⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
+
+Approx ← (⌊0.5⊸+)⌾(100⊸×)
 
 # Get scaling matrix
 MatrixScale ← {𝕊x‿y‿z:
@@ -101,7 +106,7 @@ GetCameraMatrix2D ← {𝕊camera: # camera2d
 #Vector2LengthSqr   ← Vector3LengthSqr  ← VectorLengthSqr
 #Vector2DotProduct  ← Vector3DotProduct ← VectorDotProduct 
 #Vector2Distance    ← Vector3Distance   ← VectorDistance
-#Vector2Lerp        ← Vector3Lerp       ← QuaternionLerp ← VectorLerp
+#Vector2Lerp        ← Vector3Lerp       ← QuaternionLerp ← Lerp
 #Vector2Transform   ← Vector3Transform  ← VectorTransform ← (1∾˜3⊸↑)⊸MP
 #QuaternionTransform ← MP
 #Vector2ClampValue  ← Vector3ClampValue ← VectorClampValue
@@ -121,6 +126,21 @@ GetCameraMatrix2D ← {𝕊camera: # camera2d
 
 
 #----------------------------------------------------------------------------------
+# Notes
+#----------------------------------------------------------------------------------
+
+# Why 4x4 Matricies?
+#   https://stackoverflow.com/questions/29079685/how-does-4x4-matrix-work-in-3d-graphic
+#   Matrices define linear transformations between vector spaces.
+#   All linear transformations map the origin of the domain to the origin of the range.
+#   Therefore 3x3 matrices cannot perform translation on 3D vectors since the origin in one space cannot be mapped to anything but the origin on another using linear maps.
+#   To overcome this problem, we can fake the system into performing translations through the use of an extra dimension where all vectors will have a 1 in the last vector component. 
+#   These 4D vectors will never be at the origin (having 1 in the last component) and so are not required to always map to the origin.
+#   Through the use of this we can construct a 4x4 matrix to perform translation.
+
+
+
+#----------------------------------------------------------------------------------
 # Defines
 #----------------------------------------------------------------------------------
 
@@ -133,9 +153,9 @@ rad2deg ← ÷deg2rad ← π÷180
 # Module Functions Definition - Utils math
 #----------------------------------------------------------------------------------
 
-# Calculate linear interpolation between two floats
-Lerp ← {𝕊start‿end‿amount:
-  start + amount × end - start
+# Calculate linear interpolation between two floats or vectors
+Lerp ← {𝕊v1‿v2‿amount:
+  amount⊸×⌾(-⟜v1)v2
 }
 
 # Normalize input value within input range
@@ -178,11 +198,6 @@ VectorAngle ← +´∘×Atan2·+´⌾(×˜){(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
 # NOTE: Parameters need to be normalized
 # Current implementation should be aligned with glm::angle
 Vector2LineAngle ← Cos⁼1⌈¯1⌈+´∘× # start 𝕊 end
-
-# Calculate linear interpolation between two vectors
-VectorLerp ← {𝕊v1‿v2‿amount:
-  amount⊸×⌾(-⟜v1)v2
-}
 
 # Calculate reflected vector to normal
 Vector2Reflect ← {normal𝕊v: # vector vector
@@ -277,20 +292,13 @@ Vector3Unproject ← {
     projection # Matrix
     view       # Matrix
   ⟩:
-  # Calculate unprojected matrix (multiply view matrix by projection matrix) and invert it
-  matViewProj ← view MP projection
-
-  # Calculate inverted matrix -> MatrixInvert(matViewProj);  
-  matViewProjInv ← Inverse matViewProj
-
   # Create quaternion from source point
   quat ← source∾1
 
-  # Multiply quat point by unprojecte matrix
-  qtransformed ← +˝quat⊸×˘matViewProjInv
+  qtransformed ← quat MP Inverse view MP projection
 
   # Normalized world points in vectors
-  qtransformed÷3⊑qtransformed
+  qtransformed÷¯1⊑qtransformed
 }
 
 # Compute the direction of a refracted ray 
@@ -320,7 +328,6 @@ MatrixTranslate ← {𝕊x‿y‿z:
     0‿0‿0‿1
   ]
 }
-
 # Create rotation matrix from axis and angle
 # NOTE: Angle should be provided in radians
 MatrixRotate ← {𝕊axis‿angle: # v3 f
