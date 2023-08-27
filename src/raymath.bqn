@@ -300,8 +300,8 @@ Vector3Refract ← {𝕊⟨
     r # f : ratio of the refractive index of the medium from where the ray comes to the refractive index of the medium on the other side of the surface
   ⟩:
   dot ← +´v×n
-  d ← ¬(r⋆2)×¬dot⋆2
-  {r×v-n×(√d)+r×dot}⍟(d≥0)3⥊0
+  d ← ¬¬⊸∧´×˜dot‿r
+  {𝕊:(r×v)-n×(√d)+r×dot}⍟(d≥0)3⥊0
 }
 
 #----------------------------------------------------------------------------------
