@@ -7,10 +7,12 @@
 # raylib and 3d graphics in general uses 4x4 matricies for rotation and position, but 3x3 are enough for just rotation.
 
 
-⟨MP⋄MatrixLookAt
- MatrixScale⋄MatrixRotate
- GetCameraMatrix2D
- MatrixRotateX⋄MatrixRotateY⋄MatrixRotateZ
+⟨
+  MP⋄MatrixLookAt
+  MatrixScale⋄MatrixRotate
+  MatrixRotateX⋄MatrixRotateY⋄MatrixRotateZ
+  MatrixDeterminant
+  Inverse
 ⟩⇐
 
 ⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
@@ -31,32 +33,6 @@ MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
    0‿2 ⊢_RotMat ⊢
    0‿1 ⍉_RotMat ⊢⟩
 }
-
-### rcore.c functions
-
-# Get camera 2d transform matrix
-GetCameraMatrix2D ← {𝕊camera: # camera2d
-  # The camera in world-space is set by
-  #   1. Move it to target
-  #   2. Rotate by -rotation and scale by (1/zoom)
-  #      When setting higher scale, it's more intuitive for the world to become bigger (= camera become smaller),
-  #      not for the camera getting bigger, hence the invert. Same deal with rotation.
-  #   3. Move it by (-offset);
-  #      Offset defines target transform relative to screen, but since we're effectively "moving" screen (camera)
-  #      we need to do it into opposite direction (inverse transform)
-    
-  # Having camera transform in world-space, inverse of it gives the modelview transform.
-  # Since (A*B*C)' = C'*B'*A', the modelview is
-  #   1. Move to offset
-  #   2. Rotate and Scale
-  #   3. Move by -target
-  origin      ← MatrixTranslate-(1⊑camera)∾0
-  rotation    ← MatrixRotate 0‿0‿1⋈ π÷180×2⊑camera
-  scale       ← MatrixScale 1∾˜2⥊3⊑camera
-  translation ← MatrixTranslate 0∾˜⊑camera
-  matTransform ← origin‿scale‿rotation MP´⊸MP translation
-}
-
 
 ###############################################################################################
 #
@@ -413,10 +389,10 @@ MatrixPerspective ← {𝕊fovy‿aspect‿near‿far:
 # Get orthographic projection matrix
 MatrixOrtho ← {𝕊left‿right‿bottom‿top‿near‿far:
   [
-    ⟨ 2 ⋄ 0 ⋄  0 ⋄ - right+left   ⟩÷right-left
-    ⟨ 0 ⋄ 2 ⋄  0 ⋄ -   top+bottom ⟩÷  top-bottom
-    ⟨ 0 ⋄ 0 ⋄  2 ⋄     far+near   ⟩÷  near-far
-    ⟨ 0 ⋄ 0 ⋄  0 ⋄ 1              ⟩
+    ⟨ 2 ⋄ 0 ⋄  0 ⋄ left  +right ⟩÷left  -right
+    ⟨ 0 ⋄ 2 ⋄  0 ⋄ bottom+top   ⟩÷bottom-top
+    ⟨ 0 ⋄ 0 ⋄  2 ⋄ near  +far   ⟩÷near  -far
+    ⟨ 0 ⋄ 0 ⋄  0 ⋄ 1            ⟩
   ]
 }
 
@@ -510,7 +486,7 @@ QuaternionFromAxisAngle ← {angle𝕊axis:
 QuaternionToAxisAngle ← {𝕊𝕩:
   # QuaternionNormalize(q);
 
-  x‿y‿z‿w ← q ←÷⟜(0⊸=⊸++´⌾(×˜))𝕩 # removed ⍟{1<|¯1⊑𝕩}
+  x‿y‿z‿w ← q ← ÷⟜(0⊸=⊸++´⌾(×˜))𝕩 # removed ⍟{1<|¯1⊑𝕩}
 
   angle ← 2×Cos⁼w
 
