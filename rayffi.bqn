@@ -19,15 +19,8 @@
 #   genImageGradientLinear, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientLinear
 #   genImageGradientSquare, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientSquare
 
-# Default paths
-raylibPath⇐"raylib/lib/raylib.dll" 
-bqnLibsPath⇐"src/imports/bqn-libs"
-{
-  "raylibPath"  𝕊𝕩:•file.At raylibPath↩1↓𝕩;
-  "bqn-libsPath"𝕊𝕩:•file.At bqnLibsPath↩1↓𝕩
-}´¨+`∘=⟜':'⊸⊔¨•FLines "config.txt"
-
-math←•Import "src/raymath.bqn"
+raylibPath‿bqnLibsPath ← •Import "src/loadConfig.bqn"
+math ← •Import "src/raymath.bqn"
 
 #region Structs
 P⇐'*'⊸∾             # '*' means a pointer
