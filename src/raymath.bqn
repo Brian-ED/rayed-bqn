@@ -1,5 +1,4 @@
 # GOAL make raylib functions work on arbitrary vectors and matricies
-# ALSO after i finish translating everything, i will try making arbitrary matricies
 # aswell as switch from raylib's collumn model to leading axis model.
 # Also raylib only uses 4x4 matricies, i'm considering limiting this since it pads matricies a lot
 # Also considering making Quaternions be real‿i‿j‿k instead of i‿j‿k‿real
@@ -15,23 +14,9 @@
   Inverse
 ⟩⇐
 
-⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
-
-Approx ← (⌊0.5⊸+)⌾(100⊸×)
-
 # Get scaling matrix
 MatrixScale ← {𝕊x‿y‿z:
   𝕩⊸×⌾(3‿3⊸↑)=⌜˜↕4
-}
-
-# NOTE: Angle must be provided in radians
-MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
-  _RotMat ← {cut2x2OfMat On2x2Arr _𝕣 degrees:
-    (𝔽(⋈⟜-´≍⌽)(•math.Cos∾•math.Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕4
-  }
-  ⟨1‿2 ⍉_RotMat ⊢
-   0‿2 ⊢_RotMat ⊢
-   0‿1 ⍉_RotMat ⊢⟩
 }
 
 ###############################################################################################
@@ -125,6 +110,10 @@ rad2deg ← ÷deg2rad ← π÷180
 
 ⟨Sin, Cos, Tan, Atan2⟩←•math
 
+⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
+
+Approx ← (⌊0.5⊸+)⌾(100⊸×)
+
 #----------------------------------------------------------------------------------
 # Module Functions Definition - Utils math
 #----------------------------------------------------------------------------------
@@ -168,7 +157,7 @@ VectorDistance ← +´⌾(×˜)-
 
 # Calculate angle between two vectors
 # NOTE: Angle is calculated from origin point (0, 0)
-VectorAngle ← +´∘×Atan2·+´⌾(×˜){(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
+VectorAngle ← +´∘×Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽}
 
 # Calculate angle defined by a two vectors line
 # NOTE: Parameters need to be normalized
@@ -209,7 +198,7 @@ Vector3OrthoNormalize ← {v1𝕊v2:
   F ← ÷⟜(0⊸=⊸++´⌾(×˜))
 
   # Vector3CrossProduct´v1‿v2
-  G ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
+  G ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
   
   v1 G○F˜ v1 F⊸G v2
 }
@@ -242,7 +231,7 @@ Vector3RotateByAxisAngle ← {𝕊v‿axisV3‿angle:
   
   a ← Cos angle÷2
   w ← axisV3 ÷⟜(0⊸=⊸++´⌾(×˜))⊸× Sin angle÷2
-  F ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
+  F ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
   wv ← w F v
   v+2×(w⊸F+a⊸×) wv
 }
@@ -316,6 +305,16 @@ MatrixRotate ← {𝕊axis‿angle: # v3 f
   ]
   ∾[ m ⋄3⥊0
     3⥊0⋄1  ]
+}
+
+# NOTE: Angle must be provided in radians
+MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
+  _RotMat ← {cut2x2OfMat On2x2Arr _𝕣 degrees:
+    (𝔽(⋈⟜-´≍⌽)(•math.Cos∾•math.Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕4
+  }
+  ⟨1‿2 ⍉_RotMat ⊢
+   0‿2 ⊢_RotMat ⊢
+   0‿1 ⍉_RotMat ⊢⟩
 }
 
 # Get xyz-rotation matrix
@@ -399,7 +398,7 @@ MatrixOrtho ← {𝕊left‿right‿bottom‿top‿near‿far:
 # Get camera look-at matrix (view matrix)
 MatrixLookAt ← {𝕊eye‿target‿up: # all are Vector3
   Norm ← ÷⟜(0⊸=⊸++´⌾(×˜))
-  Cross ← {(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}
+  Cross ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
   vz ← Norm eye-target
   vx ← Norm up Cross vz
   vy ← vz Cross vx
@@ -467,7 +466,7 @@ QuaternionSlerp ← {𝕊q1‿q2‿amount:
 # Calculate quaternion based on the rotation from one vector to another
 QuaternionFromVector3ToVector ← {to𝕊from:
   cos2Theta ← +˝from×to
-  cross     ← from{(¯1⌽𝕨)×1⌽𝕩}{𝔽˜-𝔽}to
+  cross     ← from1⊸⌽⊸×{1⌽𝔽˜-𝔽}to
 
   # QuaternionNormalize(q);
   # NOTE: Normalize to essentially nlerp the original and identity to 0.5
