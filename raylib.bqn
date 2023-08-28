@@ -24,6 +24,7 @@
   nPatchLayout
 ⟩ ⇐ •Import "src/indexNamespaces.bqn"
 
+⟨bqnLibsPath⟩ ← •Import "src/loadConfig.bqn"
 rayFFI  ⇐ •Import "rayffi.bqn"
 color   ⇐ •Import "src/colors.bqn"
 raymath ⇐ •Import "src/raymath.bqn"
@@ -276,7 +277,7 @@ font ← {
   LoadRaylib ← rayffi.GetFontDefault∘@
 }
 clipboard ← {
-  ⟨ToBytes⟩ ← •Import rayffi.bqnLibsPath∾"/strings.bqn"
+  ⟨ToBytes⟩ ← •Import bqnLibsPath∾"/strings.bqn"
   Get ⇐ rayffi.MakeUTF8 rayffi.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText@∾˜ToBytes⊣NeedsWindow
 }
