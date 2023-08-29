@@ -262,7 +262,9 @@ _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
     •term.Flush@
     𝕨•FFI𝕩
   }
-  raylibPath •FFI⎊HandleError outType‿𝕗∾a
+  func ← raylibPath •FFI⎊HandleError outType‿funcName∾a
+  m ← str⊸≡¨a
+  {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
 }
 
 #------------------------------------------------------------------------------------
