@@ -16,7 +16,7 @@
 
 # Get scaling matrix
 MatrixScale ← {𝕊x‿y‿z:
-  𝕩⊸×⌾(3‿3⊸↑)=⌜˜↕4
+  𝕩×=⌜˜↕3
 }
 
 ###############################################################################################
@@ -50,40 +50,32 @@ MatrixScale ← {𝕊x‿y‿z:
 
 # Too simple:
 # Clamp ← Vector2Clamp ← max⌊min⌈x
-#Vector2Add         ← Vector2AddValue ← Vector3Add ← QuaternionAdd ← QuaternionAddValue ← +
-#Vector2Multiply    ← Vector2Scale ← QuaternionScale ← ×
-#Vector2Subtract    ← Vector2SubtractValue ← Vector2Negate ← Vector3Negate ← QuaternionSubtract ← QuaternionSubtractValue ← -
+#Vector2Add         ← Vector2AddValue ← Vector3Add ← Vector3AddValue ← MatrixAdd ← QuaternionAdd ← QuaternionAddValue ←  +
+#Vector2Multiply    ← Vector2Scale ← Vector3Multiply ← Vector3Scale ← QuaternionScale ← ×
+#Vector2Subtract    ← Vector2SubtractValue ← Vector2Negate ← Vector3Subtract ← Vector3SubtractValue ← Vector3Negate ← QuaternionSubtract ← QuaternionSubtractValue ← -
 #Vector2Divide      ← Vector2Invert ← Vector3Divide ← Vector3Invert ← QuaternionDivide ← ÷
 #Vector3DistanceSqr ← Vector2DistanceSqr ← ×˜VectorDistance
 #MatrixTranspose    ← ⍉
 #MatrixIdentity     ← =⌜˜↕∘4
 #MatrixInvert       ← matrix.Inverse
 #MatrixToFloatV     ← ⥊
-#Vector3Min ← ⌊
-#Vector3Max ← ⌈
+#Vector3Min         ← ⌊
+#Vector3Max         ← ⌈
 
 # extended
-#Vector2Length      ← Vector3Length     ← QuaternionLength ← VectorLength
-#Vector2LengthSqr   ← Vector3LengthSqr  ← VectorLengthSqr
-#Vector2DotProduct  ← Vector3DotProduct ← VectorDotProduct 
-#Vector2Distance    ← Vector3Distance   ← VectorDistance
-#Vector2Lerp        ← Vector3Lerp       ← QuaternionLerp ← Lerp
-#Vector2Transform   ← Vector3Transform  ← VectorTransform ← (1∾˜3⊸↑)⊸MP
+#Vector2Length       ← Vector3Length     ← QuaternionLength ← VectorLength
+#Vector2LengthSqr    ← Vector3LengthSqr  ← VectorLengthSqr
+#Vector2DotProduct   ← Vector3DotProduct ← VectorDotProduct 
+#Vector2Distance     ← Vector3Distance   ← VectorDistance
+#Vector2Lerp         ← Vector3Lerp       ← QuaternionLerp ← Lerp
+#Vector2Transform    ← Vector3Transform  ← VectorTransform ← (1∾˜3⊸↑)⊸MP
 #QuaternionTransform ← MP
-#Vector2ClampValue  ← Vector3ClampValue ← VectorClampValue
-#Vector2Equals      ← Vector3Equals     ← VectorEquals ← VectorEquals
-#Vector2Normalize   ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
-#Vector2Angle       ← Vector3Angle      ← VectorAngle
-#Vector2MoveTowards ← VectorMoveTowards
-
-# MatrixAdd
-# 
-# Vector3AddValue
-# Vector3Subtract
-# Vector3SubtractValue
-# Vector3Scale
-# Vector3Multiply
-# Vector3CrossProduct
+#Vector2ClampValue   ← Vector3ClampValue ← VectorClampValue
+#Vector2Equals       ← Vector3Equals     ← VectorEquals ← VectorEquals
+#Vector2Normalize    ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
+#Vector2Angle        ← Vector3Angle      ← VectorAngle
+#Vector2MoveTowards  ← VectorMoveTowards
+# Vector2CrossProduct ← Vector3CrossProduct ← VectorCrossProduct
 
 
 #----------------------------------------------------------------------------------
@@ -99,8 +91,6 @@ MatrixScale ← {𝕊x‿y‿z:
 #   These 4D vectors will never be at the origin (having 1 in the last component) and so are not required to always map to the origin.
 #   Through the use of this we can construct a 4x4 matrix to perform translation.
 
-
-
 #----------------------------------------------------------------------------------
 # Defines
 #----------------------------------------------------------------------------------
@@ -110,7 +100,9 @@ rad2deg ← ÷deg2rad ← π÷180
 
 ⟨Sin, Cos, Tan, Atan2⟩←•math
 
-⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
+raylibPath‿bqnLibsPath ← •Import "loadConfig.bqn"
+
+⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import bqnLibsPath •file.At "matrix.bqn"
 
 Approx ← (⌊0.5⊸+)⌾(100⊸×)
 
@@ -124,8 +116,9 @@ Lerp ← {𝕊v1‿v2‿amount:
 }
 
 # Normalize input value within input range
-Normalize ← {𝕊value‿start‿end:
-  ÷´value‿end-start
+Normalize ← {start‿end𝕊value:
+  (∧´⥊end≠start)!˜"Normalize: start can't equal end (start‿end←𝕨 ⋄ end≠start)"
+  value÷○(-⟜start)end
 }
 
 # Remap input value within input range to output range
@@ -133,16 +126,16 @@ Remap ← {𝕊value‿inputStart‿inputEnd‿outputStart‿outputEnd:
   {𝕩×÷´value‿inputEnd-inputStart}⌾(-⟜outputEnd) outputStart
 }
 
-# Wrap input value from min to max
 Wrap ← {𝕊value‿min‿max:
-  (value - max⊸- × value⊸- ⌊∘÷ max⊸-) min
+  "Wrap: Min can't equal max"!min≡max
+  max|⌾(-⟜min)value
 }
 
 # Check whether two given vectors are almost equal
 FloatEquals ← ∧´∘⥊|∘-≤epsilon×1⌈⌈○|
 
 #----------------------------------------------------------------------------------
-# Module Functions Definition - Vector2 math
+# Module Functions Definition - Vector math
 #----------------------------------------------------------------------------------
 
 # Calculate vector length
@@ -157,7 +150,10 @@ VectorDistance ← +´⌾(×˜)-
 
 # Calculate angle between two vectors
 # NOTE: Angle is calculated from origin point (0, 0)
-VectorAngle ← +´∘×Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽}
+VectorAngle ← Cos⁼+´∘×÷×○(+´⌾(×˜))
+
+# Faster VectorAngle for vector3
+Vector3Angle ← +´∘×Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽}
 
 # Calculate angle defined by a two vectors line
 # NOTE: Parameters need to be normalized
@@ -172,7 +168,6 @@ Vector2Reflect ← {normal𝕊v: # vector vector
 # Rotate vector by angle:  angle 𝕊 vector2
 Vector2Rotate ← (Cos∾Sin)⊸(-´∘×⋈·+´⌽⊸×)
 
-
 # Move Vector towards target
 VectorMoveTowards ← {target‿maxDistance𝕊v:
   target⌊v+maxDistance×÷⟜(0⊸=⊸++´⌾(×˜))target-v
@@ -183,9 +178,8 @@ VectorClampValue ← {𝕊v‿min‿max:
   (÷×max⌊min⌈⊢)⟜(0⊸=⊸++´⌾(×˜))v
 }
 
-#----------------------------------------------------------------------------------
-# Module Functions Definition - Vector3 math
-#----------------------------------------------------------------------------------
+# Calculate two vectors cross product
+Vector3CrossProduct ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
 
 # Normalize provided vector
 VectorNormalize ← ÷⟜(0⊸=⊸++´⌾(×˜))
@@ -207,19 +201,19 @@ Vector3OrthoNormalize ← {v1𝕊v2:
 Vector3RotateByQuaternion ← {q𝕊v: x‿y‿z‿w←q
   MP⟜v MP⟜q[
     [
-      [ x ⋄ -y ⋄ -z ⋄  w]
-      [ y ⋄  x ⋄ -w ⋄ -z]
-      [ z ⋄  w ⋄  x ⋄  y]
+      ⟨ x ⋄ -y ⋄ -z ⋄  w⟩
+      ⟨ y ⋄  x ⋄ -w ⋄ -z⟩
+      ⟨ z ⋄  w ⋄  x ⋄  y⟩
     ]
     [
-      [ y ⋄  x ⋄  w ⋄  z]
-      [-x ⋄  y ⋄ -z ⋄  w]
-      [-w ⋄  z ⋄  y ⋄ -x]
+      ⟨ y ⋄  x ⋄  w ⋄  z⟩
+      ⟨-x ⋄  y ⋄ -z ⋄  w⟩
+      ⟨-w ⋄  z ⋄  y ⋄ -x⟩
     ]
     [
-      [ z ⋄ -w ⋄  x ⋄ -y]
-      [ w ⋄  z ⋄  y ⋄  x]
-      [-x ⋄ -y ⋄  z ⋄  w]
+      ⟨ z ⋄ -w ⋄  x ⋄ -y⟩
+      ⟨ w ⋄  z ⋄  y ⋄  x⟩
+      ⟨-x ⋄ -y ⋄  z ⋄  w⟩
     ]
   ]
 }
@@ -257,13 +251,14 @@ Vector3Unproject ← {
     projection # Matrix
     view       # Matrix
   ⟩:
+  projection‿view⍉¨↩
   # Create quaternion from source point
   quat ← source∾1
 
   qtransformed ← quat MP Inverse view MP projection
 
   # Normalized world points in vectors
-  qtransformed÷¯1⊑qtransformed
+  ¯1(↓÷⊑)qtransformed
 }
 
 # Compute the direction of a refracted ray 
@@ -280,6 +275,14 @@ Vector3Refract ← {𝕊⟨
 #----------------------------------------------------------------------------------
 # Module Functions Definition - Matrix math
 #----------------------------------------------------------------------------------
+
+# Extend by identity matrix:
+MatrixExtend ← {len𝕊mat: # → ∧´(⊑=⊢)≢  # returns square matrix
+  1¨⌾(0‿0⍉((-len-≠𝕩)¨≢𝕩)⊸↑)𝕨¨∘≢⊸↑𝕩
+}
+
+# 𝔽 is applied after resizing the square matricies 𝕩 and 𝕨 by padding identity matrix, so that 𝕩 and 𝕨 have length 𝕘 (∧´g=≠¨𝕩‿𝕨)
+_ToDim_ ← {𝔽 _𝕣_ dim:𝔽○(𝕘⊸MatrixExtend)}
 
 # Get the trace of the matrix (sum of the values along the diagonal)
 MatrixTrace ← +´0‿0⍉⊢
@@ -298,19 +301,17 @@ MatrixTranslate ← {𝕊x‿y‿z:
 MatrixRotate ← {𝕊axis‿angle: # v3 f
   v ← ×⌜˜÷⟜(0⊸=⊸++´⌾(×˜)) axis
   x‿y‿z ← axis
-  m ← (v×¬Cos angle)+((=⌜˜↕3)⊏(Sin∾Cos)angle)×[
+  (v×¬Cos angle)+((=⌜˜↕3)⊏(Sin∾Cos)angle)×[
     ⟨ 1 ⋄-z ⋄ y⟩
     ⟨ z ⋄ 1 ⋄-x⟩
     ⟨-y ⋄ x ⋄ 1⟩
   ]
-  ∾[ m ⋄3⥊0
-    3⥊0⋄1  ]
 }
 
 # NOTE: Angle must be provided in radians
 MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
   _RotMat ← {cut2x2OfMat On2x2Arr _𝕣 degrees:
-    (𝔽(⋈⟜-´≍⌽)(•math.Cos∾•math.Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕4
+    (𝔽(⋈⟜-´≍⌽)(•math.Cos∾•math.Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕3
   }
   ⟨1‿2 ⍉_RotMat ⊢
    0‿2 ⊢_RotMat ⊢
@@ -320,43 +321,18 @@ MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
 # Get xyz-rotation matrix
 # NOTE: Angle must be provided in radians
 MatrixRotateXYZ ← {𝕊angle:
+  [cx‿cy‿cz
+   sx‿sy‿sz] ← (Cos≍Sin)-𝕩
   [
-    cx‿cy‿cz
-    sx‿sy‿sz
-  ] ← (Cos≍Sin) -angle
-  [
-    ⟨ cz×cy ⋄ (cz×sy×sx) - sz×cx ⋄ (cz×sy×cx) + sz×sx ⟩
-    ⟨ sz×cy ⋄ (sx×sy×sz) + cz×cx ⋄ (cx×sy×sz) - cz×sx ⟩
-    ⟨ -sy   ⋄ cy×sx              ⋄ cy×cx⟩
-  ]⌾(⍉3‿3⊸↑)=⌜˜↕4
+    ⟨ cy×cz ⋄ (sx×cz×sy) - sz×cx ⋄ (cx×sy×cz) + sz×sx ⟩
+    ⟨ cy×sz ⋄ (sx×sy×sz) + cz×cx ⋄ (cx×sy×sz) - cz×sx ⟩
+    ⟨   -sy ⋄  sx×cy             ⋄  cx×cy             ⟩
+  ]
 }
 
 # Get zyx-rotation matrix
 # NOTE: Angle must be provided in radians
-MatrixRotateZYX ← {𝕊angle:
-  [
-    cx‿cy‿cz
-    sx‿sy‿sz
-  ] ← (Cos≍Sin) angle
-
-  [
-    ⟨
-      cz×cy
-      (cz×sy×sx) - cx×sz
-      (sz×sx) + cz×cx×sy
-    ⟩
-    ⟨
-      cy×sz
-      (cz×cx) + sz×sy×sx
-      (cx×sz×sy) - cz×sx
-    ⟩
-    ⟨
-      -sy
-      cy×sx
-      cy×cx
-    ⟩
-  ]⌾(⍉3‿3⊸↑)=⌜˜↕4
-}
+MatrixRotateZYX ← MatrixRotateXYZ∘-
 
 # Get perspective projection matrix
 MatrixFrustum ← {𝕊left‿right‿bottom‿top‿near‿far:
@@ -421,17 +397,7 @@ quaternionIdentity ← ¯4↑1
 QuaternionInvert ← ¯1‿¯1‿¯1‿1×÷⟜(0⊸=⊸++´○(×˜))
 
 # Calculate two quaternion multiplication
-QuaternionMultiply ← {q2𝕊q1:
-  qax‿qay‿qaz‿qaw ← q1
-  qbx‿qby‿qbz‿qbw ← q2
-  ⟨
-    +´ ⟨ qaw×qbx ⋄ -qaz×qby ⋄  qay×qbz ⋄ qax×qbw⟩
-    +´ ⟨ qaz×qbx ⋄  qaw×qby ⋄ -qax×qbz ⋄ qay×qbw⟩
-    +´ ⟨-qay×qbx ⋄  qax×qby ⋄  qaw×qbz ⋄ qaz×qbw⟩
-    +´ ⟨-qax×qbx ⋄ -qay×qby ⋄ -qaz×qbz ⋄ qaw×qbw⟩
-  ⟩
-}
-QuaternionMultiply2 ← {q2𝕊q1: x‿y‿z‿w←𝕩
+QuaternionMultiply ← {q2𝕊q1: x‿y‿z‿w←𝕩
   𝕨 MP˜ [
     ⟨ w ⋄ -z ⋄  y ⋄ x⟩
     ⟨ z ⋄  w ⋄ -x ⋄ y⟩
@@ -459,14 +425,14 @@ QuaternionSlerp ← {𝕊q1‿q2‿amount:
     0.001 ≤ sinHalfTheta?
     +˝[q1⋄q2]×sinHalfTheta÷˜Sin halfTheta×¬⊸⋈amount
   ;
-    (+˝÷≠)[q1,q2]
+    (+˝÷≠)[q1⋄q2]
   }
 }
 
 # Calculate quaternion based on the rotation from one vector to another
 QuaternionFromVector3ToVector ← {to𝕊from:
   cos2Theta ← +˝from×to
-  cross     ← from1⊸⌽⊸×{1⌽𝔽˜-𝔽}to
+  cross     ← from 1⊸⌽⊸×{1⌽𝔽˜-𝔽}to
 
   # QuaternionNormalize(q);
   # NOTE: Normalize to essentially nlerp the original and identity to 0.5
