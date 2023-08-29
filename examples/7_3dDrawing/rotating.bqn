@@ -1,3 +1,5 @@
+# The MoveCamera function is what rotates the camera
+
 ⟨color, window, draw, rayffi, k⇐key⟩←r←•Import "../../raylib.bqn"
 ⟨IsPressed⟩←k
 _setup ← {𝕨𝔽_𝕣𝕩:
