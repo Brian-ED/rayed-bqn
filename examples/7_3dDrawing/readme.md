@@ -1,4 +1,3 @@
-# Shader example
 ## Move with arrow and page keys 
 Page up increases camera x by 1, left arrow decreases by 1.
 
