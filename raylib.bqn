@@ -37,6 +37,11 @@ isWindows ← ¬isLinux
 FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
+# -------
+# Defaults
+rayffi.SetConfigFlags 4 #SetConfigFlags is before InitWindow, SetWindowState is after
+# -------
+
 image ← { # TODO support more formats somehow
   ⟨ _WithRayImg ⋄ ToArr
     FromFile ⋄ FromArrLoad ⋄ Unload
@@ -132,7 +137,6 @@ window ← {
     rayFFI.SetWindowPosition⍟isWindows 0‿42 # 42 here is the window header on windows only
     rayFFI.SetWindowSize monitor.Size∘@⊸× scale
     fps.Set monitor.RefreshRate@
-    𝕩⊣rayFFI.SetWindowState 4
   }
   GetSize ←{𝕤
     NeedsWindow@
@@ -260,10 +264,10 @@ font ← {
     NeedsWindow@
     F←{
       𝕊size‿filePath:
-        ⟨@∾˜filePath, size, ≍@, 0⟩
+        ⟨filePath, size, ≍@, 0⟩
     ;                                           # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
       charactersAllowed 𝕊 size‿filePath:
-        ⟨@∾˜filePath, size, 𝕨-@, ≠𝕨⟩
+        ⟨filePath, size, 𝕨-@, ≠𝕨⟩
     }
     fontArgs←𝕨F𝕩
     IsFont rayFFI.LoadFontEx fontArgs
