@@ -14,7 +14,7 @@ _setup ← {𝕨𝔽_𝕣𝕩:
   ⟩
   lightToggle ← 4⥊1
           #  pos    target  up     FOV Yaxis  Camera projection type
-  camera ← ⟨ 1‿4‿6, 0‿0‿0,  0‿1‿0, 45,        0⟩
+  camera ← ⟨ 4‿4‿0, 0‿0‿0,  0‿1‿0, 45,        0⟩
   meshes‿lights‿font 𝔽 lightToggle‿camera
   rayffi.UnloadModel¨meshes
 }
