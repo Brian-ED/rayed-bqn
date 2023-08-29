@@ -20,26 +20,27 @@ _setup ← {𝕨𝔽_𝕣𝕩:
   meshes‿lights‿font 𝔽 lightToggle‿camera
   rayffi.UnloadModel¨meshes
 }
-rotMat ← r.raymath.MatrixRotateZ π÷80
-PerFrame ← {meshes‿lights‿font𝕊lightToggle‿camera:
-  MoveCamera ← {
-    n ← -´IsPressed⟨k.q, k.up, k.e⟩‿⟨k.left, k.down, k.right⟩
-    rotMat r.raymath.MP 𝕩+n
-  }⌾⊑
 
+rotMat ← r.raymath.MatrixRotateZ π÷80
+MoveCamera ← {
+  n ← -´IsPressed⟨k.q, k.up, k.e⟩‿⟨k.left, k.down, k.right⟩
+  rotMat r.raymath.MP 𝕩+n
+}⌾⊑
+
+PerFrame ← {meshes‿lights‿font𝕊lightToggle‿camera:
   out←⟨
     lightToggle≠IsPressed⟨k.y, k.r, k.g, k.b⟩
     MoveCamera camera
   ⟩
   {𝕤
-    rayffi.BeginMode3D camera
+    {𝕤
       (rayffi.DrawModel⟨0‿0‿0, 1, color.white⟩∾˜<)¨meshes
       rayffi.DrawGrid 10‿1
       lightToggle⊣◶⟨
         rayffi.DrawSphereWires ⌈∘×⟜1‿1‿1‿0.3⌾(¯1⊸⊑)∘⊢
         rayffi.DrawSphereEx⊢
       ⟩¨(¯1⌽0.2‿8‿8∾⌽)¨lights
-    rayffi.EndMode3D⟨⟩
+    } draw._in3D camera
     rayffi.DrawFPS 10‿10
     color.darkGray‿font‿20 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
     
