@@ -941,7 +941,7 @@ getMusicTimeLength        ⇐ f     "GetMusicTimeLength"        _R music        
 getMusicTimePlayed        ⇐ f     "GetMusicTimePlayed"        _R music                                # Get current music time played (in seconds)
 
 # AudioStream management functions
-loadAudioStream                 ⇐ ptr "LoadAudioStream"                 _R u‿u‿u             # sampleRate sampleSize channels # Load audio stream (to stream raw audio pcm data)
+loadAudioStream                 ⇐ audioStream "LoadAudioStream"                 _R u‿u‿u             # sampleRate sampleSize channels # Load audio stream (to stream raw audio pcm data)
 isAudioStreamReady              ⇐ bool"IsAudioStreamReady"              _R audioStream       # stream                         # Checks if an audio stream is ready
 unloadAudioStream               ⇐     "UnloadAudioStream"               _R audioStream       # stream                         # Unload audio stream and free memory
 updateAudioStream               ⇐     "UpdateAudioStream"               _R audioStream‿ptr‿i # stream *data frameCount        # Update audio stream buffers with data
