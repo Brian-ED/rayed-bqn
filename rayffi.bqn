@@ -255,7 +255,14 @@ filePathList ⇐ S ⟨
 # making FFI nicer to use
 _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
   a←(⋈'>'⊸∾)⍟(×∘≠∧1=≡)@⟨⟩⍟≡𝕩
-  raylibPath•FFI⎊{•Show 𝕩 ⋄ 𝕨•FFI𝕩} outType‿𝕗∾a
+  HandleError ← {
+    •Out "DEBUG TYPE INFO:"
+    •Out •Fmt 𝕩
+    •Out "END OF DEBUG TYPE INFO; BEGINING WITH FULL ERROR:"
+    •term.Flush@
+    𝕨•FFI𝕩
+  }
+  raylibPath •FFI⎊HandleError outType‿𝕗∾a
 }
 
 #------------------------------------------------------------------------------------
@@ -768,7 +775,7 @@ codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R code
 
 # Text strings management functions
 TextSubtext   ⇐ {index‿len𝕊text:len↑index↓text}                                 #     i‿i𝕊str       → str      # Get a piece of a text string
-⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import bqnLibsPath∾"/strings.bqn"           # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
+⟨TextReplace⇐ReplaceAll⟩ ⇐ •Import bqnLibsPath •file.At "strings.bqn"           # str‿str𝕊str       → str      # Replace each instance of a string in old with the corresponding string in new. Instances are non-overlapping, and earlier ones take precedence.
 TextInsert    ⇐ {insert‿pos𝕊text:∾⟜insert⊸∾´pos(↑⋈↓)text}                       #   str‿i𝕊str       → str      # Insert text in a position
 TextJoin      ⇐ {delimiter𝕊texts:(≠delimiter)↓∾(<delimiter)∾¨texts}             #     str𝕊⟨str...⟩  → str      # textList delimiter # Join text strings with delimiter
 TextSplit     ⇐ {𝕊text‿delimiter‿count:count↑delimiter((⊢-˜¬×·+`»⊸<)∘∊˜⊔⊢)text} #        𝕊str‿str‿i → ⟨str...⟩ # Split text into multiple strings
