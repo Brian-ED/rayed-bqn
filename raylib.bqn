@@ -61,15 +61,15 @@ image ← { # TODO support more formats somehow
   FromFile ← {𝕊strPath:
     NeedsWindow@
     !•file.Exists𝕩
-    (Unload⊢ToArr) rayFFI.LoadImage𝕩∾@
+    (Unload⊢ToArr) rayFFI.LoadImage𝕩
   }
   _WithRayImg ← {(Unload⊢𝔽)FromArrLoad}
 }
 texture ← {
   Load      ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
-    !•file.Exists𝕩
-    rayFFI.LoadTexture𝕩∾@
+    !•file.Exists 𝕩
+    rayFFI.LoadTexture 𝕩
   }
   Unload    ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
   _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
@@ -126,7 +126,7 @@ window ← {
     (¬isOpen)!˜"The window cannot be opened twice"
     (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢scale)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
-    rayFFI.InitWindow 0‿0∾<𝕩∾@
+    rayFFI.InitWindow 0‿0‿𝕩
     isOpen↩1
     rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
     rayFFI.SetWindowPosition⍟isWindows 0‿42 # 42 here is the window header on windows only
@@ -189,7 +189,7 @@ draw ← {
     NeedsWindow@          # pos  target up   FOV Camera projection type
     !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
     rayffi.BeginMode3D 𝕩
-    rayffi.EndMode3D∘@⊸⊢𝔽𝕩
+    rayffi.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
@@ -272,14 +272,14 @@ font ← {
   LoadBQN ← {𝕊fontSize:                                           # Sorce of font and chars: https://dzaima.github.io/BQN386/
     NeedsWindow@
     chars ← •FChars "src/chars.txt"
-    rayFFI.LoadFontEx⟨@∾˜FileAt"src/BQN386.ttf", 100⍟(@⊸≡)𝕩, chars-@, ≠chars⟩
+    rayFFI.LoadFontEx⟨FileAt"src/BQN386.ttf", 100⍟(@⊸≡)𝕩, chars-@, ≠chars⟩
   }
-  LoadRaylib ← rayffi.GetFontDefault∘@
+  LoadRaylib ← rayffi.GetFontDefault∘⟨⟩
 }
 clipboard ← {
   ⟨ToBytes⟩ ← •Import bqnLibsPath∾"/strings.bqn"
   Get ⇐ rayffi.MakeUTF8 rayffi.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
-  Set ⇐ rayffi.SetClipboardText@∾˜ToBytes⊣NeedsWindow
+  Set ⇐ rayffi.SetClipboardText ToBytes⊣NeedsWindow
 }
 utils ← {
   ⟨_FromCenter, _bitwise⟩⇐
