@@ -32,7 +32,7 @@ audioFrequency ← 440 # Audio frequency, for smoothing
 oldFrequency ← 1     # Previous value, used to test if sine needs to be rewritten, and to smoothly modulate frequency
 sineIdx ← 0          # Index for audio rendering
 
-libname ← "libcallback.so"
+libname ← "callback.so"
 setAudioInputCallback ← libname•FFI "*:i8"‿"SetAudioInputCallback"‿">a" # a here is func
 
 # Audio input processing callback

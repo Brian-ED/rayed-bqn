@@ -32,7 +32,7 @@ audioFrequency ← 440 # Audio frequency, for smoothing
 oldFrequency ← 1     # Previous value, used to test if sine needs to be rewritten, and to smoothly modulate frequency
 sineIdx ← 0          # Index for audio rendering
 
-libname ← "libcallback.so"
+libname ← "callbackOriginal.so"
 audioInputCallback ← {𝕏⟨⟩}libname•FFI"*:i8"‿"GetCallbackPtr"
 setFreq      ← libname•FFI ""‿"SetFreq"‿">f32"
 
