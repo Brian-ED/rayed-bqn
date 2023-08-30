@@ -1,40 +1,25 @@
+// Compilation:
+// 
+// gcc callback.c -c -I/home/brian/CBQNStuffs/CBQN/include/ -fPIC
+// gcc -shared -o libcallback.so callback.o
 
-#include "raylib.h"
-#include <math.h>           // Required for: sinf()
 
-// Cycles per second (hz)
-float frequency = 440.0f;
+#include <raylib.h>
+#include <bqnffi.h>
 
-// Audio frequency, for smoothing
-float audioFrequency = 440.0f;
-
-// Index for audio rendering
-float sineIdx = 0.0f;
+BQNV bqnFn;
 
 // Audio input processing callback
-void AudioInputCallback(void *buffer, unsigned int frames)
-{
-    audioFrequency = frequency + (audioFrequency - frequency)*0.95f;
-    audioFrequency += 1.0f;
-    audioFrequency -= 1.0f;
-    float incr = audioFrequency/44100.0f;
-    short *d = (short *)buffer;
-
-    for (unsigned int i = 0; i < frames; i++)
-    {
-        d[i] = (short)(32000.0f*sinf(2*PI*sineIdx));
-        sineIdx += incr;
-        if (sineIdx > 1.0f) sineIdx -= 1.0f;
-    }
+void AudioInputCallback(void *buffer, unsigned int frames) {
+    size_t len = frames;
+    BQNV arr = bqn_makeI16Vec(len, buffer);
+    BQNV bufferList = bqn_call1(bqnFn, arr);
+    bqn_free(arr);
+    bqn_readI16Arr(bufferList, buffer);
+    bqn_free(bufferList);
 }
 
-void *GetCallbackPtr()
-{
+void *SetAudioInputCallback(BQNV func) {
+    bqnFn = func;
     return AudioInputCallback;
-}
-
-
-void SetFreq(float x)
-{
-    frequency = x;    
 }

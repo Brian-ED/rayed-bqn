@@ -33,20 +33,8 @@ oldFrequency ← 1     # Previous value, used to test if sine needs to be rewrit
 sineIdx ← 0          # Index for audio rendering
 
 libname ← "libcallback.so"
-setAudioInputCallback ← libname•FFI "*:i8"‿"SetAudioInputCallback"‿">a" # a here is func
-
-# Audio input processing callback
-AudioInputCallback ← {𝕊buffer:
-    audioFrequency×⟜0.95⌾(-⟜frequency)↩
-    incr ← audioFrequency÷44100
-    ⌊{𝕤
-        n ← 32000×Sin 2×π×sineIdx
-        sineIdx +↩ incr
-        {sineIdx -↩ 1}⍟⊢sineIdx>1
-        n
-    }¨buffer
-}
-audioInputCallbackPtr ← SetAudioInputCallback audioInputCallback
+audioInputCallback ← {𝕏⟨⟩}libname•FFI"*:i8"‿"GetCallbackPtr"
+setFreq      ← libname•FFI ""‿"SetFreq"‿">f32"
 
 #------------------------------------------------------------------------------------
 # Program main entry point
@@ -65,7 +53,7 @@ audioInputCallbackPtr ← SetAudioInputCallback audioInputCallback
     # Init raw audio stream (sample rate: 44100, sample size: 16bit-short, channels: 1-mono)
     stream ← rf.LoadAudioStream 44100‿16‿1
 
-    rf.SetAudioStreamCallback stream‿audioInputCallbackPtr
+    rf.SetAudioStreamCallback stream‿audioInputCallback
 
     # Buffer for the single cycle waveform we are synthesizing
     data ← 0¨↕4×max_samples
@@ -76,14 +64,15 @@ audioInputCallbackPtr ← SetAudioInputCallback audioInputCallback
         # Update
         #----------------------------------------------------------------------------------
 
+        # Sample mouse input.
         mousePosition ← rl.mouse.GetPos@
-        width‿hight ← window.GetSize@
 
         {𝕤
             fp ← 1⊑mousePosition
             frequency ↩ 40 + fp
+            SetFreq frequency
 
-            pan ← mousePosition⊑⊸÷width
+            pan ← mousePosition÷○⊑window.GetSize@
             rf.SetAudioStreamPan stream‿pan
         }⍟⊢rf.IsMouseButtonDown rl.mouse.button.left
 
@@ -110,19 +99,16 @@ audioInputCallbackPtr ← SetAudioInputCallback audioInputCallback
         #----------------------------------------------------------------------------------
         {𝕤
             Text ⟨
-                10∾˜300-˜width
+                ⟨300-˜⊑window.GetSize@ ⋄ 10⟩
                 "sine frequency: "∾•Repr frequency
             ⟩
-            Text ⟨10⋄10⟩‿"click mouse button to change frequency or pan"
+            Text 10‿10⋈"click mouse button to change frequency or pan"
 
             # Draw the current buffer state proportionate to the screen
-            {
-                position ← ⟨
-                    𝕩
-                    250 + 50×32000÷˜data⊑˜⌊𝕩×max_samples÷width
-                ⟩
-                rf.DrawPixelV position‿color.red
-            }¨↕⌊width
+            positions ← {
+                𝕩⋈250+50×32000÷˜data⊑˜⌊𝕩×max_samples÷⊑window.GetSize@
+            }¨↕⊑window.GetSize@
+            {rf.DrawPixelV 𝕩‿color.red}¨positions
 
         }draw._withCanvas_ color.raywhite@
         #----------------------------------------------------------------------------------

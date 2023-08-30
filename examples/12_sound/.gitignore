@@ -1,2 +1,2 @@
-callback.o
-libcallback.so
+*.o
+*.so
