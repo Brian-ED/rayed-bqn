@@ -276,8 +276,8 @@ Vector3Refract ← {𝕊⟨
 # Module Functions Definition - Matrix math
 #----------------------------------------------------------------------------------
 
-# Extend by identity matrix:
-MatrixExtend ← {len𝕊mat: # → ∧´(⊑=⊢)≢  # returns square matrix
+# Extend square matrix by identity matrix:
+MatrixExtend ← {len𝕊mat: # returns square matrix
   1¨⌾(0‿0⍉((-len-≠𝕩)¨≢𝕩)⊸↑)𝕨¨∘≢⊸↑𝕩
 }
 
@@ -449,8 +449,8 @@ QuaternionFromAxisAngle ← {angle𝕊axis:
 
 # Get the rotation angle and axis for a given quaternion
 QuaternionToAxisAngle ← {𝕊𝕩:
-  # QuaternionNormalize(q);
 
+  # QuaternionNormalize(q);
   x‿y‿z‿w ← q ← ÷⟜(0⊸=⊸++´⌾(×˜))𝕩 # removed ⍟{1<|¯1⊑𝕩}
 
   angle ← 2×Cos⁼w
@@ -479,7 +479,7 @@ QuaternionToEuler ← {𝕊x‿y‿z‿w:
     Sin⁼¯1⌊1⌈2×-´×˝2‿2⥊𝕩
 
     # Yaw (z-axis rotation)
-    Atan2´⟨2×+´×´¨2(↑⋈↓)𝕩 ⋄ 1-2×+´×˜y‿z⟩
+    Atan2´⟨2×+´×´¨2(↑⋈↓)𝕩 ⋄ ¬2×+´×˜y‿z⟩
   ⟩
 }
 
