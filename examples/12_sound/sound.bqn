@@ -8,12 +8,10 @@
 
 ⟨Sin⟩ ← •math
 
-max_samples            ← 512
 max_samples_per_update ← 4096
 
 frequency ← 440      # Cycles per second (hz)
 audioFrequency ← 440 # Audio frequency, for smoothing
-oldFrequency ← 1     # Previous value, used to test if sine needs to be rewritten, and to smoothly modulate frequency
 sineIdx ← 0          # Index for audio rendering
 
 libname ← "callback.so"
@@ -28,73 +26,41 @@ setFreq      ← libname•FFI ""‿"SetFreq"‿">f32"
     
     rf.InitAudioDevice ⟨⟩
     font ← rl.font.LoadBQN@
-    Text ← color.black‿font‿20⊸rl.draw.Text
-
     rf.SetAudioStreamBufferSizeDefault max_samples_per_update
 
-    
     # Init raw audio stream (sample rate: 44100, sample size: 16bit-short, channels: 1-mono)
     stream ← rf.LoadAudioStream 44100‿16‿1
 
     rf.SetAudioStreamCallback stream⋈{𝕏⟨⟩}libname•FFI"*:i8"‿"GetCallbackPtr"
 
-    # Buffer for the single cycle waveform we are synthesizing
-    data ← 0¨↕4×max_samples
-
     rf.PlayAudioStream stream        # Start processing stream buffer (no data loaded currently)
 
+    # Update
     {𝕤
-        # Update
-        #----------------------------------------------------------------------------------
-
-        # Sample mouse input.
+        # Events
         mouseX‿mouseY ← rl.mouse.GetPos@
         width‿hight ← window.GetSize@
-
+        leftPressed ← rf.IsMouseButtonDown rl.mouse.button.left
         {𝕤
-            frequency ↩ 40 + mouseY
+            frequency ↩ 0⌈mouseY
             SetFreq frequency
 
-            pan ← mouseX÷width
+            pan ← ¬0⌈1⌊ mouseX÷width   # Ratio between left and right speaker (assumes you have directional speakers)
             rf.SetAudioStreamPan stream‿pan
-        }⍟⊢rf.IsMouseButtonDown rl.mouse.button.left
 
-        # Rewrite the sine wave
-        # Compute two cycles to allow the buffer padding, simplifying any modulation, resampling, etc.
-        {𝕤
-            # Compute wavelength. Limit size in both directions.
-            #int oldWavelength = waveLength;
-            waveLength ← 22050⌊∘÷frequency
+        }⍟⊢leftPressed
 
-            wavelength (1⌈⌊)↩ max_samples÷2
+        # current buffer state proportionate to the screen
+        wave ← •math.Sin width↕⊸×frequency÷width×10
+        positions ← ⍉width↕⊸≍250+50×wave
 
-            # Write sine wave
-            {𝕊i:
-                data {𝕩⌾(i⊸⊑)𝕨} ↩ 32000×•math.Sin 2×π×i÷waveLength
-            }¨↕⌊waveLength×2
-            
-            # Scale read cursor's position to minimize transition artifacts
-            #readCursor = (int)(readCursor * ((float)waveLength / (float)oldWavelength));
-            oldFrequency ↩ frequency
-        }⍟⊢frequency ≠ oldFrequency
-        #----------------------------------------------------------------------------------
-        # Draw
-        #----------------------------------------------------------------------------------
-        {𝕤
-            Text ⟨
-                ⟨300-˜⊑window.GetSize@ ⋄ 10⟩
-                "sine frequency: "∾•Repr frequency
+        {𝕤 # Draw
+            color.black‿font‿20⊸rl.draw.Text¨⟨
+                ⟨width-300 ⋄ 10⟩⋈"sine frequency: "∾•Repr frequency
+                10‿10           ⋈"click mouse button to change frequency or pan"
             ⟩
-            Text 10‿10⋈"click mouse button to change frequency or pan"
-
-            # Draw the current buffer state proportionate to the screen
-            positions ← {
-                𝕩⋈250+50×32000÷˜data⊑˜⌊𝕩×max_samples÷width
-            }¨↕width
-            {rf.DrawPixelV 𝕩‿color.red}¨positions
-
+            rf.DrawPixelV∘⋈⟜color.red˘positions
         }draw._withCanvas_ color.raywhite@
-        #----------------------------------------------------------------------------------
     }•_while_(¬window.ShouldClose)@
 
     # De-Initialization
