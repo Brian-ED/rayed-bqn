@@ -86,8 +86,14 @@ texture ← {
 mouse ← {
   GetPos     ⇐ rayFFI.GetMousePosition ⟨⟩⊣NeedsWindow
   WheelMoved ⇐ rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
+  IsButtonDown ⇐ {
+    NeedsWindow@
+    "Mouse button "∾𝕩•Repr⊸∾" doesn't exist. (𝕩∊↕7)"!⊑𝕩∊↕buttons
+    rayFFI.IsMouseButtonDown 𝕩
+  }
+  buttons ← 7
   button ⇐ {
-    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕7
+    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
   }
   cursor ⇐ { # Mouse cursor
     default       ⇐ 0   # Default pointer shape                                        
