@@ -4,6 +4,7 @@
  window
  rf⇐rayffi
  rm⇐raymath
+ mouse
 ⟩←rl←•Import "../../raylib.bqn"
 
 ⟨Sin⟩ ← •math
@@ -38,9 +39,11 @@ setFreq      ← libname•FFI ""‿"SetFreq"‿">f32"
     # Update
     {𝕤
         # Events
-        mouseX‿mouseY ← rl.mouse.GetPos@
+        mouseX‿mouseY ← mouse.GetPos@
         width‿hight ← window.GetSize@
-        leftPressed ← rf.IsMouseButtonDown rl.mouse.button.left
+        leftPressed ← mouse.IsButtonDown mouse.button.left
+        
+        # Calculations
         {𝕤
             frequency ↩ 0⌈mouseY
             SetFreq frequency
@@ -50,17 +53,16 @@ setFreq      ← libname•FFI ""‿"SetFreq"‿">f32"
 
         }⍟⊢leftPressed
 
-        # current buffer state proportionate to the screen
-        wave ← •math.Sin width↕⊸×frequency÷width×10
-        positions ← ⍉width↕⊸≍250+50×wave
+        positions ← ⍉⌽{250+50×•math.Sin𝕩×frequency÷width×10}⊸≍↕width
 
-        {𝕤 # Draw
+        Drawing ← {𝕤 
             color.black‿font‿20⊸rl.draw.Text¨⟨
                 ⟨width-300 ⋄ 10⟩⋈"sine frequency: "∾•Repr frequency
                 10‿10           ⋈"click mouse button to change frequency or pan"
             ⟩
             rf.DrawPixelV∘⋈⟜color.red˘positions
-        }draw._withCanvas_ color.raywhite@
+        }
+        Drawing draw._withCanvas_ color.raywhite@
     }•_while_(¬window.ShouldClose)@
 
     # De-Initialization
