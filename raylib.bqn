@@ -187,11 +187,11 @@ draw ← {
     Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
   }
-  Text ← {𝕨𝕊⟨posX‿posY, text⟩:
+  Text ← {𝕨𝕊⟨posX‿posY⋄text⟩:
     NeedsWindow@
     t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
-    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i', "ii"⋈'c'¨text⟩   # TODO: why is there an each in the type here? at ...⥊¨'i'
-    rayFFI.DrawTextCodepoints ⟨font, text-@, ≠text, posX‿posY, fontSize, spacing, r‿g‿b‿a⟩
+    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩   # TODO: why is there an each in the type here? at ...⥊¨'i'
+    rayFFI.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄posX‿posY⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
   }
   Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
@@ -199,10 +199,10 @@ draw ← {
       𝕊r‿g‿b‿a:1⋈˜𝕩;
       𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
     }𝕨
-    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i', 2‿2⥊'i'⟩
+    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
     rayFFI.DrawLineEx(<˘𝕩)∾⌽t
   }
-  Texture ← {⟨r‿g‿b‿a,texture,scale,rotation⟩ 𝕊 x‿y:
+  Texture ← {⟨r‿g‿b‿a⋄texture⋄scale⋄rotation⟩ 𝕊 x‿y:
     NeedsWindow@
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
     rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
@@ -213,13 +213,13 @@ draw ← {
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
     rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝∧˘⌾⍉𝕩
   }
-  Ellipse ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
+  Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
     (∧´𝕨∊↕256)!˜"𝕗 (color) only accepts ints in the range 0-255 inclusive"
     rayffi.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
   }
-  EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
+  EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
   }
@@ -243,10 +243,10 @@ font ← {
     NeedsWindow@
     F←{
       𝕊size‿filePath:
-        ⟨filePath, size, ≍@, 0⟩
+        ⟨filePath⋄size⋄≍@⋄0⟩
     ;                                           # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
       charactersAllowed 𝕊 size‿filePath:
-        ⟨filePath, size, 𝕨-@, ≠𝕨⟩
+        ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
     }
     fontArgs←𝕨F𝕩
     IsFont rayFFI.LoadFontEx fontArgs
@@ -255,7 +255,7 @@ font ← {
   LoadBQN ← {𝕊fontSize:                                           # Sorce of font and chars: https://dzaima.github.io/BQN386/
     NeedsWindow@
     chars ← •FChars "src/chars.txt"
-    rayFFI.LoadFontEx⟨FileAt"src/BQN386.ttf", 100⍟(@⊸≡)𝕩, chars-@, ≠chars⟩
+    rayFFI.LoadFontEx⟨FileAt"src/BQN386.ttf"⋄100⍟(@⊸≡)𝕩⋄chars-@⋄≠chars⟩
   }
   LoadRaylib ← rayffi.GetFontDefault∘⟨⟩
 }
@@ -265,9 +265,9 @@ clipboard ← {
   Set ⇐ rayffi.SetClipboardText ToBytes⊣NeedsWindow
 }
 utils ← {
-  ⟨_FromCenter, _bitwise⟩⇐
-  _FromCenter ← {c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩}                             # example of 𝕩: [x1‿x2‿x3, y1‿y2‿y3, z1‿z2‿z3]
-  _bitwise ← {2⊸×⊸+˜´𝕨(0⊘1⊣◶⟨𝔽∘⊑⊢,𝔽´⊢⟩⌈○≠↑¨⋈)○(2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢))𝕩}
+  ⟨_FromCenter⋄_bitwise⟩⇐
+  _FromCenter ← {c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩}                             # example of 𝕩: [x1‿x2‿x3⋄y1‿y2‿y3⋄z1‿z2‿z3]
+  _bitwise ← {2⊸×⊸+˜´𝕨(0⊘1⊣◶⟨𝔽∘⊑⊢⋄𝔽´⊢⟩⌈○≠↑¨⋈)○(2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢))𝕩}
 }
 mouse ← {
   GetPos     ⇐ rayFFI.GetMousePosition ⟨⟩⊣NeedsWindow
