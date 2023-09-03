@@ -34,13 +34,12 @@ raymath ⇐ •Import "src/raymath.bqn"
 isLinux   ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
 isWindows ← ¬isLinux
 
+# Utils:
 FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
-# -------
 # Defaults
 rayffi.SetConfigFlags 4 #SetConfigFlags is before InitWindow, SetWindowState is after
-# -------
 
 image ← { # TODO support more formats somehow
   ⟨ _WithRayImg ⋄ ToArr
