@@ -942,20 +942,20 @@ getMusicTimePlayed        ⇐ f     "GetMusicTimePlayed"        _R music        
 
 # AudioStream management functions
 loadAudioStream                 ⇐ audioStream "LoadAudioStream"                 _R u‿u‿u             # sampleRate sampleSize channels # Load audio stream (to stream raw audio pcm data)
-isAudioStreamReady              ⇐ bool"IsAudioStreamReady"              _R audioStream       # stream                         # Checks if an audio stream is ready
-unloadAudioStream               ⇐     "UnloadAudioStream"               _R audioStream       # stream                         # Unload audio stream and free memory
-updateAudioStream               ⇐     "UpdateAudioStream"               _R audioStream‿ptr‿i # stream *data frameCount        # Update audio stream buffers with data
-isAudioStreamProcessed          ⇐ bool"IsAudioStreamProcessed"          _R audioStream       # stream                         # Check if any audio stream buffers requires refill
-playAudioStream                 ⇐     "PlayAudioStream"                 _R audioStream       # stream                         # Play audio stream
-pauseAudioStream                ⇐     "PauseAudioStream"                _R audioStream       # stream                         # Pause audio stream
-resumeAudioStream               ⇐     "ResumeAudioStream"               _R audioStream       # stream                         # Resume audio stream
-isAudioStreamPlaying            ⇐ bool"IsAudioStreamPlaying"            _R audioStream       # stream                         # Check if audio stream is playing
-stopAudioStream                 ⇐     "StopAudioStream"                 _R audioStream       # stream                         # Stop audio stream
-setAudioStreamVolume            ⇐     "SetAudioStreamVolume"            _R audioStream‿f     # stream volume                  # Set volume for audio stream (1.0 is max level)
-setAudioStreamPitch             ⇐     "SetAudioStreamPitch"             _R audioStream‿f     # stream pitch                   # Set pitch for audio stream (1.0 is base level)
-setAudioStreamPan               ⇐     "SetAudioStreamPan"               _R audioStream‿f     # stream pan                     # Set pan for audio stream (0.5 is centered)
-setAudioStreamBufferSizeDefault ⇐     "SetAudioStreamBufferSizeDefault" _R i                 # size                           # Default size for new audio streams
-setAudioStreamCallback          ⇐     "SetAudioStreamCallback"          _R audioStream‿ptr   # stream callback                # Audio thread callback to request new data
+isAudioStreamReady              ⇐ bool        "IsAudioStreamReady"              _R audioStream       # stream                         # Checks if an audio stream is ready
+unloadAudioStream               ⇐             "UnloadAudioStream"               _R audioStream       # stream                         # Unload audio stream and free memory
+updateAudioStream               ⇐             "UpdateAudioStream"               _R audioStream‿ptr‿i # stream *data frameCount        # Update audio stream buffers with data
+isAudioStreamProcessed          ⇐ bool        "IsAudioStreamProcessed"          _R audioStream       # stream                         # Check if any audio stream buffers requires refill
+playAudioStream                 ⇐             "PlayAudioStream"                 _R audioStream       # stream                         # Play audio stream
+pauseAudioStream                ⇐             "PauseAudioStream"                _R audioStream       # stream                         # Pause audio stream
+resumeAudioStream               ⇐             "ResumeAudioStream"               _R audioStream       # stream                         # Resume audio stream
+isAudioStreamPlaying            ⇐ bool        "IsAudioStreamPlaying"            _R audioStream       # stream                         # Check if audio stream is playing
+stopAudioStream                 ⇐             "StopAudioStream"                 _R audioStream       # stream                         # Stop audio stream
+setAudioStreamVolume            ⇐             "SetAudioStreamVolume"            _R audioStream‿f     # stream volume                  # Set volume for audio stream (1.0 is max level)
+setAudioStreamPitch             ⇐             "SetAudioStreamPitch"             _R audioStream‿f     # stream pitch                   # Set pitch for audio stream (1.0 is base level)
+setAudioStreamPan               ⇐             "SetAudioStreamPan"               _R audioStream‿f     # stream pan                     # Set pan for audio stream (0.5 is centered)
+setAudioStreamBufferSizeDefault ⇐             "SetAudioStreamBufferSizeDefault" _R i                 # size                           # Default size for new audio streams
+setAudioStreamCallback          ⇐             "SetAudioStreamCallback"          _R audioStream‿ptr   # stream callback                # Audio thread callback to request new data
 
 attachAudioStreamProcessor ⇐ "AttachAudioStreamProcessor" _R audioStream‿ptr # stream (audioCallback processor) # Attach audio stream processor to stream
 detachAudioStreamProcessor ⇐ "DetachAudioStreamProcessor" _R audioStream‿ptr # stream (audioCallback processor) # Detach audio stream processor from stream
