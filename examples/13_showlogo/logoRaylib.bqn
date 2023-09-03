@@ -1,4 +1,4 @@
-# IN PROGRESS press space to activate animation
+# IN PROGRESS press a and d to move forward and backward through animation
 ⟨color
  draw
  key
@@ -32,6 +32,8 @@ OutlinePoints ← {outlineWidth𝕊squareSize:
   ⌽𝕨⊸+˘⊸≍corners
 }
 
+NextFrame ← key.IsDown∘key.d-key.IsDown∘key.a
+
 LogoAnimation ← {𝕤
   font ← rl.font.LoadRaylib 100
   isClosed ← 0
@@ -43,7 +45,7 @@ LogoAnimation ← {𝕤
     isClosed ↩ window.ShouldClose@
     logoposition ← ⌊logoSize-○(÷⟜2)˜window.GetSize@
     color.black draw.Rectangle⍟(⌊2|𝕩÷12) logoposition+⎉1⊏˘points
-    𝕩+⍟(key.IsDown key.space)˜1
+    𝕩+⍟NextFrame˜1
   } draw._withCanvas_ color.red •_while_{¬isClosed∨84≤𝕩}0  
 
   {𝕊excrution: # Top and left bars growing
@@ -51,7 +53,7 @@ LogoAnimation ← {𝕤
     logoposition ← logoSize-○(÷⟜2)˜window.GetSize@
     color.black draw.Rectangle logoposition+⎉1⊏˘points
     color.black⊸draw.Rectangle˘ logoposition +⎉1 {(⊏𝕩) ≍⎉1˜ ⌊64÷˜ excrution×1‿2⊏𝕨}˝points
-    1+⍟(key.IsDown key.space)𝕩
+    1+⍟NextFrame𝕩
   } draw._withCanvas_ color.red •_while_{¬isClosed∨60≤𝕩}4
 
   {𝕊excrution: # Bottom and right bars growing
@@ -61,7 +63,7 @@ LogoAnimation ← {𝕤
     color.black draw.Rectangle+`logoposition ≍ logoSize‿outlineWidth
     color.black draw.Rectangle+`logoposition ≍ outlineWidth‿logoSize
     (color.black draw.Rectangle logoposition⊸+˘)¨⌽˘⊸⋈+`(0∾˜logoSize-outlineWidth) ≍ outlineWidth×1‿𝕩
-    𝕩+⍟(key.IsDown key.space)˜÷4
+    𝕩+⍟NextFrame˜÷4
   } draw._withCanvas_ color.red •_while_{¬isClosed∨15.75≤𝕩}1
 
   {𝕊frame‿alpha:
@@ -86,7 +88,7 @@ LogoAnimation ← {𝕤
     ⟩
     color.raywhite‿alpha Fade⊸draw.Rectangle logoposition⊸+˘outlineWidth≍logoSize-outlineWidth
     black‿font‿50 draw.Text ⟨84‿176+logoposition, lettersCount↑"raylib"⟩
-    ⟨1+⍟(key.IsDown key.space)frame, -⟜0.02⍟(lettersCount≥10)⍟(key.IsDown key.space)alpha⟩
+    ⟨1+⍟NextFrame frame, -⟜0.02⍟(lettersCount≥10)⍟NextFrame alpha⟩
   } draw._withCanvas_ color.red •_while_ {¬isClosed∨0≥1⊑𝕩}0‿1
 }
 LogoAnimation window._openAs "helloo"
