@@ -82,32 +82,6 @@ texture ← {
     (Unload⊢𝔽)rayffi.LoadTextureFromImage image._WithRayImg 𝕩
   }
 }
-mouse ← {
-  GetPos     ⇐ rayFFI.GetMousePosition ⟨⟩⊣NeedsWindow
-  WheelMoved ⇐ rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
-  IsButtonDown ⇐ {
-    NeedsWindow@
-    "Mouse button "∾𝕩•Repr⊸∾" doesn't exist. (𝕩∊↕7)"!⊑𝕩∊↕buttons
-    rayFFI.IsMouseButtonDown 𝕩
-  }
-  buttons ← 7
-  button ⇐ {
-    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
-  }
-  cursor ⇐ { # Mouse cursor
-    default       ⇐ 0   # Default pointer shape                                        
-    arrow         ⇐ 1   # Arrow shape                                                  
-    ibeam         ⇐ 2   # Text writing cursor shape                                    
-    crosshair     ⇐ 3   # Cross shape                                                  
-    pointing_hand ⇐ 4   # Pointing hand cursor                                         
-    resize_ew     ⇐ 5   # Horizontal resize/move arrow shape                           
-    resize_ns     ⇐ 6   # Vertical resize/move arrow shape                             
-    resize_nwse   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape    
-    resize_nesw   ⇐ 8   # The top-right to bottom-left diagonal resize/move arrow shape
-    resize_all    ⇐ 9   # The omnidirectional resize/move cursor shape                 
-    not_allowed   ⇐ 10  # The operation-not-allowed shape                              
-  }
-}
 monitor ← {
   ⟨Selected ⋄ Count
    RefreshRate ⋄ Size
@@ -237,7 +211,7 @@ draw ← {
     NeedsWindow@
     "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
-    rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝𝕩
+    rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝∧˘⌾⍉𝕩
   }
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1,x2‿y2]:
     NeedsWindow@
@@ -294,6 +268,32 @@ utils ← {
   ⟨_FromCenter, _bitwise⟩⇐
   _FromCenter ← {c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩}                             # example of 𝕩: [x1‿x2‿x3, y1‿y2‿y3, z1‿z2‿z3]
   _bitwise ← {2⊸×⊸+˜´𝕨(0⊘1⊣◶⟨𝔽∘⊑⊢,𝔽´⊢⟩⌈○≠↑¨⋈)○(2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢))𝕩}
+}
+mouse ← {
+  GetPos     ⇐ rayFFI.GetMousePosition ⟨⟩⊣NeedsWindow
+  WheelMoved ⇐ rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
+  IsButtonDown ⇐ {
+    NeedsWindow@
+    "Mouse button doesn't exist. (𝕩∊↕7)"!∨´⥊𝕩∊↕buttons
+    rayFFI.IsMouseButtonDown⚇0 𝕩
+  }
+  buttons ← 7
+  button ⇐ {
+    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
+  }
+  cursor ⇐ { # Mouse cursor
+    default       ⇐ 0   # Default pointer shape                                        
+    arrow         ⇐ 1   # Arrow shape                                                  
+    ibeam         ⇐ 2   # Text writing cursor shape                                    
+    crosshair     ⇐ 3   # Cross shape                                                  
+    pointing_hand ⇐ 4   # Pointing hand cursor                                         
+    resize_ew     ⇐ 5   # Horizontal resize/move arrow shape                           
+    resize_ns     ⇐ 6   # Vertical resize/move arrow shape                             
+    resize_nwse   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape    
+    resize_nesw   ⇐ 8   # The top-right to bottom-left diagonal resize/move arrow shape
+    resize_all    ⇐ 9   # The omnidirectional resize/move cursor shape                 
+    not_allowed   ⇐ 10  # The operation-not-allowed shape                              
+  }
 }
 key ← {
   IsPressed ⇐ {𝕊 key:
