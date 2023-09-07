@@ -634,58 +634,58 @@ genImageCellular       ← image "GenImageCellular"      _R i‿i‿i           
 genImageText           ← image "GenImageText"          _R i‿i‿str             # width hight *text                     # Generate image: grayscale image from text data
 
 # Image manipulation functions
-imageCopy             ⇐ image        "ImageCopy"             _R image                                                                   # Create an image duplicate (useful for transformations)
-imageFromImage        ⇐ image        "ImageFromImage"        _R image‿rectangle                                                         # Create an image from another image piece
-imageText             ⇐ image        "ImageText"             _R str‿i‿color             # text fontSize color                           # Create an image from text (default font)
-imageTextEx           ⇐ image        "ImageTextEx"           _R font‿str‿f‿f‿color      # font text fontSize spacing tint               # Create an image from text (custom sprite font)
-imageFormat           ⇐              "ImageFormat"           _R (P image)‿i             # image newFormat                               # Convert image data to desired format
-imageToPOT            ⇐              "ImageToPOT"            _R (P image)‿color         # image fill                                    # Convert image to POT (power-of-two)
-imageCrop             ⇐              "ImageCrop"             _R (P image)‿rectangle     # image crop                                    # Crop an image to a defined rectangle
-imageAlphaCrop        ⇐              "ImageAlphaCrop"        _R (P image)‿f             # threshold                                     # Crop image depending on alpha value
-imageAlphaClear       ⇐              "ImageAlphaClear"       _R (P image)‿color‿f       # color threshold                               # Clear alpha channel to desired color
-imageAlphaMask        ⇐              "ImageAlphaMask"        _R (P image)‿image         # image alphaMask                               # Apply alpha mask to image
-imageAlphaPremultiply ⇐              "ImageAlphaPremultiply" _R  P image                                                                # Premultiply alpha channel
-imageBlurGaussian     ⇐              "ImageBlurGaussian"     _R (P image)‿i             # image blurSize                                # Apply Gaussian blur using a box blur approximation
-imageResize           ⇐              "ImageResize"           _R (P image)‿i‿i           # image newWidth newHeight                      # Resize image (Bicubic scaling algorithm)
-imageResizeNN         ⇐              "ImageResizeNN"         _R (P image)‿i‿i           # image newWidth newHeight                      # Resize image (Nearest-Neighbor scaling algorithm)
-imageResizeCanvas     ⇐              "ImageResizeCanvas"     _R (P image)‿i‿i‿i‿i‿color # image newWidth newHeight offsetX offsetY fill # Resize canvas and fill with color
-imageMipmaps          ⇐              "ImageMipmaps"          _R  P image                                                                # Compute all mipmap levels for a provided image
-imageDither           ⇐              "ImageDither"           _R (P image)‿i‿i‿i‿i       # rBpp gBpp bBpp aBpp                           # Dither image data to 16bpp or lower (Floyd-Steinberg dithering)
-imageFlipVertical     ⇐              "ImageFlipVertical"     _R  P image                                                                # Flip image vertically
-imageFlipHorizontal   ⇐              "ImageFlipHorizontal"   _R  P image                                                                # Flip image horizontally
-imageRotateCW         ⇐              "ImageRotateCW"         _R  P image                                                                # Rotate image clockwise 90deg
-imageRotateCCW        ⇐              "ImageRotateCCW"        _R  P image                                                                # Rotate image counter-clockwise 90deg
-imageColorTint        ⇐              "ImageColorTint"        _R (P image)‿color                                                         # Modify image color: tint
-imageColorInvert      ⇐              "ImageColorInvert"      _R  P image                                                                # Modify image color: invert
-imageColorGrayscale   ⇐              "ImageColorGrayscale"   _R  P image                                                                # Modify image color: grayscale
-imageColorContrast    ⇐              "ImageColorContrast"    _R (P image)‿f             # image contrast                                # Modify image color: contrast (-100 to 100)
-imageColorBrightness  ⇐              "ImageColorBrightness"  _R (P image)‿i             # brightness                                    # Modify image color: brightness (-255 to 255)
-imageColorReplace     ⇐              "ImageColorReplace"     _R (P image)‿color‿color   # image color replace                           # Modify image color: replace color
-loadImageColors       ⇐ (ptr⊣P color)"LoadImageColors"       _R image                   #                                               # Load color data from image as a Color array (RGBA - 32bit)
-loadImagePalette      ⇐ (ptr⊣P color)"LoadImagePalette"      _R image‿i‿(P i)           # image maxPaletteSize *colorCount              # Load colors palette from image as a Color array (RGBA - 32bit)
-unloadImageColors     ⇐              "UnloadImageColors"     _R  P color                                                                # Unload color data loaded with LoadImageColors()
-unloadImagePalette    ⇐              "UnloadImagePalette"    _R  P color                                                                # Unload colors palette loaded with LoadImagePalette()
-getImageAlphaBorder   ⇐ rectangle    "GetImageAlphaBorder"   _R image‿f                 # image threshold                               # Get image alpha border rectangle
-getImageColor         ⇐ color        "GetImageColor"         _R image‿i‿i               # image x y                                     # Get image pixel color at (x, y) position
+imageCopy             ⇐ image        "ImageCopy"             _R image                                                                     # Create an image duplicate (useful for transformations)
+imageFromImage        ⇐ image        "ImageFromImage"        _R image‿rectangle                                                           # Create an image from another image piece
+imageText             ⇐ image        "ImageText"             _R str‿i‿color               # text fontSize color                           # Create an image from text (default font)
+imageTextEx           ⇐ image        "ImageTextEx"           _R font‿str‿f‿f‿color        # font text fontSize spacing tint               # Create an image from text (custom sprite font)
+imageFormat           ⇐              "ImageFormat"           _R ('&'∾image)‿i             # image newFormat                               # Convert image data to desired format
+imageToPOT            ⇐              "ImageToPOT"            _R ('&'∾image)‿color         # image fill                                    # Convert image to POT (power-of-two)
+imageCrop             ⇐              "ImageCrop"             _R ('&'∾image)‿rectangle     # image crop                                    # Crop an image to a defined rectangle
+imageAlphaCrop        ⇐              "ImageAlphaCrop"        _R ('&'∾image)‿f             # threshold                                     # Crop image depending on alpha value
+imageAlphaClear       ⇐              "ImageAlphaClear"       _R ('&'∾image)‿color‿f       # color threshold                               # Clear alpha channel to desired color
+imageAlphaMask        ⇐              "ImageAlphaMask"        _R ('&'∾image)‿image         # image alphaMask                               # Apply alpha mask to image
+imageAlphaPremultiply ⇐              "ImageAlphaPremultiply" _R  '&'∾image                                                                # Premultiply alpha channel
+imageBlurGaussian     ⇐              "ImageBlurGaussian"     _R ('&'∾image)‿i             # image blurSize                                # Apply Gaussian blur using a box blur approximation
+imageResize           ⇐              "ImageResize"           _R ('&'∾image)‿i‿i           # image newWidth newHeight                      # Resize image (Bicubic scaling algorithm)
+imageResizeNN         ⇐              "ImageResizeNN"         _R ('&'∾image)‿i‿i           # image newWidth newHeight                      # Resize image (Nearest-Neighbor scaling algorithm)
+imageResizeCanvas     ⇐              "ImageResizeCanvas"     _R ('&'∾image)‿i‿i‿i‿i‿color # image newWidth newHeight offsetX offsetY fill # Resize canvas and fill with color
+imageMipmaps          ⇐              "ImageMipmaps"          _R  '&'∾image                                                                # Compute all mipmap levels for a provided image
+imageDither           ⇐              "ImageDither"           _R ('&'∾image)‿i‿i‿i‿i       # rBpp gBpp bBpp aBpp                           # Dither image data to 16bpp or lower (Floyd-Steinberg dithering)
+imageFlipVertical     ⇐              "ImageFlipVertical"     _R  '&'∾image                                                                # Flip image vertically
+imageFlipHorizontal   ⇐              "ImageFlipHorizontal"   _R  '&'∾image                                                                # Flip image horizontally
+imageRotateCW         ⇐              "ImageRotateCW"         _R  '&'∾image                                                                # Rotate image clockwise 90deg
+imageRotateCCW        ⇐              "ImageRotateCCW"        _R  '&'∾image                                                                # Rotate image counter-clockwise 90deg
+imageColorTint        ⇐              "ImageColorTint"        _R ('&'∾image)‿color                                                         # Modify image color: tint
+imageColorInvert      ⇐              "ImageColorInvert"      _R  '&'∾image                                                                # Modify image color: invert
+imageColorGrayscale   ⇐              "ImageColorGrayscale"   _R  '&'∾image                                                                # Modify image color: grayscale
+imageColorContrast    ⇐              "ImageColorContrast"    _R ('&'∾image)‿f             # image contrast                                # Modify image color: contrast (-100 to 100)
+imageColorBrightness  ⇐              "ImageColorBrightness"  _R ('&'∾image)‿i             # brightness                                    # Modify image color: brightness (-255 to 255)
+imageColorReplace     ⇐              "ImageColorReplace"     _R ('&'∾image)‿color‿color   # image color replace                           # Modify image color: replace color
+loadImageColors       ⇐ (ptr⊣P color)"LoadImageColors"       _R image                     #                                               # Load color data from image as a Color array (RGBA - 32bit)
+loadImagePalette      ⇐ (ptr⊣P color)"LoadImagePalette"      _R image‿i‿(P i)             # image maxPaletteSize *colorCount              # Load colors palette from image as a Color array (RGBA - 32bit)
+unloadImageColors     ⇐              "UnloadImageColors"     _R  P color                                                                  # Unload color data loaded with LoadImageColors()
+unloadImagePalette    ⇐              "UnloadImagePalette"    _R  P color                                                                  # Unload colors palette loaded with LoadImagePalette()
+getImageAlphaBorder   ⇐ rectangle    "GetImageAlphaBorder"   _R image‿f                   # image threshold                               # Get image alpha border rectangle
+getImageColor         ⇐ color        "GetImageColor"         _R image‿i‿i                 # image x y                                     # Get image pixel color at (x, y) position
 
 # Image drawing functions
 # NOTE: Image software-rendering functions (CPU)
-imageClearBackground    ⇐ "ImageClearBackground"    _R (P image)‿color                           # *dst color # Clear image background with given color
-imageDrawPixel          ⇐ "ImageDrawPixel"          _R (P image)‿i‿i‿color                       # *dst posX posY color                                 # Draw pixel within an image
-imageDrawPixelV         ⇐ "ImageDrawPixelV"         _R (P image)‿v2‿color                        # *dst position color                                   # Draw pixel within an image (Vector version)
-imageDrawLine           ⇐ "ImageDrawLine"           _R (P image)‿i‿i‿i‿i‿color                   # *dst startPosX startPosY endPosX endPosY color # Draw line within an image
-imageDrawLineV          ⇐ "ImageDrawLineV"          _R (P image)‿v2‿v2‿color                     # *dst start end color                           # Draw line within an image (Vector version)
-imageDrawCircle         ⇐ "ImageDrawCircle"         _R (P image)‿i‿i‿i‿color                     # *dst centerX centerY radius color              # Draw a filled circle within an image
-imageDrawCircleV        ⇐ "ImageDrawCircleV"        _R (P image)‿v2‿i‿color                      # *dst center radius color                       # Draw a filled circle within an image (Vector version)
-imageDrawCircleLines    ⇐ "ImageDrawCircleLines"    _R (P image)‿i‿i‿i‿color                     # *dst centerX centerY radius color              # Draw circle outline within an image
-imageDrawCircleLinesV   ⇐ "ImageDrawCircleLinesV"   _R (P image)‿v2‿i‿color                      # *dst center radius color                       # Draw circle outline within an image (Vector version)
-imageDrawRectangle      ⇐ "ImageDrawRectangle"      _R (P image)‿i‿i‿i‿i‿color                   # *dst posX posY width hight color               # Draw rectangle within an image
-imageDrawRectangleV     ⇐ "ImageDrawRectangleV"     _R (P image)‿v2‿v2‿color                     # *dst position size color                       # Draw rectangle within an image (Vector version)
-imageDrawRectangleRec   ⇐ "ImageDrawRectangleRec"   _R (P image)‿rectangle‿color                 # *dst rec color                                 # Draw rectangle within an image
-imageDrawRectangleLines ⇐ "ImageDrawRectangleLines" _R (P image)‿rectangle‿i‿color               # *dst rec thick color                           # Draw rectangle lines within an image
-imageDraw               ⇐ "ImageDraw"               _R (P image)‿image‿rectangle‿rectangle‿color # *dst src srcRec dstRec tint                    # Draw a source image within a destination image (tint applied to source)
-imageDrawText           ⇐ "ImageDrawText"           _R (P image)‿str‿i‿i‿i‿color                 # *dst text posX posY fontSize color             # Draw text (using default font) within an image (destination)
-imageDrawTextEx         ⇐ "ImageDrawTextEx"         _R (P image)‿font‿str‿v2‿f‿f‿color           # *dst font text position fontSize spacing tint  # Draw text (custom sprite font) within an image (destination)
+imageClearBackground    ⇐ "ImageClearBackground"    _R ('&'∾image)‿color                           # *dst color                                     # Clear image background with given color
+imageDrawPixel          ⇐ "ImageDrawPixel"          _R ('&'∾image)‿i‿i‿color                       # *dst posX posY color                           # Draw pixel within an image
+imageDrawPixelV         ⇐ "ImageDrawPixelV"         _R ('&'∾image)‿v2‿color                        # *dst position color                            # Draw pixel within an image (Vector version)
+imageDrawLine           ⇐ "ImageDrawLine"           _R ('&'∾image)‿i‿i‿i‿i‿color                   # *dst startPosX startPosY endPosX endPosY color # Draw line within an image
+imageDrawLineV          ⇐ "ImageDrawLineV"          _R ('&'∾image)‿v2‿v2‿color                     # *dst start end color                           # Draw line within an image (Vector version)
+imageDrawCircle         ⇐ "ImageDrawCircle"         _R ('&'∾image)‿i‿i‿i‿color                     # *dst centerX centerY radius color              # Draw a filled circle within an image
+imageDrawCircleV        ⇐ "ImageDrawCircleV"        _R ('&'∾image)‿v2‿i‿color                      # *dst center radius color                       # Draw a filled circle within an image (Vector version)
+imageDrawCircleLines    ⇐ "ImageDrawCircleLines"    _R ('&'∾image)‿i‿i‿i‿color                     # *dst centerX centerY radius color              # Draw circle outline within an image
+imageDrawCircleLinesV   ⇐ "ImageDrawCircleLinesV"   _R ('&'∾image)‿v2‿i‿color                      # *dst center radius color                       # Draw circle outline within an image (Vector version)
+imageDrawRectangle      ⇐ "ImageDrawRectangle"      _R ('&'∾image)‿i‿i‿i‿i‿color                   # *dst posX posY width hight color               # Draw rectangle within an image
+imageDrawRectangleV     ⇐ "ImageDrawRectangleV"     _R ('&'∾image)‿v2‿v2‿color                     # *dst position size color                       # Draw rectangle within an image (Vector version)
+imageDrawRectangleRec   ⇐ "ImageDrawRectangleRec"   _R ('&'∾image)‿rectangle‿color                 # *dst rec color                                 # Draw rectangle within an image
+imageDrawRectangleLines ⇐ "ImageDrawRectangleLines" _R ('&'∾image)‿rectangle‿i‿color               # *dst rec thick color                           # Draw rectangle lines within an image
+imageDraw               ⇐ "ImageDraw"               _R ('&'∾image)‿image‿rectangle‿rectangle‿color # *dst src srcRec dstRec tint                    # Draw a source image within a destination image (tint applied to source)
+imageDrawText           ⇐ "ImageDrawText"           _R ('&'∾image)‿str‿i‿i‿i‿color                 # *dst text posX posY fontSize color             # Draw text (using default font) within an image (destination)
+imageDrawTextEx         ⇐ "ImageDrawTextEx"         _R ('&'∾image)‿font‿str‿v2‿f‿f‿color           # *dst font text position fontSize spacing tint  # Draw text (custom sprite font) within an image (destination)
 
 # Texture loading functions
 # NOTE: These functions require GPU access
