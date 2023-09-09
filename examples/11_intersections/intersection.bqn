@@ -1,12 +1,11 @@
+# translated from https://github.com/raylib-extras/examples-c/blob/main/ray2d_rect_intersection/ray2d_rect_intersection.c
+
 ⟨color
  draw
  key
  rf⇐rayffi
  rm⇐raymath
 ⟩←rl←•Import "../../raylib.bqn"
-
-# Check if point is inside rectangle
-CheckCollision0ToRec ← ∧´(≤⟜0∾0⊸≤)˝∘⍉
 
 # intersection using the slab method
 # https://tavianator.com/2011/ray_box.html#:~:text=The%20fastest%20method%20for%20performing,remains%2C%20it%20intersected%20the%20box.
@@ -52,18 +51,13 @@ CheckCollisionRay2dCircle ← {𝕊⟨
   turnSpeed ← 3
 
   # Main game loop
-  
-  #ori ← 5‿5
-  #•Show ⌈˝⍉[1‿1,4‿4]
-  #•Show -⌊´-⟜ori¨⟨¯1‿1,4‿4⟩
-
   Rotate ← (⋈⟜-´≍⌽)•math.Cos∾•math.Sin
   {𝕤
     angleDelta ← turnSpeed×rf.GetFrameTime∘⟨⟩⊸×-´key.IsDown key.right‿key.left
     direction rm.MP˜↩ Rotate angleDelta
     origin +↩ walkSpeed×-˝key.IsDown ["DS","AW"]
     touchedRec‿touchedCir ← {
-      intersect ↩•Show origin⊸+(>○|⊑∾)¨´ 𝕩
+      intersect ↩ origin⊸+(>○|⊑∾)¨´ 𝕩
       ∞‿∞⊸≢¨|𝕩
     } ⟨
       direction RayIntersectRect -⟜origin˘box
