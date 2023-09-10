@@ -50,12 +50,33 @@ image ← { # TODO support more formats somehow
   gen ← •Import "src/imageGen.bqn"
   
   ToArr ← {𝕊dataPtr‿width‿hight‿mipmaps‿format:
-    !format≡pixelFormat.uncompressed_r8g8b8a8
+    {𝕤
+      0!˜×∘≠◶⟨
+        "Format given doesn't exist"
+        "Format "∾⊑∾" isn't implemented"˙
+      ⟩ (format=pixelFormat⊸•ns.Get¨)⊸/ •ns.Keys pixelFormat
+    }⍟⊢format≢pixelFormat.uncompressed_r8g8b8a8
     width‿hight‿4(⊣⥊×´⊸rayffi.Make)dataPtr
   }
+
+#-name                      #-Unique bqn representations # comment
+# uncompressed_grayscale    # rank 3 ∊↕2⋆8 shape x‿y
+# uncompressed_gray_alpha   # rank 3 ∊↕4⋆8 shape x‿y‿2   
+# uncompressed_r5g6b5       #                            # used by approximately no one
+# uncompressed_r8g8b8       # rank 3 shape x‿y‿3
+# uncompressed_r5g5b5a1     #                            # used by approximately no one 
+# uncompressed_r4g4b4a4     #                            # used by approximately no one
+# uncompressed_r8g8b8a8     # rank 3 shape x‿y‿4         
+# uncompressed_r32          #                            #
+# uncompressed_r32g32b32    #                            
+# uncompressed_r32g32b32a32 #                            
+# rayffi.ImageFormat image 10
+
+# format as left arg to functions (8‿8‿8‿8)
+
   FromArrLoad ←{𝕊img:
     NeedsWindow@
-    l rayffi.Read ptr←rayffi.MemAlloc≠l←⥊𝕩
+    l rayffi.Read ptr←rayffi.MemAlloc≠l←⥊img
     ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
   }
   Unload ← {𝕊img:
