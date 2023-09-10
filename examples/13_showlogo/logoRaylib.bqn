@@ -44,20 +44,20 @@ LogoAnimation ← {𝕤
   outlineWidth ← 16
   Logoposition ← ⌊window.GetSize-○(÷⟜2)logoSize˙
   btmrht ← logoSize-outlineWidth
-  Rectangle ← ⊣ draw.Rectangle Logoposition +⎉1 ⊢
+  RecAtLogo ← ⊣ draw.Rectangle Logoposition +⎉1 ⊢
 
   { # Small box blinking
-    color.black Rectangle⍟(⌊2|𝕩÷12) ⌽⊸≍outlineWidth‿0
+    color.black RecAtLogo⍟(⌊2|𝕩÷12) ⌽⊸≍outlineWidth‿0
   } _Scene_ {𝕩≥7×12}
 
   {𝕊excrution: # Top and left bars growing
-    color.black⊸Rectangle˘ ⍉˘ outlineWidth ∾⎉0 0‿0 ∾ ⌊𝕩 × btmrht × ⌽⊸≍↕2
+    color.black⊸RecAtLogo˘ ⍉˘ outlineWidth ∾⎉0 0‿0 ∾ ⌊𝕩 × btmrht × ⌽⊸≍↕2
   }∘(÷⟜64) _Scene_ {68≤𝕩}
 
   {𝕊excrution: # Bottom and right bars growing
-    color.black⊸Rectangle˘ ⍉˘ outlineWidth ∾⎉0 0‿0 ∾ btmrht × ⌽⊸≍↕2
-    color.black⊸Rectangle¨ ⌽˘⊸⋈ btmrht‿0⊸+˘⌽⊸≍outlineWidth‿0
-    color.black⊸Rectangle¨ ⌽˘⊸⋈ btmrht‿outlineWidth ≍ logoSize∾outlineWidth+⌊btmrht×𝕩
+    color.black⊸RecAtLogo˘ ⍉˘ outlineWidth ∾⎉0 0‿0 ∾ btmrht × ⌽⊸≍↕2
+    color.black⊸RecAtLogo¨ ⌽˘⊸⋈ btmrht‿0⊸+˘⌽⊸≍outlineWidth‿0
+    color.black⊸RecAtLogo¨ ⌽˘⊸⋈ btmrht‿outlineWidth ≍ logoSize∾outlineWidth+⌊btmrht×𝕩
   }∘(÷⟜64) _Scene_ {64≤𝕩}
 
   font ← rl.font.LoadRaylib 100
@@ -68,8 +68,8 @@ LogoAnimation ← {𝕤
     
     # When all letters have appeared, just fade out everything
     alpha ← ⌊0⌈255⌊255-30×10-˜frame÷12
-    (alpha⌾(¯1⊸⊑) color.black)    Rectangle ⌽⊸≍0‿logoSize          # outer black
-    (alpha⌾(¯1⊸⊑) color.raywhite) Rectangle ⌽⊸≍outlineWidth‿btmrht # inner white of logo
+    (alpha⌾(¯1⊸⊑) color.black)    RecAtLogo ⌽⊸≍0‿logoSize          # outer black
+    (alpha⌾(¯1⊸⊑) color.raywhite) RecAtLogo ⌽⊸≍outlineWidth‿btmrht # inner white of logo
     
     # text
     (alpha⌾(¯1⊸⊑) color.black)‿font‿50 draw.Text ⟨
