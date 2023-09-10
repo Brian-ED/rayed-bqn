@@ -9,10 +9,10 @@
 ⟩←rl←•Import "../../raylib.bqn"
 
 # refrence
-# A = 0‿0
-# B = 0∾logoSize-outlineWidth
-# C = ⌽B
-# D = ∾˜logoSize-outlineWidth
+# A ← 0‿0
+# B ← 0∾logoSize-outlineWidth
+# C ← ⌽B
+# D ← ∾˜logoSize-outlineWidth
 #   A ###B 
 #     ###  
 #   ##   ##
