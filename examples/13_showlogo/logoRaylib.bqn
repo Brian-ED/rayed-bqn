@@ -1,4 +1,4 @@
-# IN PROGRESS press a and d to move forward and backward through animation
+# IN PROGRESS
 ⟨color
  draw
  key
@@ -7,88 +7,75 @@
  rm⇐raymath
  mouse
 ⟩←rl←•Import "../../raylib.bqn"
-⟨DrawText,Fade,DrawRectangle⟩ ← rf
 
-
-
-# Points P will be given in ravel order, same with Q. 
-# The dimension will be picked based on length of the lists 𝕨 and 𝕩
-#  
-# 1d:
-#   PQ###PQ
-# 2d:
-#   P ###P
-#    Q### Q
+# refrence
+# A = 0‿0
+# B = 0∾logoSize-outlineWidth
+# C = ⌽B
+# D = ∾˜logoSize-outlineWidth
+#   A ###B 
+#     ###  
 #   ##   ##
 #   ##   ##
 #   ##   ##
-#   P ###P
-#    Q### Q
-OutlinePoints ← {outlineWidth𝕊squareSize:
-  "Only accepts lists"!𝕨∧○=𝕩
-  "𝕩 and 𝕨 need to be same length (𝕨≡○≠𝕩)"!𝕨≡○≠𝕩
-  unitCorners ← >⥊↕2⥊˜≠𝕩
-  corners ← unitCorners ×⎉1 𝕩-𝕨
-  ⌽𝕨⊸+˘⊸≍corners
-}
+#   C ###D 
+#     ###  
 
-NextFrame ← key.IsDown∘key.d-key.IsDown∘key.a
+# if enabled: press the left and right keys to move forward and backward through animation, space for slowdown
+debug ← 0
+
+nextFrame ← {
+  IsDown‿space‿left‿right←key
+  ÷⟜10⍟(IsDown∘space) 1+IsDown∘right-2×IsDown∘left
+}⊣⍟debug 1
 
 LogoAnimation ← {𝕤
-  font ← rl.font.LoadRaylib 100
   isClosed ← 0
+
+  _Scene_ ← { Scene _𝕣_ Until:
+    {
+      isClosed ↩ window.ShouldClose@
+      Scene draw._withCanvas_ color.red 𝕩
+      NextFrame⊸+𝕩
+    } •_while_ {¬isClosed∨Until𝕩}0
+  }
+
   logoSize ← 256
   outlineWidth ← 16
-  points ← •Show outlineWidth OutlinePoints○(2⊸⥊) logoSize
-  
+  Logoposition ← ⌊window.GetSize-○(÷⟜2)logoSize˙
+  btmrht ← logoSize-outlineWidth
+  Rectangle ← ⊣ draw.Rectangle Logoposition +⎉1 ⊢
+
   { # Small box blinking
-    isClosed ↩ window.ShouldClose@
-    logoposition ← ⌊logoSize-○(÷⟜2)˜window.GetSize@
-    color.black draw.Rectangle⍟(⌊2|𝕩÷12) logoposition+⎉1⊏˘points
-    𝕩+⍟NextFrame˜1
-  } draw._withCanvas_ color.red •_while_{¬isClosed∨84≤𝕩}0  
+    color.black Rectangle⍟(⌊2|𝕩÷12) ⌽⊸≍outlineWidth‿0
+  } _Scene_ {𝕩≥7×12}
 
   {𝕊excrution: # Top and left bars growing
-    isClosed ↩ window.ShouldClose@
-    logoposition ← logoSize-○(÷⟜2)˜window.GetSize@
-    color.black draw.Rectangle logoposition+⎉1⊏˘points
-    color.black⊸draw.Rectangle˘ logoposition +⎉1 {(⊏𝕩) ≍⎉1˜ ⌊64÷˜ excrution×1‿2⊏𝕨}˝points
-    1+⍟NextFrame𝕩
-  } draw._withCanvas_ color.red •_while_{¬isClosed∨60≤𝕩}4
+    color.black⊸Rectangle˘ ⍉˘ outlineWidth ∾⎉0 0‿0 ∾ ⌊𝕩 × btmrht × ⌽⊸≍↕2
+  }∘(÷⟜64) _Scene_ {68≤𝕩}
 
   {𝕊excrution: # Bottom and right bars growing
-    isClosed ↩ window.ShouldClose@
-    logoposition ← ⌊logoSize-○(÷⟜2)˜window.GetSize@
+    color.black⊸Rectangle˘ ⍉˘ outlineWidth ∾⎉0 0‿0 ∾ btmrht × ⌽⊸≍↕2
+    color.black⊸Rectangle¨ ⌽˘⊸⋈ btmrht‿0⊸+˘⌽⊸≍outlineWidth‿0
+    color.black⊸Rectangle¨ ⌽˘⊸⋈ btmrht‿outlineWidth ≍ logoSize∾outlineWidth+⌊btmrht×𝕩
+  }∘(÷⟜64) _Scene_ {64≤𝕩}
 
-    color.black draw.Rectangle+`logoposition ≍ logoSize‿outlineWidth
-    color.black draw.Rectangle+`logoposition ≍ outlineWidth‿logoSize
-    (color.black draw.Rectangle logoposition⊸+˘)¨⌽˘⊸⋈+`(0∾˜logoSize-outlineWidth) ≍ outlineWidth×1‿𝕩
-    𝕩+⍟NextFrame˜÷4
-  } draw._withCanvas_ color.red •_while_{¬isClosed∨15.75≤𝕩}1
-
-  {𝕊frame‿alpha:
-    isClosed ↩ window.ShouldClose@
-    windowSize ← window.GetSize@
-    logoposition ← ⌊logoSize-○(÷⟜2)˜windowSize
-    black ← Fade color.black‿alpha
-
-    # Letters appearing (one by one)    
+  font ← rl.font.LoadRaylib 100
+  {𝕊frame:
+    # Letters appearing (one by one)
     # Every 12 frames, one more letter!
     lettersCount ← ⌊frame÷12
-
+    
     # When all letters have appeared, just fade out everything
-    color.black⊸draw.Rectangle¨logoposition⊸+˘¨∾⟨
-      ⌽˘⊸⋈+`(logoSize-outlineWidth)‿0≍∾˜outlineWidth
-      ⋈0‿outlineWidth
-      ⋈(logoSize-outlineWidth)‿logoSize
+    alpha ← ⌊0⌈255⌊255-30×10-˜frame÷12
+    (alpha⌾(¯1⊸⊑) color.black)    Rectangle ⌽⊸≍0‿logoSize          # outer black
+    (alpha⌾(¯1⊸⊑) color.raywhite) Rectangle ⌽⊸≍outlineWidth‿btmrht # inner white of logo
+    
+    # text
+    (alpha⌾(¯1⊸⊑) color.black)‿font‿50 draw.Text ⟨
+      Logoposition⊸+84‿176
+      lettersCount↑"raylib"
     ⟩
-    black⊸draw.Rectangle¨logoposition⊸+˘¨∾⌽˘⊸⋈¨⟨
-      +`outlineWidth‿0≍(logoSize-+˜outlineWidth)‿outlineWidth
-      +`outlineWidth‿(logoSize-outlineWidth) ≍(logoSize-+˜outlineWidth)‿outlineWidth
-    ⟩
-    color.raywhite‿alpha Fade⊸draw.Rectangle logoposition⊸+˘outlineWidth≍logoSize-outlineWidth
-    black‿font‿50 draw.Text ⟨84‿176+logoposition, lettersCount↑"raylib"⟩
-    ⟨1+⍟NextFrame frame, -⟜0.02⍟(lettersCount≥10)⍟NextFrame alpha⟩
-  } draw._withCanvas_ color.red •_while_ {¬isClosed∨0≥1⊑𝕩}0‿1
+  } _Scene_ {255≤30×¯10+𝕩÷12}
 }
 LogoAnimation window._openAs "helloo"
