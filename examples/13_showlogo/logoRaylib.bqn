@@ -22,20 +22,17 @@
 #     ###  
 
 # if enabled: press the left and right keys to move forward and backward through animation, space for slowdown
-debug ← 0
+debug ← 1
 
-nextFrame ← {
-  IsDown‿space‿left‿right←key
-  ÷⟜10⍟(IsDown∘space) 1+IsDown∘right-2×IsDown∘left
-}⊣⍟debug 1
-
-LogoAnimation ← {𝕤
+LogoAnimation ← {𝕊background:
   isClosed ← 0
 
   _Scene_ ← { Scene _𝕣_ Until:
+    IsDown‿space‿left‿right←key
+    NextFrame ← {÷⟜10⍟(IsDown space) 2×⍟(IsDown right) -⍟(IsDown left)𝕩}⍟debug 60×rf.GetFrameTime∘⟨⟩
     {
       isClosed ↩ window.ShouldClose@
-      Scene draw._withCanvas_ color.red 𝕩
+      Scene draw._withCanvas_ background 𝕩
       NextFrame⊸+𝕩
     } •_while_ {¬isClosed∨Until𝕩}0
   }
@@ -78,4 +75,4 @@ LogoAnimation ← {𝕤
     ⟩
   } _Scene_ {255≤30×¯10+𝕩÷12}
 }
-LogoAnimation window._openAs "helloo"
+LogoAnimation∘color.red window._openAs "helloo"
