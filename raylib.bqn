@@ -49,7 +49,8 @@ image ← { # TODO support more formats somehow
   # gen has image generation functions such as GradientLinear and GradientSquare
   gen ← •Import "src/imageGen.bqn"
   
-  ToArr ← {𝕊dataPtr‿width‿hight‿mipmaps‿format:
+  ToArr ← {𝕊raylibImg:
+    dataPtr‿width‿hight‿mipmaps‿format←𝕩
     {𝕤
       0!˜×∘≠◶⟨
         "Format given doesn't exist"
