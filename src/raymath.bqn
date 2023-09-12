@@ -1,41 +1,14 @@
+# Math functions to work with Vectors, Matricies and Quaternions
+
 # GOAL make raylib functions work on arbitrary vectors and matricies
 # aswell as switch from raylib's collumn model to leading axis model.
-# Also raylib only uses 4x4 matricies, i'm considering limiting this since it pads matricies a lot
 # Also considering making Quaternions be real‿i‿j‿k instead of i‿j‿k‿real
-
 # raylib and 3d graphics in general uses 4x4 matricies for rotation and position, but 3x3 are enough for just rotation.
 
+# CONVENTIONS:
+# - Functions are always self-contained, no function use another raymath function inside,
+# - Angles are always in radians
 
-⟨
-  MP⋄MatrixLookAt
-  MatrixScale⋄MatrixRotate
-  MatrixRotateX⋄MatrixRotateY⋄MatrixRotateZ
-  MatrixDeterminant
-  Inverse
-⟩⇐
-
-# Get scaling matrix
-MatrixScale ← {𝕊x‿y‿z:
-  𝕩×=⌜˜↕3
-}
-
-###############################################################################################
-#
-#   raymath v1.5 - Math functions to work with Vectors, Matricies and Quaternions
-#
-#   CONVENTIONS:
-#     - Matrix structure is defined as row-major (memory layout) but parameters naming AND all
-#       math operations performed by the library consider the structure as it was column-major
-#       It is like transposed versions of the matrices are used for all the maths
-#       It benefits some functions making them cache-friendly and also avoids matrix
-#       transpositions sometimes required by OpenGL
-#       Example: In memory order, row0 is [m0 m4 m8 m12] but in semantic math row0 is [m0 m1 m2 m3]
-#     - Functions are always self-contained, no function use another raymath function inside,
-#       required code is directly re-implemented inside
-#     - Functions use always a "result" variable for return
-#     - Angles are always in radians
-#
-###############################################################################################
 
 #----------------------------------------------------------------------------------
 # removed from raylib
@@ -45,36 +18,42 @@ MatrixScale ← {𝕊x‿y‿z:
 # they have been said to be innacurate by ray - maintainer of raylib. 
 # Under "module: raymath" at https://github.com/raysan5/raylib/discussions/2952 
 ## removed Vector3Perpendicular, as it isn't well defined.
-## removed Vector3ToFloatV as it's useless in bqn.
-
+⟨
+  MP ⋄ Inverse ⋄ MatrixDeterminant
+  MatrixLookAt ⋄ MatrixScale
+  MatrixRotate ⋄ MatrixRotateX ⋄ MatrixRotateY ⋄ MatrixRotateZ
+  Wrap ⋄ Normalize ⋄ Approx ⋄ Round
+  Vector3Unproject
+  _ToDim_ ⋄ MatrixExtend
+⟩⇐
 
 # Too simple:
-# Clamp ← Vector2Clamp ← max⌊min⌈x
-#Vector2Add         ← Vector2AddValue ← Vector3Add ← Vector3AddValue ← MatrixAdd ← QuaternionAdd ← QuaternionAddValue ←  +
-#Vector2Multiply    ← Vector2Scale ← Vector3Multiply ← Vector3Scale ← QuaternionScale ← ×
-#Vector2Subtract    ← Vector2SubtractValue ← Vector2Negate ← Vector3Subtract ← Vector3SubtractValue ← Vector3Negate ← QuaternionSubtract ← QuaternionSubtractValue ← -
-#Vector2Divide      ← Vector2Invert ← Vector3Divide ← Vector3Invert ← QuaternionDivide ← ÷
-#Vector3DistanceSqr ← Vector2DistanceSqr ← ×˜VectorDistance
-#MatrixTranspose    ← ⍉
-#MatrixIdentity     ← =⌜˜↕∘4
-#MatrixInvert       ← matrix.Inverse
-#MatrixToFloatV     ← ⥊
-#Vector3Min         ← ⌊
-#Vector3Max         ← ⌈
+# Vector2Add         ← Vector2AddValue ← Vector3Add ← Vector3AddValue ← MatrixAdd ← QuaternionAdd ← QuaternionAddValue ←  +
+# Vector2Multiply    ← Vector2Scale ← Vector3Multiply ← Vector3Scale ← QuaternionScale ← ×
+# Vector2Subtract    ← Vector2SubtractValue ← Vector2Negate ← Vector3Subtract ← Vector3SubtractValue ← Vector3Negate ← QuaternionSubtract ← QuaternionSubtractValue ← -
+# Vector2Divide      ← Vector2Invert ← Vector3Divide ← Vector3Invert ← QuaternionDivide ← ÷
+# Vector3DistanceSqr ← Vector2DistanceSqr ← ×˜VectorDistance
+# MatrixTranspose    ← ⍉
+# MatrixIdentity     ← =⌜˜↕∘4
+# MatrixInvert       ← matrix.Inverse
+# MatrixToFloatV     ← ⥊
+# Vector3Min         ← ⌊
+# Vector3Max         ← ⌈
+# Clamp              ← Vector2Clamp ← max⌊min⌈x
 
-# extended
-#Vector2Length       ← Vector3Length     ← QuaternionLength ← VectorLength
-#Vector2LengthSqr    ← Vector3LengthSqr  ← VectorLengthSqr
-#Vector2DotProduct   ← Vector3DotProduct ← VectorDotProduct 
-#Vector2Distance     ← Vector3Distance   ← VectorDistance
-#Vector2Lerp         ← Vector3Lerp       ← QuaternionLerp ← Lerp
-#Vector2Transform    ← Vector3Transform  ← VectorTransform ← (1∾˜3⊸↑)⊸MP
-#QuaternionTransform ← MP
-#Vector2ClampValue   ← Vector3ClampValue ← VectorClampValue
-#Vector2Equals       ← Vector3Equals     ← VectorEquals ← VectorEquals
-#Vector2Normalize    ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
-#Vector2Angle        ← Vector3Angle      ← VectorAngle
-#Vector2MoveTowards  ← VectorMoveTowards
+# extended:
+# Vector2Length       ← Vector3Length     ← QuaternionLength ← VectorLength
+# Vector2LengthSqr    ← Vector3LengthSqr  ← VectorLengthSqr
+# Vector2DotProduct   ← Vector3DotProduct ← VectorDotProduct 
+# Vector2Distance     ← Vector3Distance   ← VectorDistance
+# Vector2Lerp         ← Vector3Lerp       ← QuaternionLerp ← Lerp
+# Vector2Transform    ← Vector3Transform  ← VectorTransform ← (1∾˜3⊸↑)⊸MP
+# QuaternionTransform ← MP
+# Vector2ClampValue   ← Vector3ClampValue ← VectorClampValue
+# Vector2Equals       ← Vector3Equals     ← VectorEquals ← VectorEquals
+# Vector2Normalize    ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
+# Vector2Angle        ← Vector3Angle      ← VectorAngle
+# Vector2MoveTowards  ← VectorMoveTowards
 # Vector2CrossProduct ← Vector3CrossProduct ← VectorCrossProduct
 
 
@@ -90,6 +69,12 @@ MatrixScale ← {𝕊x‿y‿z:
 #   To overcome this problem, we can fake the system into performing translations through the use of an extra dimension where all vectors will have a 1 in the last vector component. 
 #   These 4D vectors will never be at the origin (having 1 in the last component) and so are not required to always map to the origin.
 #   Through the use of this we can construct a 4x4 matrix to perform translation.
+
+Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
+
+# Get scaling matrix
+MatrixScale ← {𝕊v:𝕩×=⌜˜≠𝕩}
+
 
 #----------------------------------------------------------------------------------
 # Defines
@@ -127,7 +112,7 @@ Remap ← {𝕊value‿inputStart‿inputEnd‿outputStart‿outputEnd:
 }
 
 Wrap ← {𝕊value‿min‿max:
-  "Wrap: Min can't equal max"!min≡max
+  "Wrap: Min can't equal max"!min≢max
   max|⌾(-⟜min)value
 }
 
