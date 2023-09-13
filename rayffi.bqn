@@ -1,7 +1,5 @@
 # Notes about this file:
-# • I am not done with FFIing every raylib function.
-# • I have forgotten to annotate some string var names in comments with *.
-# • This file is FFI for almost everything in raylib.h: https:#github.com/raysan5/raylib/blob/fec96137e8d10ee6c88914fbe5e5429c13ee1dac/src/raylib.h
+# • This file is FFI for everything in raylib.h: https:#github.com/raysan5/raylib/blob/fec96137e8d10ee6c88914fbe5e5429c13ee1dac/src/raylib.h
 # • FFI functions are not tested before release. There are simply too many for the moment. The functions in raylib.bqn are tested, atleast minimally.
 
 # • You may change defaults in raylib/src/config.h for smaller build size.
@@ -16,8 +14,8 @@
 #   TextIsEqual, 𝕨≡𝕩
 #   textLength, ≠𝕩
 #   textAppend, the function abuses mutation, use ∾ and `pos+↩`
-#   genImageGradientLinear, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientLinear
-#   genImageGradientSquare, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.gen.GradientSquare
+#   genImageGradientLinear, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.GenGradientLinear
+#   genImageGradientSquare, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.GenGradientSquare
 
 raylibPath‿bqnLibsPath ← •Import "src/loadConfig.bqn"
 math ← •Import "src/raymath.bqn"
@@ -299,51 +297,51 @@ U32ToI8 ⇐ ⟨@•FFI"*:i8"‿"memcpy"‿"&i32"‿"*u32"‿"u64",@•FFI"*:i8"�
 #------------------------------------------------------------------------------------
 
 # Window-related functions
-initWindow               ⇐     "InitWindow"              _R i‿i‿str # width height title # Initialize window and OpenGL context
-windowShouldClose        ⇐ bool"WindowShouldClose"       _R@                             # Check if KEY_ESCAPE pressed or Close icon pressed
-closeWindow              ⇐     "CloseWindow"             _R@                             # Close window and unload OpenGL context
-isWindowReady            ⇐ bool"IsWindowReady"           _R@                             # Check if window has been initialized successfully
-isWindowFullscreen       ⇐ bool"IsWindowFullscreen"      _R@                             # Check if window is currently fullscreen
-isWindowHidden           ⇐ bool"IsWindowHidden"          _R@                             # Check if window is currently hidden (only PLATFORM_DESKTOP)
-isWindowMinimized        ⇐ bool"IsWindowMinimized"       _R@                             # Check if window is currently minimized (only PLATFORM_DESKTOP)
-isWindowMaximized        ⇐ bool"IsWindowMaximized"       _R@                             # Check if window is currently maximized (only PLATFORM_DESKTOP)
-isWindowFocused          ⇐ bool"IsWindowFocused"         _R@                             # Check if window is currently focused (only PLATFORM_DESKTOP)
-isWindowResized          ⇐ bool"IsWindowResized"         _R@                             # Check if window has been resized last frame
-isWindowState            ⇐ bool"IsWindowState"           _R u # flag                     # Check if one specific window flag is enabled
-setWindowState           ⇐     "SetWindowState"          _R u # flags                    # Set window configuration state using flags (only PLATFORM_DESKTOP)
-clearWindowState         ⇐     "ClearWindowState"        _R u # flags                    # Clear window configuration state flags
-toggleFullscreen         ⇐     "ToggleFullscreen"        _R@                             # Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)
-maximizeWindow           ⇐     "MaximizeWindow"          _R@                             # Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
-minimizeWindow           ⇐     "MinimizeWindow"          _R@                             # Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
-restoreWindow            ⇐     "RestoreWindow"           _R@                             # Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
-setWindowIcon            ⇐     "SetWindowIcon"           _R image                        # Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
-setWindowIcons           ⇐     "SetWindowIcons"          _R(P image)‿i # images count    # Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
-setWindowTitle           ⇐     "SetWindowTitle"          _R str        # title           # Set title for window (only PLATFORM_DESKTOP)
-setWindowPosition        ⇐     "SetWindowPosition"       _R i‿i        # x y             # Set window position on screen (only PLATFORM_DESKTOP)
-setWindowMonitor         ⇐     "SetWindowMonitor"        _R i          # monitor         # Set monitor for the current window (fullscreen mode)
-setWindowMinSize         ⇐     "SetWindowMinSize"        _R i‿i        # width height    # Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
-setWindowSize            ⇐     "SetWindowSize"           _R i‿i        # width height    # Set window dimensions
-setWindowOpacity         ⇐     "SetWindowOpacity"        _R f          # opacity         # Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
-getWindowHandle          ⇐ ptr "GetWindowHandle"         _R@                             # Get native window handle
-getScreenWidth           ⇐ i   "GetScreenWidth"          _R@                             # Get current screen width
-getScreenHeight          ⇐ i   "GetScreenHeight"         _R@                             # Get current screen height
-getRenderWidth           ⇐ i   "GetRenderWidth"          _R@                             # Get current render width (it considers HiDPI)
-getRenderHeight          ⇐ i   "GetRenderHeight"         _R@                             # Get current render height (it considers HiDPI)
-getMonitorCount          ⇐ i   "GetMonitorCount"         _R@                             # Get number of connected monitors
-getCurrentMonitor        ⇐ i   "GetCurrentMonitor"       _R@                             # Get current connected monitor
-getMonitorPosition       ⇐ v2  "GetMonitorPosition"      _R i # monitor                  # Get specified monitor position
-getMonitorWidth          ⇐ i   "GetMonitorWidth"         _R i # monitor                  # Get specified monitor width (current video mode used by monitor)
-getMonitorHeight         ⇐ i   "GetMonitorHeight"        _R i # monitor                  # Get specified monitor height (current video mode used by monitor)
-getMonitorPhysicalWidth  ⇐ i   "GetMonitorPhysicalWidth" _R i # monitor                  # Get specified monitor physical width in millimetres
-getMonitorPhysicalHeight ⇐ i   "GetMonitorPhysicalHeight"_R i # monitor                  # Get specified monitor physical height in millimetres
-getMonitorRefreshRate    ⇐ i   "GetMonitorRefreshRate"   _R i # monitor                  # Get specified monitor refresh rate
-getWindowPosition        ⇐ v2  "GetWindowPosition"       _R@                             # Get window position XY on monitor
-getWindowScaleDPI        ⇐ v2  "GetWindowScaleDPI"       _R@                             # Get window scale DPI factor
-getMonitorName           ⇐ ptr "GetMonitorName"          _R i   # utf-8 _R monitor       # Get the human-readable, UTF-8 encoded name of the primary monitor
-setClipboardText         ⇐     "SetClipboardText"        _R str # text                   # Set clipboard text content                                                   # NOTE changed *:c8
-getClipboardText         ⇐ ptr "GetClipboardText"        _R@    # utf-8                  # Get clipboard text content
-enableEventWaiting       ⇐     "EnableEventWaiting"      _R@                             # Enable waiting for events on EndDrawing(), no automatic event polling
-disableEventWaiting      ⇐     "DisableEventWaiting"     _R@                             # Disable waiting for events on EndDrawing(), automatic events polling
+initWindow               ⇐     "InitWindow"              _R i‿i‿str # width height *title # Initialize window and OpenGL context
+windowShouldClose        ⇐ bool"WindowShouldClose"       _R@                              # Check if KEY_ESCAPE pressed or Close icon pressed
+closeWindow              ⇐     "CloseWindow"             _R@                              # Close window and unload OpenGL context
+isWindowReady            ⇐ bool"IsWindowReady"           _R@                              # Check if window has been initialized successfully
+isWindowFullscreen       ⇐ bool"IsWindowFullscreen"      _R@                              # Check if window is currently fullscreen
+isWindowHidden           ⇐ bool"IsWindowHidden"          _R@                              # Check if window is currently hidden (only PLATFORM_DESKTOP)
+isWindowMinimized        ⇐ bool"IsWindowMinimized"       _R@                              # Check if window is currently minimized (only PLATFORM_DESKTOP)
+isWindowMaximized        ⇐ bool"IsWindowMaximized"       _R@                              # Check if window is currently maximized (only PLATFORM_DESKTOP)
+isWindowFocused          ⇐ bool"IsWindowFocused"         _R@                              # Check if window is currently focused (only PLATFORM_DESKTOP)
+isWindowResized          ⇐ bool"IsWindowResized"         _R@                              # Check if window has been resized last frame
+isWindowState            ⇐ bool"IsWindowState"           _R u # flag                      # Check if one specific window flag is enabled
+setWindowState           ⇐     "SetWindowState"          _R u # flags                     # Set window configuration state using flags (only PLATFORM_DESKTOP)
+clearWindowState         ⇐     "ClearWindowState"        _R u # flags                     # Clear window configuration state flags
+toggleFullscreen         ⇐     "ToggleFullscreen"        _R@                              # Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)
+maximizeWindow           ⇐     "MaximizeWindow"          _R@                              # Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
+minimizeWindow           ⇐     "MinimizeWindow"          _R@                              # Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
+restoreWindow            ⇐     "RestoreWindow"           _R@                              # Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
+setWindowIcon            ⇐     "SetWindowIcon"           _R image                         # Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
+setWindowIcons           ⇐     "SetWindowIcons"          _R(P image)‿i # images count     # Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
+setWindowTitle           ⇐     "SetWindowTitle"          _R str        # *title           # Set title for window (only PLATFORM_DESKTOP)
+setWindowPosition        ⇐     "SetWindowPosition"       _R i‿i        # x y              # Set window position on screen (only PLATFORM_DESKTOP)
+setWindowMonitor         ⇐     "SetWindowMonitor"        _R i          # monitor          # Set monitor for the current window (fullscreen mode)
+setWindowMinSize         ⇐     "SetWindowMinSize"        _R i‿i        # width height     # Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
+setWindowSize            ⇐     "SetWindowSize"           _R i‿i        # width height     # Set window dimensions
+setWindowOpacity         ⇐     "SetWindowOpacity"        _R f          # opacity          # Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
+getWindowHandle          ⇐ ptr "GetWindowHandle"         _R@                              # Get native window handle
+getScreenWidth           ⇐ i   "GetScreenWidth"          _R@                              # Get current screen width
+getScreenHeight          ⇐ i   "GetScreenHeight"         _R@                              # Get current screen height
+getRenderWidth           ⇐ i   "GetRenderWidth"          _R@                              # Get current render width (it considers HiDPI)
+getRenderHeight          ⇐ i   "GetRenderHeight"         _R@                              # Get current render height (it considers HiDPI)
+getMonitorCount          ⇐ i   "GetMonitorCount"         _R@                              # Get number of connected monitors
+getCurrentMonitor        ⇐ i   "GetCurrentMonitor"       _R@                              # Get current connected monitor
+getMonitorPosition       ⇐ v2  "GetMonitorPosition"      _R i # monitor                   # Get specified monitor position
+getMonitorWidth          ⇐ i   "GetMonitorWidth"         _R i # monitor                   # Get specified monitor width (current video mode used by monitor)
+getMonitorHeight         ⇐ i   "GetMonitorHeight"        _R i # monitor                   # Get specified monitor height (current video mode used by monitor)
+getMonitorPhysicalWidth  ⇐ i   "GetMonitorPhysicalWidth" _R i # monitor                   # Get specified monitor physical width in millimetres
+getMonitorPhysicalHeight ⇐ i   "GetMonitorPhysicalHeight"_R i # monitor                   # Get specified monitor physical height in millimetres
+getMonitorRefreshRate    ⇐ i   "GetMonitorRefreshRate"   _R i # monitor                   # Get specified monitor refresh rate
+getWindowPosition        ⇐ v2  "GetWindowPosition"       _R@                              # Get window position XY on monitor
+getWindowScaleDPI        ⇐ v2  "GetWindowScaleDPI"       _R@                              # Get window scale DPI factor
+getMonitorName           ⇐ ptr "GetMonitorName"          _R i   # utf-8 _R monitor        # Get the human-readable, UTF-8 encoded name of the primary monitor
+setClipboardText         ⇐     "SetClipboardText"        _R str # *text                   # Set clipboard text content                                                   # NOTE changed *:c8
+getClipboardText         ⇐ ptr "GetClipboardText"        _R@    # utf-8                   # Get clipboard text content
+enableEventWaiting       ⇐     "EnableEventWaiting"      _R@                              # Enable waiting for events on EndDrawing(), no automatic event polling
+disableEventWaiting      ⇐     "DisableEventWaiting"     _R@                              # Disable waiting for events on EndDrawing(), automatic events polling
 
 
 # Custom frame control functions
@@ -387,20 +385,20 @@ endVrStereoMode   ⇐ "EndVrStereoMode"  _R@                                  # 
 
 # Shader management functions
 # NOTE: Shader functionality is not available on OpenGL 1.1
-LoadShader ⇐ {𝕊vsFileName‿fsFileName: LoadShaderFromMemory @∾˜¨•FChars¨𝕩}                                         # Load shader from files and bind default locations
-loadShaderFromMemory    ⇐ shader "LoadShaderFromMemory"   _R str‿str           # vsCode fsCode                           # Load shader from code strings and bind default locations
+LoadShader ⇐ {𝕊vsFileName‿fsFileName: LoadShaderFromMemory @∾˜¨•FChars¨𝕩}                   # Load shader from files and bind default locations
+loadShaderFromMemory    ⇐ shader "LoadShaderFromMemory"   _R str‿str      # *vsCode *fsCode # Load shader from code strings and bind default locations
 IsShaderReady ⇐ {𝕊shader: # Check if a shader is ready
   id‿locsPtr ← 𝕩
   (id>0)∧locsPtr≢8⥊0      # id>0 means loaded successfully and non-null pointer means memory has been succesfully allocated
 }
-getShaderLocation       ⇐ i "GetShaderLocation"      _R shader‿str        # shader uniformName                      # Get shader uniform location
-getShaderLocationAttrib ⇐ i "GetShaderLocationAttrib"_R shader‿str        # shader attribName                       # Get shader attribute location
-setShaderValue          ⇐   "SetShaderValue"         _R shader‿i‿(P f)‿i  # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
-  setShaderValuePtr     ⇐   "SetShaderValue"         _R shader‿i‿ptr‿i    # shader locIndex value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
-setShaderValueV         ⇐   "SetShaderValueV"        _R shader‿i‿ptr‿i‿i  # shader locIndex value uniformType count # Set shader uniform value vector
-setShaderValueMatrix    ⇐   "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                     # Set shader uniform value (matrix 4x4)
-setShaderValueTexture   ⇐   "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                 # Set shader uniform value for texture (sampler2d)
-unloadShader            ⇐   "UnloadShader"           _R shader                                                      # Unload shader from GPU memory (VRAM)
+getShaderLocation       ⇐ i "GetShaderLocation"      _R shader‿str        # shader *uniformName                      # Get shader uniform location
+getShaderLocationAttrib ⇐ i "GetShaderLocationAttrib"_R shader‿str        # shader *attribName                       # Get shader attribute location
+setShaderValue          ⇐   "SetShaderValue"         _R shader‿i‿(P f)‿i  # shader locIndex *value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
+  setShaderValuePtr     ⇐   "SetShaderValue"         _R shader‿i‿ptr‿i    # shader locIndex *value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
+setShaderValueV         ⇐   "SetShaderValueV"        _R shader‿i‿ptr‿i‿i  # shader locIndex *value uniformType count # Set shader uniform value vector
+setShaderValueMatrix    ⇐   "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                      # Set shader uniform value (matrix 4x4)
+setShaderValueTexture   ⇐   "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                  # Set shader uniform value for texture (sampler2d)
+unloadShader            ⇐   "UnloadShader"           _R shader                                                       # Unload shader from GPU memory (VRAM)
 
 # Screen-space-related functions
 getMouseRay        ⇐ ray    "GetMouseRay"        _R v2‿camera3D      # mousePosition camera         # Get a ray trace from mouse position
@@ -422,61 +420,61 @@ getFrameTime ⇐ f     "GetFrameTime" _R@        # Get time in seconds for last 
 getTime      ⇐ "f64" "GetTime"      _R@        # Get elapsed time in seconds since InitWindow()
 
 # Misc. functions
-getRandomValue ⇐ i "GetRandomValue"_R i‿i # min max  # Get a random value between min and max (both included)
-setRandomSeed  ⇐   "SetRandomSeed" _R i   # seed     # Set the seed for the random number generator
-takeScreenshot ⇐   "TakeScreenshot"_R str # filename # Takes a screenshot of current screen (filename extension defines format)
-setConfigFlags ⇐   "SetConfigFlags"_R u   # flags    # Setup init configuration flags (view FLAGS)
+getRandomValue ⇐ i "GetRandomValue"_R i‿i # min max   # Get a random value between min and max (both included)
+setRandomSeed  ⇐   "SetRandomSeed" _R i   # seed      # Set the seed for the random number generator
+takeScreenshot ⇐   "TakeScreenshot"_R str # *filename # Takes a screenshot of current screen (filename extension defines format)
+setConfigFlags ⇐   "SetConfigFlags"_R u   # flags     # Setup init configuration flags (view FLAGS)
 
-traceLog         ⇐     "TraceLog"        _R i‿str                         # logLevel text ... # Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...)
-setTraceLogLevel ⇐     "SetTraceLogLevel"_R i                             # logLevel          # Set the current threshold (minimum) log level
-memAlloc         ⇐ ptr "MemAlloc"        _R u                             # size              # Internal memory allocator
-memRealloc       ⇐ ptr "MemRealloc"      _R ptr‿u                         # ptr size          # Internal memory reallocator
-memFree          ⇐     "MemFree"         _R ptr                           # ptr               # Internal memory free
+traceLog         ⇐     "TraceLog"        _R i‿str                         # logLevel *text ... # Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...)
+setTraceLogLevel ⇐     "SetTraceLogLevel"_R i                             # logLevel           # Set the current threshold (minimum) log level
+memAlloc         ⇐ ptr "MemAlloc"        _R u                             # size               # Internal memory allocator
+memRealloc       ⇐ ptr "MemRealloc"      _R ptr‿u                         # *ptr size          # Internal memory reallocator
+memFree          ⇐     "MemFree"         _R ptr                           # *ptr               # Internal memory free
 
 openURL ⇐ "OpenURL"_R str # url # Open URL with default system browser (if available)
 
 # Set custom callbacks
 # WARNING: Callbacks setup is intended for advance users
-setTraceLogCallback     ⇐ "SetTraceLogCallback"    _R ptr # traceLogCallback     # Set custom trace log
-setLoadFileDataCallback ⇐ "SetLoadFileDataCallback"_R ptr # loadFileDataCallback # Set custom file binary data loader
-setSaveFileDataCallback ⇐ "SetSaveFileDataCallback"_R ptr # saveFileDataCallback # Set custom file binary data saver
-setLoadFileTextCallback ⇐ "SetLoadFileTextCallback"_R ptr # loadFileTextCallback # Set custom file text data loader
-setSaveFileTextCallback ⇐ "SetSaveFileTextCallback"_R ptr # saveFileTextCallback # Set custom file text data saver
+setTraceLogCallback     ⇐ "SetTraceLogCallback"    _R ptr # *traceLogCallback     # Set custom trace log
+setLoadFileDataCallback ⇐ "SetLoadFileDataCallback"_R ptr # *loadFileDataCallback # Set custom file binary data loader
+setSaveFileDataCallback ⇐ "SetSaveFileDataCallback"_R ptr # *saveFileDataCallback # Set custom file binary data saver
+setLoadFileTextCallback ⇐ "SetLoadFileTextCallback"_R ptr # *loadFileTextCallback # Set custom file text data loader
+setSaveFileTextCallback ⇐ "SetSaveFileTextCallback"_R ptr # *saveFileTextCallback # Set custom file text data saver
 
 # Files management functions
-loadFileData            ⇐ (ptr⊣ustr)   "LoadFileData"            _R str‿(P u)    # fileName *bytesRead         # Load file data as byte array (read)
-unloadFileData          ⇐              "UnloadFileData"          _R ustr         # data                        # Unload file data allocated by LoadFileData()
-saveFileData            ⇐ bool         "SaveFileData"            _R str‿ptr‿u    # fileName *data bytesToWrite # Save data to file from byte array (write), returns true on success
-exportDataAsCode        ⇐ bool         "ExportDataAsCode"        _R ustr‿u‿str   # data size fileName          # Export data to code (.h), returns true on success
-loadFileText            ⇐ ptr          "LoadFileText"            _R str          # fileName                    # Load text data from file (read), returns a '\0' terminated string
-unloadFileText          ⇐              "UnloadFileText"          _R str          # text                        # Unload file text data allocated by LoadFileText()
-saveFileText            ⇐ bool         "SaveFileText"            _R str‿str      # fileName text               # Save text data to file (write), string must be '\0' terminated, returns true on success
-fileExists              ⇐ bool         "FileExists"              _R str          # fileName                    # Check if file exists
-directoryExists         ⇐ bool         "DirectoryExists"         _R str          # dirPath                     # Check if a directory path exists
-isFileExtension         ⇐ bool         "IsFileExtension"         _R str‿str      # fileName ext                # Check file extension (including point: .png, .wav)
-getFileLength           ⇐ i            "GetFileLength"           _R str          # fileName                    # Get file length in bytes (NOTE: GetFileSize() conflicts with windows.h)
-getFileExtension        ⇐ (ptr⊣str)    "GetFileExtension"        _R str          # fileName                    # Get pointer to extension for a filename string (includes dot: '.png')
-getFileName             ⇐ (ptr⊣str)    "GetFileName"             _R str          # filePath                    # Get pointer to filename for a path string
-getFileNameWithoutExt   ⇐ (ptr⊣str)    "GetFileNameWithoutExt"   _R str          # filePath                    # Get filename string without extension (uses static string)
-getDirectoryPath        ⇐ (ptr⊣str)    "GetDirectoryPath"        _R str          # filePath                    # Get full path for a given fileName with path (uses static string)
-getPrevDirectoryPath    ⇐ (ptr⊣str)    "GetPrevDirectoryPath"    _R str          # dirPath                     # Get previous directory path for a given path (uses static string)
-getWorkingDirectory     ⇐ (ptr⊣str)    "GetWorkingDirectory"     _R@                                           # Get current working directory (uses static string)
-getApplicationDirectory ⇐ (ptr⊣str)    "GetApplicationDirectory" _R@                                           # Get the directory if the running application (uses static string)
-changeDirectory         ⇐ bool         "ChangeDirectory"         _R str          # dir                         # Change working directory, return true on success
-isPathFile              ⇐ bool         "IsPathFile"              _R str          # path                        # Check if a given path is a file or a directory
-loadDirectoryFiles      ⇐ filePathList "LoadDirectoryFiles"      _R str          # dirPath                     # Load directory filepaths
-loadDirectoryFilesEx    ⇐ filePathList "LoadDirectoryFilesEx"    _R str‿str‿bool # basePath filter scanSubdirs # Load directory filepaths with extension filtering and recursive directory scan
-unloadDirectoryFiles    ⇐              "UnloadDirectoryFiles"    _R filePathList # files                       # Unload filepaths
-isFileDropped           ⇐ bool         "IsFileDropped"           _R@                                           # Check if a file has been dropped into window
-loadDroppedFiles        ⇐ filePathList "LoadDroppedFiles"        _R@                                           # Load dropped filepaths
-unloadDroppedFiles      ⇐              "UnloadDroppedFiles"      _R filePathList # files                       # Unload dropped filepaths
-getFileModTime          ⇐ "f64"        "GetFileModTime"          _R str          # fileName                    # Get file modification time (last write time)
+loadFileData            ⇐ (ptr⊣ustr)   "LoadFileData"            _R str‿(P u)    # *fileName *bytesRead          # Load file data as byte array (read)
+unloadFileData          ⇐              "UnloadFileData"          _R ustr         # *data                         # Unload file data allocated by LoadFileData()
+saveFileData            ⇐ bool         "SaveFileData"            _R str‿ptr‿u    # *fileName *data bytesToWrite  # Save data to file from byte array (write), returns true on success
+exportDataAsCode        ⇐ bool         "ExportDataAsCode"        _R ustr‿u‿str   # *data size *fileName          # Export data to code (.h), returns true on success
+loadFileText            ⇐ ptr          "LoadFileText"            _R str          # *fileName                     # Load text data from file (read), returns a '\0' terminated string
+unloadFileText          ⇐              "UnloadFileText"          _R str          # *text                         # Unload file text data allocated by LoadFileText()
+saveFileText            ⇐ bool         "SaveFileText"            _R str‿str      # *fileName *text               # Save text data to file (write), string must be '\0' terminated, returns true on success
+fileExists              ⇐ bool         "FileExists"              _R str          # *fileName                     # Check if file exists
+directoryExists         ⇐ bool         "DirectoryExists"         _R str          # *dirPath                      # Check if a directory path exists
+isFileExtension         ⇐ bool         "IsFileExtension"         _R str‿str      # *fileName *ext                # Check file extension (including point: .png, .wav)
+getFileLength           ⇐ i            "GetFileLength"           _R str          # *fileName                     # Get file length in bytes (NOTE: GetFileSize() conflicts with windows.h)
+getFileExtension        ⇐ (ptr⊣str)    "GetFileExtension"        _R str          # *fileName                     # Get pointer to extension for a filename string (includes dot: '.png')
+getFileName             ⇐ (ptr⊣str)    "GetFileName"             _R str          # *filePath                     # Get pointer to filename for a path string
+getFileNameWithoutExt   ⇐ (ptr⊣str)    "GetFileNameWithoutExt"   _R str          # *filePath                     # Get filename string without extension (uses static string)
+getDirectoryPath        ⇐ (ptr⊣str)    "GetDirectoryPath"        _R str          # *filePath                     # Get full path for a given fileName with path (uses static string)
+getPrevDirectoryPath    ⇐ (ptr⊣str)    "GetPrevDirectoryPath"    _R str          # *dirPath                      # Get previous directory path for a given path (uses static string)
+getWorkingDirectory     ⇐ (ptr⊣str)    "GetWorkingDirectory"     _R@                                             # Get current working directory (uses static string)
+getApplicationDirectory ⇐ (ptr⊣str)    "GetApplicationDirectory" _R@                                             # Get the directory if the running application (uses static string)
+changeDirectory         ⇐ bool         "ChangeDirectory"         _R str          # *dir                          # Change working directory, return true on success
+isPathFile              ⇐ bool         "IsPathFile"              _R str          # *path                         # Check if a given path is a file or a directory
+loadDirectoryFiles      ⇐ filePathList "LoadDirectoryFiles"      _R str          # *dirPath                      # Load directory filepaths
+loadDirectoryFilesEx    ⇐ filePathList "LoadDirectoryFilesEx"    _R str‿str‿bool # *basePath *filter scanSubdirs # Load directory filepaths with extension filtering and recursive directory scan
+unloadDirectoryFiles    ⇐              "UnloadDirectoryFiles"    _R filePathList # files                         # Unload filepaths
+isFileDropped           ⇐ bool         "IsFileDropped"           _R@                                             # Check if a file has been dropped into window
+loadDroppedFiles        ⇐ filePathList "LoadDroppedFiles"        _R@                                             # Load dropped filepaths
+unloadDroppedFiles      ⇐              "UnloadDroppedFiles"      _R filePathList # files                         # Unload dropped filepaths
+getFileModTime          ⇐ "f64"        "GetFileModTime"          _R str          # *fileName                     # Get file modification time (last write time)
 
 # Compression/Encoding functionality
-compressData     ⇐ ptr "CompressData"     _R uStr‿i‿"&i32"  # data dataSize compDataSize      # Compress data (DEFLATE algorithm), memory must be MemFree()
-decompressData   ⇐ ptr "DecompressData"   _R uStr‿i‿"&i32"  # compData compDataSize dataSize  # Decompress data (DEFLATE algorithm), memory must be MemFree()
-encodeDataBase64 ⇐ ptr "EncodeDataBase64" _R uStr‿i‿i       # data dataSize *outputSize       # Encode data to Base64 string, memory must be MemFree()
-decodeDataBase64 ⇐ ptr "DecodeDataBase64" _R uStr‿i‿(P i) # data *outputSize                # Decode Base64 string data, memory must be MemFree()
+compressData     ⇐ ptr "CompressData"     _R uStr‿i‿"&i32"  # *data dataSize compDataSize      # Compress data (DEFLATE algorithm), memory must be MemFree()
+decompressData   ⇐ ptr "DecompressData"   _R uStr‿i‿"&i32"  # *compData compDataSize dataSize  # Decompress data (DEFLATE algorithm), memory must be MemFree()
+encodeDataBase64 ⇐ ptr "EncodeDataBase64" _R uStr‿i‿i       # *data dataSize *outputSize       # Encode data to Base64 string, memory must be MemFree()
+decodeDataBase64 ⇐ ptr "DecodeDataBase64" _R uStr‿i‿(P i)   # *data *outputSize                # Decode Base64 string data, memory must be MemFree()
 
 
 #------------------------------------------------------------------------------------
@@ -502,7 +500,7 @@ isGamepadButtonUp       ⇐ bool     "IsGamepadButtonUp"       _R i‿i # gamepa
 getGamepadButtonPressed ⇐ i        "GetGamepadButtonPressed" _R@                     # Get the last gamepad button pressed
 getGamepadAxisCount     ⇐ i        "GetGamepadAxisCount"     _R i   # gamepad        # Get gamepad axis count for a gamepad
 getGamepadAxisMovement  ⇐ f        "GetGamepadAxisMovement"  _R i‿i # gamepad axis   # Get axis movement value for a gamepad axis
-setGamepadMappings      ⇐ i        "SetGamepadMappings"      _R str # mappings       # Set internal gamepad mappings (SDL_GameControllerDB)
+setGamepadMappings      ⇐ i        "SetGamepadMappings"      _R str # *mappings      # Set internal gamepad mappings (SDL_GameControllerDB)
 
 # Input-related functions: mouse
 isMouseButtonPressed  ⇐ bool "IsMouseButtonPressed" _R i   # button          # Check if a mouse button has been pressed once
@@ -613,16 +611,16 @@ getCollisionRec             ⇐ rectangle "GetCollisionRec"             _R recta
 
 # Image loading functions
 # NOTE: This functions do not require GPU access
-loadImage            ⇐ image "LoadImage"           _R str         # fileName                               # Load image from file into CPU memory (RAM)
-loadImageRaw         ⇐ image "LoadImageRaw"        _R str‿i‿i‿i‿i # fileName width hight format headerSize # Load image from RAW file data
-loadImageAnim        ⇐ image "LoadImageAnim"       _R str‿i       # fileName framesCount                   # Load image sequence from file (frames appended to image.data)
-loadImageFromMemory  ⇐ image "LoadImageFromMemory" _R str‿str‿i   # fileType fileData dataSize             # Load image from memory buffer, fileType refers to extension: i.e. '.png'
-loadImageFromTexture ⇐ image "LoadImageFromTexture"_R texture     # texture2D                              # Load image from GPU texture data
-loadImageFromScreen  ⇐ image "LoadImageFromScreen" _R@                                                     # Load image from screen buffer and (screenshot)
-isImageReady         ⇐ bool  "IsImageReady"        _R image                                                # Check if an image is ready
-unloadImage          ⇐       "UnloadImage"         _R image                                                # Unload image from CPU memory (RAM)
-exportImage          ⇐ bool  "ExportImage"         _R image‿str   # image filename                         # Export image data to file, returns true on success
-exportImageAsCode    ⇐ bool  "ExportImageAsCode"   _R image‿str   # image fileName                         # Export image as code file defining an array of bytes, returns true on success
+loadImage            ⇐ image "LoadImage"           _R str         # *fileName                               # Load image from file into CPU memory (RAM)
+loadImageRaw         ⇐ image "LoadImageRaw"        _R str‿i‿i‿i‿i # *fileName width hight format headerSize # Load image from RAW file data
+loadImageAnim        ⇐ image "LoadImageAnim"       _R str‿i       # *fileName framesCount                   # Load image sequence from file (frames appended to image.data)
+loadImageFromMemory  ⇐ image "LoadImageFromMemory" _R str‿str‿i   # *fileType *fileData dataSize            # Load image from memory buffer, fileType refers to extension: i.e. '.png'
+loadImageFromTexture ⇐ image "LoadImageFromTexture"_R texture     # texture2D                               # Load image from GPU texture data
+loadImageFromScreen  ⇐ image "LoadImageFromScreen" _R@                                                      # Load image from screen buffer and (screenshot)
+isImageReady         ⇐ bool  "IsImageReady"        _R image                                                 # Check if an image is ready
+unloadImage          ⇐       "UnloadImage"         _R image                                                 # Unload image from CPU memory (RAM)
+exportImage          ⇐ bool  "ExportImage"         _R image‿str   # image *filename                         # Export image data to file, returns true on success
+exportImageAsCode    ⇐ bool  "ExportImageAsCode"   _R image‿str   # image *fileName                         # Export image as code file defining an array of bytes, returns true on success
 
 # Image generation functions
 genImageColor          ← image "GenImageColor"         _R i‿i‿color           # width hight color                     # Generate image: plain color
@@ -636,7 +634,7 @@ genImageText           ← image "GenImageText"          _R i‿i‿str         
 # Image manipulation functions
 imageCopy             ⇐ image        "ImageCopy"             _R image                                                                     # Create an image duplicate (useful for transformations)
 imageFromImage        ⇐ image        "ImageFromImage"        _R image‿rectangle                                                           # Create an image from another image piece
-imageText             ⇐ image        "ImageText"             _R str‿i‿color               # text fontSize color                           # Create an image from text (default font)
+imageText             ⇐ image        "ImageText"             _R str‿i‿color               # *text fontSize color                          # Create an image from text (default font)
 imageTextEx           ⇐ image        "ImageTextEx"           _R font‿str‿f‿f‿color        # font text fontSize spacing tint               # Create an image from text (custom sprite font)
 imageFormat           ⇐              "ImageFormat"           _R ('&'∾image)‿i             # image newFormat                               # Convert image data to desired format
 imageToPOT            ⇐              "ImageToPOT"            _R ('&'∾image)‿color         # image fill                                    # Convert image to POT (power-of-two)
@@ -684,12 +682,12 @@ imageDrawRectangleV     ⇐ "ImageDrawRectangleV"     _R ('&'∾image)‿v2‿v2
 imageDrawRectangleRec   ⇐ "ImageDrawRectangleRec"   _R ('&'∾image)‿rectangle‿color                 # *dst rec color                                 # Draw rectangle within an image
 imageDrawRectangleLines ⇐ "ImageDrawRectangleLines" _R ('&'∾image)‿rectangle‿i‿color               # *dst rec thick color                           # Draw rectangle lines within an image
 imageDraw               ⇐ "ImageDraw"               _R ('&'∾image)‿image‿rectangle‿rectangle‿color # *dst src srcRec dstRec tint                    # Draw a source image within a destination image (tint applied to source)
-imageDrawText           ⇐ "ImageDrawText"           _R ('&'∾image)‿str‿i‿i‿i‿color                 # *dst text posX posY fontSize color             # Draw text (using default font) within an image (destination)
-imageDrawTextEx         ⇐ "ImageDrawTextEx"         _R ('&'∾image)‿font‿str‿v2‿f‿f‿color           # *dst font text position fontSize spacing tint  # Draw text (custom sprite font) within an image (destination)
+imageDrawText           ⇐ "ImageDrawText"           _R ('&'∾image)‿str‿i‿i‿i‿color                 # *dst *text posX posY fontSize color            # Draw text (using default font) within an image (destination)
+imageDrawTextEx         ⇐ "ImageDrawTextEx"         _R ('&'∾image)‿font‿str‿v2‿f‿f‿color           # *dst font *text position fontSize spacing tint # Draw text (custom sprite font) within an image (destination)
 
 # Texture loading functions
 # NOTE: These functions require GPU access
-loadTexture          ⇐ texture       "LoadTexture"         _R str            # fileName      # Load texture from file into GPU memory (VRAM)
+loadTexture          ⇐ texture       "LoadTexture"         _R str            # *fileName     # Load texture from file into GPU memory (VRAM)
 loadTextureFromImage ⇐ texture       "LoadTextureFromImage"_R image                          # Load texture from image data
 loadTextureCubemap   ⇐ texture       "LoadTextureCubemap"  _R image‿i        # image layout  # Load cubemap from image, multiple image cubemap layouts supported
 loadRenderTexture    ⇐ renderTexture "LoadRenderTexture"   _R i‿i            # width height  # Load texture for rendering (framebuffer)
@@ -735,44 +733,44 @@ getPixelDataSize    ⇐ i     "GetPixelDataSize"    _R i‿i‿i             # w
 #------------------------------------------------------------------------------------
 
 # Font loading/unloading functions
-getFontDefault     ⇐ font              "GetFontDefault"     _R@                                                                                                  # Get the default Font
-loadFont           ⇐ font              "LoadFont"           _R str                                   # fileName                                                  # Load font from file into GPU memory (VRAM)
-loadFontEx         ⇐ font              "LoadFontEx"         _R str‿i‿(P i)‿i                         # fileName fontSize fontChars glyphCount                    # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
-loadFontFromImage  ⇐ font              "LoadFontFromImage"  _R image‿color‿i                         # image color(key?) firstChar                               # Load font from Image (XNA style)
-loadFontFromMemory ⇐ font              "LoadFontFromMemory" _R str‿ustr‿i‿i‿(P i)‿i                  # fileType fileData dataSize fontSize *fontChars glyphCount # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
-isFontReady        ⇐ bool              "IsFontReady"        _R font                                                                                              # Check if a font is ready
-loadFontData       ⇐ (ptr⊣P glyphInfo) "LoadFontData"       _R ustr‿i‿i‿(P i)‿i‿i                    # fileData dataSize fontSize fontChars glyphCount type      # Load font data for further use
-genImageFontAtlas  ⇐ image             "GenImageFontAtlas"  _R (P glyphInfo)‿(P⍟2 rectangle)‿i‿i‿i‿i # *chars **recs glyphCount fontSize padding packMethod      # Generate image font atlas using chars info
-unloadFontData     ⇐                   "UnloadFontData"     _R (P glyphInfo)‿i                       # *chars glyphCount                                         # Unload font chars info data (RAM)
-exportFontAsCode   ⇐ bool              "ExportFontAsCode"   _R font‿str                              # font fileName                                             # Export font as code file, returns true on success
-unloadFont         ⇐                   "UnloadFont"         _R font                                                                                              # Unload font from GPU memory (VRAM)
+getFontDefault     ⇐ font              "GetFontDefault"     _R@                                                                                                    # Get the default Font
+loadFont           ⇐ font              "LoadFont"           _R str                                   # *fileName                                                   # Load font from file into GPU memory (VRAM)
+loadFontEx         ⇐ font              "LoadFontEx"         _R str‿i‿(P i)‿i                         # *fileName fontSize *fontChars glyphCount                    # Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load the default character set
+loadFontFromImage  ⇐ font              "LoadFontFromImage"  _R image‿color‿i                         # image color(key?) firstChar                                 # Load font from Image (XNA style)
+loadFontFromMemory ⇐ font              "LoadFontFromMemory" _R str‿ustr‿i‿i‿(P i)‿i                  # *fileType *fileData dataSize fontSize *fontChars glyphCount # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
+isFontReady        ⇐ bool              "IsFontReady"        _R font                                                                                                # Check if a font is ready
+loadFontData       ⇐ (ptr⊣P glyphInfo) "LoadFontData"       _R ustr‿i‿i‿(P i)‿i‿i                    # *fileData dataSize fontSize fontChars glyphCount type       # Load font data for further use
+genImageFontAtlas  ⇐ image             "GenImageFontAtlas"  _R (P glyphInfo)‿(P⍟2 rectangle)‿i‿i‿i‿i # *chars **recs glyphCount fontSize padding packMethod        # Generate image font atlas using chars info
+unloadFontData     ⇐                   "UnloadFontData"     _R (P glyphInfo)‿i                       # *chars glyphCount                                           # Unload font chars info data (RAM)
+exportFontAsCode   ⇐ bool              "ExportFontAsCode"   _R font‿str                              # font fileName                                               # Export font as code file, returns true on success
+unloadFont         ⇐                   "UnloadFont"         _R font                                                                                                # Unload font from GPU memory (VRAM)
 
 # Text drawing
-drawFPS            ⇐ "DrawFPS"           _R i‿i                        # posX posY                                                # Draw current FPS
-drawText           ⇐ "DrawText"          _R str‿i‿i‿i‿color            # text posX posY fontSize color                            # Draw text (using default font)
-drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color      # font text position spacing fontSize tint                 # Draw text using font and additional parameters     # Warning, does not support unicode
-drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color # font text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation) # Warning, does not support unicode
-drawTextCodepoint  ⇐ "DrawTextCodepoint" _R font‿i‿v2‿f‿color          # font codepoint position fontSize tint                    # Draw one character (codepoint)
-drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿(P i)‿i‿v2‿f‿f‿color  # font codepoints count position fontSize spacing tint     # Draw multiple character (codepoint)
+drawFPS            ⇐ "DrawFPS"           _R i‿i                        # posX posY                                                 # Draw current FPS
+drawText           ⇐ "DrawText"          _R str‿i‿i‿i‿color            # *text posX posY fontSize color                            # Draw text (using default font)
+drawTextEx         ⇐ "DrawTextEx"        _R font‿str‿v2‿f‿f‿color      # font *text position spacing fontSize tint                 # Draw text using font and additional parameters     # Warning, does not support unicode
+drawTextPro        ⇐ "DrawTextPro"       _R font‿str‿v2‿v2‿f‿f‿f‿color # font *text position origin rotation fontSize spacing tint # Draw text using Font and pro parameters (rotation) # Warning, does not support unicode
+drawTextCodepoint  ⇐ "DrawTextCodepoint" _R font‿i‿v2‿f‿color          # font codepoint position fontSize tint                     # Draw one character (codepoint)
+drawTextCodepoints ⇐ "DrawTextCodepoints"_R font‿(P i)‿i‿v2‿f‿f‿color  # font codepoints count position fontSize spacing tint      # Draw multiple character (codepoint)
 
 # Text font info functions
-measureText      ⇐ i         "MeasureText"     _R str‿i        # text fontSize              # Measure string width for default font
-measureTextEx    ⇐ v2        "MeasureTextEx"   _R font‿str‿f‿f # font text fontSize spacing # Measure string size for Font
-getGlyphIndex    ⇐ i         "GetGlyphIndex"   _R font‿i       # font codepoint             # Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
-getGlyphInfo     ⇐ glyphInfo "GetGlyphInfo"    _R font‿i       # font codepoint             # Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
-getGlyphAtlasRec ⇐ rectangle "GetGlyphAtlasRec"_R font‿i       # font codepoint             # Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
+measureText      ⇐ i         "MeasureText"     _R str‿i        # *text fontSize              # Measure string width for default font
+measureTextEx    ⇐ v2        "MeasureTextEx"   _R font‿str‿f‿f # font *text fontSize spacing # Measure string size for Font
+getGlyphIndex    ⇐ i         "GetGlyphIndex"   _R font‿i       # font codepoint              # Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
+getGlyphInfo     ⇐ glyphInfo "GetGlyphInfo"    _R font‿i       # font codepoint              # Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
+getGlyphAtlasRec ⇐ rectangle "GetGlyphAtlasRec"_R font‿i       # font codepoint              # Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
 
 # Text codepoints management functions (unicode characters)
-loadUTF8             ⇐ ptr "LoadUTF8"             _R (P i)‿i # str ""_R *codepoints length   # Load UTF-8 text encoded from codepoints array
-unloadUTF8           ⇐     "UnloadUTF8"           _R str     # *text                         # Unload UTF-8 text encoded from codepoints array
-loadCodepoints       ⇐ ptr "LoadCodepoints"       _R str⋈P i # *i ""_R *text *count          # Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
-unloadCodepoints     ⇐     "UnloadCodepoints"     _R P i     # *codepoints                   # Unload codepoints data from memory
-getCodepointCount    ⇐ i   "GetCodepointCount"    _R str     # *text                         # Get total number of codepoints in a UTF-8 encoded string
-  getCodepointCountP ⇐ i   "GetCodepointCount"    _R ptr     # pointer version
-getCodepoint         ⇐ i   "GetCodepoint"         _R str⋈P i # *text *codepointSize          # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-getCodepointNext     ⇐ i   "GetCodepointNext"     _R str⋈P i # *text *codepointSize          # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-getCodepointPrevious ⇐ i   "GetCodepointPrevious" _R str⋈P i # *text *codepointSize          # Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-codepointToUTF8      ⇐ ptr "CodepointToUTF8"      _R i‿(P i) # str ""_R codepoint *utf8Size  # Encode one codepoint into UTF-8 byte array (array length returned as parameter)
+loadUTF8             ⇐ ptr       "LoadUTF8"             _R (P i)‿i # *str ""_R *codepoints length  # Load UTF-8 text encoded from codepoints array
+unloadUTF8           ⇐           "UnloadUTF8"           _R str     # *text                         # Unload UTF-8 text encoded from codepoints array
+loadCodepoints       ⇐ ptr       "LoadCodepoints"       _R str⋈P i # *i ""_R *text *count          # Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
+unloadCodepoints     ⇐           "UnloadCodepoints"     _R P i     # *codepoints                   # Unload codepoints data from memory
+getCodepointCount    ⇐ i         "GetCodepointCount"    _R str     # *text                         # Get total number of codepoints in a UTF-8 encoded string
+  getCodepointCountP ⇐ i         "GetCodepointCount"    _R ptr     # DUPLICATE
+getCodepoint         ⇐ i         "GetCodepoint"         _R str⋈P i # *text *codepointSize          # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+getCodepointNext     ⇐ i         "GetCodepointNext"     _R str⋈P i # *text *codepointSize          # Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+getCodepointPrevious ⇐ i         "GetCodepointPrevious" _R str⋈P i # *text *codepointSize          # Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
+codepointToUTF8      ⇐ (ptr⊣str) "CodepointToUTF8"      _R i‿(P i) # codepoint *utf8Size           # Encode one codepoint into UTF-8 byte array (array length returned as parameter)
 
 
 # Text strings management functions
@@ -796,7 +794,7 @@ drawLine3D          ⇐ "DrawLine3D"         _R v3‿v3‿color         # startP
 drawPoint3D         ⇐ "DrawPoint3D"        _R v3‿color            # position color                                     # Draw a point in 3D space, actually a small line
 drawCircle3D        ⇐ "DrawCircle3D"       _R v3‿f‿v3‿f‿color     # center radius rotationAxis rotationAngle color     # Draw a circle in 3D world space
 drawTriangle3D      ⇐ "DrawTriangle3D"     _R v3‿v3‿v3‿color      # v1 v2 v3 color                                     # Draw a color-filled triangle (vertex in counter-clockwise order!)
-drawTriangleStrip3D ⇐ "DrawTriangleStrip3D"_R (P v3)‿i‿color    # *points pointCount color                           # Draw a triangle strip defined by points
+drawTriangleStrip3D ⇐ "DrawTriangleStrip3D"_R (P v3)‿i‿color      # *points pointCount color                           # Draw a triangle strip defined by points
 drawCube            ⇐ "DrawCube"           _R v3‿f‿f‿f‿color      # position width hight length color                  # Draw cube
 drawCubeV           ⇐ "DrawCubeV"          _R v3‿v3‿color         # position size color                                # Draw cube (Vector version)
 drawCubeWires       ⇐ "DrawCubeWires"      _R v3‿f‿f‿f‿color      # position width hight length color                  # Draw cube wires
@@ -819,11 +817,11 @@ drawGrid            ⇐ "DrawGrid"           _R i‿f                 # slices s
 #------------------------------------------------------------------------------------
 
 # Model management functions
-loadModel           ⇐ model       "LoadModel"          _R str  # fileName # Load model from files (meshes and materials)
-loadModelFromMesh   ⇐ model       "LoadModelFromMesh"  _R mesh            # Load model from generated mesh (default material)
-isModelReady        ⇐ bool        "IsModelReady"       _R model           # Check if a model is ready
-unloadModel         ⇐             "UnloadModel"        _R model           # Unload model (including meshes) from memory (RAM and/or VRAM)
-getModelBoundingBox ⇐ boundingBox "GetModelBoundingBox"_R model           # Compute model bounding box limits (considers all meshes)
+loadModel           ⇐ model       "LoadModel"          _R str  # *fileName # Load model from files (meshes and materials)
+loadModelFromMesh   ⇐ model       "LoadModelFromMesh"  _R mesh             # Load model from generated mesh (default material)
+isModelReady        ⇐ bool        "IsModelReady"       _R model            # Check if a model is ready
+unloadModel         ⇐             "UnloadModel"        _R model            # Unload model (including meshes) from memory (RAM and/or VRAM)
+getModelBoundingBox ⇐ boundingBox "GetModelBoundingBox"_R model            # Compute model bounding box limits (considers all meshes)
 
 # Model drawing functions
 drawModel        ⇐ "DrawModel"       _R model‿v3‿f‿color                               # model position scale tint                                   # Draw a model (with texture if set)
@@ -841,7 +839,7 @@ updateMeshBuffer   ⇐             "UpdateMeshBuffer"   _R mesh‿i‿(P u8)‿i
 unloadMesh         ⇐             "UnloadMesh"         _R mesh                       # mesh                                # Unload mesh data from CPU and GPU
 drawMesh           ⇐             "DrawMesh"           _R mesh‿material‿matrix       # mesh material transform             # Draw a 3d mesh with material and transform
 drawMeshInstanced  ⇐             "DrawMeshInstanced"  _R mesh‿material‿(P matrix)‿i # mesh material *transforms instances # Draw multiple mesh instances with material and different transforms
-exportMesh         ⇐ bool        "ExportMesh"         _R mesh‿str                   # mesh fileName                       # Export mesh data to file, returns true on success
+exportMesh         ⇐ bool        "ExportMesh"         _R mesh‿str                   # mesh *fileName                      # Export mesh data to file, returns true on success
 getMeshBoundingBox ⇐ boundingBox "GetMeshBoundingBox" _R mesh                       # mesh                                # Compute mesh bounding box limits
 genMeshTangents    ⇐             "GenMeshTangents"    _R mesh                       # mesh                                # Compute mesh tangents
 
@@ -867,11 +865,11 @@ setMaterialTexture   ⇐                  "SetMaterialTexture"   _R (P material)
 setModelMeshMaterial ⇐                  "SetModelMeshMaterial" _R (P model)‿i‿i          # *model meshId materialId  # Set material for a mesh
 
 # Model animations loading/unloading functions
-loadModelAnimations   ⇐ (ptr⊣P modelAnimation) "LoadModelAnimations"   _R str⋈P u                # filename *anumCount # Load model animations from file
-updateModelAnimation  ⇐                        "UpdateModelAnimation"  _R model‿modelAnimation‿i # model anim frame    # Update model animation pose
-unloadModelAnimation  ⇐                        "UnloadModelAnimation"  _R modelAnimation                               # Unload animation data
-unloadModelAnimations ⇐                        "UnloadModelAnimations" _R (P modelAnimation)‿u   # *animations count   # Unload animation array data
-isModelAnimationValid ⇐ bool                   "IsModelAnimationValid" _R model‿modelAnimation                         # Check model animation skeleton match
+loadModelAnimations   ⇐ (ptr⊣P modelAnimation) "LoadModelAnimations"   _R str⋈P u                # *filename *anumCount # Load model animations from file
+updateModelAnimation  ⇐                        "UpdateModelAnimation"  _R model‿modelAnimation‿i # model anim frame     # Update model animation pose
+unloadModelAnimation  ⇐                        "UnloadModelAnimation"  _R modelAnimation                                # Unload animation data
+unloadModelAnimations ⇐                        "UnloadModelAnimations" _R (P modelAnimation)‿u   # *animations count    # Unload animation array data
+isModelAnimationValid ⇐ bool                   "IsModelAnimationValid" _R model‿modelAnimation                          # Check model animation skeleton match
 
 # Collision detection functions
 checkCollisionSpheres   ⇐ bool         "CheckCollisionSpheres"   _R v3‿f‿v3‿f               # center1 radius1 center2 radius2 # Check collision between two spheres
@@ -904,8 +902,8 @@ isSoundReady       ⇐ bool  "IsSoundReady"       _R sound                      
 updateSound        ⇐       "UpdateSound"        _R sound‿ptr‿i # sound *data sampleCount      # Update sound buffer with new data
 unloadWave         ⇐       "UnloadWave"         _R wave                                       # Unload wave data
 unloadSound        ⇐       "UnloadSound"        _R sound                                      # Unload sound
-exportWave         ⇐ bool  "ExportWave"         _R wave‿str    # wave fileName                # Export wave data to file, returns true on success
-exportWaveAsCode   ⇐ bool  "ExportWaveAsCode"   _R wave‿str    # wave fileName                # Export wave sample data to code (.h), returns true on success
+exportWave         ⇐ bool  "ExportWave"         _R wave‿str    # wave *fileName               # Export wave data to file, returns true on success
+exportWaveAsCode   ⇐ bool  "ExportWaveAsCode"   _R wave‿str    # wave *fileName               # Export wave sample data to code (.h), returns true on success
 
 # Wave/Sound management functions
 playSound         ⇐           "PlaySound"         _R sound                                                 # Play a sound
@@ -923,22 +921,22 @@ loadWaveSamples   ⇐ (ptr⊣P f) "LoadWaveSamples"   _R wave           # wave  
 unloadWaveSamples ⇐           "UnloadWaveSamples" _R P f            # *samples                             # Unload samples data loaded with LoadWaveSamples()
 
 # Music management functions
-loadMusicStream           ⇐ music "LoadMusicStream"           _R str        # fileName                # Load music stream from file
-loadMusicStreamFromMemory ⇐ music "LoadMusicStreamFromMemory" _R str‿ustr‿i # fileType *data dataSize # Load music stream from data
-isMusicReady              ⇐ bool  "IsMusicReady"              _R music                                # Checks if a music stream is ready
-unloadMusicStream         ⇐       "UnloadMusicStream"         _R music                                # Unload music stream
-playMusicStream           ⇐       "PlayMusicStream"           _R music                                # Start music playing
-isMusicStreamPlaying      ⇐ bool  "IsMusicStreamPlaying"      _R music                                # Check if music is playing
-updateMusicStream         ⇐       "UpdateMusicStream"         _R music                                # Updates buffers for music streaming
-stopMusicStream           ⇐       "StopMusicStream"           _R music                                # Stop music playing
-pauseMusicStream          ⇐       "PauseMusicStream"          _R music                                # Pause music playing
-resumeMusicStream         ⇐       "ResumeMusicStream"         _R music                                # Resume playing paused music
-seekMusicStream           ⇐       "SeekMusicStream"           _R music‿f    # music position          # Seek music to a position (in seconds)
-setMusicVolume            ⇐       "SetMusicVolume"            _R music‿f    # music volume            # Set volume for music (1.0 is max level)
-setMusicPitch             ⇐       "SetMusicPitch"             _R music‿f    # music pitch             # Set pitch for a music (1.0 is base level)
-setMusicPan               ⇐       "SetMusicPan"               _R music‿f    # music pan               # Set pan for a music (0.5 is center)
-getMusicTimeLength        ⇐ f     "GetMusicTimeLength"        _R music                                # Get music time length (in seconds)
-getMusicTimePlayed        ⇐ f     "GetMusicTimePlayed"        _R music                                # Get current music time played (in seconds)
+loadMusicStream           ⇐ music "LoadMusicStream"           _R str        # *fileName                # Load music stream from file
+loadMusicStreamFromMemory ⇐ music "LoadMusicStreamFromMemory" _R str‿ustr‿i # *fileType *data dataSize # Load music stream from data
+isMusicReady              ⇐ bool  "IsMusicReady"              _R music                                 # Checks if a music stream is ready
+unloadMusicStream         ⇐       "UnloadMusicStream"         _R music                                 # Unload music stream
+playMusicStream           ⇐       "PlayMusicStream"           _R music                                 # Start music playing
+isMusicStreamPlaying      ⇐ bool  "IsMusicStreamPlaying"      _R music                                 # Check if music is playing
+updateMusicStream         ⇐       "UpdateMusicStream"         _R music                                 # Updates buffers for music streaming
+stopMusicStream           ⇐       "StopMusicStream"           _R music                                 # Stop music playing
+pauseMusicStream          ⇐       "PauseMusicStream"          _R music                                 # Pause music playing
+resumeMusicStream         ⇐       "ResumeMusicStream"         _R music                                 # Resume playing paused music
+seekMusicStream           ⇐       "SeekMusicStream"           _R music‿f    # music position           # Seek music to a position (in seconds)
+setMusicVolume            ⇐       "SetMusicVolume"            _R music‿f    # music volume             # Set volume for music (1.0 is max level)
+setMusicPitch             ⇐       "SetMusicPitch"             _R music‿f    # music pitch              # Set pitch for a music (1.0 is base level)
+setMusicPan               ⇐       "SetMusicPan"               _R music‿f    # music pan                # Set pan for a music (0.5 is center)
+getMusicTimeLength        ⇐ f     "GetMusicTimeLength"        _R music                                 # Get music time length (in seconds)
+getMusicTimePlayed        ⇐ f     "GetMusicTimePlayed"        _R music                                 # Get current music time played (in seconds)
 
 # AudioStream management functions
 loadAudioStream                 ⇐ audioStream "LoadAudioStream"                 _R u‿u‿u             # sampleRate sampleSize channels # Load audio stream (to stream raw audio pcm data)
