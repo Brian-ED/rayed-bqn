@@ -6,6 +6,10 @@
 # Encode image data in arrays by using encode to encode into binary data by an input format,
 # along with also acounting for luminocity.
 
+# TODOs
+# remember to normalize not only by gray but by all colors, depending on their bytes 
+# after aproximating, turn leftover data into other colors to keep brightness the same 
+# calculate leftovers (that come from shortening bit-lengths and therefore loosing information and brightness) and add them in other colors
 
 # pixel formats for images suported:
 # (kinda means it's supported but not space efficient)
@@ -67,9 +71,6 @@ LoadDataNormalized ← {format𝕊image:
 ReFormat ← {oldFormat‿newFormat𝕊image:
   rgba ← oldFormat LoadDataNormalized image
   bitLengths ← FormatToLengths newFormat
-  # remember to normalize not only by gray but by all colors, depending on their bytes 
-  # after aproximating, turn leftover data into other colors to keep brightness the same 
-  # calculate leftovers (that come from shortening bit-lengths and therefore loosing information and brightness) and add them in other colors
   m ← 0≠bitLengths
   x ← ⍉⁼ rgba MP ⍉ m/luminocityMat
   ⌊0.5+x×m/bitLengths
@@ -105,22 +106,4 @@ image ← 3‿3‿2⥊[155‿255,0‿0]
 #            a = (pixels[i].w > ((float)PIXELFORMAT_UNCOMPRESSED_R5G5B5A1_ALPHA_THRESHOLD/255.0f))? 1 : 0;
 #
 #            ((unsigned short *)image->data)[i] = (unsigned short)r << 11 | (unsigned short)g << 6 | (unsigned short)b << 1 | (unsigned short)a;
-#        }
-#  ;
-#    𝕊6: # uncompressed_r4g4b4a4
-#        image->data = (unsigned short *)RL_MALLOC(image->width*image->height*sizeof(unsigned short));
-#
-#        unsigned char r = 0;
-#        unsigned char g = 0;
-#        unsigned char b = 0;
-#        unsigned char a = 0;
-#
-#        for (int i = 0; i < image->width*image->height; i++)
-#        {
-#            r = (unsigned char)(round(pixels[i].x*15.0f));
-#            g = (unsigned char)(round(pixels[i].y*15.0f));
-#            b = (unsigned char)(round(pixels[i].z*15.0f));
-#            a = (unsigned char)(round(pixels[i].w*15.0f));
-#
-#            ((unsigned short *)image->data)[i] = (unsigned short)r << 12 | (unsigned short)g << 8 | (unsigned short)b << 4 | (unsigned short)a;
 #        }
