@@ -6,7 +6,7 @@
 
 # -------
 # Exports
-⟨draw, image, texture, monitor, window, mouse
+⟨draw, texture, monitor, window, mouse
  font, key, utils, clipboard⟩⇐
 
 ⟨
@@ -26,8 +26,10 @@
 
 ⟨bqnLibsPath⟩ ← •Import "src/loadConfig.bqn"
 rayFFI  ⇐ •Import "rayffi.bqn"
+global  ← •Import "src/global.bqn"
 color   ⇐ •Import "src/colors.bqn"
 raymath ⇐ •Import "src/raymath.bqn"
+image   ⇐ •Import "src/image.bqn"
 # -------
 
 # TODO: These need to be more accurate
@@ -37,60 +39,11 @@ isWindows ← ¬isLinux
 # Utils:
 FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
+global.SetNeedsWindow NeedsWindow
 
 # Defaults
 rayffi.SetConfigFlags 4 #SetConfigFlags is before InitWindow, SetWindowState is after
 
-image ← { # TODO support more formats somehow
-  ⟨ _WithRayImg ⋄ ToArr
-    FromFile ⋄ FromArrLoad ⋄ Unload
-    gen
-  ⟩⇐
-  # gen has image generation functions such as GradientLinear and GradientSquare
-  gen ← •Import "src/imageGen.bqn"
-  
-  ToArr ← {𝕊raylibImg:
-    dataPtr‿width‿hight‿mipmaps‿format←𝕩
-    {𝕤
-      0!˜×∘≠◶⟨
-        "Format given doesn't exist"
-        "Format "∾⊑∾" isn't implemented"˙
-      ⟩ (format=pixelFormat⊸•ns.Get¨)⊸/ •ns.Keys pixelFormat
-    }⍟⊢format≢pixelFormat.uncompressed_r8g8b8a8
-    width‿hight‿4(⊣⥊×´⊸rayffi.Make)dataPtr
-  }
-
-#-name                      #-Unique bqn representations # comment
-# uncompressed_grayscale    # rank 3 ∊↕2⋆8 shape x‿y
-# uncompressed_gray_alpha   # rank 3 ∊↕4⋆8 shape x‿y‿2   
-# uncompressed_r5g6b5       #                            # used by approximately no one
-# uncompressed_r8g8b8       # rank 3 shape x‿y‿3
-# uncompressed_r5g5b5a1     #                            # used by approximately no one 
-# uncompressed_r4g4b4a4     #                            # used by approximately no one
-# uncompressed_r8g8b8a8     # rank 3 shape x‿y‿4         
-# uncompressed_r32          #                            #
-# uncompressed_r32g32b32    #                            
-# uncompressed_r32g32b32a32 #                            
-# rayffi.ImageFormat image 10
-
-# format as left arg to functions (8‿8‿8‿8)
-
-  FromArrLoad ←{𝕊img:
-    NeedsWindow@
-    l rayffi.Read ptr←rayffi.MemAlloc≠l←⥊img
-    ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
-  }
-  Unload ← {𝕊img:
-    NeedsWindow@
-    @⊣rayFFI.UnloadImage𝕩
-  }
-  FromFile ← {𝕊strPath:
-    NeedsWindow@
-    !•file.Exists𝕩
-    (Unload⊢ToArr) rayFFI.LoadImage𝕩
-  }
-  _WithRayImg ← {(Unload⊢𝔽)FromArrLoad}
-}
 texture ← {
   Load      ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
