@@ -22,9 +22,15 @@
   MP ⋄ Inverse ⋄ MatrixDeterminant
   MatrixLookAt ⋄ MatrixScale
   MatrixRotate ⋄ MatrixRotateX ⋄ MatrixRotateY ⋄ MatrixRotateZ
-  Wrap ⋄ Normalize ⋄ Approx ⋄ Round
-  Vector3Unproject
+  Wrap ⋄ Normalize ⋄ Round
+  Vector3Unproject ⋄ Vector3OrthoNormalize
   _ToDim_ ⋄ MatrixExtend
+  QuaternionEquals
+  Vector3RotateByAxisAngle
+  VectorClampValue
+  MatrixTranslate
+  deg2rad, rad2deg
+  VectorAngle ⋄ Vector3Angle
 ⟩⇐
 
 # Too simple:
@@ -70,8 +76,6 @@
 #   These 4D vectors will never be at the origin (having 1 in the last component) and so are not required to always map to the origin.
 #   Through the use of this we can construct a 4x4 matrix to perform translation.
 
-Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
-
 # Get scaling matrix
 MatrixScale ← {𝕊v:𝕩×=⌜˜≠𝕩}
 
@@ -89,7 +93,7 @@ raylibPath‿bqnLibsPath ← •Import "loadConfig.bqn"
 
 ⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import bqnLibsPath •file.At "matrix.bqn"
 
-Approx ← (⌊0.5⊸+)⌾(100⊸×)
+Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
 
 #----------------------------------------------------------------------------------
 # Module Functions Definition - Utils math
