@@ -38,7 +38,7 @@ LoadFromArr ← {𝕊img:
 
 Unload ← {𝕊img:
   dataIndex ← 0
-  rayffi.Free dataIndex⊑𝕩
+  rayffi.MemFree dataIndex⊑𝕩
   @
 }
 
