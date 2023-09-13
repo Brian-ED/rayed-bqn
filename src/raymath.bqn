@@ -96,7 +96,7 @@ raylibPath‿bqnLibsPath ← •Import "loadConfig.bqn"
 Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
 
 #----------------------------------------------------------------------------------
-# Module Functions Definition - Utils math
+# Utils math
 #----------------------------------------------------------------------------------
 
 # Calculate linear interpolation between two floats or vectors
@@ -124,7 +124,7 @@ Wrap ← {𝕊value‿min‿max:
 FloatEquals ← ∧´∘⥊|∘-≤epsilon×1⌈⌈○|
 
 #----------------------------------------------------------------------------------
-# Module Functions Definition - Vector math
+# Vector math
 #----------------------------------------------------------------------------------
 
 # Calculate vector length
@@ -262,7 +262,7 @@ Vector3Refract ← {𝕊⟨
 }
 
 #----------------------------------------------------------------------------------
-# Module Functions Definition - Matrix math
+# Matrix math
 #----------------------------------------------------------------------------------
 
 # Extend square matrix by identity matrix:
@@ -377,7 +377,7 @@ MatrixLookAt ← {𝕊eye‿target‿up: # all are Vector3
 
 
 #----------------------------------------------------------------------------------
-# Module Functions Definition - Quaternion math
+# Quaternion math
 #----------------------------------------------------------------------------------
 
 quaternionIdentity ← ¯4↑1
