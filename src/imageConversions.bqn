@@ -89,21 +89,3 @@ image ← 3‿3‿2⥊[155‿255,0‿0]
 #  ; 𝕊3: # uncompressed_r5g6b5 actually r‿g‿b←5‿6‿5⥊¨1
 #      rr‿gg‿bb ← 2‿2‿2 _Base_¨⌊255×r‿g‿b×÷⟜(+´)2⋆5‿6‿5
 #      («⍟10 rr) ∨ (»⍟6 gg) ∨ »bb
-#  
-#    𝕊5: # uncompressed_r5g5b5a1
-#        image->data = (unsigned short *)RL_MALLOC(image->width*image->height*sizeof(unsigned short));
-#
-#        unsigned char r = 0;
-#        unsigned char g = 0;
-#        unsigned char b = 0;
-#        unsigned char a = 0;
-#
-#        for (int i = 0; i < image->width*image->height; i++)
-#        {
-#            r = (unsigned char)(round(pixels[i].x*31.0f));
-#            g = (unsigned char)(round(pixels[i].y*31.0f));
-#            b = (unsigned char)(round(pixels[i].z*31.0f));
-#            a = (pixels[i].w > ((float)PIXELFORMAT_UNCOMPRESSED_R5G5B5A1_ALPHA_THRESHOLD/255.0f))? 1 : 0;
-#
-#            ((unsigned short *)image->data)[i] = (unsigned short)r << 11 | (unsigned short)g << 6 | (unsigned short)b << 1 | (unsigned short)a;
-#        }
