@@ -1,4 +1,4 @@
-⟨MovePtr⋄Alloc⇐MemAlloc⋄Modify⇐Read⋄Make⋄MakeUTF8⋄StrLen⋄MemFree⟩ ← •Import "../rayffi.bqn"
+⟨MovePtr⋄Alloc⇐MemAlloc⋄Modify⇐Read⋄Make⋄MakeUTF8⋄StrLen⋄MemFree⟩ ← •Import "rayffi.bqn"
 ### make sure all inputs are i8
 ### and make sure to add error message for rank and depth requirement
 MakePtr ← {
