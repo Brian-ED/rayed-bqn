@@ -5,7 +5,7 @@ aquamarine           ⇐ 127‿255‿212‿255
 azure                ⇐ 240‿255‿255‿255
 beige                ⇐ 211‿176‿131‿255
 bisque               ⇐ 255‿228‿196‿255
-black                ⇐ 0 ‿0‿0  ‿255
+black                ⇐ 0  ‿0  ‿0  ‿255
 blanchedalmond       ⇐ 255‿235‿205‿255
 blue                 ⇐ 0  ‿121‿241‿255
 blueviolet           ⇐ 138‿43 ‿226‿255
