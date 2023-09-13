@@ -42,6 +42,7 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow NeedsWindow
 
 # Defaults
+rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
 rayffi.SetConfigFlags 4 #SetConfigFlags is before InitWindow, SetWindowState is after
 
 texture ← {
