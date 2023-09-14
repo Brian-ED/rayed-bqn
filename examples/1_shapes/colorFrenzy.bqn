@@ -18,7 +18,7 @@ Start ← {𝕊tex:
     size ← ⌊(window.GetSize @) ÷ scale
     center ← ⌊size÷2
     w‿h ← size
-•Show ≍⟨1,2⟩
+
     PerPixel ← {
         colors⊏˜(≠colors)|¯1+⌊(÷⟜h≠colors)×𝕩-frame
     }
