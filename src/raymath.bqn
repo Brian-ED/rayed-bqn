@@ -60,7 +60,7 @@
 # Vector2Normalize    ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
 # Vector2Angle        ← Vector3Angle      ← VectorAngle
 # Vector2MoveTowards  ← VectorMoveTowards
-# Vector2CrossProduct ← Vector3CrossProduct ← VectorCrossProduct
+# Vector2CrossProduct ← Vector3CrossProduct
 
 
 #----------------------------------------------------------------------------------
