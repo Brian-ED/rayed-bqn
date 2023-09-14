@@ -24,9 +24,12 @@
   nPatchLayout
 ⟩ ⇐ •Import "src/indexNamespaces.bqn"
 
+global  ← •Import "src/global.bqn"
+NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
+global.SetNeedsWindow needsWindow
+
 ⟨bqnLibsPath⟩ ← •Import "src/loadConfig.bqn"
 rayFFI  ⇐ •Import "rayffi.bqn"
-global  ← •Import "src/global.bqn"
 color   ⇐ •Import "src/colors.bqn"
 raymath ⇐ •Import "src/raymath.bqn"
 image   ⇐ •Import "src/image.bqn"
@@ -38,8 +41,7 @@ isWindows ← ¬isLinux
 
 # Utils:
 FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
-NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
-global.SetNeedsWindow NeedsWindow
+
 
 # Defaults
 rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
@@ -55,7 +57,7 @@ texture ← {
   _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
   _WithImage ⇐ {
     NeedsWindow@
-    (Unload⊢𝔽)rayffi.LoadTextureFromImage image._WithRayImg 𝕩
+    (Unload⊢𝔽)rayffi.LoadTextureFromImage image._AsRayImg 𝕩
   }
 }
 monitor ← {
