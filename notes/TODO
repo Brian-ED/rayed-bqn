@@ -1,5 +1,0 @@
-Make controls for shader more intuitive and not rely on page up and down which aren't on all keyboards.
-add example/testing-suite BQN-repl
-make templates, one explicit and one that's for more terse programming.
-
-Before commiting to master, make sure all examples work.
