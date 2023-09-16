@@ -19,19 +19,81 @@
 # Under "module: raymath" at https://github.com/raysan5/raylib/discussions/2952 
 ## removed Vector3Perpendicular, as it isn't well defined.
 ⟨
-  MP ⋄ Inverse ⋄ MatrixDeterminant
-  MatrixLookAt ⋄ MatrixScale
-  MatrixRotate ⋄ MatrixRotateX ⋄ MatrixRotateY ⋄ MatrixRotateZ
-  Wrap ⋄ Normalize ⋄ Round
-  Vector3Unproject ⋄ Vector3OrthoNormalize
-  _ToDim_ ⋄ MatrixExtend
-  QuaternionEquals
+  # new, non-existant in raylib
+  _ToDim_      # set length of square input arrays, 𝔽 being applied to the inputs after padding to length 𝕘 
+  MatrixExtend # pad square matrix to a length
+
+  # multiply by constants for converting
+  deg2rad, rad2deg
+
+  # scaler ops
+  Wrap
+  Normalize
+  Remap
+  FloatEquals
+
+  # works on any shaped input
+  Round
+  Lerp
+
+  # functions applied to a list
+  Vector3Unproject
+  Vector3OrthoNormalize
   Vector3RotateByAxisAngle
   VectorClampValue
-  MatrixTranslate
-  deg2rad, rad2deg
-  VectorAngle ⋄ Vector3Angle
+  VectorAngle
+  VectorLength ⋄ VectorLengthSqr
+  VectorDotProduct
+  VectorDistance
+  Vector2LineAngle
+  Vector2Reflect
+  Vector2Rotate
+  VectorMoveTowards
+  Vector3CrossProduct
+  VectorNormalize
+  Vector3OrthoNormalize
+  Vector3RotateByQuaternion
+  Vector3RotateByAxisAngle
+  VectorReflect
+  Vector3Barycenter
+  Vector3Unproject
+  Vector3Refract
+  
+  # matrix operations
+    # generalized
+    MP ⋄ Inverse ⋄ MatrixDeterminant # from matrix.bqn in Marshall's bqn-libs
+    MatrixScale ⋄ MatrixTrace
+
+    # only output 3x3
+    MatrixRotate ⋄ MatrixRotateX ⋄ MatrixRotateY ⋄ MatrixRotateZ
+
+    # only take list length 3
+    MatrixTranslate
+    MatrixLookAt
+    MatrixRotateXYZ
+    MatrixRotateZYX
+  
+    # take scalers
+    MatrixFrustum
+    MatrixPerspective
+    MatrixOrtho
+
+  # quaternion operations
+  QuaternionInvert
+  QuaternionMultiply
+  QuaternionNlerp
+  QuaternionSlerp
+  QuaternionFromVector3ToVector
+  QuaternionFromAxisAngle
+  QuaternionToAxisAngle
+  QuaternionFromEuler
+  QuaternionToEuler
+  QuaternionEquals
 ⟩⇐
+
+
+
+
 
 # Too simple:
 # Vector2Add         ← Vector2AddValue ← Vector3Add ← Vector3AddValue ← MatrixAdd ← QuaternionAdd ← QuaternionAddValue ←  +
@@ -139,10 +201,11 @@ VectorDistance ← +´⌾(×˜)-
 
 # Calculate angle between two vectors
 # NOTE: Angle is calculated from origin point (0, 0)
-VectorAngle ← Cos⁼+´∘×÷×○(+´⌾(×˜))
-
-# Faster VectorAngle for vector3
-Vector3Angle ← +´∘×Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽}
+VectorAngle ← {
+  3=≠𝕩: (Cos⁼+´∘×÷×○(+´⌾(×˜)))´𝕨‿𝕩  # length3 is faster
+;
+  (+´∘×Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽})´𝕨‿𝕩
+}
 
 # Calculate angle defined by a two vectors line
 # NOTE: Parameters need to be normalized
@@ -274,7 +337,7 @@ MatrixExtend ← {len𝕊mat: # returns square matrix
 _ToDim_ ← {𝔽 _𝕣_ dim:𝔽○(𝕘⊸MatrixExtend)}
 
 # Get the trace of the matrix (sum of the values along the diagonal)
-MatrixTrace ← +´0‿0⍉⊢
+MatrixTrace ← +´0‿0⊸⍉
 
 # Get translation matrix
 MatrixTranslate ← {𝕊x‿y‿z:
@@ -321,7 +384,7 @@ MatrixRotateXYZ ← {𝕊angle:
 
 # Get zyx-rotation matrix
 # NOTE: Angle must be provided in radians
-MatrixRotateZYX ← MatrixRotateXYZ∘-
+MatrixRotateZYX ← MatrixRotateXYZ-
 
 # Get perspective projection matrix
 MatrixFrustum ← {𝕊left‿right‿bottom‿top‿near‿far:
