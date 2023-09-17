@@ -18,27 +18,44 @@
 rayffi ← •Import "../rayffi.bqn"
 ⟨NeedsWindow⟩ ← •Import "global.bqn"
 
-# TODO support more formats somehow
-ToArr ← {𝕊raylibImg:
-  dataPtr‿width‿hight‿mipmaps‿format←𝕩
+allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
+uncompressedFormats ← ⟨
+  {grayscale  ⇐  8}
+  {grayscale‿a⇐8‿8}
+  {r‿g‿b  ⇐5‿6‿5  }
+  {r‿g‿b  ⇐8‿8‿8  }
+  {r‿g‿b‿a⇐5‿5‿5‿1}
+  {r‿g‿b‿a⇐4‿4‿4‿4}
+  {r‿g‿b‿a⇐8‿8‿8‿8}
+  {r      ⇐32     }
+  {r‿g‿b  ⇐3⥊32   }
+  {r‿g‿b‿a⇐4⥊32   }
+⟩
+
+ToArr ← {𝕨𝕊raylibImg: resultFormat←𝕨⊣@
+  dataPtr‿width‿hight‿mipmaps‿format ← ⊑⊑rayffi.ImageFormat ⟨𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   {𝕤
     0!˜×∘≠◶⟨
       "Format given doesn't exist"
       "Format "∾⊑∾" isn't implemented"˙
     ⟩ (format=pixelFormat⊸•ns.Get¨)⊸/ •ns.Keys pixelFormat
   }⍟⊢format≢pixelFormat.uncompressed_r8g8b8a8
-  width‿hight‿4(⊣⥊×´⊸rayffi.Make)dataPtr
+  newImg ← width‿hight‿4(⊣⥊256|×´⊸rayffi.Make)dataPtr     # 256|𝕩 is converting from int to uint 
+  {{r‿g‿b‿a⇐4⥊8}‿resultFormat ReFormat𝕩}⍟(𝕨0⊘1𝕩) newImg
 }
 
-LoadFromArr ← {𝕊img:
+LoadFromArr ← {𝕨𝕊img:
+  default ← {r‿g‿b‿a⇐4⥊8}
+  format ← 𝕨⊣default
   NeedsWindow@
-  l rayffi.Read ptr←rayffi.MemAlloc≠l←⥊img
+  standardImg ← format‿default ReFormat img 
+  l rayffi.Read ptr←rayffi.MemAlloc≠l←⥊standardImg
   ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 
 Unload ← {𝕊img:
-  dataIndex ← 0
-  rayffi.MemFree dataIndex⊑𝕩
+  imgDataIndex ← 0
+  rayffi.MemFree imgDataIndex⊑𝕩
   @
 }
 
