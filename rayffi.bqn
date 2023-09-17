@@ -2,7 +2,8 @@
 # • This file is FFI for everything in raylib.h: https:#github.com/raysan5/raylib/blob/fec96137e8d10ee6c88914fbe5e5429c13ee1dac/src/raylib.h
 # • FFI functions are not tested before release. There are simply too many for the moment. The functions in raylib.bqn are tested, atleast minimally.
 
-# • You may change defaults in raylib/src/config.h for smaller build size.
+# • You may change defaults in raylib/src/config.h for smaller build size by commenting out the following lines with "//":
+# define SUPPORT_TEXT_MANIPULATION  1
 
 # • if a function here can be implemented in BQN, that ffi definition can be replaced.
 
@@ -21,15 +22,15 @@ raylibPath‿bqnLibsPath ← •Import "src/loadConfig.bqn"
 math ← •Import "src/raymath.bqn"
 
 #region Structs
-P⇐'*'⊸∾             # '*' means a pointer
-S⇐{'{'∾'}'«∾','∾¨𝕩} # Parse types into one struct
+P ⇐ '*'⊸∾             # '*' means a pointer
+S ⇐ {'{'∾'}'«∾','∾¨𝕩} # Parse types into one struct
 c ⇐ "i8"
 bool ⇐ "i8"
-i‿f‿u‿i8‿·‿u8⇐⥊"32"‿"8"∾˜⌜"ifu"
-str‿uStr⇐P¨"iu"∾¨<"8:c8"
-ptr⇐"*:i8"
+i‿f‿u‿i8‿·‿u8 ⇐ ⥊"32"‿"8"∾˜⌜"ifu"
+str‿uStr ⇐ P¨"iu"∾¨<"8:c8"
+ptr ⇐ "*:i8"
 
-v2‿v3‿v4  ⇐ S¨2↓↑4⥊<f
+v2‿v3‿v4 ⇐ S¨2↓↑4⥊<f
 
 # Matrix, 4x4 components, column major, OpenGL style, right handed
 matrix ⇐ S 16⥊<f
