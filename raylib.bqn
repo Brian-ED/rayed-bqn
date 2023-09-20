@@ -43,12 +43,12 @@ rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs
 rayffi.SetConfigFlags 4 #SetConfigFlags is before InitWindow, SetWindowState is after
 
 texture ← {
-  Load      ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
+  Load ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
     !•file.Exists 𝕩
     rayFFI.LoadTexture 𝕩
   }
-  Unload    ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
+  Unload ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
   _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
   _WithImage ⇐ {
     NeedsWindow@
@@ -107,12 +107,12 @@ window ← {
     Close⊸⊢𝔽@
   }
   # TODO: Needs to test input for image
-  SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩}
+  SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩} image._AsRayImg
 
   fps ← {
     Get ⇐ rayFFI.GetFPS⟨⟩⊣NeedsWindow
     Set ⇐ {
-      (𝕩=⌈0⌈𝕩)!˜"FPS has to be a positive int"
+      (𝕩=0⌈⌈𝕩)!˜"FPS has to be a positive int"
       𝕩⊣rayFFI.SetTargetFPS𝕩
     }⊣NeedsWindow
   }
