@@ -35,12 +35,8 @@ raymath ⇐ •Import "src/raymath.bqn"
 image   ⇐ •Import "src/image.bqn"
 # -------
 
-isLinux ← "linux" ≡ •platform.os
-isWindows ← "windows" ≡ •platform.os
-
 # Utils:
 FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
-
 
 # Defaults
 rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
@@ -91,7 +87,7 @@ window ← {
     rayFFI.InitWindow 0‿0‿𝕩
     isOpen↩1
     rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
-    rayFFI.SetWindowPosition⍟isWindows 0‿42 # 42 here is the window header on windows only
+    rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
     rayFFI.SetWindowSize monitor.Size∘@⊸× scale
     fps.Set monitor.RefreshRate@
   }
