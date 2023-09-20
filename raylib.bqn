@@ -164,7 +164,7 @@ draw ← {
   Text ← {𝕨𝕊⟨posX‿posY⋄text⟩:
     NeedsWindow@
     t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
-    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩   # TODO: why is there an each in the type here? at ...⥊¨'i'
+    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
     rayFFI.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄posX‿posY⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
   }
   Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
