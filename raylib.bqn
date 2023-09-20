@@ -35,9 +35,8 @@ raymath ⇐ •Import "src/raymath.bqn"
 image   ⇐ •Import "src/image.bqn"
 # -------
 
-# TODO: These need to be more accurate
-isLinux   ← •BQN⎊0"1∘•SH⎊0 ""lsb_release""‿""-i"""
-isWindows ← ¬isLinux
+isLinux ← "linux" ≡ •platform.os
+isWindows ← "windows" ≡ •platform.os
 
 # Utils:
 FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
@@ -72,18 +71,19 @@ monitor ← {
 
   RefreshRate ← rayFFI.GetMonitorRefreshRate M
   Size        ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)M
-  Sizemm      ← (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)M
+  Sizemm      ← (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)M # mm stands for milimeter
   Name        ← rayFFI.GetMonitorName M
 }
 
 window ← {
   ⟨
    isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
-   ShouldClose ⋄ Needed ⋄ SetPos
+   ShouldClose ⋄ Needed ⋄ SetPos ⋄ SetSize
   ⟩⇐
   Needed ← NeedsWindow
   isOpen ← 0
   SetPos ← {rayFFI.SetWindowPosition NeedsWindow𝕩}
+  SetSize ← {rayFFI.SetWindowSize NeedsWindow𝕩}
   Open ← {𝕨𝕊 title: scale←𝕨⊣1
     (¬isOpen)!˜"The window cannot be opened twice"
     (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
