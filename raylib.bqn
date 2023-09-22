@@ -22,7 +22,9 @@
   gesture
   cameramode, cameraProjection
   nPatchLayout
-⟩ ⇐ •Import "src/indexNamespaces.bqn"
+⟩ ⇐ ⟨
+  windowConfigFlags
+⟩ ← •Import "src/indexNamespaces.bqn"
 
 global  ← •Import "src/global.bqn"
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
@@ -40,7 +42,7 @@ FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At   
 
 # Defaults
 rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
-rayffi.SetConfigFlags 4 #SetConfigFlags is before InitWindow, SetWindowState is after
+rayffi.SetConfigFlags windowConfigFlags.window_resizable #SetConfigFlags is before InitWindow, SetWindowState is after
 
 texture ← {
   Load ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
@@ -71,10 +73,11 @@ monitor ← {
   Name        ← rayFFI.GetMonitorName M
 }
 
+# window functionality
 window ← {
   ⟨
    isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
-   ShouldClose ⋄ Needed ⋄ SetPos ⋄ SetSize
+   ShouldClose ⋄ Needed ⋄ SetPos ⋄ SetSize ⋄ configFlags
   ⟩⇐
   Needed ← NeedsWindow
   isOpen ← 0
@@ -116,57 +119,55 @@ window ← {
       𝕩⊣rayFFI.SetTargetFPS𝕩
     }⊣NeedsWindow
   }
-  # NOTE: Every bit registers one state (use it with bit masks)
-  # By default all flags are set to 0
-  configFlags ⇐ {
-    fullscreen_mode          ⇐ 2⋆1  # Set to run program in fullscreen
-    window_resizable         ⇐ 2⋆2  # Set to allow resizable window
-    window_undecorated       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
-    window_transparent       ⇐ 2⋆4  # Set to allow transparent framebuffer
-    msaa_4x_hint             ⇐ 2⋆5  # Set to try enabling MSAA 4X
-    vsync_hint               ⇐ 2⋆6  # Set to try enabling V-Sync on GPU
-    window_hidden            ⇐ 2⋆7  # Set to hide window
-    window_always_run        ⇐ 2⋆8  # Set to allow windows running while minimized
-    window_minimized         ⇐ 2⋆9  # Set to minimize window (iconify)
-    window_maximized         ⇐ 2⋆10 # Set to maximize window (expanded to monitor)
-    window_unfocused         ⇐ 2⋆11 # Set to window non focused
-    window_topmost           ⇐ 2⋆12 # Set to window always on top
-    window_highdpi           ⇐ 2⋆13 # Set to support HighDPI
-    window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-    interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
-  }
+  configFlags ← windowConfigFlags
 }
+
+# Drawing
 draw ← {
   ⟨
    _withCanvas_ ⋄ Rectangle ⋄ Text ⋄ Line
    Texture ⋄ Ellipse ⋄ EllipseOutline ⋄ _in3D
    advanced
   ⟩⇐
+
+  # Start 3d mode, drawing relative to camera using 𝔽, then ends 3d mode
   _in3D ← {𝕨 Drawing3D _𝕣 camera:
     NeedsWindow@          # pos  target up   FOV Camera projection type
     !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
     rayffi.BeginMode3D 𝕩
     rayffi.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
+
+  # Draw background
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
-    (∧´𝕩∊↕256)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
+    (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
     rayFFI.ClearBackground 𝕩
   }
+
+  # Start Drawing
   Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩⊣NeedsWindow
-  End   ← ⊢⊣rayFFI.EndDrawing  ∘⟨⟩⊣NeedsWindow
+
+  # End drawing
+  End ← ⊢⊣rayFFI.EndDrawing∘⟨⟩⊣NeedsWindow
+
+  # Start drawing, draw background, use function 𝔽, end drawing
   _withCanvas_ ← {𝕨DrawingFunc _𝕣_ Func_Returning_A_Color𝕩:
     Start@
     Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
   }
-  Text ← {𝕨𝕊⟨posX‿posY⋄text⟩:
+
+  # Draw text at x‿y in given font, color, and size
+  Text ← {𝕨𝕊⟨x‿y⋄text⟩:
     NeedsWindow@
     t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
     !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
-    rayFFI.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄posX‿posY⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
+    rayFFI.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
   }
+
+  # Draw line from x1‿y1 to x2‿y2
   Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     t←{
@@ -176,23 +177,27 @@ draw ← {
     !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
     rayFFI.DrawLineEx(<˘𝕩)∾⌽t
   }
+
   Texture ← {⟨r‿g‿b‿a⋄texture⋄scale⋄rotation⟩ 𝕊 x‿y:
     NeedsWindow@
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
     rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
   }
+
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩
     !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
     rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝∧˘⌾⍉𝕩
   }
+
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
     (∧´𝕨∊↕256)!˜"𝕗 (color) only accepts ints in the range 0-255 inclusive"
     rayffi.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
   }
+
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
@@ -203,6 +208,7 @@ draw ← {
   # you only want to run them in the "start, background, end" sequence.
   advanced ⇐ {Start‿Background‿End⇐Start‿Background‿End}
 }
+
 font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload ⟩⇐
   IsFont ← {
