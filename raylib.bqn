@@ -125,9 +125,10 @@ window ← {
 # Drawing
 draw ← {
   ⟨
-   _withCanvas_ ⋄ Rectangle ⋄ Text ⋄ Line
-   Texture ⋄ Ellipse ⋄ EllipseOutline ⋄ _in3D
-   advanced
+    _withCanvas_ ⋄ _in3D
+    Rectangle ⋄ Triangle ⋄ Line
+    Ellipse ⋄ EllipseOutline
+    Text ⋄ Texture ⋄ advanced
   ⟩⇐
 
   # Start 3d mode, drawing relative to camera using 𝔽, then ends 3d mode
@@ -201,6 +202,11 @@ draw ← {
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
+  }
+
+  Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
+    [p1,p2,p3]← 𝕩
+    rayffi.DrawTriangle ⟨p1,𝕨⟩∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
   }
 
   # These aren't recommended because they are useless if you use _withCanvas_.
