@@ -14,7 +14,7 @@
 
 # No function implicitly unloads or mutates input image, except Unload
 
-⟨pixelFormat⟩ ← •Import "indexNamespaces.bqn"
+⟨pixelFormat⟩ ← •Import "constants.bqn"
 rayffi ← •Import "../rayffi.bqn"
 ⟨NeedsWindow⟩ ← •Import "global.bqn"
 

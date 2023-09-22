@@ -24,8 +24,9 @@
   nPatchLayout
   color
 ⟩ ⇐ ⟨
+  bqnFontChars
   windowConfigFlags
-⟩ ← •Import "src/indexNamespaces.bqn"
+⟩ ← •Import "src/constants.bqn"
 
 global  ← •Import "src/global.bqn"
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
@@ -238,10 +239,9 @@ font ← {
     IsFont rayFFI.LoadFontEx fontArgs
   }
 
-  LoadBQN ← {𝕊fontSize:                                           # Sorce of font and chars: https://dzaima.github.io/BQN386/
+  LoadBQN ← {𝕊fontSize:
     NeedsWindow@
-    chars ← •FChars "src/chars.txt"
-    rayFFI.LoadFontEx⟨FileAt"src/BQN386.ttf"⋄100⍟(@⊸≡)𝕩⋄chars-@⋄≠chars⟩
+    rayFFI.LoadFontEx⟨FileAt"src/BQN386.ttf"⋄100⍟(@⊸≡)𝕩⋄bqnFontChars-@⋄≠bqnFontChars⟩
   }
   LoadRaylib ← rayffi.GetFontDefault∘⟨⟩
 }
