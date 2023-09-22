@@ -22,6 +22,7 @@
   gesture
   cameramode, cameraProjection
   nPatchLayout
+  color
 ⟩ ⇐ ⟨
   windowConfigFlags
 ⟩ ← •Import "src/indexNamespaces.bqn"
@@ -32,7 +33,6 @@ global.SetNeedsWindow needsWindow
 
 ⟨bqnLibsPath⟩ ← •Import "src/loadConfig.bqn"
 rayFFI  ⇐ •Import "rayffi.bqn"
-color   ⇐ •Import "src/colors.bqn"
 raymath ⇐ •Import "src/raymath.bqn"
 image   ⇐ •Import "src/image.bqn"
 # -------
@@ -134,7 +134,7 @@ draw ← {
   # Start 3d mode, drawing relative to camera using 𝔽, then ends 3d mode
   _in3D ← {𝕨 Drawing3D _𝕣 camera:
     NeedsWindow@          # pos  target up   FOV Camera projection type
-    !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
+    "_in3D: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
     rayffi.BeginMode3D 𝕩
     rayffi.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
@@ -143,7 +143,7 @@ draw ← {
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
     (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
-    !𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
+    "Background: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
     rayFFI.ClearBackground 𝕩
   }
 
@@ -164,7 +164,7 @@ draw ← {
   Text ← {𝕨𝕊⟨x‿y⋄text⟩:
     NeedsWindow@
     t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
-    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
+    "Text: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
     rayFFI.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
   }
 
@@ -175,20 +175,20 @@ draw ← {
       𝕊r‿g‿b‿a:1⋈˜𝕩;
       𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
     }𝕨
-    !t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
+    "Line: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
     rayFFI.DrawLineEx(<˘𝕩)∾⌽t
   }
 
   Texture ← {⟨r‿g‿b‿a⋄texture⋄scale⋄rotation⟩ 𝕊 x‿y:
     NeedsWindow@
-    !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
+    "Texture: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
     rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
   }
 
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩
-    !𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
+    "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
     rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝∧˘⌾⍉𝕩
   }
 
