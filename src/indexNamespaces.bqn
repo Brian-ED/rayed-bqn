@@ -202,3 +202,22 @@ nPatchLayout ← {
   three_patch_vertical   ⇐ 1  # Npatch layout: 1x3 tiles
   three_patch_horizontal ⇐ 2  # Npatch layout: 3x1 tiles
 }
+# NOTE: Every bit registers one state (use it with bit masks)
+# By default all flags are set to 0
+windowConfigFlags ⇐ {
+  fullscreen_mode          ⇐ 2⋆1  # Set to run program in fullscreen
+  window_resizable         ⇐ 2⋆2  # Set to allow resizable window
+  window_undecorated       ⇐ 2⋆3  # Set to disable window decoration (frame and buttons)
+  window_transparent       ⇐ 2⋆4  # Set to allow transparent framebuffer
+  msaa_4x_hint             ⇐ 2⋆5  # Set to try enabling MSAA 4X
+  vsync_hint               ⇐ 2⋆6  # Set to try enabling V-Sync on GPU
+  window_hidden            ⇐ 2⋆7  # Set to hide window
+  window_always_run        ⇐ 2⋆8  # Set to allow windows running while minimized
+  window_minimized         ⇐ 2⋆9  # Set to minimize window (iconify)
+  window_maximized         ⇐ 2⋆10 # Set to maximize window (expanded to monitor)
+  window_unfocused         ⇐ 2⋆11 # Set to window non focused
+  window_topmost           ⇐ 2⋆12 # Set to window always on top
+  window_highdpi           ⇐ 2⋆13 # Set to support HighDPI
+  window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+  interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
+}
