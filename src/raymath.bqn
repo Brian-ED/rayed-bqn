@@ -479,7 +479,7 @@ QuaternionSlerp ← {𝕊q1‿q2‿amount:
 }
 
 # Calculate quaternion based on the rotation from one vector to another
-QuaternionFromVector3ToVector ← {to𝕊from:
+QuaternionFromVector3ToVector ← {to𝕊from: # v3𝕊v3
   cos2Theta ← +˝from×to
   cross     ← from 1⊸⌽⊸×{1⌽𝔽˜-𝔽}to
 
