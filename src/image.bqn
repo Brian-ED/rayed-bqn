@@ -163,7 +163,7 @@ FormatToLengths ← {𝕊format:
   {𝕊:0!˜"Keys in format namespace need to be one of the following: "∾2↓∾", "⊸∾¨formatKeys
   }⍟¬∧´formatKeys∊˜•ns.Keys format
   vals‿keys ← 𝕩⊸•ns.Get¨⊸⋈•ns.Keys 𝕩 # namespace to arrays
-# ┌─unsorted──────┐   ┌─adding defaults───────────────────────┐
+# ┌─unsorted──────┐   ┌─adding defaults─────────────────────────────┐
   [uFormats, ubits] ← ⍉>(∊keys∾formatKeys)/(keys⋈¨vals)∾formatKeys⋈¨0
   ¯1+2⋆ubits ⊏˜⍋ formatKeys ⊐ uFormats  # sorting by formats
 }
