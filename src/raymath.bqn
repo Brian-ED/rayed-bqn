@@ -65,6 +65,7 @@
     MatrixScale ⋄ MatrixTrace
 
     # only output 3x3
+    MatrixRotate2D
     MatrixRotate ⋄ MatrixRotateX ⋄ MatrixRotateY ⋄ MatrixRotateZ
 
     # only take list length 3
@@ -115,7 +116,7 @@
 # Vector2DotProduct   ← Vector3DotProduct ← VectorDotProduct 
 # Vector2Distance     ← Vector3Distance   ← VectorDistance
 # Vector2Lerp         ← Vector3Lerp       ← QuaternionLerp ← Lerp
-# Vector2Transform    ← Vector3Transform  ← VectorTransform ← (1∾˜3⊸↑)⊸MP
+# Vector2Transform    ← Vector3Transform  ← VectorTransform ← 4⊸↑⌾(-⟜1)⊸MP
 # QuaternionTransform ← MP
 # Vector2ClampValue   ← Vector3ClampValue ← VectorClampValue
 # Vector2Equals       ← Vector3Equals     ← VectorEquals ← VectorEquals
@@ -139,7 +140,7 @@
 #   Through the use of this we can construct a 4x4 matrix to perform translation.
 
 # Get scaling matrix
-MatrixScale ← {𝕊v:𝕩×=⌜˜≠𝕩}
+MatrixScale ← {𝕊v:𝕩×=⌜˜↕≠𝕩}
 
 
 #----------------------------------------------------------------------------------
@@ -202,7 +203,7 @@ VectorDistance ← +´⌾(×˜)-
 # Calculate angle between two vectors
 # NOTE: Angle is calculated from origin point (0, 0)
 VectorAngle ← {
-  3=≠𝕩? (Cos⁼+´∘×÷×○(+´⌾(×˜)))´𝕨‿𝕩  # length3 is faster
+  3≠≠𝕩? (Cos⁼+´∘×÷×○(+´⌾(×˜)))´𝕨‿𝕩  # length3 is faster
 ;
   (+´∘×Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽})´𝕨‿𝕩
 }
@@ -361,14 +362,10 @@ MatrixRotate ← {𝕊axis‿angle: # v3 f
 }
 
 # NOTE: Angle must be provided in radians
-MatrixRotateX‿MatrixRotateY‿MatrixRotateZ ← {
-  _RotMat ← {cut2x2OfMat On2x2Arr _𝕣 degrees:
-    (𝔽(⋈⟜-´≍⌽)(•math.Cos∾•math.Sin)𝕩)⌾(𝕨⊸⊏˘𝕨⊸⊏)=⌜˜↕3
-  }
-  ⟨1‿2 ⍉_RotMat ⊢
-   0‿2 ⊢_RotMat ⊢
-   0‿1 ⍉_RotMat ⊢⟩
-}
+MatrixRotate2D ←  (≍⟜-˝≍⌽)Cos≍Sin
+MatrixRotateX ← {((≍⟜-˝≍⌽)Cos≍Sin)∘𝕩⌾(⍉·1‿2⊸⊏˘1‿2⊸⊏)=⌜˜↕3}
+MatrixRotateY ← {((≍⟜-˝≍⌽)Cos≍Sin)∘𝕩⌾(  0‿2⊸⊏˘0‿2⊸⊏)=⌜˜↕3}
+MatrixRotateZ ← {((≍⟜-˝≍⌽)Cos≍Sin)∘𝕩⌾(⍉·0‿1⊸⊏˘0‿1⊸⊏)=⌜˜↕3}
 
 # Get xyz-rotation matrix
 # NOTE: Angle must be provided in radians
@@ -416,9 +413,9 @@ MatrixPerspective ← {𝕊fovy‿aspect‿near‿far:
 # Get orthographic projection matrix
 MatrixOrtho ← {𝕊left‿right‿bottom‿top‿near‿far:
   [
-    ⟨ 2 ⋄ 0 ⋄  0 ⋄ left  +right ⟩÷left  -right
-    ⟨ 0 ⋄ 2 ⋄  0 ⋄ bottom+top   ⟩÷bottom-top
-    ⟨ 0 ⋄ 0 ⋄  2 ⋄ near  +far   ⟩÷near  -far
+    ⟨ 2 ⋄ 0 ⋄  0 ⋄ -left+right  ⟩÷right-left
+    ⟨ 0 ⋄ 2 ⋄  0 ⋄ -top +bottom ⟩÷top-bottom
+    ⟨ 0 ⋄ 0 ⋄ ¯2 ⋄ -far +near   ⟩÷far-near
     ⟨ 0 ⋄ 0 ⋄  0 ⋄ 1            ⟩
   ]
 }
@@ -431,9 +428,9 @@ MatrixLookAt ← {𝕊eye‿target‿up: # all are Vector3
   vx ← Norm up Cross vz
   vy ← vz Cross vx
   ⍉[
-    vx∾+´-vx×eye
-    vy∾+´-vy×eye
-    vz∾+´-vz×eye
+    vx∾-+´vx×eye
+    vy∾-+´vy×eye
+    vz∾-+´vz×eye
     ¯4↑1
   ]
 }
