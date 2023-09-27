@@ -17,6 +17,7 @@
   nPatchLayout
   color
   bqnFontChars
+  rlgl
 ⟩⇐
 
 traceLogLevel ← { # Trace log level
@@ -222,6 +223,16 @@ windowConfigFlags ⇐ {
   window_highdpi           ⇐ 2⋆13 # Set to support HighDPI
   window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
   interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
+}
+rlgl ← {
+  default_batch_buffer_elements   ⇐   8192  # Default internal render batch elements limits
+  default_batch_buffers           ⇐      1  # Default number of batch buffers (multi-buffering)
+  default_batch_drawcalls         ⇐    256  # Default number of batch draw calls (by state changes: mode, texture)
+  default_batch_max_texture_units ⇐      4  # Maximum number of textures units that can be activated on batch drawing (SetShaderValueTexture())
+  max_matrix_stack_size           ⇐     32  # Maximum size of internal Matrix stack
+  max_shader_locations            ⇐     32  # Maximum number of shader locations supported
+  cull_distance_near              ⇐   0.01  # Default projection matrix near cull distance
+  cull_distance_far               ⇐ 1000.0  # Default projection matrix far cull distance
 }
 # list of rgba-format colors for convenience
 color ← {
