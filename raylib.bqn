@@ -82,8 +82,24 @@ window ← {
   ⟩⇐
   Needed ← NeedsWindow
   isOpen ← 0
+
+  # Get the x‿y position of the window   (relative to current monitor?)
+  GetPos ← {rayffi.GetWindowPosition⟨⟩⊣NeedsWindow𝕩}
+  
+  # Set the x‿y position of the window   (relative to current monitor?)
   SetPos ← {rayFFI.SetWindowPosition NeedsWindow𝕩}
+
+  # Set the width and hight of the window, width and hight being relative to window position
   SetSize ← {rayFFI.SetWindowSize NeedsWindow𝕩}
+  
+  # Get the width and hight of the window, width and hight being relative to window position
+  GetSize ← {𝕤
+    NeedsWindow@
+    ⟨rayFFI.GetScreenWidth⟨⟩
+     rayFFI.GetScreenHeight⟨⟩⟩
+  }
+
+  # Open the window with default settings
   Open ← {𝕨𝕊 title: scale←𝕨⊣1
     (¬isOpen)!˜"The window cannot be opened twice"
     (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
@@ -93,12 +109,8 @@ window ← {
     rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
     rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
     rayFFI.SetWindowSize monitor.Size∘@⊸× scale
+    # Setting fps to the refresh rate of the currently selected monitor
     fps.Set monitor.RefreshRate@
-  }
-  GetSize ←{𝕤
-    NeedsWindow@
-    ⟨rayFFI.GetScreenWidth⟨⟩
-     rayFFI.GetScreenHeight⟨⟩⟩
   }
   ShouldClose ← rayFFI.WindowShouldClose⟨⟩⊣NeedsWindow
   Close ← {
@@ -107,8 +119,8 @@ window ← {
     𝕩⊣isOpen↩0
   }
   _openAs ← {𝕨 App _𝕣 title: scale←2⥊𝕨⊣1
-    scale Open𝕩
-    Close⊸⊢𝔽@
+    scale Open 𝕩
+    Close⊸⊢𝔽 {startTime⇐•Monotime@} 
   }
   # TODO: Needs to test input for image
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩} image._AsRayImg
