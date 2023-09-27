@@ -18,6 +18,9 @@
 #   genImageGradientLinear, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.GenGradientLinear
 #   genImageGradientSquare, according to https://github.com/Brian-ED/rayed-bqn/issues/6 this wasn't working. Alternatives are implemented in raylib.bqn as image.GenGradientSquare
 
+# Debug prints names of ffi functions when they're called
+debug ← 0
+
 raylibPath‿bqnLibsPath ← •Import "src/loadConfig.bqn"
 math ← •Import "src/raymath.bqn"
 
@@ -252,19 +255,22 @@ filePathList ⇐ S ⟨
 #region FFIFunctions
 
 # making FFI nicer to use
-_R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
-  a←(⋈'>'⊸∾)⍟(×∘≠∧1=≡)@⟨⟩⍟≡𝕩
-  HandleError ← {
-    •Out "DEBUG TYPE INFO:"
-    •Out •Fmt 𝕩
-    •Out "END OF DEBUG TYPE INFO; BEGINING WITH FULL ERROR:"
-    •term.Flush@
-    𝕨•FFI𝕩
+MakeImporter ⇐ {𝕊path:
+  {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
+    a←(⋈'>'⊸∾)⍟(×∘≠∧1=≡)@⟨⟩⍟≡𝕩
+    HandleError ← {
+      •Out "DEBUG TYPE INFO:"
+      •Out •Fmt 𝕩
+      •Out "END OF DEBUG TYPE INFO; BEGINING WITH FULL ERROR:"
+      •term.Flush@
+      𝕨•FFI𝕩
+    }
+    func ← path •FFI⎊HandleError outType‿funcName∾a
+    m ← str⊸≡¨a
+    {𝕏⊣•term.Flush∘•Out∘funcName}⍟debug {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
   }
-  func ← raylibPath •FFI⎊HandleError outType‿funcName∾a
-  m ← str⊸≡¨a
-  {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
 }
+r ⇐ MakeImporter raylibPath
 
 #------------------------------------------------------------------------------------
 # BQN low-level function utils
@@ -273,11 +279,11 @@ _R ⇐ {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
 # BQN Pointer functions
 # neccesary for low level programming in bqn
 MovePtr  ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128)256|⌊b÷˜𝕨+´b×256|𝕩}     #      bytes 𝕊 pointer # Move pointer by an amount of bytes
-read     ⇐ @•FFI "" ‿"bqn_readI8Arr"  ‿"𝕨>a"     ‿(">"∾ptr) #       data 𝕊 pointer # write data to pointer
-readI32  ⇐ @•FFI "" ‿"bqn_readI32Arr" ‿"𝕨>a"     ‿(">"∾ptr) #       data 𝕊 pointer # write data to pointer
-make     ⇐ @•FFI "a"‿"bqn_makeI8Vec"  ‿"𝕨>u64"  ‿(">"∾ptr)  # bytesCount 𝕊 pointer # turn data at pointer into a number array
-makeI32  ⇐ @•FFI "a"‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿(">"∾ptr)  #   NumCount 𝕊 pointer # turn data at pointer into a number array
-makeUTF8 ⇐ @•FFI "a"‿"bqn_makeUTF8Str"‿"u64"    ‿ptr        #     length 𝕊 pointer # turn string at pointer into a bqn string
+read     ⇐ @•FFI "" ‿"bqn_readI8Arr"  ‿"𝕨>a"    ‿('>'∾ptr)  #       data 𝕊 pointer # write data to pointer
+readI32  ⇐ @•FFI "" ‿"bqn_readI32Arr" ‿"𝕨>a"    ‿('>'∾ptr)  #       data 𝕊 pointer # write data to pointer
+make     ⇐ @•FFI "a"‿"bqn_makeI8Vec"  ‿"𝕨>u64"  ‿('>'∾ptr)  # bytesCount 𝕊 pointer # turn data at pointer into a number array
+makeI32  ⇐ @•FFI "a"‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿('>'∾ptr)  #   NumCount 𝕊 pointer # turn data at pointer into a number array
+makeUTF8 ⇐ @•FFI "a"‿"bqn_makeUTF8Str"‿"𝕨>u64"  ‿('>'∾ptr)  #     length 𝕊 pointer # turn string at pointer into a bqn string
 strLen   ⇐ @•FFI i  ‿"strlen"         ‿('>'∾ptr)            #            𝕊 pointer # length of unicode C-string
 
 # NumCount 𝕊 pointer # turn data at pointer into a number array
@@ -386,7 +392,8 @@ endVrStereoMode   ⇐ "EndVrStereoMode"  _R@                                  # 
 
 # Shader management functions
 # NOTE: Shader functionality is not available on OpenGL 1.1
-LoadShader ⇐ {𝕊vsFileName‿fsFileName: LoadShaderFromMemory @∾˜¨•FChars¨𝕩}                   # Load shader from files and bind default locations
+#LoadShader ⇐ {𝕊vsFileName‿fsFileName: LoadShaderFromMemory ""⊸≡◶⟨⥊@, @∾˜•FChars⟩¨𝕩}
+loadShader              ⇐ shader "LoadShader"             _R str‿str      # Load shader from files and bind default locations
 loadShaderFromMemory    ⇐ shader "LoadShaderFromMemory"   _R str‿str      # *vsCode *fsCode # Load shader from code strings and bind default locations
 IsShaderReady ⇐ {𝕊shader: # Check if a shader is ready
   id‿locsPtr ← 𝕩
@@ -395,7 +402,6 @@ IsShaderReady ⇐ {𝕊shader: # Check if a shader is ready
 getShaderLocation       ⇐ i "GetShaderLocation"      _R shader‿str        # shader *uniformName                      # Get shader uniform location
 getShaderLocationAttrib ⇐ i "GetShaderLocationAttrib"_R shader‿str        # shader *attribName                       # Get shader attribute location
 setShaderValue          ⇐   "SetShaderValue"         _R shader‿i‿(P f)‿i  # shader locIndex *value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
-  setShaderValuePtr     ⇐   "SetShaderValue"         _R shader‿i‿ptr‿i    # shader locIndex *value uniformType       # Set shader uniform value   # note to future Brian: Changed void to *f32 to fix a bug.
 setShaderValueV         ⇐   "SetShaderValueV"        _R shader‿i‿ptr‿i‿i  # shader locIndex *value uniformType count # Set shader uniform value vector
 setShaderValueMatrix    ⇐   "SetShaderValueMatrix"   _R shader‿i‿matrix   # shader locindex mat                      # Set shader uniform value (matrix 4x4)
 setShaderValueTexture   ⇐   "SetShaderValueTexture"  _R shader‿i‿texture  # shader locIndex texture                  # Set shader uniform value for texture (sampler2d)
@@ -543,8 +549,8 @@ getGesturePinchAngle   ⇐ f    "GetGesturePinchAngle"   _R@            # Get ge
 # Camera System Functions (Module: rcamera)
 #------------------------------------------------------------------------------------
 
-updateCamera    ⇐ "UpdateCamera"   _R (P camera3d)‿i       # Camera mode                   # Update camera position for selected mode
-updateCameraPro ⇐ "UpdateCameraPro"_R (P camera3d)‿v3‿v3‿f # Camera movement rotation zoom # Update camera movement/rotation
+updateCamera    ⇐ "UpdateCamera"   _R ('&'∾camera3d)‿i       # Camera mode                   # Update camera position for selected mode
+updateCameraPro ⇐ "UpdateCameraPro"_R ('&'∾camera3d)‿v3‿v3‿f # Camera movement rotation zoom # Update camera movement/rotation
 
 #------------------------------------------------------------------------------------
 # Basic Shapes Drawing Functions (Module: shapes)
