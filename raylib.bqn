@@ -267,6 +267,25 @@ utils ← {
   _FromCenter ← {c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩}                             # example of 𝕩: [x1‿x2‿x3⋄y1‿y2‿y3⋄z1‿z2‿z3]
   _bitwise ← {2⊸×⊸+˜´𝕨(0⊘1⊣◶⟨𝔽∘⊑⊢⋄𝔽´⊢⟩⌈○≠↑¨⋈)○(2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢))𝕩}
 }
+
+# start clock then tick at the start of every frame to get accurate clock.delta and clock.time
+StartClock ← {𝕊@:
+  # time is relative to when you started the clock
+  startTime ⇐ •MonoTime@
+  lastTime ← 0
+  
+  delta ⇐ 0
+  frame ⇐ 0
+
+  Time  ⇐ {𝕊:startTime-˜•Monotime@}
+  Tick ⇐ {𝕊:
+    frame+↩1
+    delta ↩ lastTime-˜startTime-˜•MonoTime@
+    lastTime ↩ startTime-˜•MonoTime@
+    delta
+  }
+}
+
 mouse ← {
   GetPos     ⇐ rayFFI.GetMousePosition ⟨⟩⊣NeedsWindow
   WheelMoved ⇐ rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
