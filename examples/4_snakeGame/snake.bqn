@@ -15,7 +15,7 @@ LoadConsts ← {𝕊:{
   winSize       ⇐ window.GetSize@
   textPixelSize ⇐ r.rayFFI.MeasureText¨textSize⋈˜¨"Paused"‿"GAME OVER"
   tileSize      ⇐ ⌊winSize⌊´⊸÷size+2
-  lines         ⇐ ≍´˘•SHow ⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
+  lines         ⇐ ≍´˘•Show ⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
   font          ⇐ r.font.LoadBQN 100
 }}
 OnStart ← {𝕤
