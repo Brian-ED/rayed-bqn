@@ -114,7 +114,6 @@ window ← {
   SetSize ← {𝕊size:
     ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
-    •Show 𝕩‿isopen
     isOpen?
       # if given size is 0-1, scale the window relative to monitor size
       rayFFI.SetWindowSize ⌈2⥊monitor.Size∘@⊸×⌾(((1⊸>∧0⊸<)𝕩)⊸/)2⥊𝕩
