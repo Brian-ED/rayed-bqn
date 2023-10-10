@@ -12,7 +12,7 @@
   FromFile ⋄ LoadFromArr ⋄ Unload
 ⟩⇐
 
-# No function implicitly unloads or mutates input image, except Unload
+# No function unloads or mutates input image, except Unload
 
 ⟨pixelFormat⟩ ← •Import "constants.bqn"
 rayffi ← •Import "../rayffi.bqn"

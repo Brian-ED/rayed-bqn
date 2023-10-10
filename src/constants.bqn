@@ -224,6 +224,7 @@ windowConfigFlags ⇐ {
   window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
   interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
 }
+# Useful constants for RLGL
 rlgl ← {
   default_batch_buffer_elements   ⇐   8192  # Default internal render batch elements limits
   default_batch_buffers           ⇐      1  # Default number of batch buffers (multi-buffering)
