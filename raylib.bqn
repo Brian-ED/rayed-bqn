@@ -28,7 +28,7 @@
   windowConfigFlags
 ⟩ ← •Import "src/constants.bqn"
 
-global  ← •Import "src/global.bqn"
+global ← •Import "src/global.bqn"
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
@@ -39,11 +39,10 @@ image   ⇐ •Import "src/image.bqn"
 # -------
 
 # Utils:
-FileAt      ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
+FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
 
 # Defaults
 rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
-rayffi.SetConfigFlags windowConfigFlags.window_resizable #SetConfigFlags is before InitWindow, SetWindowState is after
 
 texture ← {
   Load ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
@@ -77,9 +76,28 @@ monitor ← {
 # window functionality
 window ← {
   ⟨
-   isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
-   ShouldClose ⋄ Needed ⋄ SetPos ⋄ SetSize ⋄ configFlags
+    isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
+    ShouldClose ⋄ Needed ⋄ SetPos ⋄ SetSize ⋄ configFlags
+
+    fullscreen        ⋄ SetFullscreen
+    resizable         ⋄ SetResizable
+    decorated         ⋄ SetDecorated
+    transparent       ⋄ SetTransparent
+    msaa4xhint        ⋄ Setmsaa4xhint
+    vsyncHint         ⋄ Setvsynchint
+    hidden            ⋄ SetHidden
+    runWhileMinimized ⋄ SetRunWhileMinimized
+    minimized         ⋄ SetMinimized
+    maximized         ⋄ SetMaximized
+    focused           ⋄ SetFocused
+    topmost           ⋄ SetTopmost
+    highDPI           ⋄ SetHighDPI
+    mousePassThrough  ⋄ SetMousePassThrough
+    interlacedhint    ⋄ SetInterlacedhint
+
+    GetState # get binary list of above settings (including empty ones in the raylib binary format)
   ⟩⇐
+
   Needed ← NeedsWindow
   isOpen ← 0
 
@@ -104,7 +122,12 @@ window ← {
     (¬isOpen)!˜"The window cannot be opened twice"
     (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢scale)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
+
     rayFFI.InitWindow 0‿0‿𝕩
+
+    binary←GetState@
+    rayffi.SetWindowState 2⊸×⊸+˜´ binary
+
     isOpen↩1
     rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
     rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
@@ -133,6 +156,68 @@ window ← {
     }⊣NeedsWindow
   }
   configFlags ← windowConfigFlags
+
+  fullscreen        ← 0 # Set to run program in fullscreen
+  resizable         ← 1 # Set to allow resizable window
+  decorated         ← 1 # Set to 0 to disable window decoration (frame and buttons)
+  transparent       ← 0 # Set to allow transparent framebuffer
+  msaa4xhint        ← 0 # Set to try enabling MSAA 4X
+  vsyncHint         ← 0 # Set to try enabling V-Sync on GPU
+  hidden            ← 0 # Set to hide window
+  runWhileMinimized ← 0 # Set to allow windows running while minimized
+  minimized         ← 0 # Set to minimize window (iconify)
+  maximized         ← 0 # Set to maximize window (expanded to monitor)
+  focused           ← 1 # Set to 0 to non focus window
+  topmost           ← 0 # Set to window always on top
+  highDPI           ← 0 # Set to support HighDPI
+  mousePassThrough  ← 0 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+  interlacedhint    ← 0 # Set to try enabling interlaced video format (for V3D)
+
+  cf ← configFlags
+  cs ← { # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
+    ⟨Clear⇐ClearWindowState, Set⇐SetWindowState⟩ ← rayffi
+    Clear‿Set
+  }
+  
+  SetFullscreen        ⇐ { fullscreen        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.fullscreen_mode          }
+  SetResizable         ⇐ { resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         }
+  SetDecorated         ⇐ { decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       }
+  SetTransparent       ⇐ { transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       }
+  Setmsaa4xhint        ⇐ { msaa4xhint        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.msaa4xhint               }
+  Setvsynchint         ⇐ { vsyncHint         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.vsync_hint               }
+  SetHidden            ⇐ { hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            }
+  SetRunWhileMinimized ⇐ { runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        }
+  SetMinimized         ⇐ { minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         }
+  SetMaximized         ⇐ { maximized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_maximized         }
+  SetFocused           ⇐ { focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         }
+  SetTopmost           ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           }
+  SetHighDPI           ⇐ { highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  }
+  SetMousePassThrough  ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough }
+  SetInterlacedhint    ⇐ { interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    }
+  
+  names ← [
+    "                 "
+    "fullscreen       "
+    "resizable        "
+    "undecorated      "
+    "transparent      "
+    "msaa4xhint       "
+    "vsyncHint        "
+    "hidden           "
+    "runWhileMinimized"
+    "minimized        "
+    "maximized        "
+    "unfocused        "
+    "topmost          "
+    "highDPI          "
+    "mousePassThrough "
+    "interlacedhint   "
+    "interlacedhint   "
+  ]
+  GetState ← {𝕤 # returns binary list that corrisponds to raylib's config_flags format
+    0‿fullscreen‿resizable‿(¬decorated)‿transparent‿msaa_4x_hint‿vsync_hint‿hidden‿runWhileMinimized‿minimized‿maximized‿(¬focused)‿topmost‿highdpi‿mouse_passthrough‿0‿interlaced_hint
+  }
+  GetFmtState ← names<⊸∾˘GetState
 }
 
 # Drawing
