@@ -52,7 +52,7 @@ PerFrame ←{con𝕊⟨gameState,frame,snake,fruit,facing,speed,buffer,pal⟩:
   c.black‿con.font‿40 draw.Text 10‿10⋈•Repr ¯1+≠snake
   ⊑◶⟨ # each function is one scene
     {
-      "GAME OVER"pal.text draw._Text_ textSize 2⥊2÷˜con.winSize-1⊑con.textPixelSize
+      pal.text‿con.font‿textSize draw.Text "GAME OVER"⋈˜2⥊2÷˜con.winSize-1⊑con.textPixelSize
       pal⌾(7⊑⊢)OnStart⍟pauseP 𝕩 # nums mean values to reset
     }
     PerGameFrame⍟(1=speed|frame) {𝕤
@@ -64,8 +64,9 @@ PerFrame ←{con𝕊⟨gameState,frame,snake,fruit,facing,speed,buffer,pal⟩:
        key∾⍟(⊑∊⟜k.left‿k.right) buffer⟩ # Key buffer
     }⌾(1‿5‿6⊸⊏)
     {
-      pauseText←"Paused"∾(@+10)∾"d for dark"
-      pal.text‿con.font‿textSize draw.Text (2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize)‿pauseText
+      pauseText←"Paused, d for dark"
+      pal.text‿con.font‿(textSize) draw.Text (2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize)‿pauseText
+
       {𝕩≡nonDarkMode?darkMode;nonDarkMode}⌾(7⊑⊢)⍟(key=k.d)𝕩
     }
   ⟩  {1:2;2:1;𝕩}⍟pauseP⌾⊑ 𝕩
