@@ -77,7 +77,7 @@ monitor ← {
 window ← {
   ⟨
     isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
-    ShouldClose ⋄ Needed ⋄ SetPos ⋄ SetSize ⋄ configFlags
+    ShouldClose ⋄ Needed ⋄ SetPos ⋄ GetPos ⋄ SetSize ⋄ configFlags
 
     fullscreen        ⋄ SetFullscreen
     resizable         ⋄ SetResizable
