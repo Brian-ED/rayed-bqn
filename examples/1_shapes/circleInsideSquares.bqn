@@ -8,6 +8,7 @@ rec←60 ⋄ cir←400
 distFromMiddle ← 170
 outerRecs ← distFromMiddle×¯1+2×>⥊↕2‿2
 
+# sets window size to half the monitor size
 window.SetSize 0.5
 
 PerFrame ← {𝕤
@@ -19,7 +20,6 @@ PerFrame ← {𝕤
   # this drawing function is being used to draw on a black canvas
 } draw._withCanvas_ black
 
-# 0.5 sets window size to half the monitor size
 PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!" 
 # run PerFrame while condition is true, and run this with the window opened as "test" 
 # if window should close, close it  ¯\_(ツ)_/¯ 
