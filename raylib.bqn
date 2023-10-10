@@ -107,31 +107,45 @@ window ← {
   # Set the x‿y position of the window   (relative to current monitor?)
   SetPos ← {rayFFI.SetWindowPosition NeedsWindow𝕩}
 
+  # tempSize is used to store size until window is open
+  tempSize ← 0‿0
+
   # Set the width and hight of the window, width and hight being relative to window position
-  SetSize ← {rayFFI.SetWindowSize NeedsWindow𝕩}
+  SetSize ← {𝕊size:
+    ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
+    ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
+    •Show 𝕩‿isopen
+    isOpen?
+      # if given size is 0-1, scale the window relative to monitor size
+      rayFFI.SetWindowSize ⌈2⥊monitor.Size∘@⊸×⌾(((1⊸>∧0⊸<)𝕩)⊸/)2⥊𝕩
+  ;
+    tempSize↩𝕩
+  }
   
   # Get the width and hight of the window, width and hight being relative to window position
   GetSize ← {𝕤
-    NeedsWindow@
-    ⟨rayFFI.GetScreenWidth⟨⟩
-     rayFFI.GetScreenHeight⟨⟩⟩
+    isOpen?
+      ⟨rayFFI.GetScreenWidth⟨⟩
+       rayFFI.GetScreenHeight⟨⟩⟩
+  ;
+    tempSize
   }
 
   # Open the window with default settings
-  Open ← {𝕨𝕊 title: scale←𝕨⊣1
+  Open ← {𝕊 title:
     (¬isOpen)!˜"The window cannot be opened twice"
-    (scale≡0⌈1⌊scale)!˜"Scale can only be between 0 and 1"
-    ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢scale)!˜"Scale can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
-
     rayFFI.InitWindow 0‿0‿𝕩
+    rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
 
     binary←GetState@
     rayffi.SetWindowState 2⊸×⊸+˜´ binary
 
     isOpen↩1
+
+    SetSize tempSize
+
     rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
     rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
-    rayFFI.SetWindowSize monitor.Size∘@⊸× scale
     # Setting fps to the refresh rate of the currently selected monitor
     fps.Set monitor.RefreshRate@
   }
@@ -141,8 +155,8 @@ window ← {
     rayFFI.CloseWindow⟨⟩
     𝕩⊣isOpen↩0
   }
-  _openAs ← {𝕨 App _𝕣 title: scale←2⥊𝕨⊣1
-    scale Open 𝕩
+  _openAs ← {App _𝕣 title: size←𝕨⊣1
+    Open 𝕩
     Close⊸⊢𝔽 {startTime⇐•Monotime@} 
   }
   # TODO: Needs to test input for image

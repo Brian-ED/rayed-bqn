@@ -8,6 +8,8 @@ rec←60 ⋄ cir←400
 distFromMiddle ← 170
 outerRecs ← distFromMiddle×¯1+2×>⥊↕2‿2
 
+window.SetSize 0.5
+
 PerFrame ← {𝕤
   # mouse pos floored
   pos←r.mouse.GetPos@
@@ -18,6 +20,6 @@ PerFrame ← {𝕤
 } draw._withCanvas_ black
 
 # 0.5 sets window size to half the monitor size
-0.5 PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!" 
+PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!" 
 # run PerFrame while condition is true, and run this with the window opened as "test" 
 # if window should close, close it  ¯\_(ツ)_/¯ 
