@@ -38,5 +38,6 @@ Start ← {𝕊tex:
     App r.texture._WithImage (size∾4)⥊255
 }
 
+window.SetSize 0.5
 
-0.5 Start window._openAs "test"
+Start window._openAs "test"
