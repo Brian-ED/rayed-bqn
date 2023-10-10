@@ -115,8 +115,10 @@ window ← {
     ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
     isOpen?
+      s ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight) rayFFI.GetCurrentMonitor⟨⟩
+      f ← (1⊸>∧0⊸≤)𝕩
       # if given size is 0-1, scale the window relative to monitor size
-      rayFFI.SetWindowSize ⌈2⥊monitor.Size∘@⊸×⌾(((1⊸>∧0⊸<)𝕩)⊸/)2⥊𝕩
+      rayFFI.SetWindowSize ⌈2⥊s×⟜¬⌾(f⊸/)2⥊𝕩
   ;
     tempSize↩𝕩
   }
@@ -146,7 +148,7 @@ window ← {
     rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
     rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
     # Setting fps to the refresh rate of the currently selected monitor
-    fps.Set monitor.RefreshRate@
+    fps.Set rayFFI.GetMonitorRefreshRate rayFFI.GetCurrentMonitor⟨⟩
   }
   ShouldClose ← rayFFI.WindowShouldClose⟨⟩⊣NeedsWindow
   Close ← {
