@@ -300,9 +300,8 @@ draw ← {
 
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    "Rectangle only accepts ints as args"!(∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
-    rayFFI.DrawRectangle 𝕨∾⟜<˜(⊣∾-˜)˝∧˘⌾⍉𝕩
+    rayFFI.DrawRectangle 𝕨∾⟜<˜(¯1+2⋆31)⌊⌊(⊣∾-˜)˝∧˘⌾⍉𝕩
   }
 
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
