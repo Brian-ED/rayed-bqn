@@ -280,8 +280,10 @@ r ⇐ MakeImporter raylibPath
 # neccesary for low level programming in bqn
 MovePtr  ⇐ {b←256⋆↕8 ⋄ -⟜(256×≥⟜128)256|⌊b÷˜𝕨+´b×256|𝕩}     #      bytes 𝕊 pointer # Move pointer by an amount of bytes
 read     ⇐ @•FFI "" ‿"bqn_readI8Arr"  ‿"𝕨>a"    ‿('>'∾ptr)  #       data 𝕊 pointer # write data to pointer
+readI16  ⇐ @•FFI "" ‿"bqn_readI16Arr" ‿"𝕨>a"    ‿('>'∾ptr)  #       data 𝕊 pointer # write data to pointer
 readI32  ⇐ @•FFI "" ‿"bqn_readI32Arr" ‿"𝕨>a"    ‿('>'∾ptr)  #       data 𝕊 pointer # write data to pointer
 make     ⇐ @•FFI "a"‿"bqn_makeI8Vec"  ‿"𝕨>u64"  ‿('>'∾ptr)  # bytesCount 𝕊 pointer # turn data at pointer into a number array
+makeI16  ⇐ @•FFI "a"‿"bqn_makeI16Vec" ‿"𝕨>u64"  ‿('>'∾ptr)  # bytesCount 𝕊 pointer # turn data at pointer into a number array
 makeI32  ⇐ @•FFI "a"‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿('>'∾ptr)  #   NumCount 𝕊 pointer # turn data at pointer into a number array
 makeUTF8 ⇐ @•FFI "a"‿"bqn_makeUTF8Str"‿"𝕨>u64"  ‿('>'∾ptr)  #     length 𝕊 pointer # turn string at pointer into a bqn string
 strLen   ⇐ @•FFI i  ‿"strlen"         ‿('>'∾ptr)            #            𝕊 pointer # length of unicode C-string
