@@ -44,6 +44,9 @@ FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At        
 # Defaults
 rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
 
+# constants
+i32_max ← ¯1+2⋆31
+
 texture ← {
   Load ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
@@ -284,12 +287,12 @@ draw ← {
   # Draw line from x1‿y1 to x2‿y2
   Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    t←{
+    leftArg←{
       𝕊r‿g‿b‿a:1⋈˜𝕩;
       𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
     }𝕨
-    "Line: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
-    rayFFI.DrawLineEx(<˘𝕩)∾⌽t
+    "Line: wrong types as input"!leftArg‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
+    rayFFI.DrawLineEx(<˘𝕩)∾⌽leftArg
   }
 
   Texture ← {⟨r‿g‿b‿a⋄texture⋄scale⋄rotation⟩ 𝕊 x‿y:
@@ -301,7 +304,7 @@ draw ← {
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
-    rayFFI.DrawRectangle 𝕨∾⟜<˜(¯1+2⋆31)⌊⌊(⊣∾-˜)˝∧˘⌾⍉𝕩
+    rayFFI.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩 # capping with max and min to avoid errors at ∞
   }
 
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
