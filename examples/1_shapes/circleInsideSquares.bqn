@@ -21,5 +21,5 @@ PerFrame ← {𝕤
 } draw._withCanvas_ black
 
 PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!" 
-# run PerFrame while condition is true, and run this with the window opened as "test" 
+# run PerFrame while condition is true, and run this with the window opened as "Hello!!!" 
 # if window should close, close it  ¯\_(ツ)_/¯ 
