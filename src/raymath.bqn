@@ -59,6 +59,9 @@
   Vector3Unproject
   Vector3Refract
   
+  SlopeInterceptToLine
+  DistanceToPlane
+  
   # matrix operations
     # generalized
     MP ⋄ Inverse ⋄ MatrixDeterminant # from matrix.bqn in Marshall's bqn-libs
@@ -90,6 +93,7 @@
   QuaternionFromEuler
   QuaternionToEuler
   QuaternionEquals
+
 ⟩⇐
 
 
@@ -534,3 +538,15 @@ QuaternionToEuler ← {𝕊x‿y‿z‿w:
 
 # Check whether two given quaternions are almost equal
 QuaternionEquals ← ∨´·∧˝(|-≍˘+)≤epsilon×1⌈⌈○|
+# Find the shortest distance between a
+# point 𝕩 and a Plane-in-paramatized-form 𝕨 in 3a Plane-in-poly-formD
+
+# Generalized distance to arbitrary "plane" (hyperplane),
+# 𝕨 = ax+by+cz+... = 0 represented as a‿b‿c‿... # example ax+by+cz+d=0 → a‿b‿c‿d
+# 𝕩 a point
+DistanceToPlane ← {plane𝕊point:
+  |+´(1∾𝕩)×𝕨÷+´⌾(×˜)1↓𝕨
+}
+
+# turn ax+b=y (a‿b) into ax+by+c=0 (a‿b‿c)
+SlopeInterceptToLine ← ∾⟜¯1

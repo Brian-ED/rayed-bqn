@@ -9,7 +9,8 @@
   MatrixRotate, Wrap, Normalize, Vector3Unproject, MP, _ToDim_, MatrixExtend, Round
   QuaternionEquals, Vector3OrthoNormalize, Vector3RotateByAxisAngle, VectorClampValue
   MatrixTranslate, MatrixRotateX, MatrixRotateY, MatrixRotateZ, VectorAngle, deg2rad, rad2deg
-  
+  SlopeInterceptToLine, DistanceToPlane
+
   # In progress 
     MatrixPerspective
   
@@ -120,3 +121,12 @@ e↩"GetWorldToScreenEx"
 e!(Approx GetWorldToScreenEx pos‿camera3D‿width‿height) ≡ 2396.74492‿728.27699
 
 •Out "RCore tests passed"
+
+e↩"SimpleToLine"
+!1‿2‿¯1 ≡ SlopeInterceptToLine 1‿2
+
+e↩"DistanceToPlane"
+!6.7890285822722145≡ 8‿2‿¯2‿5 DistanceToPlane 4‿¯4‿3
+!1.6165807537309518≡¯8‿1‿7‿¯5 DistanceToPlane 2‿5‿3
+!2.23606797749979  ≡ ¯0.5‿¯1‿0.5 DistanceToPlane 4‿4
+!2.23606797749979  ≡ (SlopeInterceptToLine 1‿2) DistanceToPlane 4‿4
