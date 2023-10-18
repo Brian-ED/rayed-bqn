@@ -422,12 +422,15 @@ key ← {
     rayffi.IsKeyDown @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
 
-  PressedKey ⇐ {𝕤                                                 # Get key pressed as keycode
+  # Get key pressed as keycode
+  PressedKey ⇐ {𝕤
+    NeedsWindow@
     rayFFI.GetKeyPressed⟨⟩
-  }⊣NeedsWindow
+  }
   PressedChar ⇐ {𝕤
+    NeedsWindow@
     @+rayffi.GetcharPressed⟨⟩
-  }⊣NeedsWindow
+  }
 
   # Keyboard keys (US keyboard layout)
   # NOTE: Use GetKeyPressed() to allow redefining
@@ -435,6 +438,7 @@ key ← {
 
   # vars           Keycodes   Keys
   null          ⇐ 0        # NULL, used for no key pressed
+  
   # Alphanumeric keys
   apostrophe    ⇐ 39       # '
   comma         ⇐ 44       # ,
@@ -483,6 +487,7 @@ key ← {
   backslash     ⇐ 92       # \
   right_bracket ⇐ 93       # ]
   grave         ⇐ 96       # `
+  
   # Function keys
   space         ⇐ 32       # Space
   escape        ⇐ 256      # Esc
