@@ -504,37 +504,38 @@ QuaternionFromAxisAngle ← {angle𝕊axis:
 QuaternionToAxisAngle ← {𝕊𝕩:
 
   # QuaternionNormalize(q);
-  x‿y‿z‿w ← q ← ÷⟜(0⊸=⊸++´⌾(×˜))𝕩 # removed ⍟{1<|¯1⊑𝕩}
+  x‿y‿z‿w ← ÷⟜(0⊸=⊸++´⌾(×˜))𝕩 # removed ⍟{1<|¯1⊑𝕩}
 
   angle ← 2×Cos⁼w
 
   # when the angle is zero just set an arbitrary normalized axis. (0‿0‿1)
-  axis ← (Sin Cos⁼w){𝕨÷˜3↑q}⍟(≠⟜0)0‿0‿1
+  axis ← (Sin Cos⁼w){x‿y‿z÷𝕨}⍟(≠⟜0)0‿0‿1
 
   axis‿angle
 }
 
-# Get the quaternion equivalent to Euler angles
-# NOTE: Rotation order is ZYX
-QuaternionFromEuler ← {pitch‿yaw‿roll:
-  F ← ×´˘(Sin Cos⁼)⌾(0‿0⍉⊢)4⊸⥊˘
-  ¯1‿1‿¯1‿1×(Cos ×○F Sin) 𝕩÷2
-}
+QuaternionToEuler‿QuaternionFromEuler ← {f𝕊g:{𝕊⁼:𝕨G𝕩;𝕨F𝕩}}{𝔽⋈𝔽˜}´⟨
+  # Get the Euler angles equivalent to quaternion (roll, pitch, yaw)
+  # NOTE: Angles are returned in a Vector3 struct in radians
+  {𝕊x‿y‿z‿w: # QuaternionToEuler
+    ⟨
+      # Roll (x-axis rotation)
+      (×˜x‿y)¬⊸Atan2○(2×+´)x‿y×w‿z
 
-# Get the Euler angles equivalent to quaternion (roll, pitch, yaw)
-# NOTE: Angles are returned in a Vector3 struct in radians
-QuaternionToEuler ← {𝕊x‿y‿z‿w:
-  ⟨
-    # Roll (x-axis rotation)
-    Atan2⟜¬´2×+´¨⟨y×w‿z ⋄ ×˜x‿y⟩
+      # Pitch (y-axis rotation)
+      Sin⁼¯1⌈1⌊2×-´×˝2‿2⥊𝕩
 
-    # Pitch (y-axis rotation)
-    Sin⁼¯1⌊1⌈2×-´×˝2‿2⥊𝕩
+      # Yaw (z-axis rotation)
+      (×˜y‿z)¬⊸Atan2○(2×+´)x‿z×y‿w
+    ⟩
+  }
 
-    # Yaw (z-axis rotation)
-    Atan2´⟨2×+´×´¨2(↑⋈↓)𝕩 ⋄ ¬2×+´×˜y‿z⟩
-  ⟩
-}
+  # Get the quaternion equivalent to Euler angles
+  # NOTE: Rotation order is ZYX
+  {𝕊pitch‿yaw‿roll: # QuaternionFromEuler
+    +⟜(¯1‿1‿¯1‿1⊸×)´ ×˝¨(⋈⟜¬ ⍉4‿3⥊0‿1‿1‿1) ⊏˘¨ <(Sin≍˘Cos) 𝕩÷2
+  }
+⟩
 
 # Check whether two given quaternions are almost equal
 QuaternionEquals ← ∨´·∧˝(|-≍˘+)≤epsilon×1⌈⌈○|
@@ -549,4 +550,4 @@ DistanceToPlane ← {plane𝕊point:
 }
 
 # turn ax+b=y (a‿b) into ax+by+c=0 (a‿b‿c)
-SlopeInterceptToLine ← ∾⟜¯1
+SlopeInterceptToLine ← {𝕊⁼:¯1(-↓÷⊑)𝕩; 𝕩∾¯1}
