@@ -14,15 +14,15 @@ _MetaParse ← {∾˘´Box¨𝕨∾⍟(⟨⟩≢⊢)⚇1𝕗{𝕎𝕩}¨¨<˘⍉
 mapArgTypes ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾<0}6↓⍟("const "≡↑)¨⊢}⍉[  
   # ? really unsure of:
   "ptr"‿"..."
-  """**""∾u8"‿"const char **"
+  "'*'∾str"‿"const char **"
+  "'*'∾str"‿"char **"
   "ptr"‿"const void *"
-  "'*'∾u8"‿"unsigned char *"
-  "'*'∾u8"‿"char *"
+  "ustr"‿"unsigned char *"
+  "str"‿"char *"
   "'*'∾camera3D"‿"Camera *"
   """**""∾rectangle"‿"Rectangle **"
   "'*'∾glyphInfo"‿"GlyphInfo *"
   "'*'∾matrix"‿"Matrix *"
-  """**""∾u8"‿"char **"
   "renderTexture"‿"RenderTexture2D"
 
   # pointers
@@ -85,7 +85,7 @@ mapStructTypes ← {𝕊[bqn,c]:{𝕩⊣⍟(0⊸≡)¨((LowerNames¨c)⊐𝕩)�
   "ptr⊣'*'∾texture"        ‿"Texture2D *"
   "ptr⊣'*'∾material"       ‿"Material *"
   "ptr⊣'*'∾matrix"         ‿"const Matrix *"
-  "'*'∾u8"                 ‿"unsigned char *"
+  "ptr⊣'*'∾u8"                 ‿"unsigned char *"
   """u16"""                ‿"unsigned short *"
   "u8"                     ‿"unsigned char"
   "u8"                     ‿"char"
@@ -117,7 +117,7 @@ mapFuncNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bq
 
 MapFuncReturnType ← " "⍟("void"⊸≡)·('('⊸∾∾⟜')')⍟(∨´"∾⊣"⊸∊)MapStructTypes⌾<
 
-"./inp-out/rayffi.bqn"•FLines(•FLines ffiUtilsPath)∾(⋈"r ⇐ MakeImporter """∾raylibPath∾'"')∾{
+"./inp-out/rayffi.bqn"•FLines (•FLines "topOfRayffi.bqn") ∾(⋈"r ⇐ MakeImporter """∾raylibPath∾'"')∾ {
  "defines"𝕊𝕩:
     Parse ← {∾˘´Box¨""‿""‿" ⇐ "‿" # "∾⍟(⟨⟩≢⊢)⚇1⟨LowerNames,⟨⟩˙,•Repr,⊢⟩{𝕎𝕩}¨¨ <˘⍉𝕩}
     exclTypes  ← "GUARD"‿"MACRO"‿"UNKNOWN"‿"FLOAT_MATH"‿"COLOR"
