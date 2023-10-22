@@ -1,5 +1,4 @@
 ## Metaprogram rayffi.bqn automatically.
-## INCOMPLETE the current rayffi file is all manually made.
 
 ffiUtilsPath←⊑•args∾<"../ffiUtils.bqn"
 
