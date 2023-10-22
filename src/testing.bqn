@@ -1,15 +1,17 @@
-# Tests are very undeveloped.
 # This file may be turned into a testing directory when it gets bigger.
 # Catagories are seperated by 2 newlines.
 
-# all tests successful as of june 13. 2023
+# testing values
+camera2D ← {target⇐20‿30 ⋄ offset⇐40‿60 ⋄ zoom⇐1.2 ⋄ rotation⇐95}
+camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0‿1‿0 ⋄ fovy⇐100 ⋄ projection⇐1}
+
 
 # Raymath:
 ⟨
   MatrixRotate, Wrap, Normalize, Vector3Unproject, MP, _ToDim_, MatrixExtend, Round
   QuaternionEquals, Vector3OrthoNormalize, Vector3RotateByAxisAngle, VectorClampValue
   MatrixTranslate, MatrixRotateX, MatrixRotateY, MatrixRotateZ, VectorAngle, deg2rad, rad2deg
-  SlopeInterceptToLine, DistanceToPlane
+  SlopeInterceptToLine, DistanceToPlane, QuaternionFromEuler, QuaternionToEuler
 
   # In progress 
     MatrixPerspective
@@ -97,36 +99,46 @@ e!(Approx 1‿2     VectorAngle 3‿4    ) ≡ 0.17985
 e!(Approx 1‿2‿3‿4 VectorAngle 5‿6‿7‿8) ≡ 0.2502
 e!(Approx 1‿2‿3   VectorAngle 2‿3‿4  ) ≡ 0.12187
 
-# raylib.bqn
+e↩"SlopeInterceptToLine"
+e!(SlopeInterceptToLine 1‿2         ) ≡ 1‿2‿¯1
+e!(SlopeInterceptToLine⁼ ¯0.5‿¯1‿0.5) ≡ 1‿2
+e!(SlopeInterceptToLine⁼ 1‿2‿¯1     ) ≡ 1‿2
 
-⟨⟨_FromCenter⟩⇐utils⟩←•Import "../raylib.bqn"
-e↩"_FromCenter"
-e!(Approx 2⊸×_FromCenter[10‿15⋄15‿20⋄20‿25]) ≡ (3‿2⥊7.5‿17.5‿12.5‿22.5‿17.5‿27.5)
-e!(Approx 2⊸×_FromCenter[10‿15‿15⋄15‿20‿20]) ≡ (2‿3⥊6.66667‿16.66667‿16.66667‿11.66667‿21.66667‿21.66667)
+e↩"DistanceToPlane"
+e!6.78903≡Approx 8‿2‿¯2‿5 DistanceToPlane 4‿¯4‿3
+e!1.61658≡Approx ¯8‿1‿7‿¯5 DistanceToPlane 2‿5‿3
+e!2.23607≡Approx ¯0.5‿¯1‿0.5 DistanceToPlane 4‿4
+e!2.23607≡Approx (SlopeInterceptToLine 1‿2) DistanceToPlane 4‿4
+
+e↩"MatrixLookAt"
+e!(Approx MatrixLookAt camera3D.position‿camera3D.target‿camera3D.up) ≡ 4‿4⥊¯0.98221‿0.14974‿0.1133‿0‿0‿0.60338‿¯0.79746‿0‿¯0.18778‿¯0.78327‿¯0.59264‿0‿242.80856‿¯36.35183‿122.97376‿1
+
+e↩"QuaternionFromEuler"
+e!(Approx QuaternionFromEuler 1|π‿0‿π) ≡ 0.07056‿0.005‿0.07056‿0.995
+
+e↩"QuaternionToEuler"
+e!(Approx QuaternionToEuler 0.07056‿0.005‿0.07056‿0.995) ≡ 0.14159‿1e¯5‿0.14159
 
 •Out "Raymath tests passed"
 
 
 ⟨GetWorldToScreenEx⟩ ← •Import "rcore.bqn"
 
-camera2D ← {target⇐20‿30 ⋄ offset⇐40‿60 ⋄ zoom⇐1.2 ⋄ rotation⇐95}
-camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0‿1‿0 ⋄ fovy⇐100 ⋄ projection⇐1}
 pos ← 111‿9‿4
 width‿height ← 1920‿1080
-
-e↩"MatrixLookAt"
-e!(Approx MatrixLookAt camera3D.position‿camera3D.target‿camera3D.up) ≡ 4‿4⥊¯0.98221‿0.14974‿0.1133‿0‿0‿0.60338‿¯0.79746‿0‿¯0.18778‿¯0.78327‿¯0.59264‿0‿242.80856‿¯36.35183‿122.97376‿1
 
 e↩"GetWorldToScreenEx"
 e!(Approx GetWorldToScreenEx pos‿camera3D‿width‿height) ≡ 2396.74492‿728.27699
 
+
 •Out "RCore tests passed"
 
-e↩"SimpleToLine"
-!1‿2‿¯1 ≡ SlopeInterceptToLine 1‿2
 
-e↩"DistanceToPlane"
-!6.7890285822722145≡ 8‿2‿¯2‿5 DistanceToPlane 4‿¯4‿3
-!1.6165807537309518≡¯8‿1‿7‿¯5 DistanceToPlane 2‿5‿3
-!2.23606797749979  ≡ ¯0.5‿¯1‿0.5 DistanceToPlane 4‿4
-!2.23606797749979  ≡ (SlopeInterceptToLine 1‿2) DistanceToPlane 4‿4
+⟨⟨_FromCenter⟩⇐utils⟩←•Import "../raylib.bqn"
+
+e↩"_FromCenter"
+e!(Approx 2⊸×_FromCenter[10‿15⋄15‿20⋄20‿25]) ≡ (3‿2⥊7.5‿17.5‿12.5‿22.5‿17.5‿27.5)
+e!(Approx 2⊸×_FromCenter[10‿15‿15⋄15‿20‿20]) ≡ (2‿3⥊6.66667‿16.66667‿16.66667‿11.66667‿21.66667‿21.66667)
+
+•Out "utils tests passed"
+
