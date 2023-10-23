@@ -5,10 +5,9 @@ ffiUtilsPath←⊑•args∾<"../ffiUtils.bqn"
 nl ← @+10 # newline
 json ← •Import "../imports/bqn-libs/json.bqn"
 
-Box ← {>𝕩»¨<(⌈´≠¨𝕩)⥊𝕨⊣' '}
+Box ←  >⊢»¨⟜<' '⥊˜·⌈´≠¨
 LowerNames ← +⟜(32×1="A["⊸⍋)⌾(1↑⊢)
 _MetaParse ← {∾˘´Box¨𝕨∾⚇1𝕗{𝕎𝕩}¨¨<˘⍉𝕩}
-_MetaParseFull ← {∾˘´Box¨𝕨∾⚇1𝕗{𝕎𝕩}¨<˘⍉𝕩}
 ⟨raylibPath⟩ ← •Import"../loadConfig.bqn"
 
 mapArgTypes ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾<0}6↓⍟("const "≡↑)¨⊢} abc←⍉[  
@@ -122,15 +121,10 @@ defines‿structs‿aliases‿enums‿callbacks‿functions←{
     ParseNamespace¨1⊏¨enums
   }
   { # functions
-    FillTitles ← ⊢˝ # "name"‿"description"‿"returnType"‿"params"
-    <˘⟨"", " ⇐ ", "", " _R"," # "⟩⟨
-      LowerNames¨
-      MapFuncReturnType¨
-      '"'∾¨∾⟜'"'¨
-      <˘"⟨"‿"⟩ #"⟨{<˘1↓˘∾˘´('⋄'⊸∾˘)¨ Box¨<˘⍉(<"") Box MapArgTypes¨𝕩},∾¨' '⊸∾¨¨⟩_MetaParseFull ·(⍉0⊸⊏¨≍1⊸⊏¨){2‿∘⥊⍉>1⊏¨𝕩}¨
-      ⊢
-    ⟩_MetaParseFull{# ⍉[name, description, returnType, params]:
-      0‿1‿0‿2‿3⊸⊏˘0‿2‿3‿1⊸⊏˘𝕩
-    }> FillTitles¨functions
+    # ⍉[name, description, returnType, params]:
+    <˘⟨"", " ⇐ ", """", " _R⟨", "#", " # "⟩⟨LowerNames⋄MapFuncReturnType⋄∾⟜'"'⋄'⟩'∾˜1↓·∾'⋄'∾¨MapArgTypes⋄∾' '⊸∾¨⋄⊢
+    ⟩_MetaParse{
+      0‿2‿0‿3‿4‿1⊸⊏˘(¯1↓˘𝕩)∾˘(⊣˝¨≍˘⊢˝¨){2‿∘⥊⍉>⊢˝¨𝕩}¨3⊏˘𝕩
+    }> ⊢˝¨functions
   }
 ⟩
