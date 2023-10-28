@@ -362,7 +362,7 @@ font ← {
 }
 clipboard ← {
   ⟨ToBytes⟩ ← •Import bqnLibsPath∾"/strings.bqn"
-  Get ⇐ rayffi.MakeUTF8 rayffi.StrLen⊸⋈∘rayffi.GetClipboardText∘⟨⟩
+  Get ⇐ rayffi.StrLen⊸rayffi.MakeUTF8 rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText ToBytes⊣NeedsWindow
 }
 utils ← {
