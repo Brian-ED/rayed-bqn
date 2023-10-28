@@ -14,37 +14,60 @@ The only values supported for now is the path to binary.
 
 The binary being one of the following raylib.ddl/libraylib.so/etc.
 examples are below:
+
 ```txt
 raylibPath:raylib/lib/raylib.dll
+
 ```
+
 ```txt
 raylibPath:raylib/lib/libraylib.so
+
 ```
 
 To actually get the binary, follow the steps below:
+
 ## Windows
+
 First download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-4.5.0_win64_mingw-w64` and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
 
 ## Linux
+
 Build [raylib](https://github.com/raysan5/raylib/) from source, and place the binaries generated from compiling into the folder ./raylib/lib.
-You build raylib by first cloning 
+
+You build and install raylib by doing the following:
+```sh
+git clone https://github.com/raysan5/raylib.git
+cd src
+make RAYLIB_LIBTYPE=SHARED
+sudo make install RAYLIB_LIBTYPE=SHARED
+```
+and have the path in the config file be
+```txt
+raylibPath:/usr/local/lib/libraylib.so`
+```
 
 ## Mac
-I have never tested mac, but it could be similar to Linux.
 
+I have never tested mac, but it could be similar to Linux.
 
 # Tested Raylib versions:
 
 ## Windows
-  "raylib-4.5.0_win64_mingw-w64" on Windows 10
-  
+
+"raylib-4.5.0_win64_mingw-w64" on Windows 10
+
 ## Linux
-  Raylib version 4.5.0 built from source on Pop!_OS.
-  Raylib version 4.5.0 built from source on Ubuntu 22.04.2 LTS.
+
+Raylib version 4.5.0 built from source on Pop!_OS.
+Raylib version 4.5.0 built from source on Ubuntu 22.04.2 LTS.
+
 ## Mac
-  None yet
+
+None yet
 
 # Extra info
+
 The most important file in ./raylib/lib/ is the binary file, which could be located at:
 ./rayed-bqn/raylib/lib/(BINARY).
 
@@ -57,18 +80,21 @@ On macOS: libraylib.dylib (I think)
 On Linux: libraylib.so
 
 # Ideologies
+
 Having as little magic as possible, magic meaning magic numbers and global values (available to the user) changing outside user's control.
 
 Mutations localized in namespaces like "button" are fine.
 
 # Contributing
+
 If you have any questions on contributing to this project, feel free to mention me on the bqn forum that's mentioned on the [bqn-wiki](https://mlochbaum.github.io/BQN/index.html#where-can-i-find-bqn-users), my username is Brian E.
 
 You can submit however many issues as you'd like, I see them as a TODO list.
 
-You can make pull requests and submit them for merges if you'd like, though be sure to discuss with me for any features you add to make sure you didn't put in wasted effort, though if it's mentioned in a github-issue and isn't taken do make sure you say you're working on it. Also say when you've stopped working on it, and share the roadblocks and progress, so someone can continue where you left off.   
+You can make pull requests and submit them for merges if you'd like, though be sure to discuss with me for any features you add to make sure you didn't put in wasted effort, though if it's mentioned in a github-issue and isn't taken do make sure you say you're working on it. Also say when you've stopped working on it, and share the roadblocks and progress, so someone can continue where you left off.
 
 # Credits
+
 Lots of thanks to [@dzaima](https://github.com/dzaima) for helping with FFI.
 
 I owe credit to [@nulldatamap](https://gist.github.com/nulldatamap) for showing a lovely [example](https://gist.github.com/nulldatamap/30b10389bf91d6f25bb262da9c9e9709) to get me started with using FFI for BQN, and for making it easy to start with making this library.
