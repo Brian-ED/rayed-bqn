@@ -7,9 +7,13 @@ raylibPath ⇐ •file.At {
 
 bqnLibsPath ⇐ •file.At "imports/bqn-libs"
 
-•FChars⟜""⍟(¬•file.Exists) "../config.txt"
-
+default ← ⟨
+  "# You may use relative paths if you would like"
+  "raylibPath:"∾raylibPath
+  "bqn-libsPath:"∾bqnLibsPath
+⟩
+•FLines⟜default⍟(¬•file.Exists) "../config.txt"
 {
   "raylibPath"  𝕊𝕩:raylibPath ↩•file.At"../"•file.At 1↓𝕩;
   "bqn-libsPath"𝕊𝕩:bqnLibsPath↩•file.At"../"•file.At 1↓𝕩
-}´¨+`∘=⟜':'⊸⊔¨•FLines "../config.txt"
+}´¨+`∘=⟜':'⊸⊔¨ ∨´∘=⟜':'¨⊸/ •FLines "../config.txt"
