@@ -1,1 +1,0 @@
-The files in this directory are from BQNoise, not all files were included. Please check out [the original](https://github.com/mlochbaum/BQNoise)
