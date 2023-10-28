@@ -355,7 +355,8 @@ font ← {
 
   LoadBQN ← {𝕊fontSize:
     NeedsWindow@
-    rayFFI.LoadFontEx⟨FileAt"src/imports/BQN386/BQN386.ttf"⋄100⍟(@⊸≡)𝕩⋄bqnFontChars-@⋄≠bqnFontChars⟩
+    file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt"src/imports/BQN386/BQN386.ttf"
+    rayFFI.LoadFontEx⟨file⋄100⍟(@⊸≡)𝕩⋄bqnFontChars-@⋄≠bqnFontChars⟩
   }
   LoadRaylib ← rayffi.GetFontDefault∘⟨⟩
 }
