@@ -58,16 +58,14 @@ U32ToI8 ⇐ ⟨@•FFI"*:i8"‿"memcpy"‿"&i32"‿"*u32"‿"u64",@•FFI"*:i8"�
   𝔽_𝕣⁼𝕩:·‿F←𝕗⋄⊑1⊑F{⟨0⟩‿𝕩‿4} ⟨8‿'i'⋄32‿'i'⟩•bit._cast 𝕩
 }
 r ⇐ MakeImporter "/usr/local/lib/libraylib.so"
-
 rAYLIB_VERSION_MAJOR ⇐ 5        
 rAYLIB_VERSION_MINOR ⇐ 0        
 rAYLIB_VERSION_PATCH ⇐ 0        
 rAYLIB_VERSION       ⇐ "5.0-dev"
-
 filePathList ⇐ S ⟨ # File path list 
-  u   # capacity  # Filepaths max entries  
-  u   # count     # Filepaths entries count
-  ptr # paths     # Filepaths entries      
+  u           # capacity  # Filepaths max entries  
+  u           # count     # Filepaths entries count
+  ptr⊣'*'∾str # paths     # Filepaths entries      
 ⟩
 v2 ⇐ S ⟨ # Vector2, 2 components 
   f # x  # Vector x component
@@ -149,12 +147,12 @@ glyphInfo ⇐ S ⟨ # GlyphInfo, font characters glyphs info
   image # image     # Character image data           
 ⟩
 font ⇐ S ⟨ # Font, font texture and GlyphInfo array data 
-  i       # baseSize      # Base size (default chars height)    
-  i       # glyphCount    # Number of glyph characters          
-  i       # glyphPadding  # Padding around the glyph characters 
-  texture # texture       # Texture atlas containing the glyphs 
-  ptr     # recs          # Rectangles in texture for the glyphs
-  ptr     # glyphs        # Glyphs info data                    
+  i                 # baseSize      # Base size (default chars height)    
+  i                 # glyphCount    # Number of glyph characters          
+  i                 # glyphPadding  # Padding around the glyph characters 
+  texture           # texture       # Texture atlas containing the glyphs 
+  ptr⊣'*'∾rectangle # recs          # Rectangles in texture for the glyphs
+  ptr⊣'*'∾glyphInfo # glyphs        # Glyphs info data                    
 ⟩
 camera3D ⇐ S ⟨ # Camera, defines position/orientation in 3d space 
   v3 # position    # Camera position                                                                                      
@@ -177,11 +175,11 @@ mesh ⇐ S ⟨ # Mesh, vertex data and vao/vbo
   ptr⊣'*'∾f  # texcoords2     # Vertex texture second coordinates (UV - 2 components per vertex) (shader-location = 5)
   ptr⊣'*'∾f  # normals        # Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)                  
   ptr⊣'*'∾f  # tangents       # Vertex tangents (XYZW - 4 components per vertex) (shader-location = 4)                
-  ptr⊣'*'∾u8 # colors         # Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)                  
-  "u16"      # indices        # Vertex indices (in case vertex data comes indexed)                                    
+  ptr⊣ustr   # colors         # Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)                  
+  ptr⊣"*i16" # indices        # Vertex indices (in case vertex data comes indexed)                                    
   ptr⊣'*'∾f  # animVertices   # Animated vertex positions (after bones transformations)                               
   ptr⊣'*'∾f  # animNormals    # Animated normals (after bones transformations)                                        
-  ptr⊣'*'∾u8 # boneIds        # Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning)       
+  ptr⊣ustr   # boneIds        # Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning)       
   ptr⊣'*'∾f  # boneWeights    # Vertex bone weight, up to 4 bones influence by vertex (skinning)                      
   u          # vaoId          # OpenGL Vertex Array Object id                                                         
   ptr⊣'*'∾u  # vboId          # OpenGL Vertex Buffer Objects id (default vertex data)                                 
@@ -196,9 +194,9 @@ materialMap ⇐ S ⟨ # MaterialMap
   f       # value    # Material map value  
 ⟩
 material ⇐ S ⟨ # Material, includes shader and maps 
-  shader  # shader  # Material shader                          
-  ptr     # maps    # Material maps array (MAX_MATERIAL_MAPS)  
-  "[4]"∾f # params  # Material generic parameters (if required)
+  shader              # shader  # Material shader                          
+  ptr⊣'*'∾materialMap # maps    # Material maps array (MAX_MATERIAL_MAPS)  
+  "[4]"∾f             # params  # Material generic parameters (if required)
 ⟩
 transform ⇐ S ⟨ # Transform, vertex transformation data 
   v3         # translation  # Translation
@@ -210,22 +208,22 @@ boneInfo ⇐ S ⟨ # Bone, skeletal animation bone
   i         # parent  # Bone parent
 ⟩
 model ⇐ S ⟨ # Model, meshes, materials and animation data 
-  matrix           # transform      # Local transform matrix          
-  i                # meshCount      # Number of meshes                
-  i                # materialCount  # Number of materials             
-  ptr⊣'*'∾mesh     # meshes         # Meshes array                    
-  ptr⊣'*'∾material # materials      # Materials array                 
-  ptr⊣'*'∾i        # meshMaterial   # Mesh material number            
-  i                # boneCount      # Number of bones                 
-  ptr              # bones          # Bones information (skeleton)    
-  ptr              # bindPose       # Bones base transformation (pose)
+  matrix            # transform      # Local transform matrix          
+  i                 # meshCount      # Number of meshes                
+  i                 # materialCount  # Number of materials             
+  ptr⊣'*'∾mesh      # meshes         # Meshes array                    
+  ptr⊣'*'∾material  # materials      # Materials array                 
+  ptr⊣'*'∾i         # meshMaterial   # Mesh material number            
+  i                 # boneCount      # Number of bones                 
+  ptr⊣'*'∾boneInfo  # bones          # Bones information (skeleton)    
+  ptr⊣'*'∾transform # bindPose       # Bones base transformation (pose)
 ⟩
 modelAnimation ⇐ S ⟨ # ModelAnimation 
-  i         # boneCount   # Number of bones             
-  i         # frameCount  # Number of animation frames  
-  ptr       # bones       # Bones information (skeleton)
-  ptr       # framePoses  # Poses array by frame        
-  "[32]"∾u8 # name        # Animation name              
+  i                  # boneCount   # Number of bones             
+  i                  # frameCount  # Number of animation frames  
+  ptr⊣'*'∾boneInfo   # bones       # Bones information (skeleton)
+  ptr⊣"**"∾transform # framePoses  # Poses array by frame        
+  "[32]"∾u8          # name        # Animation name              
 ⟩
 ray ⇐ S ⟨ # Ray, ray for raycasting 
   v3 # position   # Ray position (origin)
@@ -288,8 +286,6 @@ vrStereoConfig ⇐ S ⟨ # VrStereoConfig, VR stereo rendering configuration for
   "[2]"∾f      # scale              # VR distortion scale              
   "[2]"∾f      # scaleIn            # VR distortion scale in           
 ⟩
-
-
 configFlags ⇐ { # System/Window config flags
   fLAG_VSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU                                            
   fLAG_FULLSCREEN_MODE          ⇐ 2      # Set to run program in fullscreen                                             
@@ -630,8 +626,6 @@ nPatchLayout ⇐ { # N-patch layout
   nPATCH_THREE_PATCH_VERTICAL   ⇐ 1  # Npatch layout: 1x3 tiles
   nPATCH_THREE_PATCH_HORIZONTAL ⇐ 2  # Npatch layout: 3x1 tiles
 }
-
-
 initWindow                      ⇐                         "InitWindow"                      _R⟨i⋄i⋄str⟩                                       # width height title                                                # Initialize window and OpenGL context                                                                                                
 closeWindow                     ⇐                         "CloseWindow"                     _R⟨⟩                                              #                                                                   # Close window and unload OpenGL context                                                                                              
 windowShouldClose               ⇐ bool                    "WindowShouldClose"               _R⟨⟩                                              #                                                                   # Check if application should close (KEY_ESCAPE pressed or windows close icon clicked)                                                
@@ -744,11 +738,11 @@ setLoadFileDataCallback         ⇐                         "SetLoadFileDataCall
 setSaveFileDataCallback         ⇐                         "SetSaveFileDataCallback"         _R⟨ptr⟩                                           # callback                                                          # Set custom file binary data saver                                                                                                   
 setLoadFileTextCallback         ⇐                         "SetLoadFileTextCallback"         _R⟨ptr⟩                                           # callback                                                          # Set custom file text data loader                                                                                                    
 setSaveFileTextCallback         ⇐                         "SetSaveFileTextCallback"         _R⟨ptr⟩                                           # callback                                                          # Set custom file text data saver                                                                                                     
-loadFileData                    ⇐ (ptr⊣'*'∾u8)            "LoadFileData"                    _R⟨str⋄'*'∾i⟩                                     # fileName dataSize                                                 # Load file data as byte array (read)                                                                                                 
+loadFileData                    ⇐ (ptr⊣ustr)              "LoadFileData"                    _R⟨str⋄'*'∾i⟩                                     # fileName dataSize                                                 # Load file data as byte array (read)                                                                                                 
 unloadFileData                  ⇐                         "UnloadFileData"                  _R⟨ustr⟩                                          # data                                                              # Unload file data allocated by LoadFileData()                                                                                        
 saveFileData                    ⇐ bool                    "SaveFileData"                    _R⟨str⋄ptr⋄i⟩                                     # fileName data dataSize                                            # Save data to file from byte array (write), returns true on success                                                                  
 exportDataAsCode                ⇐ bool                    "ExportDataAsCode"                _R⟨ustr⋄i⋄str⟩                                    # data dataSize fileName                                            # Export data to code (.h), returns true on success                                                                                   
-loadFileText                    ⇐ ptr                     "LoadFileText"                    _R⟨str⟩                                           # fileName                                                          # Load text data from file (read), returns a '\0' terminated string                                                                   
+loadFileText                    ⇐ (ptr⊣str)               "LoadFileText"                    _R⟨str⟩                                           # fileName                                                          # Load text data from file (read), returns a '\0' terminated string                                                                   
 unloadFileText                  ⇐                         "UnloadFileText"                  _R⟨str⟩                                           # text                                                              # Unload file text data allocated by LoadFileText()                                                                                   
 saveFileText                    ⇐ bool                    "SaveFileText"                    _R⟨str⋄str⟩                                       # fileName text                                                     # Save text data to file (write), string must be '\0' terminated, returns true on success                                             
 fileExists                      ⇐ bool                    "FileExists"                      _R⟨str⟩                                           # fileName                                                          # Check if file exists                                                                                                                
@@ -771,10 +765,10 @@ isFileDropped                   ⇐ bool                    "IsFileDropped"     
 loadDroppedFiles                ⇐ filePathList            "LoadDroppedFiles"                _R⟨⟩                                              #                                                                   # Load dropped filepaths                                                                                                              
 unloadDroppedFiles              ⇐                         "UnloadDroppedFiles"              _R⟨filePathList⟩                                  # files                                                             # Unload dropped filepaths                                                                                                            
 getFileModTime                  ⇐ "i64"                   "GetFileModTime"                  _R⟨str⟩                                           # fileName                                                          # Get file modification time (last write time)                                                                                        
-compressData                    ⇐ (ptr⊣'*'∾u8)            "CompressData"                    _R⟨ustr⋄i⋄'*'∾i⟩                                  # data dataSize compDataSize                                        # Compress data (DEFLATE algorithm), memory must be MemFree()                                                                         
-decompressData                  ⇐ (ptr⊣'*'∾u8)            "DecompressData"                  _R⟨ustr⋄i⋄'*'∾i⟩                                  # compData compDataSize dataSize                                    # Decompress data (DEFLATE algorithm), memory must be MemFree()                                                                       
-encodeDataBase64                ⇐ ptr                     "EncodeDataBase64"                _R⟨ustr⋄i⋄'*'∾i⟩                                  # data dataSize outputSize                                          # Encode data to Base64 string, memory must be MemFree()                                                                              
-decodeDataBase64                ⇐ (ptr⊣'*'∾u8)            "DecodeDataBase64"                _R⟨ustr⋄'*'∾i⟩                                    # data outputSize                                                   # Decode Base64 string data, memory must be MemFree()                                                                                 
+compressData                    ⇐ (ptr⊣ustr)              "CompressData"                    _R⟨ustr⋄i⋄'*'∾i⟩                                  # data dataSize compDataSize                                        # Compress data (DEFLATE algorithm), memory must be MemFree()                                                                         
+decompressData                  ⇐ (ptr⊣ustr)              "DecompressData"                  _R⟨ustr⋄i⋄'*'∾i⟩                                  # compData compDataSize dataSize                                    # Decompress data (DEFLATE algorithm), memory must be MemFree()                                                                       
+encodeDataBase64                ⇐ (ptr⊣str)               "EncodeDataBase64"                _R⟨ustr⋄i⋄'*'∾i⟩                                  # data dataSize outputSize                                          # Encode data to Base64 string, memory must be MemFree()                                                                              
+decodeDataBase64                ⇐ (ptr⊣ustr)              "DecodeDataBase64"                _R⟨ustr⋄'*'∾i⟩                                    # data outputSize                                                   # Decode Base64 string data, memory must be MemFree()                                                                                 
 isKeyPressed                    ⇐ bool                    "IsKeyPressed"                    _R⟨i⟩                                             # key                                                               # Check if a key has been pressed once                                                                                                
 isKeyPressedRepeat              ⇐ bool                    "IsKeyPressedRepeat"              _R⟨i⟩                                             # key                                                               # Check if a key has been pressed again (Only PLATFORM_DESKTOP)                                                                       
 isKeyDown                       ⇐ bool                    "IsKeyDown"                       _R⟨i⟩                                             # key                                                               # Check if a key is being pressed                                                                                                     
@@ -882,7 +876,7 @@ loadImageFromScreen             ⇐ image                   "LoadImageFromScreen
 isImageReady                    ⇐ bool                    "IsImageReady"                    _R⟨image⟩                                         # image                                                             # Check if an image is ready                                                                                                          
 unloadImage                     ⇐                         "UnloadImage"                     _R⟨image⟩                                         # image                                                             # Unload image from CPU memory (RAM)                                                                                                  
 exportImage                     ⇐ bool                    "ExportImage"                     _R⟨image⋄str⟩                                     # image fileName                                                    # Export image data to file, returns true on success                                                                                  
-exportImageToMemory             ⇐ (ptr⊣'*'∾u8)            "ExportImageToMemory"             _R⟨image⋄str⋄'*'∾i⟩                               # image fileType fileSize                                           # Export image to memory buffer                                                                                                       
+exportImageToMemory             ⇐ (ptr⊣ustr)              "ExportImageToMemory"             _R⟨image⋄str⋄'*'∾i⟩                               # image fileType fileSize                                           # Export image to memory buffer                                                                                                       
 exportImageAsCode               ⇐ bool                    "ExportImageAsCode"               _R⟨image⋄str⟩                                     # image fileName                                                    # Export image as code file defining an array of bytes, returns true on success                                                       
 genImageColor                   ⇐ image                   "GenImageColor"                   _R⟨i⋄i⋄color⟩                                     # width height color                                                # Generate image: plain color                                                                                                         
 genImageGradientLinear          ⇐ image                   "GenImageGradientLinear"          _R⟨i⋄i⋄i⋄color⋄color⟩                             # width height direction start end                                  # Generate image: linear gradient, direction in degrees [0..360], 0=Vertical gradient                                                 
@@ -983,7 +977,7 @@ loadFontEx                      ⇐ font                    "LoadFontEx"        
 loadFontFromImage               ⇐ font                    "LoadFontFromImage"               _R⟨image⋄color⋄i⟩                                 # image key firstChar                                               # Load font from Image (XNA style)                                                                                                    
 loadFontFromMemory              ⇐ font                    "LoadFontFromMemory"              _R⟨str⋄ustr⋄i⋄i⋄'*'∾i⋄i⟩                          # fileType fileData dataSize fontSize codepoints codepointCount     # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'                                                             
 isFontReady                     ⇐ bool                    "IsFontReady"                     _R⟨font⟩                                          # font                                                              # Check if a font is ready                                                                                                            
-loadFontData                    ⇐ ptr                     "LoadFontData"                    _R⟨ustr⋄i⋄i⋄'*'∾i⋄i⋄i⟩                            # fileData dataSize fontSize codepoints codepointCount type         # Load font data for further use                                                                                                      
+loadFontData                    ⇐ (ptr⊣'*'∾glyphInfo)     "LoadFontData"                    _R⟨ustr⋄i⋄i⋄'*'∾i⋄i⋄i⟩                            # fileData dataSize fontSize codepoints codepointCount type         # Load font data for further use                                                                                                      
 genImageFontAtlas               ⇐ image                   "GenImageFontAtlas"               _R⟨'*'∾glyphInfo⋄"**"∾rectangle⋄i⋄i⋄i⋄i⟩          # glyphs glyphRecs glyphCount fontSize padding packMethod           # Generate image font atlas using chars info                                                                                          
 unloadFontData                  ⇐                         "UnloadFontData"                  _R⟨'*'∾glyphInfo⋄i⟩                               # glyphs glyphCount                                                 # Unload font chars info data (RAM)                                                                                                   
 unloadFont                      ⇐                         "UnloadFont"                      _R⟨font⟩                                          # font                                                              # Unload font from GPU memory (VRAM)                                                                                                  
@@ -1000,7 +994,7 @@ measureTextEx                   ⇐ v2                      "MeasureTextEx"     
 getGlyphIndex                   ⇐ i                       "GetGlyphIndex"                   _R⟨font⋄i⟩                                        # font codepoint                                                    # Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found                                  
 getGlyphInfo                    ⇐ glyphInfo               "GetGlyphInfo"                    _R⟨font⋄i⟩                                        # font codepoint                                                    # Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found                                          
 getGlyphAtlasRec                ⇐ rectangle               "GetGlyphAtlasRec"                _R⟨font⋄i⟩                                        # font codepoint                                                    # Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found                                 
-loadUTF8                        ⇐ ptr                     "LoadUTF8"                        _R⟨'*'∾i⋄i⟩                                       # codepoints length                                                 # Load UTF-8 text encoded from codepoints array                                                                                       
+loadUTF8                        ⇐ (ptr⊣str)               "LoadUTF8"                        _R⟨'*'∾i⋄i⟩                                       # codepoints length                                                 # Load UTF-8 text encoded from codepoints array                                                                                       
 unloadUTF8                      ⇐                         "UnloadUTF8"                      _R⟨str⟩                                           # text                                                              # Unload UTF-8 text encoded from codepoints array                                                                                     
 loadCodepoints                  ⇐ (ptr⊣'*'∾i)             "LoadCodepoints"                  _R⟨str⋄'*'∾i⟩                                     # text count                                                        # Load all codepoints from a UTF-8 text string, codepoints count returned by parameter                                                
 unloadCodepoints                ⇐                         "UnloadCodepoints"                _R⟨'*'∾i⟩                                         # codepoints                                                        # Unload codepoints data from memory                                                                                                  
@@ -1014,8 +1008,8 @@ textIsEqual                     ⇐ bool                    "TextIsEqual"       
 textLength                      ⇐ u                       "TextLength"                      _R⟨str⟩                                           # text                                                              # Get text length, checks for '\0' ending                                                                                             
 textFormat                      ⇐ (ptr⊣str)               "TextFormat"                      _R⟨str⋄ptr⟩                                       # text args                                                         # Text formatting with variables (sprintf() style)                                                                                    
 textSubtext                     ⇐ (ptr⊣str)               "TextSubtext"                     _R⟨str⋄i⋄i⟩                                       # text position length                                              # Get a piece of a text string                                                                                                        
-textReplace                     ⇐ ptr                     "TextReplace"                     _R⟨str⋄str⋄str⟩                                   # text replace by                                                   # Replace text string (WARNING: memory must be freed!)                                                                                
-textInsert                      ⇐ ptr                     "TextInsert"                      _R⟨str⋄str⋄i⟩                                     # text insert position                                              # Insert text in a position (WARNING: memory must be freed!)                                                                          
+textReplace                     ⇐ (ptr⊣str)               "TextReplace"                     _R⟨str⋄str⋄str⟩                                   # text replace by                                                   # Replace text string (WARNING: memory must be freed!)                                                                                
+textInsert                      ⇐ (ptr⊣str)               "TextInsert"                      _R⟨str⋄str⋄i⟩                                     # text insert position                                              # Insert text in a position (WARNING: memory must be freed!)                                                                          
 textJoin                        ⇐ (ptr⊣str)               "TextJoin"                        _R⟨'*'∾str⋄i⋄str⟩                                 # textList count delimiter                                          # Join text strings with delimiter                                                                                                    
 textSplit                       ⇐ (ptr⊣'*'∾str)           "TextSplit"                       _R⟨str⋄u8⋄'*'∾i⟩                                  # text delimiter count                                              # Split text into multiple strings                                                                                                    
 textAppend                      ⇐                         "TextAppend"                      _R⟨str⋄str⋄'*'∾i⟩                                 # text append position                                              # Append text at specific position and move cursor!                                                                                   

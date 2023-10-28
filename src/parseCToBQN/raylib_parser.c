@@ -1,8 +1,8 @@
 /*
 raygui:
-zig cc raylib_parser.c && ./a.out -i ./inp-out/raygui.c -f JSON -o ./inp-out/raygui.json && rm ./a.out
+cc raylib_parser.c && ./a.out -i ./inp-out/raygui.c -f JSON -o ./inp-out/raygui.json && rm ./a.out
 raylib: 
-zig cc raylib_parser.c && ./a.out -i ./inp-out/raylib.h -f JSON -o raylib.json && rm ./a.out
+cc raylib_parser.c && ./a.out -i ./inp-out/raylib.h -f JSON -o raylib.json && rm ./a.out
 */
 /**********************************************************************************************
 
