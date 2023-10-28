@@ -1,3 +1,6 @@
 [submodule "src/imports/bqn-libs"]
 	path = src/imports/bqn-libs
 	url = https://github.com/mlochbaum/bqn-libs
+[submodule "src/imports/BQN386"]
+	path = src/imports/BQN386
+	url = https://github.com/dzaima/BQN386
