@@ -88,7 +88,7 @@ macOS: ./some/path/libraylib.dylib (I think)
 
 Having as little magic as possible, magic meaning magic numbers and global values (available to the user) changing outside user's control.
 
-Mutations localized in namespaces like "button" are fine.
+Mutations localized in namespaces like "clock" are fine.
 
 # Contributing
 
