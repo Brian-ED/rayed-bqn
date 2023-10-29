@@ -6,49 +6,42 @@ Breaking changes to any feature in raylib.bqn should be expected for now, as thi
 raylib.ffi is only for bindings and therefore shouldn't change, so you can probably rely on those, but no guarantees.
 
 # Getting started
-You may need to run `git submodule update --init --recursive` to install the required bqn-libs submodule.
-
-Make a config file named "config.txt" at `./rayed-bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to. If there are two lines with same config, then the bottom most line is picked.
-
-The only values supported for now is the path to binary.
-
-The binary being one of the following raylib.ddl/libraylib.so/etc.
-examples are below:
-
-```txt
-raylibPath:raylib/lib/raylib.dll
-
-```
-
-```txt
-raylibPath:raylib/lib/libraylib.so
-
-```
-
-To actually get the binary, follow the steps below:
 
 ## Windows
 
-First download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-4.5.0_win64_mingw-w64` and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
+
+First, clone rayed-bqn
+```SH
+git clone https://github.com/Brian-ED/rayed-bqn.git
+cd rayed-bqn
+git submodule update --init --recursive
+cd ..
+```
+
+second download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-4.5.0_win64_mingw-w64` and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
 
 ## Linux
 
-Build [raylib](https://github.com/raysan5/raylib/) from source, and place the binaries generated from compiling into the folder ./raylib/lib.
+First, clone rayed-bqn
+```SH
+git clone https://github.com/Brian-ED/rayed-bqn.git
+cd rayed-bqn
+git submodule update --init --recursive
+cd ..
+```
 
-You build and install raylib by doing the following:
+Next, Build [raylib](https://github.com/raysan5/raylib/) and install it:
 ```sh
 git clone https://github.com/raysan5/raylib.git
-cd src
+cd raylib/src
 make RAYLIB_LIBTYPE=SHARED
 sudo make install RAYLIB_LIBTYPE=SHARED
+cd ../../
 ```
-and have the path in the config file be
-```txt
-raylibPath:/usr/local/lib/libraylib.so`
-```
+
+Now run an example, if it doesn't work please post an issue.
 
 ## Mac
-
 I have never tested mac, but it could be similar to Linux.
 
 # Tested Raylib versions:
@@ -68,16 +61,28 @@ None yet
 
 # Extra info
 
+## config file
+
+A config file named "config.txt" will be generated at `./rayed-bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to. If there are two lines with same config, then the bottom most line is picked.
+
+The only values supported for now is the path to binary.
+
+The binary being one of the following raylib.ddl/libraylib.so/etc.
+examples are below:
+
+```txt
+raylibPath:raylib/lib/raylib.dll
+```
+
+```txt
+raylibPath:raylib/lib/libraylib.so
+```
+
+
 The most important file in ./raylib/lib/ is the binary file, which could be located at:
-./rayed-bqn/raylib/lib/(BINARY).
-
-The name of this binary file differs from OS to OS,
-
-On Windows: raylib.dll.
-
-On macOS: libraylib.dylib (I think)
-
-On Linux: libraylib.so
+windows: ./rayed-bqn/raylib/lib/raylib.dll
+linux: /usr/local/lib/libraylib.so"
+macOS: ./some/path/libraylib.dylib (I think)
 
 # Ideologies
 
