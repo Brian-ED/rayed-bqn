@@ -45,8 +45,9 @@ mapArgTypes ← {𝕊[bqn,c]:
   {
     constText←"const "
     consts←constText⊸(⊣≡≠⊸↑)¨𝕩
+    cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
     SwitchOrder ← {⌽⌾((𝕩∊'0'+↕10)⊸/)1⊸⌽⌾((𝕩∊"[]")⊸/)𝕩}⌽
-    [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨constText⊸∾⁼¨⌾(consts⊸/)𝕩
+    [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
     AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
     removed AddRemoved¨ kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾<0
   }
@@ -118,14 +119,14 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     #•Show aliasAfterStructs←⊑¨⊢˝¨aliases
     #•Show 1↓⥊nl∾˘""‿" ⇐ "‿" # "⟨LowerNames¨,LowerNames¨MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>aliases
     body ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
-    body ∾˜¨header
+    ∾⟨⟨⟩⟩⊸∾¨nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ body ∾˜¨header
   }
   ⟨""⟩
   { # enums
     [name,description,values]←⍉>enums
-    header ← (LowerNames¨name)<∘(⊑⊸∾)˘" ⇐ { # "⊸∾˘Box description
+    header ← (LowerNames¨name)∾¨<˘" ⇐ { # "⊸∾˘Box description
     body   ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse·>1⊸⊏¨)¨values
-    header∾¨∾⟜nl‿'}'¨body
+    ∾⟨⟨⟩⟩⊸∾¨nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ header∾¨∾⟜nl‿'}'¨body
   }
   ⟨""⟩
   { # functions
