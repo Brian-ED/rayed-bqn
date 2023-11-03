@@ -64,25 +64,21 @@ rAYLIB_VERSION_MINOR ⇐ 0         #
 rAYLIB_VERSION_PATCH ⇐ 0         #
 rAYLIB_VERSION       ⇐ "5.0-dev" #
 
-
 v2 ⇐ S ⟨ # Vector2, 2 components
   f # x  # Vector x component
   f # y  # Vector y component
 ⟩
-
 v3 ⇐ S ⟨ # Vector3, 3 components
   f # x  # Vector x component
   f # y  # Vector y component
   f # z  # Vector z component
 ⟩
-
 v4 ⇐ S ⟨ # Vector4, 4 components
   f # x  # Vector x component
   f # y  # Vector y component
   f # z  # Vector z component
   f # w  # Vector w component
 ⟩
-
 matrix ⇐ S ⟨ # Matrix, 4x4 components, column major, OpenGL style, right-handed
   f # m0   # Matrix first row (4 components)
   f # m4   # Matrix first row (4 components)
@@ -101,21 +97,18 @@ matrix ⇐ S ⟨ # Matrix, 4x4 components, column major, OpenGL style, right-han
   f # m11  # Matrix fourth row (4 components)
   f # m15  # Matrix fourth row (4 components)
 ⟩
-
 color ⇐ S ⟨ # Color, 4 components, R8G8B8A8 (32bit)
   u8 # r  # Color red value
   u8 # g  # Color green value
   u8 # b  # Color blue value
   u8 # a  # Color alpha value
 ⟩
-
 rectangle ⇐ S ⟨ # Rectangle, 4 components
   f # x       # Rectangle top-left corner position x
   f # y       # Rectangle top-left corner position y
   f # width   # Rectangle width
   f # height  # Rectangle height
 ⟩
-
 image ⇐ S ⟨ # Image, pixel data stored in CPU memory (RAM)
   ptr # data     # Image raw data
   i   # width    # Image base width
@@ -123,7 +116,6 @@ image ⇐ S ⟨ # Image, pixel data stored in CPU memory (RAM)
   i   # mipmaps  # Mipmap levels, 1 by default
   i   # format   # Data format (PixelFormat type)
 ⟩
-
 texture ⇐ S ⟨ # Texture, tex data stored in GPU memory (VRAM)
   u # id       # OpenGL texture id
   i # width    # Texture base width
@@ -131,13 +123,11 @@ texture ⇐ S ⟨ # Texture, tex data stored in GPU memory (VRAM)
   i # mipmaps  # Mipmap levels, 1 by default
   i # format   # Data format (PixelFormat type)
 ⟩
-
 renderTexture ⇐ S ⟨ # RenderTexture, fbo for texture rendering
   u       # id       # OpenGL framebuffer object id
   texture # texture  # Color buffer attachment texture
   texture # depth    # Depth buffer attachment texture
 ⟩
-
 nPatchInfo ⇐ S ⟨ # NPatchInfo, n-patch layout info
   rectangle # source  # Texture source rectangle
   i         # left    # Left border offset
@@ -146,7 +136,6 @@ nPatchInfo ⇐ S ⟨ # NPatchInfo, n-patch layout info
   i         # bottom  # Bottom border offset
   i         # layout  # Layout of the n-patch: 3x3, 1x3 or 3x1
 ⟩
-
 glyphInfo ⇐ S ⟨ # GlyphInfo, font characters glyphs info
   i     # value     # Character value (Unicode)
   i     # offsetX   # Character offset X when drawing
@@ -154,7 +143,6 @@ glyphInfo ⇐ S ⟨ # GlyphInfo, font characters glyphs info
   i     # advanceX  # Character advance position X
   image # image     # Character image data
 ⟩
-
 font ⇐ S ⟨ # Font, font texture and GlyphInfo array data
   i                 # baseSize      # Base size (default chars height)
   i                 # glyphCount    # Number of glyph characters
@@ -163,7 +151,6 @@ font ⇐ S ⟨ # Font, font texture and GlyphInfo array data
   ptr⊣"*"∾rectangle # recs          # Rectangles in texture for the glyphs
   ptr⊣"*"∾glyphInfo # glyphs        # Glyphs info data
 ⟩
-
 camera3D ⇐ S ⟨ # Camera, defines position/orientation in 3d space
   v3 # position    # Camera position
   v3 # target      # Camera target it looks-at
@@ -171,14 +158,12 @@ camera3D ⇐ S ⟨ # Camera, defines position/orientation in 3d space
   f  # fovy        # Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic
   i  # projection  # Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
 ⟩
-
 camera2D ⇐ S ⟨ # Camera2D, defines position/orientation in 2d space
   v2 # offset    # Camera offset (displacement from target)
   v2 # target    # Camera target (rotation and zoom origin)
   f  # rotation  # Camera rotation in degrees
   f  # zoom      # Camera zoom (scaling), should be 1.0f by default
 ⟩
-
 mesh ⇐ S ⟨ # Mesh, vertex data and vao/vbo
   i          # vertexCount    # Number of vertices stored in arrays
   i          # triangleCount  # Number of triangles stored (indexed or not)
@@ -196,35 +181,29 @@ mesh ⇐ S ⟨ # Mesh, vertex data and vao/vbo
   u          # vaoId          # OpenGL Vertex Array Object id
   ptr⊣"*"∾u  # vboId          # OpenGL Vertex Buffer Objects id (default vertex data)
 ⟩
-
 shader ⇐ S ⟨ # Shader
   u         # id    # Shader program id
   ptr⊣"*"∾i # locs  # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 ⟩
-
 materialMap ⇐ S ⟨ # MaterialMap
   texture # texture  # Material map texture
   color   # color    # Material map color
   f       # value    # Material map value
 ⟩
-
 material ⇐ S ⟨ # Material, includes shader and maps
   shader              # shader  # Material shader
   ptr⊣"*"∾materialMap # maps    # Material maps array (MAX_MATERIAL_MAPS)
   "[4]"∾f             # params  # Material generic parameters (if required)
 ⟩
-
 transform ⇐ S ⟨ # Transform, vertex transformation data
   v3         # translation  # Translation
   quaternion # rotation     # Rotation
   v3         # scale        # Scale
 ⟩
-
 boneInfo ⇐ S ⟨ # Bone, skeletal animation bone
   "[32]"∾u8 # name    # Bone name
   i         # parent  # Bone parent
 ⟩
-
 model ⇐ S ⟨ # Model, meshes, materials and animation data
   matrix            # transform      # Local transform matrix
   i                 # meshCount      # Number of meshes
@@ -236,7 +215,6 @@ model ⇐ S ⟨ # Model, meshes, materials and animation data
   ptr⊣"*"∾boneInfo  # bones          # Bones information (skeleton)
   ptr⊣"*"∾transform # bindPose       # Bones base transformation (pose)
 ⟩
-
 modelAnimation ⇐ S ⟨ # ModelAnimation
   i                  # boneCount   # Number of bones
   i                  # frameCount  # Number of animation frames
@@ -244,24 +222,20 @@ modelAnimation ⇐ S ⟨ # ModelAnimation
   ptr⊣"**"∾transform # framePoses  # Poses array by frame
   "[32]"∾u8          # name        # Animation name
 ⟩
-
 ray ⇐ S ⟨ # Ray, ray for raycasting
   v3 # position   # Ray position (origin)
   v3 # direction  # Ray direction
 ⟩
-
 rayCollision ⇐ S ⟨ # RayCollision, ray hit information
   bool # hit       # Did the ray hit something?
   f    # distance  # Distance to the nearest hit
   v3   # point     # Point of the nearest hit
   v3   # normal    # Surface normal of hit
 ⟩
-
 boundingBox ⇐ S ⟨ # BoundingBox
   v3 # min  # Minimum vertex box-corner
   v3 # max  # Maximum vertex box-corner
 ⟩
-
 wave ⇐ S ⟨ # Wave, audio wave data
   u   # frameCount  # Total number of frames (considering channels)
   u   # sampleRate  # Frequency (samples per second)
@@ -269,7 +243,6 @@ wave ⇐ S ⟨ # Wave, audio wave data
   u   # channels    # Number of channels (1-mono, 2-stereo, ...)
   ptr # data        # Buffer data pointer
 ⟩
-
 audioStream ⇐ S ⟨ # AudioStream, custom audio stream
   ptr # buffer      # Pointer to internal data used by the audio system
   ptr # processor   # Pointer to internal data processor, useful for audio effects
@@ -277,12 +250,10 @@ audioStream ⇐ S ⟨ # AudioStream, custom audio stream
   u   # sampleSize  # Bit depth (bits per sample): 8, 16, 32 (24 not supported)
   u   # channels    # Number of channels (1-mono, 2-stereo, ...)
 ⟩
-
 sound ⇐ S ⟨ # Sound
   audioStream # stream      # Audio stream
   u           # frameCount  # Total number of frames (considering channels)
 ⟩
-
 music ⇐ S ⟨ # Music, audio stream, anything longer than ~10 seconds should be streamed
   audioStream # stream      # Audio stream
   u           # frameCount  # Total number of frames (considering channels)
@@ -290,7 +261,6 @@ music ⇐ S ⟨ # Music, audio stream, anything longer than ~10 seconds should b
   i           # ctxType     # Type of music context (audio filetype)
   ptr         # ctxData     # Audio context data, depends on type
 ⟩
-
 vrDeviceInfo ⇐ S ⟨ # VrDeviceInfo, Head-Mounted-Display device parameters
   i       # hResolution             # Horizontal resolution in pixels
   i       # vResolution             # Vertical resolution in pixels
@@ -303,7 +273,6 @@ vrDeviceInfo ⇐ S ⟨ # VrDeviceInfo, Head-Mounted-Display device parameters
   "[4]"∾f # lensDistortionValues    # Lens distortion constant parameters
   "[4]"∾f # chromaAbCorrection      # Chromatic aberration correction parameters
 ⟩
-
 vrStereoConfig ⇐ S ⟨ # VrStereoConfig, VR stereo rendering configuration for simulator
   "[2]"∾matrix # projection         # VR projection matrices (per eye)
   "[2]"∾matrix # viewOffset         # VR view offset matrices (per eye)
@@ -314,25 +283,21 @@ vrStereoConfig ⇐ S ⟨ # VrStereoConfig, VR stereo rendering configuration for
   "[2]"∾f      # scale              # VR distortion scale
   "[2]"∾f      # scaleIn            # VR distortion scale in
 ⟩
-
 filePathList ⇐ S ⟨ # File path list
   u           # capacity  # Filepaths max entries
   u           # count     # Filepaths entries count
   ptr⊣"*"∾str # paths     # Filepaths entries
 ⟩
-
 automationEvent ⇐ S ⟨ # Automation event
   u       # frame   # Event frame
   u       # type    # Event type (AutomationEventType)
   "[4]"∾i # params  # Event parameters (if required)
 ⟩
-
 automationEventList ⇐ S ⟨ # Automation event list
   u                       # capacity  # Events max entries (MAX_AUTOMATION_EVENTS)
   u                       # count     # Events entries count
   ptr⊣"*"∾automationEvent # events    # Events entries
 ⟩
-
 
 configFlags ⇐ { # System/Window config flags
   fLAG_VSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU
@@ -352,7 +317,6 @@ configFlags ⇐ { # System/Window config flags
   fLAG_MSAA_4X_HINT             ⇐ 32     # Set to try enabling MSAA 4X
   fLAG_INTERLACED_HINT          ⇐ 65536  # Set to try enabling interlaced video format (for V3D)
 }
-
 traceLogLevel ⇐ { # Trace log level
   lOG_ALL     ⇐ 0  # Display all logs
   lOG_TRACE   ⇐ 1  # Trace logging, intended for internal use only
@@ -363,7 +327,6 @@ traceLogLevel ⇐ { # Trace log level
   lOG_FATAL   ⇐ 6  # Fatal logging, used to abort program: exit(EXIT_FAILURE)
   lOG_NONE    ⇐ 7  # Disable logging
 }
-
 keyboardKey ⇐ { # Keyboard keys (US keyboard layout)
   kEY_NULL          ⇐ 0    # Key: NULL, used for no key pressed
   kEY_APOSTROPHE    ⇐ 39   # Key: '
@@ -476,7 +439,6 @@ keyboardKey ⇐ { # Keyboard keys (US keyboard layout)
   kEY_VOLUME_UP     ⇐ 24   # Key: Android volume up button
   kEY_VOLUME_DOWN   ⇐ 25   # Key: Android volume down button
 }
-
 mouseButton ⇐ { # Mouse buttons
   mOUSE_BUTTON_LEFT    ⇐ 0  # Mouse button left
   mOUSE_BUTTON_RIGHT   ⇐ 1  # Mouse button right
@@ -486,7 +448,6 @@ mouseButton ⇐ { # Mouse buttons
   mOUSE_BUTTON_FORWARD ⇐ 5  # Mouse button forward (advanced mouse device)
   mOUSE_BUTTON_BACK    ⇐ 6  # Mouse button back (advanced mouse device)
 }
-
 mouseCursor ⇐ { # Mouse cursor
   mOUSE_CURSOR_DEFAULT       ⇐ 0   # Default pointer shape
   mOUSE_CURSOR_ARROW         ⇐ 1   # Arrow shape
@@ -500,7 +461,6 @@ mouseCursor ⇐ { # Mouse cursor
   mOUSE_CURSOR_RESIZE_ALL    ⇐ 9   # The omnidirectional resize/move cursor shape
   mOUSE_CURSOR_NOT_ALLOWED   ⇐ 10  # The operation-not-allowed shape
 }
-
 gamepadButton ⇐ { # Gamepad buttons
   gAMEPAD_BUTTON_UNKNOWN          ⇐ 0   # Unknown button, just for error checking
   gAMEPAD_BUTTON_LEFT_FACE_UP     ⇐ 1   # Gamepad left DPAD up button
@@ -521,7 +481,6 @@ gamepadButton ⇐ { # Gamepad buttons
   gAMEPAD_BUTTON_LEFT_THUMB       ⇐ 16  # Gamepad joystick pressed button left
   gAMEPAD_BUTTON_RIGHT_THUMB      ⇐ 17  # Gamepad joystick pressed button right
 }
-
 gamepadAxis ⇐ { # Gamepad axis
   gAMEPAD_AXIS_LEFT_X        ⇐ 0  # Gamepad left stick X axis
   gAMEPAD_AXIS_LEFT_Y        ⇐ 1  # Gamepad left stick Y axis
@@ -530,7 +489,6 @@ gamepadAxis ⇐ { # Gamepad axis
   gAMEPAD_AXIS_LEFT_TRIGGER  ⇐ 4  # Gamepad back trigger left, pressure level: [1..-1]
   gAMEPAD_AXIS_RIGHT_TRIGGER ⇐ 5  # Gamepad back trigger right, pressure level: [1..-1]
 }
-
 materialMapIndex ⇐ { # Material map index
   mATERIAL_MAP_ALBEDO     ⇐ 0   # Albedo material (same as: MATERIAL_MAP_DIFFUSE)
   mATERIAL_MAP_METALNESS  ⇐ 1   # Metalness material (same as: MATERIAL_MAP_SPECULAR)
@@ -544,7 +502,6 @@ materialMapIndex ⇐ { # Material map index
   mATERIAL_MAP_PREFILTER  ⇐ 9   # Prefilter material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
   mATERIAL_MAP_BRDF       ⇐ 10  # Brdf material
 }
-
 shaderLocationIndex ⇐ { # Shader location index
   sHADER_LOC_VERTEX_POSITION   ⇐ 0   # Shader location: vertex attribute: position
   sHADER_LOC_VERTEX_TEXCOORD01 ⇐ 1   # Shader location: vertex attribute: texcoord01
@@ -573,7 +530,6 @@ shaderLocationIndex ⇐ { # Shader location index
   sHADER_LOC_MAP_PREFILTER     ⇐ 24  # Shader location: samplerCube texture: prefilter
   sHADER_LOC_MAP_BRDF          ⇐ 25  # Shader location: sampler2d texture: brdf
 }
-
 shaderUniformDataType ⇐ { # Shader uniform data type
   sHADER_UNIFORM_FLOAT     ⇐ 0  # Shader uniform type: float
   sHADER_UNIFORM_VEC2      ⇐ 1  # Shader uniform type: vec2 (2 float)
@@ -585,14 +541,12 @@ shaderUniformDataType ⇐ { # Shader uniform data type
   sHADER_UNIFORM_IVEC4     ⇐ 7  # Shader uniform type: ivec4 (4 int)
   sHADER_UNIFORM_SAMPLER2D ⇐ 8  # Shader uniform type: sampler2d
 }
-
 shaderAttributeDataType ⇐ { # Shader attribute data types
   sHADER_ATTRIB_FLOAT ⇐ 0  # Shader attribute type: float
   sHADER_ATTRIB_VEC2  ⇐ 1  # Shader attribute type: vec2 (2 float)
   sHADER_ATTRIB_VEC3  ⇐ 2  # Shader attribute type: vec3 (3 float)
   sHADER_ATTRIB_VEC4  ⇐ 3  # Shader attribute type: vec4 (4 float)
 }
-
 pixelFormat ⇐ { # Pixel formats
   pIXELFORMAT_UNCOMPRESSED_GRAYSCALE    ⇐ 1   # 8 bit per pixel (no alpha)
   pIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA   ⇐ 2   # 8*2 bpp (2 channels)
@@ -619,7 +573,6 @@ pixelFormat ⇐ { # Pixel formats
   pIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA  ⇐ 23  # 8 bpp
   pIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA  ⇐ 24  # 2 bpp
 }
-
 textureFilter ⇐ { # Texture parameters: filter mode
   tEXTURE_FILTER_POINT           ⇐ 0  # No filter, just pixel approximation
   tEXTURE_FILTER_BILINEAR        ⇐ 1  # Linear filtering
@@ -628,14 +581,12 @@ textureFilter ⇐ { # Texture parameters: filter mode
   tEXTURE_FILTER_ANISOTROPIC_8X  ⇐ 4  # Anisotropic filtering 8x
   tEXTURE_FILTER_ANISOTROPIC_16X ⇐ 5  # Anisotropic filtering 16x
 }
-
 textureWrap ⇐ { # Texture parameters: wrap mode
   tEXTURE_WRAP_REPEAT        ⇐ 0  # Repeats texture in tiled mode
   tEXTURE_WRAP_CLAMP         ⇐ 1  # Clamps texture to edge pixel in tiled mode
   tEXTURE_WRAP_MIRROR_REPEAT ⇐ 2  # Mirrors and repeats the texture in tiled mode
   tEXTURE_WRAP_MIRROR_CLAMP  ⇐ 3  # Mirrors and clamps to border the texture in tiled mode
 }
-
 cubemapLayout ⇐ { # Cubemap layouts
   cUBEMAP_LAYOUT_AUTO_DETECT         ⇐ 0  # Automatically detect layout type
   cUBEMAP_LAYOUT_LINE_VERTICAL       ⇐ 1  # Layout is defined by a vertical line with faces
@@ -644,13 +595,11 @@ cubemapLayout ⇐ { # Cubemap layouts
   cUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE ⇐ 4  # Layout is defined by a 4x3 cross with cubemap faces
   cUBEMAP_LAYOUT_PANORAMA            ⇐ 5  # Layout is defined by a panorama image (equirrectangular map)
 }
-
 fontType ⇐ { # Font type, defines generation method
   fONT_DEFAULT ⇐ 0  # Default font generation, anti-aliased
   fONT_BITMAP  ⇐ 1  # Bitmap font generation, no anti-aliasing
   fONT_SDF     ⇐ 2  # SDF font generation, requires external shader
 }
-
 blendMode ⇐ { # Color blending modes (pre-defined)
   bLEND_ALPHA             ⇐ 0  # Blend textures considering alpha (default)
   bLEND_ADDITIVE          ⇐ 1  # Blend textures adding colors
@@ -661,7 +610,6 @@ blendMode ⇐ { # Color blending modes (pre-defined)
   bLEND_CUSTOM            ⇐ 6  # Blend textures using custom src/dst factors (use rlSetBlendFactors())
   bLEND_CUSTOM_SEPARATE   ⇐ 7  # Blend textures using custom rgb/alpha separate src/dst factors (use rlSetBlendFactorsSeparate())
 }
-
 gesture ⇐ { # Gesture
   gESTURE_NONE        ⇐ 0    # No gesture
   gESTURE_TAP         ⇐ 1    # Tap gesture
@@ -675,7 +623,6 @@ gesture ⇐ { # Gesture
   gESTURE_PINCH_IN    ⇐ 256  # Pinch in gesture
   gESTURE_PINCH_OUT   ⇐ 512  # Pinch out gesture
 }
-
 cameraMode ⇐ { # Camera system modes
   cAMERA_CUSTOM       ⇐ 0  # Custom camera
   cAMERA_FREE         ⇐ 1  # Free camera
@@ -683,12 +630,10 @@ cameraMode ⇐ { # Camera system modes
   cAMERA_FIRST_PERSON ⇐ 3  # First person camera
   cAMERA_THIRD_PERSON ⇐ 4  # Third person camera
 }
-
 cameraProjection ⇐ { # Camera projection
   cAMERA_PERSPECTIVE  ⇐ 0  # Perspective projection
   cAMERA_ORTHOGRAPHIC ⇐ 1  # Orthographic projection
 }
-
 nPatchLayout ⇐ { # N-patch layout
   nPATCH_NINE_PATCH             ⇐ 0  # Npatch layout: 3x3 tiles
   nPATCH_THREE_PATCH_VERTICAL   ⇐ 1  # Npatch layout: 1x3 tiles

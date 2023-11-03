@@ -119,14 +119,14 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     #•Show aliasAfterStructs←⊑¨⊢˝¨aliases
     #•Show 1↓⥊nl∾˘""‿" ⇐ "‿" # "⟨LowerNames¨,LowerNames¨MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>aliases
     body ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
-    ∾⟨⟨⟩⟩⊸∾¨nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ body ∾˜¨header
+    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ body ∾˜¨header
   }
   ⟨""⟩
   { # enums
     [name,description,values]←⍉>enums
-    header ← (LowerNames¨name)∾¨<˘" ⇐ { # "⊸∾˘Box description
+    header ← name LowerNames⊸∾¨<˘" ⇐ { # "⊸∾˘Box description
     body   ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse·>1⊸⊏¨)¨values
-    ∾⟨⟨⟩⟩⊸∾¨nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ header∾¨∾⟜nl‿'}'¨body
+    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ header∾¨∾⟜nl‿'}'¨body
   }
   ⟨""⟩
   { # functions
