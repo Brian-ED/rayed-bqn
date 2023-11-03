@@ -108,20 +108,6 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     <˘Parse Filter˘⊸/>defines
   }
   ⟨""⟩
-  { # structs
-    ParseStruct ← {
-      ∾nl∾¨"⟩"∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩
-    }
-    
-    [name,desc,fields]←⍉>structs
-    header ← »⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ S ⟨ # "⟨LowerNames¨,⊢⟩_MetaParse desc ≍˘˜ MapStructNames name
-    #•Show name
-    #•Show aliasAfterStructs←⊑¨⊢˝¨aliases
-    #•Show 1↓⥊nl∾˘""‿" ⇐ "‿" # "⟨LowerNames¨,LowerNames¨MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>aliases
-    body ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
-    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ body ∾˜¨header
-  }
-  ⟨""⟩
   { # enums
     [name,description,values]←⍉>enums
     tabled ← >¨⊢˝¨¨ values
@@ -129,6 +115,20 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     body ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse⊢)¨prefixesRemoved
     header ← name LowerNames⊸∾¨<˘" ⇐ { # "⊸∾˘Box description
     ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ header∾¨∾⟜nl‿'}'¨body
+  }
+  ⟨""⟩
+  { # structs
+    ParseStruct ← {
+      ∾nl∾¨"⟩"∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩
+    }
+    
+    [name,desc,fields]←⍉>structs
+    header ← »⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ ⟨ # "⟨LowerNames¨,⊢⟩_MetaParse desc ≍˘˜ MapStructNames name
+    #•Show name
+    #•Show aliasAfterStructs←⊑¨⊢˝¨aliases
+    #•Show 1↓⥊nl∾˘""‿" ⇐ "‿" # "⟨LowerNames¨,LowerNames¨MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>aliases
+    body ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
+    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ body ∾˜¨header
   }
   ⟨""⟩
   { # functions
