@@ -124,13 +124,14 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
   ⟨""⟩
   { # enums
     [name,description,values]←⍉>enums
+    tabled ← >¨⊢˝¨¨ values
+    prefixesRemoved ← {𝕩↓¨˜+´∧˝˘∧`(⊏=⍉)>𝕩↑¨˜⌊´≠¨𝕩}⌾(⊏˘)¨tabled
+    body ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse⊢)¨prefixesRemoved
     header ← name LowerNames⊸∾¨<˘" ⇐ { # "⊸∾˘Box description
-    body   ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse·>1⊸⊏¨)¨values
     ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ header∾¨∾⟜nl‿'}'¨body
   }
   ⟨""⟩
   { # functions
-    # ⍉[name, description, returnType, params]:
     <˘""‿" ⇐ "‿""""‿" _R⟨"‿"#"‿" # "⟨
       LowerNames¨ ⋄ MapFuncReturnType ⋄ ∾⟜'"'¨ ⋄ ('⟩'∾˜1↓·∾'⋄'∾¨MapArgTypes)¨ ⋄ (∾' '⊸∾¨)¨ ⋄ ⊢
     ⟩_MetaParse{
