@@ -97,8 +97,10 @@ defines‿structs‿aliases‿enums‿callbacks‿functions←{
   ⊢˝¨¨1⊏˘x
 }
 
-outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn") ∾(⋈"r ⇐ MakeImporter """∾raylibPath∾'"')∾∾´⟨
-  ⟨""⟩
+outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
+  •FLines "topOfRayffi.bqn"
+  ⋈"r ⇐ MakeImporter """∾raylibPath∾'"'
+  ⋈""
   { # defines
     Parse ← ""‿""‿" ⇐ "‿" # "⟨LowerNames¨,⟨⟩¨,•Repr¨,⊢⟩_MetaParse⊢
     exclTypes  ← "GUARD"‿"MACRO"‿"UNKNOWN"‿"FLOAT_MATH"‿"COLOR"
@@ -107,7 +109,7 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     }
     <˘Parse Filter˘⊸/>defines
   }
-  ⟨""⟩
+  ⋈""
   { # enums
     [name,description,values]←⍉>enums
     tabled ← >¨⊢˝¨¨ values
@@ -116,7 +118,7 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     header ← name LowerNames⊸∾¨<˘" ⇐ { # "⊸∾˘Box description
     ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ header∾¨∾⟜nl‿'}'¨body
   }
-  ⟨""⟩
+  ⋈""
   { # structs
     ParseStruct ← {
       ∾nl∾¨"⟩"∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩
@@ -130,7 +132,7 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     body ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
     ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ body ∾˜¨header
   }
-  ⟨""⟩
+  ⋈""
   { # functions
     <˘""‿" ⇐ "‿""""‿" _R⟨"‿"#"‿" # "⟨
       LowerNames¨ ⋄ MapFuncReturnType ⋄ ∾⟜'"'¨ ⋄ ('⟩'∾˜1↓·∾'⋄'∾¨MapArgTypes)¨ ⋄ (∾' '⊸∾¨)¨ ⋄ ⊢
