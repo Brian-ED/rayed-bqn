@@ -7,7 +7,7 @@ outputLocation ← "./inp-out/rayffi.bqn"
 
 # util functions
 nl ← @+10 # newline
-Box ← ⟨⟩⊸≡◶⟨>⊢»¨⟜<' '⥊˜·⌈´≠¨⋄↕0‿0⟩
+Box ← ⟨⟩⊸≡◶⟨>⋄↕0‿0⟩⊢»¨⟜<' '⥊˜·⌈´≠¨
 LowerNames ← +⟜(32×1="A["⊸⍋)⌾(1↑⎉1⊢)
 _MetaParse ← {∾˘´[𝕗,𝕨]{F‿w𝕊𝕩:<w⊸∾˘Box F𝕩}˘○⍉𝕩}
 SHErr ← {exitcode‿stdout‿stderr←•SH𝕩
@@ -99,6 +99,7 @@ defines‿structs‿aliases‿enums‿callbacks‿functions←{
 
 outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
   •FLines "topOfRayffi.bqn"
+  ⋈""
   ⋈"r ⇐ MakeImporter """∾raylibPath∾'"'
   ⋈""
   { # defines
