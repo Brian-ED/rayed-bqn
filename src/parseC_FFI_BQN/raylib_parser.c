@@ -1048,7 +1048,6 @@ int main(int argc, char* argv[])
 
     printf("\nInput file:       %s", inFileName);
     printf("\nOutput file:      %s", outFileName);
-    printf("\nOutput format:    JSON\n\n");
 
     ExportParsedData(outFileName);
 
