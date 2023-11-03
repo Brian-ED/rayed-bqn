@@ -2,7 +2,7 @@
 
 ffiUtilsPath←⊑•args∾<"../ffiUtils.bqn"
 
-raylibTempLoc ← "inp-out/raylib.json"
+raylibJsonTempLoc ← "inp-out/raylib.json"
 outputLocation ← "./inp-out/rayffi.bqn"
 
 # util functions
@@ -26,7 +26,7 @@ raylibHeaderPath ← "include/raylib.h"∾˜"lib/"∾˜⁼{𝕩↓˜-⊑⊐⟜1�
 # compile c parser if non existant
 
 SHErr "cc"‿"raylib_parser.c"
-SHErr "./a.out"‿"-i"‿raylibHeaderPath‿"-f"‿"JSON"‿"-o"‿raylibTempLoc
+SHErr "./a.out"‿"-i"‿raylibHeaderPath‿"-f"‿"JSON"‿"-o"‿raylibJsonTempLoc
 •file.Remove"a.out"
 
 #raygui:
@@ -92,7 +92,7 @@ _Time ← {•Show 𝔽•_timed𝕩⋄𝔽𝕩}
 MapFuncReturnType ← " "⍟("void"⊸≡)¨·{'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨MapStructTypes
 
 defines‿structs‿aliases‿enums‿callbacks‿functions←{
-  x←⍉json.Parse •FChars raylibTempLoc
+  x←⍉json.Parse •FChars raylibJsonTempLoc
   !(⊏˘x)≡"defines"‿"structs"‿"aliases"‿"enums"‿"callbacks"‿"functions"
   ⊢˝¨¨1⊏˘x
 }
@@ -139,4 +139,4 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨(•FLines "topOfRayffi.bqn
     }⌾⍉>∾⟜(<⟨⟩)⍟(3=≠)¨functions
   }
 ⟩
-#•file.Remove raylibTempLoc
+#•file.Remove raylibJsonTempLoc
