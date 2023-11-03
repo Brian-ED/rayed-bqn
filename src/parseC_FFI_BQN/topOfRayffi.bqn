@@ -1,8 +1,8 @@
-
 # Makes an importer that improves the ffi function creation syntax
 MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
   {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
-    a←'>'⊸∾⌾⊑⍟(1=≠)𝕩
+    IntoStr ← {1≥≡𝕩?𝕩;(m¬⊸/𝕩)∾S𝕊¨𝕩/˜m←×≡¨𝕩}
+    a←'>'⊸∾⌾⊑⍟(1=≠) IntoStr¨𝕩
     HandleError ← {
       •Out "DEBUG TYPE INFO:"
       •Out •Fmt 𝕩
@@ -10,7 +10,7 @@ MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
       •term.Flush@
       𝕨•FFI𝕩
     }
-    func ← path •FFI⎊HandleError outType‿funcName∾a
+    func ← path •FFI⎊HandleError (IntoStr outType)‿funcName∾a
     m ← str⊸≡¨a
     {𝕏⊣•term.Flush∘•Out∘funcName}⍟debug {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
   }

@@ -64,22 +64,363 @@ rAYLIB_VERSION_MINOR ⇐ 0         #
 rAYLIB_VERSION_PATCH ⇐ 0         #
 rAYLIB_VERSION       ⇐ "5.0-dev" #
 
-v2 ⇐ S ⟨ # Vector2, 2 components
+configFlags ⇐ { # System/Window config flags
+  vSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU
+  fULLSCREEN_MODE          ⇐ 2      # Set to run program in fullscreen
+  wINDOW_RESIZABLE         ⇐ 4      # Set to allow resizable window
+  wINDOW_UNDECORATED       ⇐ 8      # Set to disable window decoration (frame and buttons)
+  wINDOW_HIDDEN            ⇐ 128    # Set to hide window
+  wINDOW_MINIMIZED         ⇐ 512    # Set to minimize window (iconify)
+  wINDOW_MAXIMIZED         ⇐ 1024   # Set to maximize window (expanded to monitor)
+  wINDOW_UNFOCUSED         ⇐ 2048   # Set to window non focused
+  wINDOW_TOPMOST           ⇐ 4096   # Set to window always on top
+  wINDOW_ALWAYS_RUN        ⇐ 256    # Set to allow windows running while minimized
+  wINDOW_TRANSPARENT       ⇐ 16     # Set to allow transparent framebuffer
+  wINDOW_HIGHDPI           ⇐ 8192   # Set to support HighDPI
+  wINDOW_MOUSE_PASSTHROUGH ⇐ 16384  # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+  bORDERLESS_WINDOWED_MODE ⇐ 32768  # Set to run program in borderless windowed mode
+  mSAA_4X_HINT             ⇐ 32     # Set to try enabling MSAA 4X
+  iNTERLACED_HINT          ⇐ 65536  # Set to try enabling interlaced video format (for V3D)
+}
+traceLogLevel ⇐ { # Trace log level
+  aLL     ⇐ 0  # Display all logs
+  tRACE   ⇐ 1  # Trace logging, intended for internal use only
+  dEBUG   ⇐ 2  # Debug logging, used for internal debugging, it should be disabled on release builds
+  iNFO    ⇐ 3  # Info logging, used for program execution info
+  wARNING ⇐ 4  # Warning logging, used on recoverable failures
+  eRROR   ⇐ 5  # Error logging, used on unrecoverable failures
+  fATAL   ⇐ 6  # Fatal logging, used to abort program: exit(EXIT_FAILURE)
+  nONE    ⇐ 7  # Disable logging
+}
+keyboardKey ⇐ { # Keyboard keys (US keyboard layout)
+  nULL          ⇐ 0    # Key: NULL, used for no key pressed
+  aPOSTROPHE    ⇐ 39   # Key: '
+  cOMMA         ⇐ 44   # Key: ,
+  mINUS         ⇐ 45   # Key: -
+  pERIOD        ⇐ 46   # Key: .
+  sLASH         ⇐ 47   # Key: /
+  zERO          ⇐ 48   # Key: 0
+  oNE           ⇐ 49   # Key: 1
+  tWO           ⇐ 50   # Key: 2
+  tHREE         ⇐ 51   # Key: 3
+  fOUR          ⇐ 52   # Key: 4
+  fIVE          ⇐ 53   # Key: 5
+  sIX           ⇐ 54   # Key: 6
+  sEVEN         ⇐ 55   # Key: 7
+  eIGHT         ⇐ 56   # Key: 8
+  nINE          ⇐ 57   # Key: 9
+  sEMICOLON     ⇐ 59   # Key: ;
+  eQUAL         ⇐ 61   # Key: =
+  a             ⇐ 65   # Key: A | a
+  b             ⇐ 66   # Key: B | b
+  c             ⇐ 67   # Key: C | c
+  d             ⇐ 68   # Key: D | d
+  e             ⇐ 69   # Key: E | e
+  f             ⇐ 70   # Key: F | f
+  g             ⇐ 71   # Key: G | g
+  h             ⇐ 72   # Key: H | h
+  i             ⇐ 73   # Key: I | i
+  j             ⇐ 74   # Key: J | j
+  k             ⇐ 75   # Key: K | k
+  l             ⇐ 76   # Key: L | l
+  m             ⇐ 77   # Key: M | m
+  n             ⇐ 78   # Key: N | n
+  o             ⇐ 79   # Key: O | o
+  p             ⇐ 80   # Key: P | p
+  q             ⇐ 81   # Key: Q | q
+  r             ⇐ 82   # Key: R | r
+  s             ⇐ 83   # Key: S | s
+  t             ⇐ 84   # Key: T | t
+  u             ⇐ 85   # Key: U | u
+  v             ⇐ 86   # Key: V | v
+  w             ⇐ 87   # Key: W | w
+  x             ⇐ 88   # Key: X | x
+  y             ⇐ 89   # Key: Y | y
+  z             ⇐ 90   # Key: Z | z
+  lEFT_BRACKET  ⇐ 91   # Key: [
+  bACKSLASH     ⇐ 92   # Key: '\'
+  rIGHT_BRACKET ⇐ 93   # Key: ]
+  gRAVE         ⇐ 96   # Key: `
+  sPACE         ⇐ 32   # Key: Space
+  eSCAPE        ⇐ 256  # Key: Esc
+  eNTER         ⇐ 257  # Key: Enter
+  tAB           ⇐ 258  # Key: Tab
+  bACKSPACE     ⇐ 259  # Key: Backspace
+  iNSERT        ⇐ 260  # Key: Ins
+  dELETE        ⇐ 261  # Key: Del
+  rIGHT         ⇐ 262  # Key: Cursor right
+  lEFT          ⇐ 263  # Key: Cursor left
+  dOWN          ⇐ 264  # Key: Cursor down
+  uP            ⇐ 265  # Key: Cursor up
+  pAGE_UP       ⇐ 266  # Key: Page up
+  pAGE_DOWN     ⇐ 267  # Key: Page down
+  hOME          ⇐ 268  # Key: Home
+  eND           ⇐ 269  # Key: End
+  cAPS_LOCK     ⇐ 280  # Key: Caps lock
+  sCROLL_LOCK   ⇐ 281  # Key: Scroll down
+  nUM_LOCK      ⇐ 282  # Key: Num lock
+  pRINT_SCREEN  ⇐ 283  # Key: Print screen
+  pAUSE         ⇐ 284  # Key: Pause
+  f1            ⇐ 290  # Key: F1
+  f2            ⇐ 291  # Key: F2
+  f3            ⇐ 292  # Key: F3
+  f4            ⇐ 293  # Key: F4
+  f5            ⇐ 294  # Key: F5
+  f6            ⇐ 295  # Key: F6
+  f7            ⇐ 296  # Key: F7
+  f8            ⇐ 297  # Key: F8
+  f9            ⇐ 298  # Key: F9
+  f10           ⇐ 299  # Key: F10
+  f11           ⇐ 300  # Key: F11
+  f12           ⇐ 301  # Key: F12
+  lEFT_SHIFT    ⇐ 340  # Key: Shift left
+  lEFT_CONTROL  ⇐ 341  # Key: Control left
+  lEFT_ALT      ⇐ 342  # Key: Alt left
+  lEFT_SUPER    ⇐ 343  # Key: Super left
+  rIGHT_SHIFT   ⇐ 344  # Key: Shift right
+  rIGHT_CONTROL ⇐ 345  # Key: Control right
+  rIGHT_ALT     ⇐ 346  # Key: Alt right
+  rIGHT_SUPER   ⇐ 347  # Key: Super right
+  kB_MENU       ⇐ 348  # Key: KB menu
+  kP_0          ⇐ 320  # Key: Keypad 0
+  kP_1          ⇐ 321  # Key: Keypad 1
+  kP_2          ⇐ 322  # Key: Keypad 2
+  kP_3          ⇐ 323  # Key: Keypad 3
+  kP_4          ⇐ 324  # Key: Keypad 4
+  kP_5          ⇐ 325  # Key: Keypad 5
+  kP_6          ⇐ 326  # Key: Keypad 6
+  kP_7          ⇐ 327  # Key: Keypad 7
+  kP_8          ⇐ 328  # Key: Keypad 8
+  kP_9          ⇐ 329  # Key: Keypad 9
+  kP_DECIMAL    ⇐ 330  # Key: Keypad .
+  kP_DIVIDE     ⇐ 331  # Key: Keypad /
+  kP_MULTIPLY   ⇐ 332  # Key: Keypad *
+  kP_SUBTRACT   ⇐ 333  # Key: Keypad -
+  kP_ADD        ⇐ 334  # Key: Keypad +
+  kP_ENTER      ⇐ 335  # Key: Keypad Enter
+  kP_EQUAL      ⇐ 336  # Key: Keypad =
+  bACK          ⇐ 4    # Key: Android back button
+  mENU          ⇐ 82   # Key: Android menu button
+  vOLUME_UP     ⇐ 24   # Key: Android volume up button
+  vOLUME_DOWN   ⇐ 25   # Key: Android volume down button
+}
+mouseButton ⇐ { # Mouse buttons
+  lEFT    ⇐ 0  # Mouse button left
+  rIGHT   ⇐ 1  # Mouse button right
+  mIDDLE  ⇐ 2  # Mouse button middle (pressed wheel)
+  sIDE    ⇐ 3  # Mouse button side (advanced mouse device)
+  eXTRA   ⇐ 4  # Mouse button extra (advanced mouse device)
+  fORWARD ⇐ 5  # Mouse button forward (advanced mouse device)
+  bACK    ⇐ 6  # Mouse button back (advanced mouse device)
+}
+mouseCursor ⇐ { # Mouse cursor
+  dEFAULT       ⇐ 0   # Default pointer shape
+  aRROW         ⇐ 1   # Arrow shape
+  iBEAM         ⇐ 2   # Text writing cursor shape
+  cROSSHAIR     ⇐ 3   # Cross shape
+  pOINTING_HAND ⇐ 4   # Pointing hand cursor
+  rESIZE_EW     ⇐ 5   # Horizontal resize/move arrow shape
+  rESIZE_NS     ⇐ 6   # Vertical resize/move arrow shape
+  rESIZE_NWSE   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape
+  rESIZE_NESW   ⇐ 8   # The top-right to bottom-left diagonal resize/move arrow shape
+  rESIZE_ALL    ⇐ 9   # The omnidirectional resize/move cursor shape
+  nOT_ALLOWED   ⇐ 10  # The operation-not-allowed shape
+}
+gamepadButton ⇐ { # Gamepad buttons
+  uNKNOWN          ⇐ 0   # Unknown button, just for error checking
+  lEFT_FACE_UP     ⇐ 1   # Gamepad left DPAD up button
+  lEFT_FACE_RIGHT  ⇐ 2   # Gamepad left DPAD right button
+  lEFT_FACE_DOWN   ⇐ 3   # Gamepad left DPAD down button
+  lEFT_FACE_LEFT   ⇐ 4   # Gamepad left DPAD left button
+  rIGHT_FACE_UP    ⇐ 5   # Gamepad right button up (i.e. PS3: Triangle, Xbox: Y)
+  rIGHT_FACE_RIGHT ⇐ 6   # Gamepad right button right (i.e. PS3: Square, Xbox: X)
+  rIGHT_FACE_DOWN  ⇐ 7   # Gamepad right button down (i.e. PS3: Cross, Xbox: A)
+  rIGHT_FACE_LEFT  ⇐ 8   # Gamepad right button left (i.e. PS3: Circle, Xbox: B)
+  lEFT_TRIGGER_1   ⇐ 9   # Gamepad top/back trigger left (first), it could be a trailing button
+  lEFT_TRIGGER_2   ⇐ 10  # Gamepad top/back trigger left (second), it could be a trailing button
+  rIGHT_TRIGGER_1  ⇐ 11  # Gamepad top/back trigger right (one), it could be a trailing button
+  rIGHT_TRIGGER_2  ⇐ 12  # Gamepad top/back trigger right (second), it could be a trailing button
+  mIDDLE_LEFT      ⇐ 13  # Gamepad center buttons, left one (i.e. PS3: Select)
+  mIDDLE           ⇐ 14  # Gamepad center buttons, middle one (i.e. PS3: PS, Xbox: XBOX)
+  mIDDLE_RIGHT     ⇐ 15  # Gamepad center buttons, right one (i.e. PS3: Start)
+  lEFT_THUMB       ⇐ 16  # Gamepad joystick pressed button left
+  rIGHT_THUMB      ⇐ 17  # Gamepad joystick pressed button right
+}
+gamepadAxis ⇐ { # Gamepad axis
+  lEFT_X        ⇐ 0  # Gamepad left stick X axis
+  lEFT_Y        ⇐ 1  # Gamepad left stick Y axis
+  rIGHT_X       ⇐ 2  # Gamepad right stick X axis
+  rIGHT_Y       ⇐ 3  # Gamepad right stick Y axis
+  lEFT_TRIGGER  ⇐ 4  # Gamepad back trigger left, pressure level: [1..-1]
+  rIGHT_TRIGGER ⇐ 5  # Gamepad back trigger right, pressure level: [1..-1]
+}
+materialMapIndex ⇐ { # Material map index
+  aLBEDO     ⇐ 0   # Albedo material (same as: MATERIAL_MAP_DIFFUSE)
+  mETALNESS  ⇐ 1   # Metalness material (same as: MATERIAL_MAP_SPECULAR)
+  nORMAL     ⇐ 2   # Normal material
+  rOUGHNESS  ⇐ 3   # Roughness material
+  oCCLUSION  ⇐ 4   # Ambient occlusion material
+  eMISSION   ⇐ 5   # Emission material
+  hEIGHT     ⇐ 6   # Heightmap material
+  cUBEMAP    ⇐ 7   # Cubemap material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
+  iRRADIANCE ⇐ 8   # Irradiance material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
+  pREFILTER  ⇐ 9   # Prefilter material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
+  bRDF       ⇐ 10  # Brdf material
+}
+shaderLocationIndex ⇐ { # Shader location index
+  vERTEX_POSITION   ⇐ 0   # Shader location: vertex attribute: position
+  vERTEX_TEXCOORD01 ⇐ 1   # Shader location: vertex attribute: texcoord01
+  vERTEX_TEXCOORD02 ⇐ 2   # Shader location: vertex attribute: texcoord02
+  vERTEX_NORMAL     ⇐ 3   # Shader location: vertex attribute: normal
+  vERTEX_TANGENT    ⇐ 4   # Shader location: vertex attribute: tangent
+  vERTEX_COLOR      ⇐ 5   # Shader location: vertex attribute: color
+  mATRIX_MVP        ⇐ 6   # Shader location: matrix uniform: model-view-projection
+  mATRIX_VIEW       ⇐ 7   # Shader location: matrix uniform: view (camera transform)
+  mATRIX_PROJECTION ⇐ 8   # Shader location: matrix uniform: projection
+  mATRIX_MODEL      ⇐ 9   # Shader location: matrix uniform: model (transform)
+  mATRIX_NORMAL     ⇐ 10  # Shader location: matrix uniform: normal
+  vECTOR_VIEW       ⇐ 11  # Shader location: vector uniform: view
+  cOLOR_DIFFUSE     ⇐ 12  # Shader location: vector uniform: diffuse color
+  cOLOR_SPECULAR    ⇐ 13  # Shader location: vector uniform: specular color
+  cOLOR_AMBIENT     ⇐ 14  # Shader location: vector uniform: ambient color
+  mAP_ALBEDO        ⇐ 15  # Shader location: sampler2d texture: albedo (same as: SHADER_LOC_MAP_DIFFUSE)
+  mAP_METALNESS     ⇐ 16  # Shader location: sampler2d texture: metalness (same as: SHADER_LOC_MAP_SPECULAR)
+  mAP_NORMAL        ⇐ 17  # Shader location: sampler2d texture: normal
+  mAP_ROUGHNESS     ⇐ 18  # Shader location: sampler2d texture: roughness
+  mAP_OCCLUSION     ⇐ 19  # Shader location: sampler2d texture: occlusion
+  mAP_EMISSION      ⇐ 20  # Shader location: sampler2d texture: emission
+  mAP_HEIGHT        ⇐ 21  # Shader location: sampler2d texture: height
+  mAP_CUBEMAP       ⇐ 22  # Shader location: samplerCube texture: cubemap
+  mAP_IRRADIANCE    ⇐ 23  # Shader location: samplerCube texture: irradiance
+  mAP_PREFILTER     ⇐ 24  # Shader location: samplerCube texture: prefilter
+  mAP_BRDF          ⇐ 25  # Shader location: sampler2d texture: brdf
+}
+shaderUniformDataType ⇐ { # Shader uniform data type
+  fLOAT     ⇐ 0  # Shader uniform type: float
+  vEC2      ⇐ 1  # Shader uniform type: vec2 (2 float)
+  vEC3      ⇐ 2  # Shader uniform type: vec3 (3 float)
+  vEC4      ⇐ 3  # Shader uniform type: vec4 (4 float)
+  iNT       ⇐ 4  # Shader uniform type: int
+  iVEC2     ⇐ 5  # Shader uniform type: ivec2 (2 int)
+  iVEC3     ⇐ 6  # Shader uniform type: ivec3 (3 int)
+  iVEC4     ⇐ 7  # Shader uniform type: ivec4 (4 int)
+  sAMPLER2D ⇐ 8  # Shader uniform type: sampler2d
+}
+shaderAttributeDataType ⇐ { # Shader attribute data types
+  fLOAT ⇐ 0  # Shader attribute type: float
+  vEC2  ⇐ 1  # Shader attribute type: vec2 (2 float)
+  vEC3  ⇐ 2  # Shader attribute type: vec3 (3 float)
+  vEC4  ⇐ 3  # Shader attribute type: vec4 (4 float)
+}
+pixelFormat ⇐ { # Pixel formats
+  uNCOMPRESSED_GRAYSCALE    ⇐ 1   # 8 bit per pixel (no alpha)
+  uNCOMPRESSED_GRAY_ALPHA   ⇐ 2   # 8*2 bpp (2 channels)
+  uNCOMPRESSED_R5G6B5       ⇐ 3   # 16 bpp
+  uNCOMPRESSED_R8G8B8       ⇐ 4   # 24 bpp
+  uNCOMPRESSED_R5G5B5A1     ⇐ 5   # 16 bpp (1 bit alpha)
+  uNCOMPRESSED_R4G4B4A4     ⇐ 6   # 16 bpp (4 bit alpha)
+  uNCOMPRESSED_R8G8B8A8     ⇐ 7   # 32 bpp
+  uNCOMPRESSED_R32          ⇐ 8   # 32 bpp (1 channel - float)
+  uNCOMPRESSED_R32G32B32    ⇐ 9   # 32*3 bpp (3 channels - float)
+  uNCOMPRESSED_R32G32B32A32 ⇐ 10  # 32*4 bpp (4 channels - float)
+  uNCOMPRESSED_R16          ⇐ 11  # 16 bpp (1 channel - half float)
+  uNCOMPRESSED_R16G16B16    ⇐ 12  # 16*3 bpp (3 channels - half float)
+  uNCOMPRESSED_R16G16B16A16 ⇐ 13  # 16*4 bpp (4 channels - half float)
+  cOMPRESSED_DXT1_RGB       ⇐ 14  # 4 bpp (no alpha)
+  cOMPRESSED_DXT1_RGBA      ⇐ 15  # 4 bpp (1 bit alpha)
+  cOMPRESSED_DXT3_RGBA      ⇐ 16  # 8 bpp
+  cOMPRESSED_DXT5_RGBA      ⇐ 17  # 8 bpp
+  cOMPRESSED_ETC1_RGB       ⇐ 18  # 4 bpp
+  cOMPRESSED_ETC2_RGB       ⇐ 19  # 4 bpp
+  cOMPRESSED_ETC2_EAC_RGBA  ⇐ 20  # 8 bpp
+  cOMPRESSED_PVRT_RGB       ⇐ 21  # 4 bpp
+  cOMPRESSED_PVRT_RGBA      ⇐ 22  # 4 bpp
+  cOMPRESSED_ASTC_4x4_RGBA  ⇐ 23  # 8 bpp
+  cOMPRESSED_ASTC_8x8_RGBA  ⇐ 24  # 2 bpp
+}
+textureFilter ⇐ { # Texture parameters: filter mode
+  pOINT           ⇐ 0  # No filter, just pixel approximation
+  bILINEAR        ⇐ 1  # Linear filtering
+  tRILINEAR       ⇐ 2  # Trilinear filtering (linear with mipmaps)
+  aNISOTROPIC_4X  ⇐ 3  # Anisotropic filtering 4x
+  aNISOTROPIC_8X  ⇐ 4  # Anisotropic filtering 8x
+  aNISOTROPIC_16X ⇐ 5  # Anisotropic filtering 16x
+}
+textureWrap ⇐ { # Texture parameters: wrap mode
+  rEPEAT        ⇐ 0  # Repeats texture in tiled mode
+  cLAMP         ⇐ 1  # Clamps texture to edge pixel in tiled mode
+  mIRROR_REPEAT ⇐ 2  # Mirrors and repeats the texture in tiled mode
+  mIRROR_CLAMP  ⇐ 3  # Mirrors and clamps to border the texture in tiled mode
+}
+cubemapLayout ⇐ { # Cubemap layouts
+  aUTO_DETECT         ⇐ 0  # Automatically detect layout type
+  lINE_VERTICAL       ⇐ 1  # Layout is defined by a vertical line with faces
+  lINE_HORIZONTAL     ⇐ 2  # Layout is defined by a horizontal line with faces
+  cROSS_THREE_BY_FOUR ⇐ 3  # Layout is defined by a 3x4 cross with cubemap faces
+  cROSS_FOUR_BY_THREE ⇐ 4  # Layout is defined by a 4x3 cross with cubemap faces
+  pANORAMA            ⇐ 5  # Layout is defined by a panorama image (equirrectangular map)
+}
+fontType ⇐ { # Font type, defines generation method
+  dEFAULT ⇐ 0  # Default font generation, anti-aliased
+  bITMAP  ⇐ 1  # Bitmap font generation, no anti-aliasing
+  sDF     ⇐ 2  # SDF font generation, requires external shader
+}
+blendMode ⇐ { # Color blending modes (pre-defined)
+  aLPHA             ⇐ 0  # Blend textures considering alpha (default)
+  aDDITIVE          ⇐ 1  # Blend textures adding colors
+  mULTIPLIED        ⇐ 2  # Blend textures multiplying colors
+  aDD_COLORS        ⇐ 3  # Blend textures adding colors (alternative)
+  sUBTRACT_COLORS   ⇐ 4  # Blend textures subtracting colors (alternative)
+  aLPHA_PREMULTIPLY ⇐ 5  # Blend premultiplied textures considering alpha
+  cUSTOM            ⇐ 6  # Blend textures using custom src/dst factors (use rlSetBlendFactors())
+  cUSTOM_SEPARATE   ⇐ 7  # Blend textures using custom rgb/alpha separate src/dst factors (use rlSetBlendFactorsSeparate())
+}
+gesture ⇐ { # Gesture
+  nONE        ⇐ 0    # No gesture
+  tAP         ⇐ 1    # Tap gesture
+  dOUBLETAP   ⇐ 2    # Double tap gesture
+  hOLD        ⇐ 4    # Hold gesture
+  dRAG        ⇐ 8    # Drag gesture
+  sWIPE_RIGHT ⇐ 16   # Swipe right gesture
+  sWIPE_LEFT  ⇐ 32   # Swipe left gesture
+  sWIPE_UP    ⇐ 64   # Swipe up gesture
+  sWIPE_DOWN  ⇐ 128  # Swipe down gesture
+  pINCH_IN    ⇐ 256  # Pinch in gesture
+  pINCH_OUT   ⇐ 512  # Pinch out gesture
+}
+cameraMode ⇐ { # Camera system modes
+  cUSTOM       ⇐ 0  # Custom camera
+  fREE         ⇐ 1  # Free camera
+  oRBITAL      ⇐ 2  # Orbital camera
+  fIRST_PERSON ⇐ 3  # First person camera
+  tHIRD_PERSON ⇐ 4  # Third person camera
+}
+cameraProjection ⇐ { # Camera projection
+  pERSPECTIVE  ⇐ 0  # Perspective projection
+  oRTHOGRAPHIC ⇐ 1  # Orthographic projection
+}
+nPatchLayout ⇐ { # N-patch layout
+  nINE_PATCH             ⇐ 0  # Npatch layout: 3x3 tiles
+  tHREE_PATCH_VERTICAL   ⇐ 1  # Npatch layout: 1x3 tiles
+  tHREE_PATCH_HORIZONTAL ⇐ 2  # Npatch layout: 3x1 tiles
+}
+
+v2 ⇐ ⟨ # Vector2, 2 components
   f # x  # Vector x component
   f # y  # Vector y component
 ⟩
-v3 ⇐ S ⟨ # Vector3, 3 components
+v3 ⇐ ⟨ # Vector3, 3 components
   f # x  # Vector x component
   f # y  # Vector y component
   f # z  # Vector z component
 ⟩
-v4 ⇐ S ⟨ # Vector4, 4 components
+v4 ⇐ ⟨ # Vector4, 4 components
   f # x  # Vector x component
   f # y  # Vector y component
   f # z  # Vector z component
   f # w  # Vector w component
 ⟩
-matrix ⇐ S ⟨ # Matrix, 4x4 components, column major, OpenGL style, right-handed
+matrix ⇐ ⟨ # Matrix, 4x4 components, column major, OpenGL style, right-handed
   f # m0   # Matrix first row (4 components)
   f # m4   # Matrix first row (4 components)
   f # m8   # Matrix first row (4 components)
@@ -97,38 +438,38 @@ matrix ⇐ S ⟨ # Matrix, 4x4 components, column major, OpenGL style, right-han
   f # m11  # Matrix fourth row (4 components)
   f # m15  # Matrix fourth row (4 components)
 ⟩
-color ⇐ S ⟨ # Color, 4 components, R8G8B8A8 (32bit)
+color ⇐ ⟨ # Color, 4 components, R8G8B8A8 (32bit)
   u8 # r  # Color red value
   u8 # g  # Color green value
   u8 # b  # Color blue value
   u8 # a  # Color alpha value
 ⟩
-rectangle ⇐ S ⟨ # Rectangle, 4 components
+rectangle ⇐ ⟨ # Rectangle, 4 components
   f # x       # Rectangle top-left corner position x
   f # y       # Rectangle top-left corner position y
   f # width   # Rectangle width
   f # height  # Rectangle height
 ⟩
-image ⇐ S ⟨ # Image, pixel data stored in CPU memory (RAM)
+image ⇐ ⟨ # Image, pixel data stored in CPU memory (RAM)
   ptr # data     # Image raw data
   i   # width    # Image base width
   i   # height   # Image base height
   i   # mipmaps  # Mipmap levels, 1 by default
   i   # format   # Data format (PixelFormat type)
 ⟩
-texture ⇐ S ⟨ # Texture, tex data stored in GPU memory (VRAM)
+texture ⇐ ⟨ # Texture, tex data stored in GPU memory (VRAM)
   u # id       # OpenGL texture id
   i # width    # Texture base width
   i # height   # Texture base height
   i # mipmaps  # Mipmap levels, 1 by default
   i # format   # Data format (PixelFormat type)
 ⟩
-renderTexture ⇐ S ⟨ # RenderTexture, fbo for texture rendering
+renderTexture ⇐ ⟨ # RenderTexture, fbo for texture rendering
   u       # id       # OpenGL framebuffer object id
   texture # texture  # Color buffer attachment texture
   texture # depth    # Depth buffer attachment texture
 ⟩
-nPatchInfo ⇐ S ⟨ # NPatchInfo, n-patch layout info
+nPatchInfo ⇐ ⟨ # NPatchInfo, n-patch layout info
   rectangle # source  # Texture source rectangle
   i         # left    # Left border offset
   i         # top     # Top border offset
@@ -136,14 +477,14 @@ nPatchInfo ⇐ S ⟨ # NPatchInfo, n-patch layout info
   i         # bottom  # Bottom border offset
   i         # layout  # Layout of the n-patch: 3x3, 1x3 or 3x1
 ⟩
-glyphInfo ⇐ S ⟨ # GlyphInfo, font characters glyphs info
+glyphInfo ⇐ ⟨ # GlyphInfo, font characters glyphs info
   i     # value     # Character value (Unicode)
   i     # offsetX   # Character offset X when drawing
   i     # offsetY   # Character offset Y when drawing
   i     # advanceX  # Character advance position X
   image # image     # Character image data
 ⟩
-font ⇐ S ⟨ # Font, font texture and GlyphInfo array data
+font ⇐ ⟨ # Font, font texture and GlyphInfo array data
   i                 # baseSize      # Base size (default chars height)
   i                 # glyphCount    # Number of glyph characters
   i                 # glyphPadding  # Padding around the glyph characters
@@ -151,20 +492,20 @@ font ⇐ S ⟨ # Font, font texture and GlyphInfo array data
   ptr⊣"*"∾rectangle # recs          # Rectangles in texture for the glyphs
   ptr⊣"*"∾glyphInfo # glyphs        # Glyphs info data
 ⟩
-camera3D ⇐ S ⟨ # Camera, defines position/orientation in 3d space
+camera3D ⇐ ⟨ # Camera, defines position/orientation in 3d space
   v3 # position    # Camera position
   v3 # target      # Camera target it looks-at
   v3 # up          # Camera up vector (rotation over its axis)
   f  # fovy        # Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic
   i  # projection  # Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
 ⟩
-camera2D ⇐ S ⟨ # Camera2D, defines position/orientation in 2d space
+camera2D ⇐ ⟨ # Camera2D, defines position/orientation in 2d space
   v2 # offset    # Camera offset (displacement from target)
   v2 # target    # Camera target (rotation and zoom origin)
   f  # rotation  # Camera rotation in degrees
   f  # zoom      # Camera zoom (scaling), should be 1.0f by default
 ⟩
-mesh ⇐ S ⟨ # Mesh, vertex data and vao/vbo
+mesh ⇐ ⟨ # Mesh, vertex data and vao/vbo
   i          # vertexCount    # Number of vertices stored in arrays
   i          # triangleCount  # Number of triangles stored (indexed or not)
   ptr⊣"*"∾f  # vertices       # Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
@@ -181,30 +522,30 @@ mesh ⇐ S ⟨ # Mesh, vertex data and vao/vbo
   u          # vaoId          # OpenGL Vertex Array Object id
   ptr⊣"*"∾u  # vboId          # OpenGL Vertex Buffer Objects id (default vertex data)
 ⟩
-shader ⇐ S ⟨ # Shader
+shader ⇐ ⟨ # Shader
   u         # id    # Shader program id
   ptr⊣"*"∾i # locs  # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 ⟩
-materialMap ⇐ S ⟨ # MaterialMap
+materialMap ⇐ ⟨ # MaterialMap
   texture # texture  # Material map texture
   color   # color    # Material map color
   f       # value    # Material map value
 ⟩
-material ⇐ S ⟨ # Material, includes shader and maps
+material ⇐ ⟨ # Material, includes shader and maps
   shader              # shader  # Material shader
   ptr⊣"*"∾materialMap # maps    # Material maps array (MAX_MATERIAL_MAPS)
   "[4]"∾f             # params  # Material generic parameters (if required)
 ⟩
-transform ⇐ S ⟨ # Transform, vertex transformation data
+transform ⇐ ⟨ # Transform, vertex transformation data
   v3         # translation  # Translation
   quaternion # rotation     # Rotation
   v3         # scale        # Scale
 ⟩
-boneInfo ⇐ S ⟨ # Bone, skeletal animation bone
+boneInfo ⇐ ⟨ # Bone, skeletal animation bone
   "[32]"∾u8 # name    # Bone name
   i         # parent  # Bone parent
 ⟩
-model ⇐ S ⟨ # Model, meshes, materials and animation data
+model ⇐ ⟨ # Model, meshes, materials and animation data
   matrix            # transform      # Local transform matrix
   i                 # meshCount      # Number of meshes
   i                 # materialCount  # Number of materials
@@ -215,53 +556,53 @@ model ⇐ S ⟨ # Model, meshes, materials and animation data
   ptr⊣"*"∾boneInfo  # bones          # Bones information (skeleton)
   ptr⊣"*"∾transform # bindPose       # Bones base transformation (pose)
 ⟩
-modelAnimation ⇐ S ⟨ # ModelAnimation
+modelAnimation ⇐ ⟨ # ModelAnimation
   i                  # boneCount   # Number of bones
   i                  # frameCount  # Number of animation frames
   ptr⊣"*"∾boneInfo   # bones       # Bones information (skeleton)
   ptr⊣"**"∾transform # framePoses  # Poses array by frame
   "[32]"∾u8          # name        # Animation name
 ⟩
-ray ⇐ S ⟨ # Ray, ray for raycasting
+ray ⇐ ⟨ # Ray, ray for raycasting
   v3 # position   # Ray position (origin)
   v3 # direction  # Ray direction
 ⟩
-rayCollision ⇐ S ⟨ # RayCollision, ray hit information
+rayCollision ⇐ ⟨ # RayCollision, ray hit information
   bool # hit       # Did the ray hit something?
   f    # distance  # Distance to the nearest hit
   v3   # point     # Point of the nearest hit
   v3   # normal    # Surface normal of hit
 ⟩
-boundingBox ⇐ S ⟨ # BoundingBox
+boundingBox ⇐ ⟨ # BoundingBox
   v3 # min  # Minimum vertex box-corner
   v3 # max  # Maximum vertex box-corner
 ⟩
-wave ⇐ S ⟨ # Wave, audio wave data
+wave ⇐ ⟨ # Wave, audio wave data
   u   # frameCount  # Total number of frames (considering channels)
   u   # sampleRate  # Frequency (samples per second)
   u   # sampleSize  # Bit depth (bits per sample): 8, 16, 32 (24 not supported)
   u   # channels    # Number of channels (1-mono, 2-stereo, ...)
   ptr # data        # Buffer data pointer
 ⟩
-audioStream ⇐ S ⟨ # AudioStream, custom audio stream
+audioStream ⇐ ⟨ # AudioStream, custom audio stream
   ptr # buffer      # Pointer to internal data used by the audio system
   ptr # processor   # Pointer to internal data processor, useful for audio effects
   u   # sampleRate  # Frequency (samples per second)
   u   # sampleSize  # Bit depth (bits per sample): 8, 16, 32 (24 not supported)
   u   # channels    # Number of channels (1-mono, 2-stereo, ...)
 ⟩
-sound ⇐ S ⟨ # Sound
+sound ⇐ ⟨ # Sound
   audioStream # stream      # Audio stream
   u           # frameCount  # Total number of frames (considering channels)
 ⟩
-music ⇐ S ⟨ # Music, audio stream, anything longer than ~10 seconds should be streamed
+music ⇐ ⟨ # Music, audio stream, anything longer than ~10 seconds should be streamed
   audioStream # stream      # Audio stream
   u           # frameCount  # Total number of frames (considering channels)
   bool        # looping     # Music looping enable
   i           # ctxType     # Type of music context (audio filetype)
   ptr         # ctxData     # Audio context data, depends on type
 ⟩
-vrDeviceInfo ⇐ S ⟨ # VrDeviceInfo, Head-Mounted-Display device parameters
+vrDeviceInfo ⇐ ⟨ # VrDeviceInfo, Head-Mounted-Display device parameters
   i       # hResolution             # Horizontal resolution in pixels
   i       # vResolution             # Vertical resolution in pixels
   f       # hScreenSize             # Horizontal size in meters
@@ -273,7 +614,7 @@ vrDeviceInfo ⇐ S ⟨ # VrDeviceInfo, Head-Mounted-Display device parameters
   "[4]"∾f # lensDistortionValues    # Lens distortion constant parameters
   "[4]"∾f # chromaAbCorrection      # Chromatic aberration correction parameters
 ⟩
-vrStereoConfig ⇐ S ⟨ # VrStereoConfig, VR stereo rendering configuration for simulator
+vrStereoConfig ⇐ ⟨ # VrStereoConfig, VR stereo rendering configuration for simulator
   "[2]"∾matrix # projection         # VR projection matrices (per eye)
   "[2]"∾matrix # viewOffset         # VR view offset matrices (per eye)
   "[2]"∾f      # leftLensCenter     # VR left lens center
@@ -283,362 +624,21 @@ vrStereoConfig ⇐ S ⟨ # VrStereoConfig, VR stereo rendering configuration for
   "[2]"∾f      # scale              # VR distortion scale
   "[2]"∾f      # scaleIn            # VR distortion scale in
 ⟩
-filePathList ⇐ S ⟨ # File path list
+filePathList ⇐ ⟨ # File path list
   u           # capacity  # Filepaths max entries
   u           # count     # Filepaths entries count
   ptr⊣"*"∾str # paths     # Filepaths entries
 ⟩
-automationEvent ⇐ S ⟨ # Automation event
+automationEvent ⇐ ⟨ # Automation event
   u       # frame   # Event frame
   u       # type    # Event type (AutomationEventType)
   "[4]"∾i # params  # Event parameters (if required)
 ⟩
-automationEventList ⇐ S ⟨ # Automation event list
+automationEventList ⇐ ⟨ # Automation event list
   u                       # capacity  # Events max entries (MAX_AUTOMATION_EVENTS)
   u                       # count     # Events entries count
   ptr⊣"*"∾automationEvent # events    # Events entries
 ⟩
-
-configFlags ⇐ { # System/Window config flags
-  fLAG_VSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU
-  fLAG_FULLSCREEN_MODE          ⇐ 2      # Set to run program in fullscreen
-  fLAG_WINDOW_RESIZABLE         ⇐ 4      # Set to allow resizable window
-  fLAG_WINDOW_UNDECORATED       ⇐ 8      # Set to disable window decoration (frame and buttons)
-  fLAG_WINDOW_HIDDEN            ⇐ 128    # Set to hide window
-  fLAG_WINDOW_MINIMIZED         ⇐ 512    # Set to minimize window (iconify)
-  fLAG_WINDOW_MAXIMIZED         ⇐ 1024   # Set to maximize window (expanded to monitor)
-  fLAG_WINDOW_UNFOCUSED         ⇐ 2048   # Set to window non focused
-  fLAG_WINDOW_TOPMOST           ⇐ 4096   # Set to window always on top
-  fLAG_WINDOW_ALWAYS_RUN        ⇐ 256    # Set to allow windows running while minimized
-  fLAG_WINDOW_TRANSPARENT       ⇐ 16     # Set to allow transparent framebuffer
-  fLAG_WINDOW_HIGHDPI           ⇐ 8192   # Set to support HighDPI
-  fLAG_WINDOW_MOUSE_PASSTHROUGH ⇐ 16384  # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-  fLAG_BORDERLESS_WINDOWED_MODE ⇐ 32768  # Set to run program in borderless windowed mode
-  fLAG_MSAA_4X_HINT             ⇐ 32     # Set to try enabling MSAA 4X
-  fLAG_INTERLACED_HINT          ⇐ 65536  # Set to try enabling interlaced video format (for V3D)
-}
-traceLogLevel ⇐ { # Trace log level
-  lOG_ALL     ⇐ 0  # Display all logs
-  lOG_TRACE   ⇐ 1  # Trace logging, intended for internal use only
-  lOG_DEBUG   ⇐ 2  # Debug logging, used for internal debugging, it should be disabled on release builds
-  lOG_INFO    ⇐ 3  # Info logging, used for program execution info
-  lOG_WARNING ⇐ 4  # Warning logging, used on recoverable failures
-  lOG_ERROR   ⇐ 5  # Error logging, used on unrecoverable failures
-  lOG_FATAL   ⇐ 6  # Fatal logging, used to abort program: exit(EXIT_FAILURE)
-  lOG_NONE    ⇐ 7  # Disable logging
-}
-keyboardKey ⇐ { # Keyboard keys (US keyboard layout)
-  kEY_NULL          ⇐ 0    # Key: NULL, used for no key pressed
-  kEY_APOSTROPHE    ⇐ 39   # Key: '
-  kEY_COMMA         ⇐ 44   # Key: ,
-  kEY_MINUS         ⇐ 45   # Key: -
-  kEY_PERIOD        ⇐ 46   # Key: .
-  kEY_SLASH         ⇐ 47   # Key: /
-  kEY_ZERO          ⇐ 48   # Key: 0
-  kEY_ONE           ⇐ 49   # Key: 1
-  kEY_TWO           ⇐ 50   # Key: 2
-  kEY_THREE         ⇐ 51   # Key: 3
-  kEY_FOUR          ⇐ 52   # Key: 4
-  kEY_FIVE          ⇐ 53   # Key: 5
-  kEY_SIX           ⇐ 54   # Key: 6
-  kEY_SEVEN         ⇐ 55   # Key: 7
-  kEY_EIGHT         ⇐ 56   # Key: 8
-  kEY_NINE          ⇐ 57   # Key: 9
-  kEY_SEMICOLON     ⇐ 59   # Key: ;
-  kEY_EQUAL         ⇐ 61   # Key: =
-  kEY_A             ⇐ 65   # Key: A | a
-  kEY_B             ⇐ 66   # Key: B | b
-  kEY_C             ⇐ 67   # Key: C | c
-  kEY_D             ⇐ 68   # Key: D | d
-  kEY_E             ⇐ 69   # Key: E | e
-  kEY_F             ⇐ 70   # Key: F | f
-  kEY_G             ⇐ 71   # Key: G | g
-  kEY_H             ⇐ 72   # Key: H | h
-  kEY_I             ⇐ 73   # Key: I | i
-  kEY_J             ⇐ 74   # Key: J | j
-  kEY_K             ⇐ 75   # Key: K | k
-  kEY_L             ⇐ 76   # Key: L | l
-  kEY_M             ⇐ 77   # Key: M | m
-  kEY_N             ⇐ 78   # Key: N | n
-  kEY_O             ⇐ 79   # Key: O | o
-  kEY_P             ⇐ 80   # Key: P | p
-  kEY_Q             ⇐ 81   # Key: Q | q
-  kEY_R             ⇐ 82   # Key: R | r
-  kEY_S             ⇐ 83   # Key: S | s
-  kEY_T             ⇐ 84   # Key: T | t
-  kEY_U             ⇐ 85   # Key: U | u
-  kEY_V             ⇐ 86   # Key: V | v
-  kEY_W             ⇐ 87   # Key: W | w
-  kEY_X             ⇐ 88   # Key: X | x
-  kEY_Y             ⇐ 89   # Key: Y | y
-  kEY_Z             ⇐ 90   # Key: Z | z
-  kEY_LEFT_BRACKET  ⇐ 91   # Key: [
-  kEY_BACKSLASH     ⇐ 92   # Key: '\'
-  kEY_RIGHT_BRACKET ⇐ 93   # Key: ]
-  kEY_GRAVE         ⇐ 96   # Key: `
-  kEY_SPACE         ⇐ 32   # Key: Space
-  kEY_ESCAPE        ⇐ 256  # Key: Esc
-  kEY_ENTER         ⇐ 257  # Key: Enter
-  kEY_TAB           ⇐ 258  # Key: Tab
-  kEY_BACKSPACE     ⇐ 259  # Key: Backspace
-  kEY_INSERT        ⇐ 260  # Key: Ins
-  kEY_DELETE        ⇐ 261  # Key: Del
-  kEY_RIGHT         ⇐ 262  # Key: Cursor right
-  kEY_LEFT          ⇐ 263  # Key: Cursor left
-  kEY_DOWN          ⇐ 264  # Key: Cursor down
-  kEY_UP            ⇐ 265  # Key: Cursor up
-  kEY_PAGE_UP       ⇐ 266  # Key: Page up
-  kEY_PAGE_DOWN     ⇐ 267  # Key: Page down
-  kEY_HOME          ⇐ 268  # Key: Home
-  kEY_END           ⇐ 269  # Key: End
-  kEY_CAPS_LOCK     ⇐ 280  # Key: Caps lock
-  kEY_SCROLL_LOCK   ⇐ 281  # Key: Scroll down
-  kEY_NUM_LOCK      ⇐ 282  # Key: Num lock
-  kEY_PRINT_SCREEN  ⇐ 283  # Key: Print screen
-  kEY_PAUSE         ⇐ 284  # Key: Pause
-  kEY_F1            ⇐ 290  # Key: F1
-  kEY_F2            ⇐ 291  # Key: F2
-  kEY_F3            ⇐ 292  # Key: F3
-  kEY_F4            ⇐ 293  # Key: F4
-  kEY_F5            ⇐ 294  # Key: F5
-  kEY_F6            ⇐ 295  # Key: F6
-  kEY_F7            ⇐ 296  # Key: F7
-  kEY_F8            ⇐ 297  # Key: F8
-  kEY_F9            ⇐ 298  # Key: F9
-  kEY_F10           ⇐ 299  # Key: F10
-  kEY_F11           ⇐ 300  # Key: F11
-  kEY_F12           ⇐ 301  # Key: F12
-  kEY_LEFT_SHIFT    ⇐ 340  # Key: Shift left
-  kEY_LEFT_CONTROL  ⇐ 341  # Key: Control left
-  kEY_LEFT_ALT      ⇐ 342  # Key: Alt left
-  kEY_LEFT_SUPER    ⇐ 343  # Key: Super left
-  kEY_RIGHT_SHIFT   ⇐ 344  # Key: Shift right
-  kEY_RIGHT_CONTROL ⇐ 345  # Key: Control right
-  kEY_RIGHT_ALT     ⇐ 346  # Key: Alt right
-  kEY_RIGHT_SUPER   ⇐ 347  # Key: Super right
-  kEY_KB_MENU       ⇐ 348  # Key: KB menu
-  kEY_KP_0          ⇐ 320  # Key: Keypad 0
-  kEY_KP_1          ⇐ 321  # Key: Keypad 1
-  kEY_KP_2          ⇐ 322  # Key: Keypad 2
-  kEY_KP_3          ⇐ 323  # Key: Keypad 3
-  kEY_KP_4          ⇐ 324  # Key: Keypad 4
-  kEY_KP_5          ⇐ 325  # Key: Keypad 5
-  kEY_KP_6          ⇐ 326  # Key: Keypad 6
-  kEY_KP_7          ⇐ 327  # Key: Keypad 7
-  kEY_KP_8          ⇐ 328  # Key: Keypad 8
-  kEY_KP_9          ⇐ 329  # Key: Keypad 9
-  kEY_KP_DECIMAL    ⇐ 330  # Key: Keypad .
-  kEY_KP_DIVIDE     ⇐ 331  # Key: Keypad /
-  kEY_KP_MULTIPLY   ⇐ 332  # Key: Keypad *
-  kEY_KP_SUBTRACT   ⇐ 333  # Key: Keypad -
-  kEY_KP_ADD        ⇐ 334  # Key: Keypad +
-  kEY_KP_ENTER      ⇐ 335  # Key: Keypad Enter
-  kEY_KP_EQUAL      ⇐ 336  # Key: Keypad =
-  kEY_BACK          ⇐ 4    # Key: Android back button
-  kEY_MENU          ⇐ 82   # Key: Android menu button
-  kEY_VOLUME_UP     ⇐ 24   # Key: Android volume up button
-  kEY_VOLUME_DOWN   ⇐ 25   # Key: Android volume down button
-}
-mouseButton ⇐ { # Mouse buttons
-  mOUSE_BUTTON_LEFT    ⇐ 0  # Mouse button left
-  mOUSE_BUTTON_RIGHT   ⇐ 1  # Mouse button right
-  mOUSE_BUTTON_MIDDLE  ⇐ 2  # Mouse button middle (pressed wheel)
-  mOUSE_BUTTON_SIDE    ⇐ 3  # Mouse button side (advanced mouse device)
-  mOUSE_BUTTON_EXTRA   ⇐ 4  # Mouse button extra (advanced mouse device)
-  mOUSE_BUTTON_FORWARD ⇐ 5  # Mouse button forward (advanced mouse device)
-  mOUSE_BUTTON_BACK    ⇐ 6  # Mouse button back (advanced mouse device)
-}
-mouseCursor ⇐ { # Mouse cursor
-  mOUSE_CURSOR_DEFAULT       ⇐ 0   # Default pointer shape
-  mOUSE_CURSOR_ARROW         ⇐ 1   # Arrow shape
-  mOUSE_CURSOR_IBEAM         ⇐ 2   # Text writing cursor shape
-  mOUSE_CURSOR_CROSSHAIR     ⇐ 3   # Cross shape
-  mOUSE_CURSOR_POINTING_HAND ⇐ 4   # Pointing hand cursor
-  mOUSE_CURSOR_RESIZE_EW     ⇐ 5   # Horizontal resize/move arrow shape
-  mOUSE_CURSOR_RESIZE_NS     ⇐ 6   # Vertical resize/move arrow shape
-  mOUSE_CURSOR_RESIZE_NWSE   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape
-  mOUSE_CURSOR_RESIZE_NESW   ⇐ 8   # The top-right to bottom-left diagonal resize/move arrow shape
-  mOUSE_CURSOR_RESIZE_ALL    ⇐ 9   # The omnidirectional resize/move cursor shape
-  mOUSE_CURSOR_NOT_ALLOWED   ⇐ 10  # The operation-not-allowed shape
-}
-gamepadButton ⇐ { # Gamepad buttons
-  gAMEPAD_BUTTON_UNKNOWN          ⇐ 0   # Unknown button, just for error checking
-  gAMEPAD_BUTTON_LEFT_FACE_UP     ⇐ 1   # Gamepad left DPAD up button
-  gAMEPAD_BUTTON_LEFT_FACE_RIGHT  ⇐ 2   # Gamepad left DPAD right button
-  gAMEPAD_BUTTON_LEFT_FACE_DOWN   ⇐ 3   # Gamepad left DPAD down button
-  gAMEPAD_BUTTON_LEFT_FACE_LEFT   ⇐ 4   # Gamepad left DPAD left button
-  gAMEPAD_BUTTON_RIGHT_FACE_UP    ⇐ 5   # Gamepad right button up (i.e. PS3: Triangle, Xbox: Y)
-  gAMEPAD_BUTTON_RIGHT_FACE_RIGHT ⇐ 6   # Gamepad right button right (i.e. PS3: Square, Xbox: X)
-  gAMEPAD_BUTTON_RIGHT_FACE_DOWN  ⇐ 7   # Gamepad right button down (i.e. PS3: Cross, Xbox: A)
-  gAMEPAD_BUTTON_RIGHT_FACE_LEFT  ⇐ 8   # Gamepad right button left (i.e. PS3: Circle, Xbox: B)
-  gAMEPAD_BUTTON_LEFT_TRIGGER_1   ⇐ 9   # Gamepad top/back trigger left (first), it could be a trailing button
-  gAMEPAD_BUTTON_LEFT_TRIGGER_2   ⇐ 10  # Gamepad top/back trigger left (second), it could be a trailing button
-  gAMEPAD_BUTTON_RIGHT_TRIGGER_1  ⇐ 11  # Gamepad top/back trigger right (one), it could be a trailing button
-  gAMEPAD_BUTTON_RIGHT_TRIGGER_2  ⇐ 12  # Gamepad top/back trigger right (second), it could be a trailing button
-  gAMEPAD_BUTTON_MIDDLE_LEFT      ⇐ 13  # Gamepad center buttons, left one (i.e. PS3: Select)
-  gAMEPAD_BUTTON_MIDDLE           ⇐ 14  # Gamepad center buttons, middle one (i.e. PS3: PS, Xbox: XBOX)
-  gAMEPAD_BUTTON_MIDDLE_RIGHT     ⇐ 15  # Gamepad center buttons, right one (i.e. PS3: Start)
-  gAMEPAD_BUTTON_LEFT_THUMB       ⇐ 16  # Gamepad joystick pressed button left
-  gAMEPAD_BUTTON_RIGHT_THUMB      ⇐ 17  # Gamepad joystick pressed button right
-}
-gamepadAxis ⇐ { # Gamepad axis
-  gAMEPAD_AXIS_LEFT_X        ⇐ 0  # Gamepad left stick X axis
-  gAMEPAD_AXIS_LEFT_Y        ⇐ 1  # Gamepad left stick Y axis
-  gAMEPAD_AXIS_RIGHT_X       ⇐ 2  # Gamepad right stick X axis
-  gAMEPAD_AXIS_RIGHT_Y       ⇐ 3  # Gamepad right stick Y axis
-  gAMEPAD_AXIS_LEFT_TRIGGER  ⇐ 4  # Gamepad back trigger left, pressure level: [1..-1]
-  gAMEPAD_AXIS_RIGHT_TRIGGER ⇐ 5  # Gamepad back trigger right, pressure level: [1..-1]
-}
-materialMapIndex ⇐ { # Material map index
-  mATERIAL_MAP_ALBEDO     ⇐ 0   # Albedo material (same as: MATERIAL_MAP_DIFFUSE)
-  mATERIAL_MAP_METALNESS  ⇐ 1   # Metalness material (same as: MATERIAL_MAP_SPECULAR)
-  mATERIAL_MAP_NORMAL     ⇐ 2   # Normal material
-  mATERIAL_MAP_ROUGHNESS  ⇐ 3   # Roughness material
-  mATERIAL_MAP_OCCLUSION  ⇐ 4   # Ambient occlusion material
-  mATERIAL_MAP_EMISSION   ⇐ 5   # Emission material
-  mATERIAL_MAP_HEIGHT     ⇐ 6   # Heightmap material
-  mATERIAL_MAP_CUBEMAP    ⇐ 7   # Cubemap material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
-  mATERIAL_MAP_IRRADIANCE ⇐ 8   # Irradiance material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
-  mATERIAL_MAP_PREFILTER  ⇐ 9   # Prefilter material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
-  mATERIAL_MAP_BRDF       ⇐ 10  # Brdf material
-}
-shaderLocationIndex ⇐ { # Shader location index
-  sHADER_LOC_VERTEX_POSITION   ⇐ 0   # Shader location: vertex attribute: position
-  sHADER_LOC_VERTEX_TEXCOORD01 ⇐ 1   # Shader location: vertex attribute: texcoord01
-  sHADER_LOC_VERTEX_TEXCOORD02 ⇐ 2   # Shader location: vertex attribute: texcoord02
-  sHADER_LOC_VERTEX_NORMAL     ⇐ 3   # Shader location: vertex attribute: normal
-  sHADER_LOC_VERTEX_TANGENT    ⇐ 4   # Shader location: vertex attribute: tangent
-  sHADER_LOC_VERTEX_COLOR      ⇐ 5   # Shader location: vertex attribute: color
-  sHADER_LOC_MATRIX_MVP        ⇐ 6   # Shader location: matrix uniform: model-view-projection
-  sHADER_LOC_MATRIX_VIEW       ⇐ 7   # Shader location: matrix uniform: view (camera transform)
-  sHADER_LOC_MATRIX_PROJECTION ⇐ 8   # Shader location: matrix uniform: projection
-  sHADER_LOC_MATRIX_MODEL      ⇐ 9   # Shader location: matrix uniform: model (transform)
-  sHADER_LOC_MATRIX_NORMAL     ⇐ 10  # Shader location: matrix uniform: normal
-  sHADER_LOC_VECTOR_VIEW       ⇐ 11  # Shader location: vector uniform: view
-  sHADER_LOC_COLOR_DIFFUSE     ⇐ 12  # Shader location: vector uniform: diffuse color
-  sHADER_LOC_COLOR_SPECULAR    ⇐ 13  # Shader location: vector uniform: specular color
-  sHADER_LOC_COLOR_AMBIENT     ⇐ 14  # Shader location: vector uniform: ambient color
-  sHADER_LOC_MAP_ALBEDO        ⇐ 15  # Shader location: sampler2d texture: albedo (same as: SHADER_LOC_MAP_DIFFUSE)
-  sHADER_LOC_MAP_METALNESS     ⇐ 16  # Shader location: sampler2d texture: metalness (same as: SHADER_LOC_MAP_SPECULAR)
-  sHADER_LOC_MAP_NORMAL        ⇐ 17  # Shader location: sampler2d texture: normal
-  sHADER_LOC_MAP_ROUGHNESS     ⇐ 18  # Shader location: sampler2d texture: roughness
-  sHADER_LOC_MAP_OCCLUSION     ⇐ 19  # Shader location: sampler2d texture: occlusion
-  sHADER_LOC_MAP_EMISSION      ⇐ 20  # Shader location: sampler2d texture: emission
-  sHADER_LOC_MAP_HEIGHT        ⇐ 21  # Shader location: sampler2d texture: height
-  sHADER_LOC_MAP_CUBEMAP       ⇐ 22  # Shader location: samplerCube texture: cubemap
-  sHADER_LOC_MAP_IRRADIANCE    ⇐ 23  # Shader location: samplerCube texture: irradiance
-  sHADER_LOC_MAP_PREFILTER     ⇐ 24  # Shader location: samplerCube texture: prefilter
-  sHADER_LOC_MAP_BRDF          ⇐ 25  # Shader location: sampler2d texture: brdf
-}
-shaderUniformDataType ⇐ { # Shader uniform data type
-  sHADER_UNIFORM_FLOAT     ⇐ 0  # Shader uniform type: float
-  sHADER_UNIFORM_VEC2      ⇐ 1  # Shader uniform type: vec2 (2 float)
-  sHADER_UNIFORM_VEC3      ⇐ 2  # Shader uniform type: vec3 (3 float)
-  sHADER_UNIFORM_VEC4      ⇐ 3  # Shader uniform type: vec4 (4 float)
-  sHADER_UNIFORM_INT       ⇐ 4  # Shader uniform type: int
-  sHADER_UNIFORM_IVEC2     ⇐ 5  # Shader uniform type: ivec2 (2 int)
-  sHADER_UNIFORM_IVEC3     ⇐ 6  # Shader uniform type: ivec3 (3 int)
-  sHADER_UNIFORM_IVEC4     ⇐ 7  # Shader uniform type: ivec4 (4 int)
-  sHADER_UNIFORM_SAMPLER2D ⇐ 8  # Shader uniform type: sampler2d
-}
-shaderAttributeDataType ⇐ { # Shader attribute data types
-  sHADER_ATTRIB_FLOAT ⇐ 0  # Shader attribute type: float
-  sHADER_ATTRIB_VEC2  ⇐ 1  # Shader attribute type: vec2 (2 float)
-  sHADER_ATTRIB_VEC3  ⇐ 2  # Shader attribute type: vec3 (3 float)
-  sHADER_ATTRIB_VEC4  ⇐ 3  # Shader attribute type: vec4 (4 float)
-}
-pixelFormat ⇐ { # Pixel formats
-  pIXELFORMAT_UNCOMPRESSED_GRAYSCALE    ⇐ 1   # 8 bit per pixel (no alpha)
-  pIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA   ⇐ 2   # 8*2 bpp (2 channels)
-  pIXELFORMAT_UNCOMPRESSED_R5G6B5       ⇐ 3   # 16 bpp
-  pIXELFORMAT_UNCOMPRESSED_R8G8B8       ⇐ 4   # 24 bpp
-  pIXELFORMAT_UNCOMPRESSED_R5G5B5A1     ⇐ 5   # 16 bpp (1 bit alpha)
-  pIXELFORMAT_UNCOMPRESSED_R4G4B4A4     ⇐ 6   # 16 bpp (4 bit alpha)
-  pIXELFORMAT_UNCOMPRESSED_R8G8B8A8     ⇐ 7   # 32 bpp
-  pIXELFORMAT_UNCOMPRESSED_R32          ⇐ 8   # 32 bpp (1 channel - float)
-  pIXELFORMAT_UNCOMPRESSED_R32G32B32    ⇐ 9   # 32*3 bpp (3 channels - float)
-  pIXELFORMAT_UNCOMPRESSED_R32G32B32A32 ⇐ 10  # 32*4 bpp (4 channels - float)
-  pIXELFORMAT_UNCOMPRESSED_R16          ⇐ 11  # 16 bpp (1 channel - half float)
-  pIXELFORMAT_UNCOMPRESSED_R16G16B16    ⇐ 12  # 16*3 bpp (3 channels - half float)
-  pIXELFORMAT_UNCOMPRESSED_R16G16B16A16 ⇐ 13  # 16*4 bpp (4 channels - half float)
-  pIXELFORMAT_COMPRESSED_DXT1_RGB       ⇐ 14  # 4 bpp (no alpha)
-  pIXELFORMAT_COMPRESSED_DXT1_RGBA      ⇐ 15  # 4 bpp (1 bit alpha)
-  pIXELFORMAT_COMPRESSED_DXT3_RGBA      ⇐ 16  # 8 bpp
-  pIXELFORMAT_COMPRESSED_DXT5_RGBA      ⇐ 17  # 8 bpp
-  pIXELFORMAT_COMPRESSED_ETC1_RGB       ⇐ 18  # 4 bpp
-  pIXELFORMAT_COMPRESSED_ETC2_RGB       ⇐ 19  # 4 bpp
-  pIXELFORMAT_COMPRESSED_ETC2_EAC_RGBA  ⇐ 20  # 8 bpp
-  pIXELFORMAT_COMPRESSED_PVRT_RGB       ⇐ 21  # 4 bpp
-  pIXELFORMAT_COMPRESSED_PVRT_RGBA      ⇐ 22  # 4 bpp
-  pIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA  ⇐ 23  # 8 bpp
-  pIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA  ⇐ 24  # 2 bpp
-}
-textureFilter ⇐ { # Texture parameters: filter mode
-  tEXTURE_FILTER_POINT           ⇐ 0  # No filter, just pixel approximation
-  tEXTURE_FILTER_BILINEAR        ⇐ 1  # Linear filtering
-  tEXTURE_FILTER_TRILINEAR       ⇐ 2  # Trilinear filtering (linear with mipmaps)
-  tEXTURE_FILTER_ANISOTROPIC_4X  ⇐ 3  # Anisotropic filtering 4x
-  tEXTURE_FILTER_ANISOTROPIC_8X  ⇐ 4  # Anisotropic filtering 8x
-  tEXTURE_FILTER_ANISOTROPIC_16X ⇐ 5  # Anisotropic filtering 16x
-}
-textureWrap ⇐ { # Texture parameters: wrap mode
-  tEXTURE_WRAP_REPEAT        ⇐ 0  # Repeats texture in tiled mode
-  tEXTURE_WRAP_CLAMP         ⇐ 1  # Clamps texture to edge pixel in tiled mode
-  tEXTURE_WRAP_MIRROR_REPEAT ⇐ 2  # Mirrors and repeats the texture in tiled mode
-  tEXTURE_WRAP_MIRROR_CLAMP  ⇐ 3  # Mirrors and clamps to border the texture in tiled mode
-}
-cubemapLayout ⇐ { # Cubemap layouts
-  cUBEMAP_LAYOUT_AUTO_DETECT         ⇐ 0  # Automatically detect layout type
-  cUBEMAP_LAYOUT_LINE_VERTICAL       ⇐ 1  # Layout is defined by a vertical line with faces
-  cUBEMAP_LAYOUT_LINE_HORIZONTAL     ⇐ 2  # Layout is defined by a horizontal line with faces
-  cUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR ⇐ 3  # Layout is defined by a 3x4 cross with cubemap faces
-  cUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE ⇐ 4  # Layout is defined by a 4x3 cross with cubemap faces
-  cUBEMAP_LAYOUT_PANORAMA            ⇐ 5  # Layout is defined by a panorama image (equirrectangular map)
-}
-fontType ⇐ { # Font type, defines generation method
-  fONT_DEFAULT ⇐ 0  # Default font generation, anti-aliased
-  fONT_BITMAP  ⇐ 1  # Bitmap font generation, no anti-aliasing
-  fONT_SDF     ⇐ 2  # SDF font generation, requires external shader
-}
-blendMode ⇐ { # Color blending modes (pre-defined)
-  bLEND_ALPHA             ⇐ 0  # Blend textures considering alpha (default)
-  bLEND_ADDITIVE          ⇐ 1  # Blend textures adding colors
-  bLEND_MULTIPLIED        ⇐ 2  # Blend textures multiplying colors
-  bLEND_ADD_COLORS        ⇐ 3  # Blend textures adding colors (alternative)
-  bLEND_SUBTRACT_COLORS   ⇐ 4  # Blend textures subtracting colors (alternative)
-  bLEND_ALPHA_PREMULTIPLY ⇐ 5  # Blend premultiplied textures considering alpha
-  bLEND_CUSTOM            ⇐ 6  # Blend textures using custom src/dst factors (use rlSetBlendFactors())
-  bLEND_CUSTOM_SEPARATE   ⇐ 7  # Blend textures using custom rgb/alpha separate src/dst factors (use rlSetBlendFactorsSeparate())
-}
-gesture ⇐ { # Gesture
-  gESTURE_NONE        ⇐ 0    # No gesture
-  gESTURE_TAP         ⇐ 1    # Tap gesture
-  gESTURE_DOUBLETAP   ⇐ 2    # Double tap gesture
-  gESTURE_HOLD        ⇐ 4    # Hold gesture
-  gESTURE_DRAG        ⇐ 8    # Drag gesture
-  gESTURE_SWIPE_RIGHT ⇐ 16   # Swipe right gesture
-  gESTURE_SWIPE_LEFT  ⇐ 32   # Swipe left gesture
-  gESTURE_SWIPE_UP    ⇐ 64   # Swipe up gesture
-  gESTURE_SWIPE_DOWN  ⇐ 128  # Swipe down gesture
-  gESTURE_PINCH_IN    ⇐ 256  # Pinch in gesture
-  gESTURE_PINCH_OUT   ⇐ 512  # Pinch out gesture
-}
-cameraMode ⇐ { # Camera system modes
-  cAMERA_CUSTOM       ⇐ 0  # Custom camera
-  cAMERA_FREE         ⇐ 1  # Free camera
-  cAMERA_ORBITAL      ⇐ 2  # Orbital camera
-  cAMERA_FIRST_PERSON ⇐ 3  # First person camera
-  cAMERA_THIRD_PERSON ⇐ 4  # Third person camera
-}
-cameraProjection ⇐ { # Camera projection
-  cAMERA_PERSPECTIVE  ⇐ 0  # Perspective projection
-  cAMERA_ORTHOGRAPHIC ⇐ 1  # Orthographic projection
-}
-nPatchLayout ⇐ { # N-patch layout
-  nPATCH_NINE_PATCH             ⇐ 0  # Npatch layout: 3x3 tiles
-  nPATCH_THREE_PATCH_VERTICAL   ⇐ 1  # Npatch layout: 1x3 tiles
-  nPATCH_THREE_PATCH_HORIZONTAL ⇐ 2  # Npatch layout: 3x1 tiles
-}
 
 initWindow                      ⇐                         "InitWindow"                      _R⟨i⋄i⋄str⟩                                       # width height title                                                # Initialize window and OpenGL context
 closeWindow                     ⇐                         "CloseWindow"                     _R⟨⟩                                              #                                                                   # Close window and unload OpenGL context
