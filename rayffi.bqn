@@ -236,7 +236,7 @@ vrDeviceInfo ⇐ S ⟨
 ⟩
 
 # VrStereoConfig, VR stereo rendering configuration for simulator
-vrStereoConfig ⇐ S S∘⋈¨(2⥊<matrix)∾6⥊<f
+vrStereoConfig ⇐ S S∘⋈˜¨(2⥊<matrix)∾6⥊<f
 # projection[2]        # VR projection matrices (per eye)
 # viewOffset[2]        # VR view offset matrices (per eye)
 # leftLensCenter[2]    # VR left lens center
