@@ -45,11 +45,12 @@ mapArgTypes ← {𝕊[bqn,c]:
   {
     constText←"const "
     consts←constText⊸(⊣≡≠⊸↑)¨𝕩
+    # consts∨∧´¨'*'≠𝕩
     cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
     SwitchOrder ← {⌽⌾((𝕩∊'0'+↕10)⊸/)1⊸⌽⌾((𝕩∊"[]")⊸/)𝕩}⌽
     [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
     AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
-    removed AddRemoved¨ kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾<0
+    removed AddRemoved¨ kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
   }
 } ⍉[
   # remove since they're not defined
@@ -61,31 +62,32 @@ mapArgTypes ← {𝕊[bqn,c]:
   "ptr"‿"TraceLogCallback"
 
   # shorten struct names
-  "v2"           ‿"Vector2"
-  "v3"           ‿"Vector3"
-  "v4"           ‿"Vector4"
+  "v2"‿"Vector2"
+  "v3"‿"Vector3"
+  "v4"‿"Vector4"
 
-  """f64""" ‿"double"
-  """i64""" ‿"long"
-  "f"       ‿"float"
-  "i"       ‿"int"
-  "ptr"     ‿"..."
-  "u"       ‿"unsigned int"
-  "u8"      ‿"char"
-  "u8"      ‿"unsigned char"
-  """u16""" ‿"unsigned short"
+  """f64"""‿"double"
+  """i64"""‿"long"
+  "f"      ‿"float"
+  "i"      ‿"int"
+  "ptr"    ‿"..."
+  "u"      ‿"unsigned int"
+  "u8"     ‿"char"
+  "u8"     ‿"unsigned char"
+  """u16"""‿"unsigned short"
+  " "      ‿"void"
 ]
 
-MapStructTypes ← "ptr⊣"⊸∾⍟(("ustr"≡4⊸↑)∨∨´∘=⟜'*'∨"str"≡3⊸↑)¨ MapArgTypes
+MapStructTypes ← "ptr⊣"⊸∾⍟(("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑)¨ MapArgTypes
 
-mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾<0}}⍉[  
+mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾0}}⍉[  
   "v4"‿"Vector4"
   "v3"‿"Vector3"
   "v2"‿"Vector2"
 ]
 
 _Time ← {•Show 𝔽•_timed𝕩⋄𝔽𝕩}
-MapFuncReturnType ← " "⍟("void"⊸≡)¨·{'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨MapStructTypes
+MapFuncReturnType ← {'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨MapStructTypes
 
 defines‿structs‿aliases‿enums‿callbacks‿functions←{
   x←json.Parse •FChars raylibJsonTempLoc
@@ -118,15 +120,15 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
   ⋈""
   { # structs
     ParseStruct ← {
-      ∾nl∾¨"⟩"∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩
+      ⟨"⟩"⟩∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩
     }
     [names,descriptions,fields]←⍉>structs
-    headers ← »⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ ⟨ # "⟨LowerNames¨,⊢⟩_MetaParse descriptions ≍˘˜ MapStructNames names
-    bodys ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
-    assembled ← bodys∾˜¨headers
+    headers ← (MapStructNames names) ∾⟜" ⇐ ⟨ # "⊸∾¨ descriptions
+    bodys ← ParseStruct¨⊢˝¨¨fields
+    assembled ← headers <⊸∾¨ bodys
     aliasLines←»⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ "‿" # "⟨LowerNames¨,MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>⊢˝¨aliases
     p←⊑¨⊢˝¨aliases
-    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨∾∾⟜<¨⟜aliasLines⌾(¯1⊸↓)assembled⊔˜+`»+˝p≡⌜names
+    ∾ ∾∾⟜(⋈⋈)¨⟜aliasLines⌾(¯1⊸↓)assembled⊔˜+`»+˝p≡⌜names
   }
   ⋈""
   { # functions
@@ -134,7 +136,7 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
       LowerNames¨ ⋄ MapFuncReturnType ⋄ ∾⟜'"'¨ ⋄ ('⟩'∾˜1↓·∾'⋄'∾¨MapArgTypes)¨ ⋄ (∾' '⊸∾¨)¨ ⋄ ⊢
     ⟩_MetaParse{
       0‿2‿0‿3‿4‿1⊏(3↑𝕩)∾⍉{<˘⍉∘‿2⥊⊢˝˘>⊑𝕩}˘⊢˝𝕩
-    }⌾⍉>∾⟜(<⟨⟩)⍟(3=≠)¨functions
+    }⌾⍉>∾⟜⟨⟨⟩⟩⍟(3=≠)¨functions
   }
 ⟩
 #•file.Remove raylibJsonTempLoc
