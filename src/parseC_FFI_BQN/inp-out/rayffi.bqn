@@ -1,8 +1,8 @@
-
 # Makes an importer that improves the ffi function creation syntax
 MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
   {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
-    a←'>'⊸∾⌾⊑⍟(1=≠)𝕩
+    IntoStr ← {1≥≡𝕩?𝕩;(m¬⊸/𝕩)∾S𝕊¨𝕩/˜m←×≡¨𝕩}
+    a←'>'⊸∾⌾⊑⍟(1=≠) IntoStr¨𝕩
     HandleError ← {
       •Out "DEBUG TYPE INFO:"
       •Out •Fmt 𝕩
@@ -10,7 +10,7 @@ MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
       •term.Flush@
       𝕨•FFI𝕩
     }
-    func ← path •FFI⎊HandleError outType‿funcName∾a
+    func ← path •FFI⎊HandleError (IntoStr outType)‿funcName∾a
     m ← str⊸≡¨a
     {𝕏⊣•term.Flush∘•Out∘funcName}⍟debug {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
   }
@@ -25,9 +25,6 @@ bool ⇐ "i8"
 i‿f‿u‿i8‿·‿u8 ⇐ ⥊"32"‿"8"∾˜⌜"ifu"
 str‿uStr ⇐ P¨"iu"∾¨<"8:c8"
 ptr ⇐ "*:i8"
-
-quaternion ⇐ "[4]f32"
-
 
 #------------------------------------------------------------------------------------
 # BQN low-level function utils
@@ -57,6 +54,7 @@ U32ToI8 ⇐ ⟨@•FFI"*:i8"‿"memcpy"‿"&i32"‿"*u32"‿"u64",@•FFI"*:i8"�
 ;
   𝔽_𝕣⁼𝕩:·‿F←𝕗⋄⊑1⊑F{⟨0⟩‿𝕩‿4} ⟨8‿'i'⋄32‿'i'⟩•bit._cast 𝕩
 }
+
 r ⇐ MakeImporter "/usr/local/lib/libraylib.so"
 
 rAYLIB_VERSION_MAJOR ⇐ 5         #
@@ -420,6 +418,7 @@ v4 ⇐ ⟨ # Vector4, 4 components
   f # z  # Vector z component
   f # w  # Vector w component
 ⟩
+quaternion ⇐ v4 # Quaternion, 4 components (Vector4 alias)
 matrix ⇐ ⟨ # Matrix, 4x4 components, column major, OpenGL style, right-handed
   f # m0   # Matrix first row (4 components)
   f # m4   # Matrix first row (4 components)
@@ -464,11 +463,14 @@ texture ⇐ ⟨ # Texture, tex data stored in GPU memory (VRAM)
   i # mipmaps  # Mipmap levels, 1 by default
   i # format   # Data format (PixelFormat type)
 ⟩
+texture2D ⇐ texture # Texture2D, same as Texture
+textureCubemap ⇐ texture # TextureCubemap, same as Texture
 renderTexture ⇐ ⟨ # RenderTexture, fbo for texture rendering
   u       # id       # OpenGL framebuffer object id
   texture # texture  # Color buffer attachment texture
   texture # depth    # Depth buffer attachment texture
 ⟩
+renderTexture2D ⇐ renderTexture # RenderTexture2D, same as RenderTexture
 nPatchInfo ⇐ ⟨ # NPatchInfo, n-patch layout info
   rectangle # source  # Texture source rectangle
   i         # left    # Left border offset
@@ -488,7 +490,7 @@ font ⇐ ⟨ # Font, font texture and GlyphInfo array data
   i                 # baseSize      # Base size (default chars height)
   i                 # glyphCount    # Number of glyph characters
   i                 # glyphPadding  # Padding around the glyph characters
-  texture           # texture       # Texture atlas containing the glyphs
+  texture2D         # texture       # Texture atlas containing the glyphs
   ptr⊣"*"∾rectangle # recs          # Rectangles in texture for the glyphs
   ptr⊣"*"∾glyphInfo # glyphs        # Glyphs info data
 ⟩
@@ -499,6 +501,7 @@ camera3D ⇐ ⟨ # Camera, defines position/orientation in 3d space
   f  # fovy        # Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic
   i  # projection  # Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
 ⟩
+camera ⇐ camera3D # Camera type fallback, defaults to Camera3D
 camera2D ⇐ ⟨ # Camera2D, defines position/orientation in 2d space
   v2 # offset    # Camera offset (displacement from target)
   v2 # target    # Camera target (rotation and zoom origin)
@@ -527,9 +530,9 @@ shader ⇐ ⟨ # Shader
   ptr⊣"*"∾i # locs  # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 ⟩
 materialMap ⇐ ⟨ # MaterialMap
-  texture # texture  # Material map texture
-  color   # color    # Material map color
-  f       # value    # Material map value
+  texture2D # texture  # Material map texture
+  color     # color    # Material map color
+  f         # value    # Material map value
 ⟩
 material ⇐ ⟨ # Material, includes shader and maps
   shader              # shader  # Material shader
@@ -701,7 +704,7 @@ beginMode2D                     ⇐                         "BeginMode2D"       
 endMode2D                       ⇐                         "EndMode2D"                       _R⟨⟩                                              #                                                                   # Ends 2D mode with custom camera
 beginMode3D                     ⇐                         "BeginMode3D"                     _R⟨camera3D⟩                                      # camera                                                            # Begin 3D mode with custom camera (3D)
 endMode3D                       ⇐                         "EndMode3D"                       _R⟨⟩                                              #                                                                   # Ends 3D mode and returns to default 2D orthographic mode
-beginTextureMode                ⇐                         "BeginTextureMode"                _R⟨renderTexture⟩                                 # target                                                            # Begin drawing to render texture
+beginTextureMode                ⇐                         "BeginTextureMode"                _R⟨renderTexture2D⟩                               # target                                                            # Begin drawing to render texture
 endTextureMode                  ⇐                         "EndTextureMode"                  _R⟨⟩                                              #                                                                   # Ends drawing to render texture
 beginShaderMode                 ⇐                         "BeginShaderMode"                 _R⟨shader⟩                                        # shader                                                            # Begin custom shader drawing
 endShaderMode                   ⇐                         "EndShaderMode"                   _R⟨⟩                                              #                                                                   # End custom shader drawing (use default shader)
@@ -721,14 +724,14 @@ getShaderLocationAttrib         ⇐ i                       "GetShaderLocationAt
 setShaderValue                  ⇐                         "SetShaderValue"                  _R⟨shader⋄i⋄ptr⋄i⟩                                # shader locIndex value uniformType                                 # Set shader uniform value
 setShaderValueV                 ⇐                         "SetShaderValueV"                 _R⟨shader⋄i⋄ptr⋄i⋄i⟩                              # shader locIndex value uniformType count                           # Set shader uniform value vector
 setShaderValueMatrix            ⇐                         "SetShaderValueMatrix"            _R⟨shader⋄i⋄matrix⟩                               # shader locIndex mat                                               # Set shader uniform value (matrix 4x4)
-setShaderValueTexture           ⇐                         "SetShaderValueTexture"           _R⟨shader⋄i⋄texture⟩                              # shader locIndex texture                                           # Set shader uniform value for texture (sampler2d)
+setShaderValueTexture           ⇐                         "SetShaderValueTexture"           _R⟨shader⋄i⋄texture2D⟩                            # shader locIndex texture                                           # Set shader uniform value for texture (sampler2d)
 unloadShader                    ⇐                         "UnloadShader"                    _R⟨shader⟩                                        # shader                                                            # Unload shader from GPU memory (VRAM)
-getMouseRay                     ⇐ ray                     "GetMouseRay"                     _R⟨v2⋄camera3D⟩                                   # mousePosition camera                                              # Get a ray trace from mouse position
-getCameraMatrix                 ⇐ matrix                  "GetCameraMatrix"                 _R⟨camera3D⟩                                      # camera                                                            # Get camera transform matrix (view matrix)
+getMouseRay                     ⇐ ray                     "GetMouseRay"                     _R⟨v2⋄camera⟩                                     # mousePosition camera                                              # Get a ray trace from mouse position
+getCameraMatrix                 ⇐ matrix                  "GetCameraMatrix"                 _R⟨camera⟩                                        # camera                                                            # Get camera transform matrix (view matrix)
 getCameraMatrix2D               ⇐ matrix                  "GetCameraMatrix2D"               _R⟨camera2D⟩                                      # camera                                                            # Get camera 2d transform matrix
-getWorldToScreen                ⇐ v2                      "GetWorldToScreen"                _R⟨v3⋄camera3D⟩                                   # position camera                                                   # Get the screen space position for a 3d world space position
+getWorldToScreen                ⇐ v2                      "GetWorldToScreen"                _R⟨v3⋄camera⟩                                     # position camera                                                   # Get the screen space position for a 3d world space position
 getScreenToWorld2D              ⇐ v2                      "GetScreenToWorld2D"              _R⟨v2⋄camera2D⟩                                   # position camera                                                   # Get the world space position for a 2d camera screen space position
-getWorldToScreenEx              ⇐ v2                      "GetWorldToScreenEx"              _R⟨v3⋄camera3D⋄i⋄i⟩                               # position camera width height                                      # Get size position for a 3d world space position
+getWorldToScreenEx              ⇐ v2                      "GetWorldToScreenEx"              _R⟨v3⋄camera⋄i⋄i⟩                                 # position camera width height                                      # Get size position for a 3d world space position
 getWorldToScreen2D              ⇐ v2                      "GetWorldToScreen2D"              _R⟨v2⋄camera2D⟩                                   # position camera                                                   # Get the screen space position for a 2d camera world space position
 setTargetFPS                    ⇐                         "SetTargetFPS"                    _R⟨i⟩                                             # fps                                                               # Set target FPS (maximum)
 getFrameTime                    ⇐ f                       "GetFrameTime"                    _R⟨⟩                                              #                                                                   # Get time in seconds for last frame drawn (delta time)
@@ -836,9 +839,9 @@ getGestureDragVector            ⇐ v2                      "GetGestureDragVecto
 getGestureDragAngle             ⇐ f                       "GetGestureDragAngle"             _R⟨⟩                                              #                                                                   # Get gesture drag angle
 getGesturePinchVector           ⇐ v2                      "GetGesturePinchVector"           _R⟨⟩                                              #                                                                   # Get gesture pinch delta
 getGesturePinchAngle            ⇐ f                       "GetGesturePinchAngle"            _R⟨⟩                                              #                                                                   # Get gesture pinch angle
-updateCamera                    ⇐                         "UpdateCamera"                    _R⟨"*"∾camera3D⋄i⟩                                # camera mode                                                       # Update camera position for selected mode
-updateCameraPro                 ⇐                         "UpdateCameraPro"                 _R⟨"*"∾camera3D⋄v3⋄v3⋄f⟩                          # camera movement rotation zoom                                     # Update camera movement/rotation
-setShapesTexture                ⇐                         "SetShapesTexture"                _R⟨texture⋄rectangle⟩                             # texture source                                                    # Set texture and rectangle to be used on shapes drawing
+updateCamera                    ⇐                         "UpdateCamera"                    _R⟨"*"∾camera⋄i⟩                                  # camera mode                                                       # Update camera position for selected mode
+updateCameraPro                 ⇐                         "UpdateCameraPro"                 _R⟨"*"∾camera⋄v3⋄v3⋄f⟩                            # camera movement rotation zoom                                     # Update camera movement/rotation
+setShapesTexture                ⇐                         "SetShapesTexture"                _R⟨texture2D⋄rectangle⟩                           # texture source                                                    # Set texture and rectangle to be used on shapes drawing
 drawPixel                       ⇐                         "DrawPixel"                       _R⟨i⋄i⋄color⟩                                     # posX posY color                                                   # Draw a pixel
 drawPixelV                      ⇐                         "DrawPixelV"                      _R⟨v2⋄color⟩                                      # position color                                                    # Draw a pixel (Vector version)
 drawLine                        ⇐                         "DrawLine"                        _R⟨i⋄i⋄i⋄i⋄color⟩                                 # startPosX startPosY endPosX endPosY color                         # Draw a line
@@ -894,7 +897,7 @@ loadImageRaw                    ⇐ image                   "LoadImageRaw"      
 loadImageSvg                    ⇐ image                   "LoadImageSvg"                    _R⟨str⋄i⋄i⟩                                       # fileNameOrString width height                                     # Load image from SVG file data or string with specified size
 loadImageAnim                   ⇐ image                   "LoadImageAnim"                   _R⟨str⋄"*"∾i⟩                                     # fileName frames                                                   # Load image sequence from file (frames appended to image.data)
 loadImageFromMemory             ⇐ image                   "LoadImageFromMemory"             _R⟨str⋄ustr⋄i⟩                                    # fileType fileData dataSize                                        # Load image from memory buffer, fileType refers to extension: i.e. '.png'
-loadImageFromTexture            ⇐ image                   "LoadImageFromTexture"            _R⟨texture⟩                                       # texture                                                           # Load image from GPU texture data
+loadImageFromTexture            ⇐ image                   "LoadImageFromTexture"            _R⟨texture2D⟩                                     # texture                                                           # Load image from GPU texture data
 loadImageFromScreen             ⇐ image                   "LoadImageFromScreen"             _R⟨⟩                                              #                                                                   # Load image from screen buffer and (screenshot)
 isImageReady                    ⇐ bool                    "IsImageReady"                    _R⟨image⟩                                         # image                                                             # Check if an image is ready
 unloadImage                     ⇐                         "UnloadImage"                     _R⟨image⟩                                         # image                                                             # Unload image from CPU memory (RAM)
@@ -960,25 +963,25 @@ imageDrawRectangleLines         ⇐                         "ImageDrawRectangleL
 imageDraw                       ⇐                         "ImageDraw"                       _R⟨"*"∾image⋄image⋄rectangle⋄rectangle⋄color⟩     # dst src srcRec dstRec tint                                        # Draw a source image within a destination image (tint applied to source)
 imageDrawText                   ⇐                         "ImageDrawText"                   _R⟨"*"∾image⋄str⋄i⋄i⋄i⋄color⟩                     # dst text posX posY fontSize color                                 # Draw text (using default font) within an image (destination)
 imageDrawTextEx                 ⇐                         "ImageDrawTextEx"                 _R⟨"*"∾image⋄font⋄str⋄v2⋄f⋄f⋄color⟩               # dst font text position fontSize spacing tint                      # Draw text (custom sprite font) within an image (destination)
-loadTexture                     ⇐ texture                 "LoadTexture"                     _R⟨str⟩                                           # fileName                                                          # Load texture from file into GPU memory (VRAM)
-loadTextureFromImage            ⇐ texture                 "LoadTextureFromImage"            _R⟨image⟩                                         # image                                                             # Load texture from image data
-loadTextureCubemap              ⇐ texture                 "LoadTextureCubemap"              _R⟨image⋄i⟩                                       # image layout                                                      # Load cubemap from image, multiple image cubemap layouts supported
-loadRenderTexture               ⇐ renderTexture           "LoadRenderTexture"               _R⟨i⋄i⟩                                           # width height                                                      # Load texture for rendering (framebuffer)
-isTextureReady                  ⇐ bool                    "IsTextureReady"                  _R⟨texture⟩                                       # texture                                                           # Check if a texture is ready
-unloadTexture                   ⇐                         "UnloadTexture"                   _R⟨texture⟩                                       # texture                                                           # Unload texture from GPU memory (VRAM)
-isRenderTextureReady            ⇐ bool                    "IsRenderTextureReady"            _R⟨renderTexture⟩                                 # target                                                            # Check if a render texture is ready
-unloadRenderTexture             ⇐                         "UnloadRenderTexture"             _R⟨renderTexture⟩                                 # target                                                            # Unload render texture from GPU memory (VRAM)
-updateTexture                   ⇐                         "UpdateTexture"                   _R⟨texture⋄ptr⟩                                   # texture pixels                                                    # Update GPU texture with new data
-updateTextureRec                ⇐                         "UpdateTextureRec"                _R⟨texture⋄rectangle⋄ptr⟩                         # texture rec pixels                                                # Update GPU texture rectangle with new data
-genTextureMipmaps               ⇐                         "GenTextureMipmaps"               _R⟨"*"∾texture⟩                                   # texture                                                           # Generate GPU mipmaps for a texture
-setTextureFilter                ⇐                         "SetTextureFilter"                _R⟨texture⋄i⟩                                     # texture filter                                                    # Set texture scaling filter mode
-setTextureWrap                  ⇐                         "SetTextureWrap"                  _R⟨texture⋄i⟩                                     # texture wrap                                                      # Set texture wrapping mode
-drawTexture                     ⇐                         "DrawTexture"                     _R⟨texture⋄i⋄i⋄color⟩                             # texture posX posY tint                                            # Draw a Texture2D
-drawTextureV                    ⇐                         "DrawTextureV"                    _R⟨texture⋄v2⋄color⟩                              # texture position tint                                             # Draw a Texture2D with position defined as Vector2
-drawTextureEx                   ⇐                         "DrawTextureEx"                   _R⟨texture⋄v2⋄f⋄f⋄color⟩                          # texture position rotation scale tint                              # Draw a Texture2D with extended parameters
-drawTextureRec                  ⇐                         "DrawTextureRec"                  _R⟨texture⋄rectangle⋄v2⋄color⟩                    # texture source position tint                                      # Draw a part of a texture defined by a rectangle
-drawTexturePro                  ⇐                         "DrawTexturePro"                  _R⟨texture⋄rectangle⋄rectangle⋄v2⋄f⋄color⟩        # texture source dest origin rotation tint                          # Draw a part of a texture defined by a rectangle with 'pro' parameters
-drawTextureNPatch               ⇐                         "DrawTextureNPatch"               _R⟨texture⋄nPatchInfo⋄rectangle⋄v2⋄f⋄color⟩       # texture nPatchInfo dest origin rotation tint                      # Draws a texture (or part of it) that stretches or shrinks nicely
+loadTexture                     ⇐ texture2D               "LoadTexture"                     _R⟨str⟩                                           # fileName                                                          # Load texture from file into GPU memory (VRAM)
+loadTextureFromImage            ⇐ texture2D               "LoadTextureFromImage"            _R⟨image⟩                                         # image                                                             # Load texture from image data
+loadTextureCubemap              ⇐ textureCubemap          "LoadTextureCubemap"              _R⟨image⋄i⟩                                       # image layout                                                      # Load cubemap from image, multiple image cubemap layouts supported
+loadRenderTexture               ⇐ renderTexture2D         "LoadRenderTexture"               _R⟨i⋄i⟩                                           # width height                                                      # Load texture for rendering (framebuffer)
+isTextureReady                  ⇐ bool                    "IsTextureReady"                  _R⟨texture2D⟩                                     # texture                                                           # Check if a texture is ready
+unloadTexture                   ⇐                         "UnloadTexture"                   _R⟨texture2D⟩                                     # texture                                                           # Unload texture from GPU memory (VRAM)
+isRenderTextureReady            ⇐ bool                    "IsRenderTextureReady"            _R⟨renderTexture2D⟩                               # target                                                            # Check if a render texture is ready
+unloadRenderTexture             ⇐                         "UnloadRenderTexture"             _R⟨renderTexture2D⟩                               # target                                                            # Unload render texture from GPU memory (VRAM)
+updateTexture                   ⇐                         "UpdateTexture"                   _R⟨texture2D⋄ptr⟩                                 # texture pixels                                                    # Update GPU texture with new data
+updateTextureRec                ⇐                         "UpdateTextureRec"                _R⟨texture2D⋄rectangle⋄ptr⟩                       # texture rec pixels                                                # Update GPU texture rectangle with new data
+genTextureMipmaps               ⇐                         "GenTextureMipmaps"               _R⟨"*"∾texture2D⟩                                 # texture                                                           # Generate GPU mipmaps for a texture
+setTextureFilter                ⇐                         "SetTextureFilter"                _R⟨texture2D⋄i⟩                                   # texture filter                                                    # Set texture scaling filter mode
+setTextureWrap                  ⇐                         "SetTextureWrap"                  _R⟨texture2D⋄i⟩                                   # texture wrap                                                      # Set texture wrapping mode
+drawTexture                     ⇐                         "DrawTexture"                     _R⟨texture2D⋄i⋄i⋄color⟩                           # texture posX posY tint                                            # Draw a Texture2D
+drawTextureV                    ⇐                         "DrawTextureV"                    _R⟨texture2D⋄v2⋄color⟩                            # texture position tint                                             # Draw a Texture2D with position defined as Vector2
+drawTextureEx                   ⇐                         "DrawTextureEx"                   _R⟨texture2D⋄v2⋄f⋄f⋄color⟩                        # texture position rotation scale tint                              # Draw a Texture2D with extended parameters
+drawTextureRec                  ⇐                         "DrawTextureRec"                  _R⟨texture2D⋄rectangle⋄v2⋄color⟩                  # texture source position tint                                      # Draw a part of a texture defined by a rectangle
+drawTexturePro                  ⇐                         "DrawTexturePro"                  _R⟨texture2D⋄rectangle⋄rectangle⋄v2⋄f⋄color⟩      # texture source dest origin rotation tint                          # Draw a part of a texture defined by a rectangle with 'pro' parameters
+drawTextureNPatch               ⇐                         "DrawTextureNPatch"               _R⟨texture2D⋄nPatchInfo⋄rectangle⋄v2⋄f⋄color⟩     # texture nPatchInfo dest origin rotation tint                      # Draws a texture (or part of it) that stretches or shrinks nicely
 fade                            ⇐ color                   "Fade"                            _R⟨color⋄f⟩                                       # color alpha                                                       # Get color with alpha applied, alpha goes from 0.0f to 1.0f
 colorToInt                      ⇐ i                       "ColorToInt"                      _R⟨color⟩                                         # color                                                             # Get hexadecimal value for a Color
 colorNormalize                  ⇐ v4                      "ColorNormalize"                  _R⟨color⟩                                         # color                                                             # Get Color normalized as float [0..1]
@@ -1072,9 +1075,9 @@ drawModelEx                     ⇐                         "DrawModelEx"       
 drawModelWires                  ⇐                         "DrawModelWires"                  _R⟨model⋄v3⋄f⋄color⟩                              # model position scale tint                                         # Draw a model wires (with texture if set)
 drawModelWiresEx                ⇐                         "DrawModelWiresEx"                _R⟨model⋄v3⋄v3⋄f⋄v3⋄color⟩                        # model position rotationAxis rotationAngle scale tint              # Draw a model wires (with texture if set) with extended parameters
 drawBoundingBox                 ⇐                         "DrawBoundingBox"                 _R⟨boundingBox⋄color⟩                             # box color                                                         # Draw bounding box (wires)
-drawBillboard                   ⇐                         "DrawBillboard"                   _R⟨camera3D⋄texture⋄v3⋄f⋄color⟩                   # camera texture position size tint                                 # Draw a billboard texture
-drawBillboardRec                ⇐                         "DrawBillboardRec"                _R⟨camera3D⋄texture⋄rectangle⋄v3⋄v2⋄color⟩        # camera texture source position size tint                          # Draw a billboard texture defined by source
-drawBillboardPro                ⇐                         "DrawBillboardPro"                _R⟨camera3D⋄texture⋄rectangle⋄v3⋄v3⋄v2⋄v2⋄f⋄color⟩# camera texture source position up size origin rotation tint       # Draw a billboard texture defined by source and rotation
+drawBillboard                   ⇐                         "DrawBillboard"                   _R⟨camera⋄texture2D⋄v3⋄f⋄color⟩                   # camera texture position size tint                                 # Draw a billboard texture
+drawBillboardRec                ⇐                         "DrawBillboardRec"                _R⟨camera⋄texture2D⋄rectangle⋄v3⋄v2⋄color⟩        # camera texture source position size tint                          # Draw a billboard texture defined by source
+drawBillboardPro                ⇐                         "DrawBillboardPro"                _R⟨camera⋄texture2D⋄rectangle⋄v3⋄v3⋄v2⋄v2⋄f⋄color⟩# camera texture source position up size origin rotation tint       # Draw a billboard texture defined by source and rotation
 uploadMesh                      ⇐                         "UploadMesh"                      _R⟨"*"∾mesh⋄bool⟩                                 # mesh dynamic                                                      # Upload mesh vertex data in GPU and provide VAO/VBO ids
 updateMeshBuffer                ⇐                         "UpdateMeshBuffer"                _R⟨mesh⋄i⋄ptr⋄i⋄i⟩                                # mesh index data dataSize offset                                   # Update mesh vertex data in GPU for a specific buffer index
 unloadMesh                      ⇐                         "UnloadMesh"                      _R⟨mesh⟩                                          # mesh                                                              # Unload mesh data from CPU and GPU
@@ -1098,7 +1101,7 @@ loadMaterials                   ⇐ (ptr⊣"*"∾material)      "LoadMaterials" 
 loadMaterialDefault             ⇐ material                "LoadMaterialDefault"             _R⟨⟩                                              #                                                                   # Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
 isMaterialReady                 ⇐ bool                    "IsMaterialReady"                 _R⟨material⟩                                      # material                                                          # Check if a material is ready
 unloadMaterial                  ⇐                         "UnloadMaterial"                  _R⟨material⟩                                      # material                                                          # Unload material from GPU memory (VRAM)
-setMaterialTexture              ⇐                         "SetMaterialTexture"              _R⟨"*"∾material⋄i⋄texture⟩                        # material mapType texture                                          # Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
+setMaterialTexture              ⇐                         "SetMaterialTexture"              _R⟨"*"∾material⋄i⋄texture2D⟩                      # material mapType texture                                          # Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
 setModelMeshMaterial            ⇐                         "SetModelMeshMaterial"            _R⟨"*"∾model⋄i⋄i⟩                                 # model meshId materialId                                           # Set material for a mesh
 loadModelAnimations             ⇐ (ptr⊣"*"∾modelAnimation)"LoadModelAnimations"             _R⟨str⋄"*"∾i⟩                                     # fileName animCount                                                # Load model animations from file
 updateModelAnimation            ⇐                         "UpdateModelAnimation"            _R⟨model⋄modelAnimation⋄i⟩                        # model anim frame                                                  # Update model animation pose

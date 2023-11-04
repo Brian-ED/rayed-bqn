@@ -61,10 +61,6 @@ mapArgTypes ← {𝕊[bqn,c]:
   "ptr"‿"TraceLogCallback"
 
   # shorten struct names
-  "camera3D"     ‿"Camera"
-  "renderTexture"‿"RenderTexture2D"
-  "texture"      ‿"Texture2D"
-  "texture"      ‿"TextureCubemap"
   "v2"           ‿"Vector2"
   "v3"           ‿"Vector3"
   "v4"           ‿"Vector4"
@@ -82,7 +78,7 @@ mapArgTypes ← {𝕊[bqn,c]:
 
 MapStructTypes ← "ptr⊣"⊸∾⍟(("ustr"≡4⊸↑)∨∨´∘=⟜'*'∨"str"≡3⊸↑)¨ MapArgTypes
 
-mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾<0}6↓⍟("const "≡↑)¨⊢}⍉[  
+mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾<0}}⍉[  
   "v4"‿"Vector4"
   "v3"‿"Vector3"
   "v2"‿"Vector2"
@@ -92,9 +88,9 @@ _Time ← {•Show 𝔽•_timed𝕩⋄𝔽𝕩}
 MapFuncReturnType ← " "⍟("void"⊸≡)¨·{'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨MapStructTypes
 
 defines‿structs‿aliases‿enums‿callbacks‿functions←{
-  x←⍉json.Parse •FChars raylibJsonTempLoc
-  !(⊏˘x)≡"defines"‿"structs"‿"aliases"‿"enums"‿"callbacks"‿"functions"
-  ⊢˝¨¨1⊏˘x
+  x←json.Parse •FChars raylibJsonTempLoc
+  !x⊣˝⊸≡"defines"‿"structs"‿"aliases"‿"enums"‿"callbacks"‿"functions"
+  ⊢˝¨¨⌾(0‿1‿3‿4‿5⊸⊏)⊢˝x
 }
 
 outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
@@ -126,12 +122,11 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
     }
     [names,descriptions,fields]←⍉>structs
     headers ← »⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ ⟨ # "⟨LowerNames¨,⊢⟩_MetaParse descriptions ≍˘˜ MapStructNames names
-    •Show 
-    •Show aliasAfterStructs←⊑¨⊢˝¨aliases
-    •Show ≡¨⊢˝¨aliases
-    #•Show 1↓⥊nl∾˘""‿" ⇐ "‿" # "⟨LowerNames¨,LowerNames¨MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>aliases
     bodys ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
-    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨bodys∾˜¨headers
+    assembled ← bodys∾˜¨headers
+    aliasLines←»⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ "‿" # "⟨LowerNames¨,MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>⊢˝¨aliases
+    p←⊑¨⊢˝¨aliases
+    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨∾∾⟜<¨⟜aliasLines⌾(¯1⊸↓)assembled⊔˜+`»+˝p≡⌜names
   }
   ⋈""
   { # functions
