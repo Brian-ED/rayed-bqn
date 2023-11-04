@@ -112,26 +112,26 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
   }
   ⋈""
   { # enums
-    [name,description,values]←⍉>enums
+    [names,descriptions,values]←⍉>enums
     tabled ← >¨⊢˝¨¨ values
     prefixesRemoved ← {𝕩↓¨˜+´∧˝˘∧`(⊏=⍉)>𝕩↑¨˜⌊´≠¨𝕩}⌾(⊏˘)¨tabled
-    body ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse⊢)¨prefixesRemoved
-    header ← name LowerNames⊸∾¨<˘" ⇐ { # "⊸∾˘Box description
-    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ header∾¨∾⟜nl‿'}'¨body
+    bodys ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse⊢)¨prefixesRemoved
+    headers ← names LowerNames⊸∾¨<˘" ⇐ { # "⊸∾˘Box descriptions
+    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ headers∾¨∾⟜nl‿'}'¨bodys
   }
   ⋈""
   { # structs
     ParseStruct ← {
       ∾nl∾¨"⟩"∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩
     }
-    
-    [name,desc,fields]←⍉>structs
-    header ← »⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ ⟨ # "⟨LowerNames¨,⊢⟩_MetaParse desc ≍˘˜ MapStructNames name
-    #•Show name
-    #•Show aliasAfterStructs←⊑¨⊢˝¨aliases
+    [names,descriptions,fields]←⍉>structs
+    headers ← »⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ ⟨ # "⟨LowerNames¨,⊢⟩_MetaParse descriptions ≍˘˜ MapStructNames names
+    •Show 
+    •Show aliasAfterStructs←⊑¨⊢˝¨aliases
+    •Show ≡¨⊢˝¨aliases
     #•Show 1↓⥊nl∾˘""‿" ⇐ "‿" # "⟨LowerNames¨,LowerNames¨MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>aliases
-    body ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
-    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ body ∾˜¨header
+    bodys ← ∨`⌾⌽∘≠⟜' '⊸/¨<˘⟨""⟩⟨ParseStruct¨⟩_MetaParse ≍˘⊢˝¨¨fields
+    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨bodys∾˜¨headers
   }
   ⋈""
   { # functions
