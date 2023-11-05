@@ -1,7 +1,13 @@
+NestedStructToStr ← {
+  1≥≡𝕩?𝕩;
+  IsPtr ← ("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑
+  ptr⍟IsPtr⍟(⟨⟩≢≢)¨ (m¬⊸/𝕩)∾S𝕊¨𝕩/˜m←×≡¨𝕩
+}
+
 # Makes an importer that improves the ffi function creation syntax
 MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
   {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
-    IntoStr ← {1≥≡𝕩?𝕩;(m¬⊸/𝕩)∾S𝕊¨𝕩/˜m←×≡¨𝕩}
+    IntoStr ← NestedStructToStr
     a←'>'⊸∾⌾⊑⍟(1=≠) IntoStr¨𝕩
     HandleError ← {
       •Out "DEBUG TYPE INFO:"

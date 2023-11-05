@@ -78,8 +78,6 @@ mapArgTypes ← {𝕊[bqn,c]:
   " "      ‿"void"
 ]
 
-MapStructTypes ← "ptr⊣"⊸∾⍟(("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑)¨ MapArgTypes
-
 mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾0}}⍉[  
   "v4"‿"Vector4"
   "v3"‿"Vector3"
@@ -87,7 +85,7 @@ mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏
 ]
 
 _Time ← {•Show 𝔽•_timed𝕩⋄𝔽𝕩}
-MapFuncReturnType ← {'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨MapStructTypes
+MapFuncReturnType ← {'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨·"ptr⊣"⊸∾⍟(("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑)¨ MapArgTypes
 
 defines‿structs‿aliases‿enums‿callbacks‿functions←{
   x←json.Parse •FChars raylibJsonTempLoc
@@ -120,7 +118,7 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
   ⋈""
   { # structs
     ParseStruct ← {
-      ⟨"⟩"⟩∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩
+      ⟨"⟩"⟩∾˜<˘"  "‿" # "‿"  # "⟨MapArgTypes,⊢,⊢⟩_MetaParse >𝕩
     }
     [names,descriptions,fields]←⍉>structs
     headers ← (MapStructNames names) ∾⟜" ⇐ ⟨ # "⊸∾¨ descriptions

@@ -1,7 +1,13 @@
+NestedStructToStr ← {
+  1≥≡𝕩?𝕩;
+  IsPtr ← ("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑
+  ptr⍟IsPtr⍟(⟨⟩≢≢)¨ (m¬⊸/𝕩)∾S𝕊¨𝕩/˜m←×≡¨𝕩
+}
+
 # Makes an importer that improves the ffi function creation syntax
 MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
   {𝕨 funcName _𝕣 inpTypes: outType←𝕨⊣⟨⟩
-    IntoStr ← {1≥≡𝕩?𝕩;(m¬⊸/𝕩)∾S𝕊¨𝕩/˜m←×≡¨𝕩}
+    IntoStr ← NestedStructToStr
     a←'>'⊸∾⌾⊑⍟(1=≠) IntoStr¨𝕩
     HandleError ← {
       •Out "DEBUG TYPE INFO:"
@@ -57,10 +63,10 @@ U32ToI8 ⇐ ⟨@•FFI"*:i8"‿"memcpy"‿"&i32"‿"*u32"‿"u64",@•FFI"*:i8"�
 
 r ⇐ MakeImporter "/usr/local/lib/libraylib.so"
 
-rAYLIB_VERSION_MAJOR ⇐ 5         #
-rAYLIB_VERSION_MINOR ⇐ 0         #
-rAYLIB_VERSION_PATCH ⇐ 0         #
-rAYLIB_VERSION       ⇐ "5.0-dev" #
+rAYLIB_VERSION_MAJOR ⇐ 5     #
+rAYLIB_VERSION_MINOR ⇐ 0     #
+rAYLIB_VERSION_PATCH ⇐ 0     #
+rAYLIB_VERSION       ⇐ "5.0" #
 
 configFlags ⇐ { # System/Window config flags
   vSYNC_HINT               ⇐ 64     # Set to try enabling V-Sync on GPU
@@ -487,12 +493,12 @@ glyphInfo ⇐ ⟨ # GlyphInfo, font characters glyphs info
   image # image     # Character image data
 ⟩
 font ⇐ ⟨ # Font, font texture and GlyphInfo array data
-  i                 # baseSize      # Base size (default chars height)
-  i                 # glyphCount    # Number of glyph characters
-  i                 # glyphPadding  # Padding around the glyph characters
-  texture2D         # texture       # Texture atlas containing the glyphs
-  ptr⊣"*"∾rectangle # recs          # Rectangles in texture for the glyphs
-  ptr⊣"*"∾glyphInfo # glyphs        # Glyphs info data
+  i             # baseSize      # Base size (default chars height)
+  i             # glyphCount    # Number of glyph characters
+  i             # glyphPadding  # Padding around the glyph characters
+  texture2D     # texture       # Texture atlas containing the glyphs
+  "*"∾rectangle # recs          # Rectangles in texture for the glyphs
+  "*"∾glyphInfo # glyphs        # Glyphs info data
 ⟩
 camera3D ⇐ ⟨ # Camera, defines position/orientation in 3d space
   v3 # position    # Camera position
@@ -509,25 +515,25 @@ camera2D ⇐ ⟨ # Camera2D, defines position/orientation in 2d space
   f  # zoom      # Camera zoom (scaling), should be 1.0f by default
 ⟩
 mesh ⇐ ⟨ # Mesh, vertex data and vao/vbo
-  i          # vertexCount    # Number of vertices stored in arrays
-  i          # triangleCount  # Number of triangles stored (indexed or not)
-  ptr⊣"*"∾f  # vertices       # Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
-  ptr⊣"*"∾f  # texcoords      # Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
-  ptr⊣"*"∾f  # texcoords2     # Vertex texture second coordinates (UV - 2 components per vertex) (shader-location = 5)
-  ptr⊣"*"∾f  # normals        # Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)
-  ptr⊣"*"∾f  # tangents       # Vertex tangents (XYZW - 4 components per vertex) (shader-location = 4)
-  ptr⊣ustr   # colors         # Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
-  ptr⊣"*u16" # indices        # Vertex indices (in case vertex data comes indexed)
-  ptr⊣"*"∾f  # animVertices   # Animated vertex positions (after bones transformations)
-  ptr⊣"*"∾f  # animNormals    # Animated normals (after bones transformations)
-  ptr⊣ustr   # boneIds        # Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning)
-  ptr⊣"*"∾f  # boneWeights    # Vertex bone weight, up to 4 bones influence by vertex (skinning)
-  u          # vaoId          # OpenGL Vertex Array Object id
-  ptr⊣"*"∾u  # vboId          # OpenGL Vertex Buffer Objects id (default vertex data)
+  i      # vertexCount    # Number of vertices stored in arrays
+  i      # triangleCount  # Number of triangles stored (indexed or not)
+  "*"∾f  # vertices       # Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
+  "*"∾f  # texcoords      # Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
+  "*"∾f  # texcoords2     # Vertex texture second coordinates (UV - 2 components per vertex) (shader-location = 5)
+  "*"∾f  # normals        # Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)
+  "*"∾f  # tangents       # Vertex tangents (XYZW - 4 components per vertex) (shader-location = 4)
+  ustr   # colors         # Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
+  "*u16" # indices        # Vertex indices (in case vertex data comes indexed)
+  "*"∾f  # animVertices   # Animated vertex positions (after bones transformations)
+  "*"∾f  # animNormals    # Animated normals (after bones transformations)
+  ustr   # boneIds        # Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning)
+  "*"∾f  # boneWeights    # Vertex bone weight, up to 4 bones influence by vertex (skinning)
+  u      # vaoId          # OpenGL Vertex Array Object id
+  "*"∾u  # vboId          # OpenGL Vertex Buffer Objects id (default vertex data)
 ⟩
 shader ⇐ ⟨ # Shader
-  u         # id    # Shader program id
-  ptr⊣"*"∾i # locs  # Shader locations array (RL_MAX_SHADER_LOCATIONS)
+  u     # id    # Shader program id
+  "*"∾i # locs  # Shader locations array (RL_MAX_SHADER_LOCATIONS)
 ⟩
 materialMap ⇐ ⟨ # MaterialMap
   texture2D # texture  # Material map texture
@@ -535,9 +541,9 @@ materialMap ⇐ ⟨ # MaterialMap
   f         # value    # Material map value
 ⟩
 material ⇐ ⟨ # Material, includes shader and maps
-  shader              # shader  # Material shader
-  ptr⊣"*"∾materialMap # maps    # Material maps array (MAX_MATERIAL_MAPS)
-  "[4]"∾f             # params  # Material generic parameters (if required)
+  shader          # shader  # Material shader
+  "*"∾materialMap # maps    # Material maps array (MAX_MATERIAL_MAPS)
+  "[4]"∾f         # params  # Material generic parameters (if required)
 ⟩
 transform ⇐ ⟨ # Transform, vertex transformation data
   v3         # translation  # Translation
@@ -549,22 +555,22 @@ boneInfo ⇐ ⟨ # Bone, skeletal animation bone
   i         # parent  # Bone parent
 ⟩
 model ⇐ ⟨ # Model, meshes, materials and animation data
-  matrix            # transform      # Local transform matrix
-  i                 # meshCount      # Number of meshes
-  i                 # materialCount  # Number of materials
-  ptr⊣"*"∾mesh      # meshes         # Meshes array
-  ptr⊣"*"∾material  # materials      # Materials array
-  ptr⊣"*"∾i         # meshMaterial   # Mesh material number
-  i                 # boneCount      # Number of bones
-  ptr⊣"*"∾boneInfo  # bones          # Bones information (skeleton)
-  ptr⊣"*"∾transform # bindPose       # Bones base transformation (pose)
+  matrix        # transform      # Local transform matrix
+  i             # meshCount      # Number of meshes
+  i             # materialCount  # Number of materials
+  "*"∾mesh      # meshes         # Meshes array
+  "*"∾material  # materials      # Materials array
+  "*"∾i         # meshMaterial   # Mesh material number
+  i             # boneCount      # Number of bones
+  "*"∾boneInfo  # bones          # Bones information (skeleton)
+  "*"∾transform # bindPose       # Bones base transformation (pose)
 ⟩
 modelAnimation ⇐ ⟨ # ModelAnimation
-  i                  # boneCount   # Number of bones
-  i                  # frameCount  # Number of animation frames
-  ptr⊣"*"∾boneInfo   # bones       # Bones information (skeleton)
-  ptr⊣"**"∾transform # framePoses  # Poses array by frame
-  "[32]"∾u8          # name        # Animation name
+  i              # boneCount   # Number of bones
+  i              # frameCount  # Number of animation frames
+  "*"∾boneInfo   # bones       # Bones information (skeleton)
+  "**"∾transform # framePoses  # Poses array by frame
+  "[32]"∾u8      # name        # Animation name
 ⟩
 ray ⇐ ⟨ # Ray, ray for raycasting
   v3 # position   # Ray position (origin)
@@ -628,9 +634,9 @@ vrStereoConfig ⇐ ⟨ # VrStereoConfig, VR stereo rendering configuration for s
   "[2]"∾f      # scaleIn            # VR distortion scale in
 ⟩
 filePathList ⇐ ⟨ # File path list
-  u           # capacity  # Filepaths max entries
-  u           # count     # Filepaths entries count
-  ptr⊣"*"∾str # paths     # Filepaths entries
+  u       # capacity  # Filepaths max entries
+  u       # count     # Filepaths entries count
+  "*"∾str # paths     # Filepaths entries
 ⟩
 automationEvent ⇐ ⟨ # Automation event
   u       # frame   # Event frame
@@ -638,9 +644,9 @@ automationEvent ⇐ ⟨ # Automation event
   "[4]"∾i # params  # Event parameters (if required)
 ⟩
 automationEventList ⇐ ⟨ # Automation event list
-  u                       # capacity  # Events max entries (MAX_AUTOMATION_EVENTS)
-  u                       # count     # Events entries count
-  ptr⊣"*"∾automationEvent # events    # Events entries
+  u                   # capacity  # Events max entries (MAX_AUTOMATION_EVENTS)
+  u                   # count     # Events entries count
+  "*"∾automationEvent # events    # Events entries
 ⟩
 
 initWindow                      ⇐                         "InitWindow"                      _R⟨i⋄i⋄str⟩                                       # width height title                                                # Initialize window and OpenGL context
@@ -742,6 +748,8 @@ pollInputEvents                 ⇐                         "PollInputEvents"   
 waitTime                        ⇐                         "WaitTime"                        _R⟨"f64"⟩                                         # seconds                                                           # Wait for some time (halt program execution)
 setRandomSeed                   ⇐                         "SetRandomSeed"                   _R⟨u⟩                                             # seed                                                              # Set the seed for the random number generator
 getRandomValue                  ⇐ i                       "GetRandomValue"                  _R⟨i⋄i⟩                                           # min max                                                           # Get a random value between min and max (both included)
+loadRandomSequence              ⇐ (ptr⊣"*"∾i)             "LoadRandomSequence"              _R⟨u⋄i⋄i⟩                                         # count min max                                                     # Load random values sequence, no values repeated
+unloadRandomSequence            ⇐                         "UnloadRandomSequence"            _R⟨"*"∾i⟩                                         # sequence                                                          # Unload random values sequence
 takeScreenshot                  ⇐                         "TakeScreenshot"                  _R⟨str⟩                                           # fileName                                                          # Takes a screenshot of current screen (filename extension defines format)
 setConfigFlags                  ⇐                         "SetConfigFlags"                  _R⟨u⟩                                             # flags                                                             # Setup init configuration flags (view FLAGS)
 openURL                         ⇐                         "OpenURL"                         _R⟨str⟩                                           # url                                                               # Open URL with default system browser (if available)
