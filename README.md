@@ -5,6 +5,17 @@ It inter-ops with [Raylib](https://github.com/raysan5/raylib), but changes a lot
 Breaking changes to any feature in raylib.bqn should be expected for now, as this library is very young and experimental. 
 raylib.ffi is only for bindings and therefore shouldn't change, so you can probably rely on those, but no guarantees.
 
+# TEMPORARY:
+(Current time: 15:47:21 UTC Monday, 6 November 2023)
+
+rayed-bqn update in 6 hours with breaking changes:
+
+I will be updating `rayffi.bqn` with breaking changes in 6 hours, minimum. this means that any users of the library who want to stay updated need to know how to fix any issues if they occour.
+The issues should be easy to solve for me since i know which functions were changed, so if anyone needs help they can ask me.
+
+note, functions in `raylib.bqn` should keep working, since the push where i edit rayffi.bqn i will also be updating raylib.bqn to have it keep working.
+I will also fix all examples in the push, so they will keep working.
+
 # Getting started
 
 ## Windows
