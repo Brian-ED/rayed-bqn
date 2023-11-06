@@ -1,7 +1,8 @@
-NestedStructToStr ← {
+on ← 0
+NestedStructToStr ⇐ {
   1≥≡𝕩?𝕩;
-  IsPtr ← ("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑
-  ptr⍟IsPtr⍟(⟨⟩≢≢)¨ (m¬⊸/𝕩)∾S𝕊¨𝕩/˜m←×≡¨𝕩
+  IsPtr ← ("ustr"≡¯4⊸↑)∨('*'≡⊑)∨"str"≡¯3⊸↑
+  (m¬⊸/𝕩)∾'{'∾'}'«∾','∾¨𝕊¨ptr⍟IsPtr⍟(⟨⟩≢≢)¨𝕩/˜m←×≡¨𝕩
 }
 
 # Makes an importer that improves the ffi function creation syntax
@@ -16,20 +17,17 @@ MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
       •term.Flush@
       𝕨•FFI𝕩
     }
-    func ← path •FFI⎊HandleError (IntoStr outType)‿funcName∾a
+    func ← path •FFI⎊HandleError ⟨ NestedStructToStr outType⋄funcName⟩∾a
     m ← str⊸≡¨a
     {𝕏⊣•term.Flush∘•Out∘funcName}⍟debug {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
   }
 }
 
-P ⇐ '*'⊸∾             # '*' means a pointer
-S ⇐ {'{'∾'}'«∾','∾¨𝕩} # Parse types into one struct
-
 # predefined C types
 c ⇐ "i8"
 bool ⇐ "i8"
 i‿f‿u‿i8‿·‿u8 ⇐ ⥊"32"‿"8"∾˜⌜"ifu"
-str‿uStr ⇐ P¨"iu"∾¨<"8:c8"
+str‿uStr ⇐ '*'⊸∾¨"iu"∾¨<"8:c8"
 ptr ⇐ "*:i8"
 
 #------------------------------------------------------------------------------------

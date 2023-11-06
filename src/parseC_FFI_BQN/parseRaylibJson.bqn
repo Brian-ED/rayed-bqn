@@ -34,25 +34,17 @@ SHErr "./a.out"‿"-i"‿raylibHeaderPath‿"-f"‿"JSON"‿"-o"‿raylibJsonTem
 #raylib: 
 #cc raylib_parser.c && ./a.out -i ./inp-out/raylib.h -f JSON -o ./inp-out/raylib.json && rm ./a.out
 
-mapArgTypes ← {𝕊[bqn,c]:
-  remap ← {𝕎𝕏}´{(𝕨⊸≡∧"*"≡1↑⊣)◶⟨⋈⋄𝕩⋈˜1↓⊣⟩´}´¨⟨
-    "unsigned char"  ‿"ustr"
-    "char"           ‿"str"
-    "void"           ‿"ptr"
-    "rAudioBuffer"   ‿"ptr"
-    "rAudioProcessor"‿"ptr"
-  ⟩
-  {
-    constText←"const "
-    consts←constText⊸(⊣≡≠⊸↑)¨𝕩
-    # consts∨∧´¨'*'≠𝕩
-    cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
-    SwitchOrder ← {⌽⌾((𝕩∊'0'+↕10)⊸/)1⊸⌽⌾((𝕩∊"[]")⊸/)𝕩}⌽
-    [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
-    AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
-    removed AddRemoved¨ kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
-  }
-} ⍉[
+remap ← {𝕎𝕏}´{(𝕨⊸≡∧"*"≡1↑⊣)◶⟨⋈⋄𝕩⋈˜1↓⊣⟩´}´¨⟨
+  "unsigned char"  ‿"ustr"
+  "char"           ‿"str"
+  "void"           ‿"ptr"
+  "rAudioBuffer"   ‿"ptr"
+  "rAudioProcessor"‿"ptr"
+⟩
+constText←"const "
+SwitchOrder ← {⌽⌾((𝕩∊'0'+↕10)⊸/)1⊸⌽⌾((𝕩∊"[]")⊸/)𝕩}⌽
+
+typeReplacements ← ⍉[
   # remove since they're not defined
   "ptr"‿"AudioCallback"
   "ptr"‿"LoadFileDataCallback"
@@ -78,6 +70,30 @@ mapArgTypes ← {𝕊[bqn,c]:
   " "      ‿"void"
 ]
 
+mapArgTypes ← {
+  [bqn,c] ← typeReplacements
+  {
+    consts←constText⊸(⊣≡≠⊸↑)¨𝕩
+    s ← ¬consts∨¬⊑¨'*'⊸∊¨𝕩
+    cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
+    [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
+    AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
+    replaced ← kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
+    removed AddRemoved¨ replaced
+  }
+}
+
+MapStructTypes ← {
+  [bqn,c] ← typeReplacements
+  consts←constText⊸(⊣≡≠⊸↑)¨𝕩
+  s ← ¬consts∨¬⊑¨'*'⊸∊¨𝕩
+  cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
+  [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
+  AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
+  replaced ← kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
+  removed AddRemoved¨ replaced
+}
+
 mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾0}}⍉[  
   "v4"‿"Vector4"
   "v3"‿"Vector3"
@@ -85,7 +101,18 @@ mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏
 ]
 
 _Time ← {•Show 𝔽•_timed𝕩⋄𝔽𝕩}
-MapFuncReturnType ← {'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨·"ptr⊣"⊸∾⍟(("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑)¨ MapArgTypes
+mapFuncReturnType ← {
+  [bqn,c] ← typeReplacements
+  {
+    consts←constText⊸(⊣≡≠⊸↑)¨𝕩
+    s ← ¬consts∨¬⊑¨'*'⊸∊¨𝕩
+    cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
+    [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
+    AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
+    replaced ← kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
+    {'('∾𝕩∾')'}⍟(∨´"∾⊣"⊸∊)¨"ptr⊣"⊸∾⍟(("ustr"≡¯4⊸↑)∨∨´∘=⟜'*'∨"str"≡¯3⊸↑)¨ removed AddRemoved¨ replaced
+  }
+}
 
 defines‿structs‿aliases‿enums‿callbacks‿functions←{
   x←json.Parse •FChars raylibJsonTempLoc
@@ -99,30 +126,27 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
   ⋈"r ⇐ MakeImporter """∾raylibPath∾'"'
   ⋈""
   { # defines
-    Parse ← ""‿""‿" ⇐ "‿" # "⟨LowerNames¨,⟨⟩¨,•Repr¨,⊢⟩_MetaParse⊢
     exclTypes  ← "GUARD"‿"MACRO"‿"UNKNOWN"‿"FLOAT_MATH"‿"COLOR"
-    Filter     ← {𝕊n‿t‿v‿d: # name‿type‿val‿desc
-      ¬∨´⟨"PI"≡n, ∨´t⊸≡¨exclTypes, ⟨⟩≡v ⟩
+    Filter ← {𝕊name‿type‿val‿desc:
+      ¬∨´⟨"PI"≡name, ∨´type⊸≡¨exclTypes, ⟨⟩≡val ⟩
     }
-    <˘Parse Filter˘⊸/>defines
+    filtered ← Filter˘⊸/>defines
+    <˘""‿""‿" ⇐ "‿" # "⟨LowerNames¨,⟨⟩¨,•Repr¨,⊢⟩_MetaParse filtered
   }
   ⋈""
   { # enums
     [names,descriptions,values]←⍉>enums
     tabled ← >¨⊢˝¨¨ values
     prefixesRemoved ← {𝕩↓¨˜+´∧˝˘∧`(⊏=⍉)>𝕩↑¨˜⌊´≠¨𝕩}⌾(⊏˘)¨tabled
-    bodys ← (⥊(nl∾"  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse⊢)¨prefixesRemoved
+    bodys ← (<˘("  ")‿" ⇐ "‿"  # "⟨LowerNames¨,•Repr¨,⊢⟩_MetaParse⊢)¨prefixesRemoved
     headers ← names LowerNames⊸∾¨<˘" ⇐ { # "⊸∾˘Box descriptions
-    ∾nl⊸((⊢-˜+`×¬)∘=⊔⊢)¨ headers∾¨∾⟜nl‿'}'¨bodys
+    ∾headers<⊸∾¨∾⟜⟨"}"⟩¨bodys
   }
   ⋈""
   { # structs
-    ParseStruct ← {
-      ⟨"⟩"⟩∾˜<˘"  "‿" # "‿"  # "⟨MapArgTypes,⊢,⊢⟩_MetaParse >𝕩
-    }
     [names,descriptions,fields]←⍉>structs
     headers ← (MapStructNames names) ∾⟜" ⇐ ⟨ # "⊸∾¨ descriptions
-    bodys ← ParseStruct¨⊢˝¨¨fields
+    bodys ← {⟨"⟩"⟩∾˜<˘"  "‿" # "‿"  # "⟨MapStructTypes,⊢,⊢⟩_MetaParse >𝕩}¨⊢˝¨¨fields
     assembled ← headers <⊸∾¨ bodys
     aliasLines←»⊸∨∘≠⟜' '⊸/¨<˘""‿" ⇐ "‿" # "⟨LowerNames¨,MapArgTypes,⊢⟩_MetaParse ⌽⌾(2⊸↑)˘>⊢˝¨aliases
     p←⊑¨⊢˝¨aliases
@@ -130,11 +154,27 @@ outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
   }
   ⋈""
   { # functions
+    #•Show¨⌾(330‿307⊸⊏)
+    s ← {
+      ((⊑'*'⊸∊)¨∧constText⊸(⊣≢≠⊸↑)¨)1‿0⊸⊑¨¯1⊑𝕩
+    }¨∾⟜⟨⟨⟩⟩⍟(3=≠)¨functions
+    sLines←∨´¨s
+
+    s2 ← {
+      "const void *"⊸≡¨1‿0⊸⊑¨¯1⊑𝕩
+    }¨∾⟜⟨⟨⟩⟩⍟(3=≠)¨functions
+    s2Lines←∨´¨s2
+    !∧´¬s2Lines∧sLines # I don't want the lines to collide
+    
+    sAllLinesExtended ← (↕∘≠⊸+⌾/↑˜+´+≠)s2Lines∨sLines
+    s1LinesExtended‿s2LinesExtended ← s2Lines{((+´+≠)𝕩+𝕨)↑𝕨⊸{((/𝕨)¬∘∊˜𝕩)/𝕩+↕≠𝕩}⌾/𝕨+𝕩}{𝔽⋈𝔽˜}sLines
+    MakeConstDistinct ← (sAllLinesExtended¬⊸×(1+s2Lines∨sLines)/s+2×s2){'⟩'∾˜1↓∾'⋄'∾¨(⊑"ptr"‿"ustr"‿"str"⊐<)◶⟨"""&u8"""⋄"""&u8"""⋄"""&u8:c8"""⋄"""&"⊸∾"""*"⊸∾⁼⟩¨⌾((1=𝕨)⊸/)"""*i8"""¨⌾((2=𝕨)⊸/)𝕩}¨⊢
+
     <˘""‿" ⇐ "‿""""‿" _R⟨"‿"#"‿" # "⟨
-      LowerNames¨ ⋄ MapFuncReturnType ⋄ ∾⟜'"'¨ ⋄ ('⟩'∾˜1↓·∾'⋄'∾¨MapArgTypes)¨ ⋄ (∾' '⊸∾¨)¨ ⋄ ⊢
+      ∾⟜"Raw"¨⌾((»s2LinesExtended)⊸/)·∾⟜"Ref"¨⌾((»s1LinesExtended)⊸/)LowerNames¨ ⋄ MapFuncReturnType ⋄ ∾⟜'"'¨ ⋄ MakeConstDistinct MapArgTypes¨ ⋄ (∾' '⊸∾¨)¨ ⋄ ⊢
     ⟩_MetaParse{
       0‿2‿0‿3‿4‿1⊏(3↑𝕩)∾⍉{<˘⍉∘‿2⥊⊢˝˘>⊑𝕩}˘⊢˝𝕩
-    }⌾⍉>∾⟜⟨⟨⟩⟩⍟(3=≠)¨functions
+    }⌾⍉(1+s2Lines∨sLines)/>∾⟜⟨⟨⟩⟩⍟(3=≠)¨functions
   }
 ⟩
-#•file.Remove raylibJsonTempLoc
+•file.Remove raylibJsonTempLoc
