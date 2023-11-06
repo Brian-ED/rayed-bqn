@@ -60,7 +60,8 @@ Game ← {𝕤
 
   r.rayffi.UnloadFont font
 }
-0.5 Game window._openAs "BQN Repl"
+window.SetSize 0.5
+Game window._openAs "BQN Repl"
 
 # white _Rectangle˜100‿100˙
 # Back@
