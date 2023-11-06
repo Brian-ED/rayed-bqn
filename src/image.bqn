@@ -33,7 +33,7 @@ uncompressedFormats ← ⟨
 ⟩
 
 ToArr ← {𝕨𝕊raylibImg: resultFormat←𝕨⊣@
-  dataPtr‿width‿hight‿mipmaps‿format ← ⊑⊑rayffi.ImageFormat ⟨𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
+  dataPtr‿width‿hight‿mipmaps‿format ← ⊑⊑rayffi.ImageFormatRef ⟨𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   {𝕤
     0!˜×∘≠◶⟨
       "Format given doesn't exist"

@@ -24,7 +24,7 @@ Start ← {𝕊tex:
     }
     pixels ← +˝⌾(×˜)center-˜{𝕩+𝕩×5÷˜•math.Sin frame×step}w(⌊|≍÷˜)size⥊↕×´size
     PerFrame ← {𝕊tex:
-        r.rayffi.UpdateTexture tex⋈⥊PerPixel pixels
+        r.rayffi.UpdateTextureRaw tex⋈¯128+256|128+⥊PerPixel pixels
 
         c.white‿tex‿scale‿0 d.Texture 0‿0
         c.white‿font‿30 d.Text 20‿20⋈•Repr∘window.fps.Get⊸∾" FPS"

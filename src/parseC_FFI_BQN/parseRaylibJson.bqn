@@ -3,7 +3,7 @@
 ffiUtilsPath←⊑•args∾<"../ffiUtils.bqn"
 
 raylibJsonTempLoc ← "inp-out/raylib.json"
-outputLocation ← "./inp-out/rayffi.bqn"
+outputLocation ← "../../rayffi.bqn"
 
 # util functions
 nl ← @+10 # newline
@@ -16,7 +16,7 @@ SHErr ← {exitcode‿stdout‿stderr←•SH𝕩
 }
 
 # imports
-⟨raylibPath⟩ ← •Import"../loadConfig.bqn"
+⟨raylibPath⟩ ← •Import "../loadConfig.bqn"
 json ← •Import "../imports/bqn-libs/json.bqn"
 
 # getting raylib.h path
@@ -44,7 +44,13 @@ remap ← {𝕎𝕏}´{(𝕨⊸≡∧"*"≡1↑⊣)◶⟨⋈⋄𝕩⋈˜1↓⊣�
 constText←"const "
 SwitchOrder ← {⌽⌾((𝕩∊'0'+↕10)⊸/)1⊸⌽⌾((𝕩∊"[]")⊸/)𝕩}⌽
 
-typeReplacements ← ⍉[
+shortendStructNames←[
+  "v2"‿"Vector2"
+  "v3"‿"Vector3"
+  "v4"‿"Vector4"
+]
+
+typeReplacements ← ⍉shortendStructNames∾[
   # remove since they're not defined
   "ptr"‿"AudioCallback"
   "ptr"‿"LoadFileDataCallback"
@@ -52,11 +58,6 @@ typeReplacements ← ⍉[
   "ptr"‿"SaveFileDataCallback"
   "ptr"‿"SaveFileTextCallback"
   "ptr"‿"TraceLogCallback"
-
-  # shorten struct names
-  "v2"‿"Vector2"
-  "v3"‿"Vector3"
-  "v4"‿"Vector4"
 
   """f64"""‿"double"
   """i64"""‿"long"
@@ -94,19 +95,16 @@ MapStructTypes ← {
   removed AddRemoved¨ replaced
 }
 
-mapStructNames ← {𝕊[bqn,c]:{𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾0}}⍉[  
-  "v4"‿"Vector4"
-  "v3"‿"Vector3"
-  "v2"‿"Vector2"
-]
+mapStructNames ← {
+  [bqn,c]←⍉shortendStructNames
+  {𝕩LowerNames∘⊣⍟(0⊸≡)¨(c⊐𝕩)⊏bqn∾0}
+}
 
 _Time ← {•Show 𝔽•_timed𝕩⋄𝔽𝕩}
 mapFuncReturnType ← {
   [bqn,c] ← typeReplacements
   {
-    consts←constText⊸(⊣≡≠⊸↑)¨𝕩
-    s ← ¬consts∨¬⊑¨'*'⊸∊¨𝕩
-    cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
+    cleaned←𝕩↓˜¨constText≠⊸×constText⊸(⊣≡≠⊸↑)¨𝕩
     [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
     AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
     replaced ← kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
