@@ -60,7 +60,8 @@ U32ToI8 ⇐ ⟨@•FFI"*:i8"‿"memcpy"‿"&i32"‿"*u32"‿"u64",@•FFI"*:i8"�
   𝔽_𝕣⁼𝕩:·‿F←𝕗⋄⊑1⊑F{⟨0⟩‿𝕩‿4} ⟨8‿'i'⋄32‿'i'⟩•bit._cast 𝕩
 }
 
-r ⇐ MakeImporter "/usr/local/lib/libraylib.so"
+⟨raylibPath⟩ ← •Import "src/loadConfig.bqn"
+r ⇐ MakeImporter raylibPath
 
 rAYLIB_VERSION_MAJOR ⇐ 5     #
 rAYLIB_VERSION_MINOR ⇐ 0     #

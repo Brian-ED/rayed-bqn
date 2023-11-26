@@ -121,7 +121,8 @@ defines‿structs‿aliases‿enums‿callbacks‿functions←{
 outputLocation •FLines ∨`⌾⌽∘≠⟜' '⊸/¨∾⟨
   •FLines "topOfRayffi.bqn"
   ⋈""
-  ⋈"r ⇐ MakeImporter """∾raylibPath∾'"'
+  ⋈"⟨raylibPath⟩ ← •Import ""src/loadConfig.bqn"""
+  ⋈"r ⇐ MakeImporter raylibPath"
   ⋈""
   { # defines
     exclTypes  ← "GUARD"‿"MACRO"‿"UNKNOWN"‿"FLOAT_MATH"‿"COLOR"
