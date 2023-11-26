@@ -18,7 +18,7 @@ git submodule update --init --recursive
 cd ..
 ```
 
-second download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-4.5.0_win64_mingw-w64` and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
+second download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-VERSION_win64_mingw-w64`(replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
 
 ## Linux
 
@@ -54,6 +54,7 @@ I have never tested mac, but it could be similar to Linux.
 
 Raylib version 4.5.0 built from source on Pop!_OS.
 Raylib version 4.5.0 built from source on Ubuntu 22.04.2 LTS.
+Raylib version 5.0.0 built from source on Ubuntu 22.04.2 LTS.
 
 ## Mac
 
