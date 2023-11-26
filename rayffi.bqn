@@ -20,15 +20,14 @@ MakeImporter ⇐ {𝕨𝕊path: debug←𝕨⊣0
     }
     func ← path •FFI⎊HandleError ⟨ NestedStructToStr outType⋄funcName⟩∾a
     m ← str⊸≡¨a
-    {𝕏⊣•term.Flush∘•Out∘funcName}⍟debug {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
+    •term.Flush∘@∘•Out∘funcName⍟debug⊸⊢ {𝕏∾⟜@}⍟(a≡⋈'>'∾str) {𝕏∾⟜@¨⌾(m⊸/)}⍟(∨´m) func
   }
 }
 
 # predefined C types
 c ⇐ "i8"
 bool ⇐ "i8"
-i‿f‿u‿i8‿·‿· ⇐ ⥊"32"‿"8"∾˜⌜"ifu"
-u8←"u8"
+i‿f‿u‿i8‿·‿u8 ⇐ ⥊"32"‿"8"∾˜⌜"ifu"
 str‿uStr ⇐ '*'⊸∾¨"iu"∾¨<"8:c8"
 ptr ⇐ "*:i8"
 
