@@ -2,8 +2,9 @@
 
 ffiUtilsPath←⊑•args∾<"../ffiUtils.bqn"
 
-raylibJsonTempLoc ← "inp-out/raylib.json"
-outputLocation ← "../../rayffi.bqn"
+raylibJsonTempLoc ← •file.At "inp-out/raylib.json"
+outputLocation ← •file.At "../../rayffi.bqn"
+binLocation ← •file.At"a.out"
 
 # util functions
 nl ← @+10 # newline
@@ -24,10 +25,9 @@ raylibHeaderPath ← "include/raylib.h"∾˜"lib/"∾˜⁼{𝕩↓˜-⊑⊐⟜1�
 (•file.Exists raylibHeaderPath)!˜"raylib header file expected at "∾raylibHeaderPath
 
 # compile c parser if non existant
-
-SHErr "cc"‿"raylib_parser.c"
-SHErr "./a.out"‿"-i"‿raylibHeaderPath‿"-f"‿"JSON"‿"-o"‿raylibJsonTempLoc
-•file.Remove"a.out"
+SHErr ⟨"cc"⋄•file.At"raylib_parser.c"⋄"-o"⋄binLocation⟩
+SHErr binLocation‿"-i"‿raylibHeaderPath‿"-f"‿"JSON"‿"-o"‿raylibJsonTempLoc
+•file.Remove binLocation
 
 #raygui:
 #cc raylib_parser.c && ./a.out -i ./inp-out/raygui.c -f JSON -o ./inp-out/raygui.json && rm ./a.out
