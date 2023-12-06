@@ -1,10 +1,9 @@
 ## Metaprogram rayffi.bqn automatically.
 
-ffiUtilsPath←⊑•args∾<"../ffiUtils.bqn"
-
 raylibJsonTempLoc ← •file.At "inp-out/raylib.json"
 outputLocation ← •file.At "../../rayffi.bqn"
 binLocation ← •file.At"a.out"
+parserPath ← •file.At"raylib_parser.c"
 
 # util functions
 nl ← @+10 # newline
@@ -25,7 +24,7 @@ raylibHeaderPath ← "include/raylib.h"∾˜"lib/"∾˜⁼{𝕩↓˜-⊑⊐⟜1�
 (•file.Exists raylibHeaderPath)!˜"raylib header file expected at "∾raylibHeaderPath
 
 # compile c parser if non existant
-SHErr ⟨"cc"⋄•file.At"raylib_parser.c"⋄"-o"⋄binLocation⟩
+SHErr "cc"‿parserPath‿"-o"‿binLocation
 SHErr binLocation‿"-i"‿raylibHeaderPath‿"-f"‿"JSON"‿"-o"‿raylibJsonTempLoc
 •file.Remove binLocation
 
@@ -77,10 +76,9 @@ mapArgTypes ← {
     consts←constText⊸(⊣≡≠⊸↑)¨𝕩
     s ← ¬consts∨¬⊑¨'*'⊸∊¨𝕩
     cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
-    [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
-    AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
+    [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/∨`⌾⌽∘≠⟜' '⊸/⊸⋈SwitchOrder∘/)¨cleaned
     replaced ← kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
-    removed AddRemoved¨ replaced
+    removed {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}¨ replaced
   }
 }
 
@@ -89,7 +87,7 @@ MapStructTypes ← {
   consts←constText⊸(⊣≡≠⊸↑)¨𝕩
   s ← ¬consts∨¬⊑¨'*'⊸∊¨𝕩
   cleaned←constText⊸∾⁼¨⌾(consts⊸/)𝕩
-  [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/¯1⊸↓⍟(" "≡¯1⊸↑)⊸⋈SwitchOrder∘/)¨cleaned
+  [kept,removed] ← 2‿∘⥊⍉Remap⌾⌽˘> ∨`∘∊⟜"[*"⊸(¬⊸/∨`⌾⌽∘≠⟜' '⊸/⊸⋈SwitchOrder∘/)¨cleaned
   AddRemoved ← {""𝕊𝕩:𝕩;'"'≡⊑𝕩?𝕨⊸∾⌾('"'⊸∾⁼)𝕩;'"'∾𝕨∾"""∾"∾𝕩}
   replaced ← kept LowerNames∘⊣⍟(0⊸≡)¨(c⊐kept)⊏bqn∾0
   removed AddRemoved¨ replaced
