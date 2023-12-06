@@ -33,9 +33,7 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
 rayFFI  ⇐ •Import⎊{𝕤
-  •Out "Error running rayffi.bqn with error:"
-  •Out •CurrentError@
-  •Out ""
+  •Out "Error running rayffi.bqn"
   •Out "Attempting reparsing for automatic fix."
   •Import "src/parseC_FFI_BQN/parseRaylibJson.bqn"
   ⟨⟩•Import 𝕩
