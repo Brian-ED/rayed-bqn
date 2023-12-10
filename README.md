@@ -68,7 +68,7 @@ That should be immune to any raylib version changes that occur if you ever upgra
 If you don't use homebrew you can use the normal linux instructions above to clone and build a local raylib installation. Just set the `raylibPath` accordingly. Note you'll need raylib's header file, not just the `.dylib`, for the next step.
 
 ### If you receive errors about undefined symbols
-Undefined symbols usually occur on foot of raylib library updates (though raylib is pretty stable). To fix these, you need to re-parse the yarlib header to update your local auto-generated wrapper. Run the following:
+Undefined symbols usually occur on foot of raylib library updates (though raylib is pretty stable). To fix these, you need to re-parse the raylib header to update your local auto-generated wrapper. Run the following:
 
 ```SH
 BQN src/parseC_FFI_BQN/parseRaylibJson.bqn
