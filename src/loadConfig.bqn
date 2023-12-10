@@ -1,6 +1,7 @@
 # Default paths
 raylibPath ⇐ •file.At {
   𝕊"windows": "../raylib/lib/raylib.dll"
+; 𝕊"darwin":  "/opt/homebrew/lib/libraylib.dylib" # macOS, assuming you're using homebrew
 ; 𝕊"linux":   "/usr/local/lib/libraylib.so" 
 ;             "/usr/local/lib/libraylib.so" 
 } •platform.os
