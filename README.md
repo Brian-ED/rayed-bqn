@@ -60,7 +60,7 @@ brew install raylib
 And the raylib `.dylib` and header files will be installed to the usual `/opt` locations. But you'll need to change your `config.txt` file to point at this location. You can just create a `config.txt` file in the root `rayed-bqn` folder, or try to run any of the examples (which will fail, but they'll create a `config.txt` file you can edit).
 In the `config.txt` file set `raylib` to point to the homebrew location as follows:
 ```
-raylibPath:/opt/homebrew/lib/libraylib.dylib
+raylibPath:/usr/local/opt/raylib/lib/libraylib.dylib
 ```
 
 That should be immune to any raylib version changes that occur if you ever upgrade your local installation.
