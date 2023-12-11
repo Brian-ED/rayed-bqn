@@ -456,177 +456,108 @@ funcLines ← apiDefine⊸(⊣≡≠⊸↑)¨lines
 #----------------------------------------------------------------------------------
 
 # Define info data
-defineInfo ← ⟨
-    "" # str  # Define name
-    @  # int  # Define type
-    "" # str  # Define value
-    "" # str  # Define description
-    0  # bool # Define is hex number (for types INT, LONG)
-⟩
 defineIndicies ← {name‿type‿value‿desc‿isHex←↕5}
 
-defines ← max_defines_to_parse⥊<defineInfo
-
-defineIndex ← 0
 defMacro ← "#define"
-{
+
+CheckHex ← ¬·∨´∊⟜(∾⟨'0'+↕10⋄'a'+↕6⋄'A'+↕6⋄"xL.+-"⟩)
+
+defines ← {
     linePtrs ← ↓⟜lines¨/defMacro⊸(⊣≡≠⊸↑)¨∨`∘∊⟜' '‿t⊸/¨lines
     loopedOver ← linePtrs
-    {𝕊linePtr:
-        •Show "  l awidwa"
-        defineArgs ← {∨`¬𝕩∊' '‿tab}⊸/{𝔽defMacro∾⁼𝔽}linePtr # Skip spaces and tabs, then defMacro, then spaces and tabs again
+    
+    # Skip duplicates
+    ∊∘{defineIndicies.name⊑𝕩}⊸/defines⊣{𝕊linePtr:
+        defineOut ← ⟨
+            "" # str  # Define name
+            @  # int  # Define type
+            "" # str  # Define value
+            "" # str  # Define description
+            0  # bool # Define is hex number (for types INT, LONG)
+        ⟩
+        LS ← {∨`¬𝕩∊' '‿tab} # leading spacing
+        nameAndArgs ← RS⊸/{𝔽defMacro∾⁼𝔽}linePtr # Skip spaces and tabs, then defMacro, then spaces and tabs again
 
         # Extract name
-        defineNameStart ← j
-        openBraces ← 0
-        While {𝕊:(∨´' '‿tab=j⊑linePtr)∧openBraces=0}‿{𝕤
-            openBraces+↩-´"()"=j⊑linePtr
-            j+↩1
-        }¨defineArgs
-        defineNameEnd ← j-1
-
-        # Skip duplicates
-        nameLen ← defineNameEnd - defineNameStart + 1;
+        defineNameStart ← linePtr-○≠nameAndArgs
         
-        isDuplicate←∨´{
-            n←defineIndicies.name⊑𝕩⊑defines
-            (nameLen=≠n) ∧ n ≡○(nameLen⊸↑) defineNameStart↓linePtr
-        }¨↕defineIndex
+        openBraces ← +`-˝"()"=⌜nameAndArgs
+        •SHow (1+⊐⟜')')⊸(↑⋈↓)"hell)oo"
+        
+        nameLen ← defineNameEnd ← (⌊´∘⊐⟜' '‿tab≤·⊑⊐⟜'(')◶⟨
+            1+⊐⟜')'
+            ⌊´⊐⟜' '‿tab
+        ⟩ nameAndArgs
 
-        ¬isDuplicate?
+        name‿args ← nameLen(↑⋈LS⊸/∘↓)nameAndArgs
 
-            # Determine type
-            {𝕊:  (defineIndicies.type⊑defineIndex⊑defines) ↩ macro}⍟⊢')'=defineNameEnd⊑linePtr
+        # Determine type
+        {𝕊:defineOut macro⌾(defineIndicies.type⊸⊑)↩}⍟⊢')'=¯1⊑name
+        {𝕊:defineOut guard⌾(defineIndicies.type⊸⊑)↩}⍟⊢(0=≠args)∨'/'=⊑args
 
-            While {𝕊:∨´' '‿tab=j⊑linePtr}‿{𝕊:j+↩1}; # Skip spaces and tabs after name
+        {'"'=⊑args? defineOut string⌾(defineIndicies.type⊸⊑)↩
+        ;args=○⊑"'"? defineOut char⌾(defineIndicies.type⊸⊑)↩
+        ;"CLITERAL(Color)"≡15↑args? defineOut color⌾(defineIndicies.type⊸⊑)↩
+        ;⊑args⊑⊸∊'0'+↕10? # Parsing numbers
+            isFloat‿isNumber‿isHex ← ⟨
+                ⊑∊⟜'.'
+                ⊑∊⟜'x'
+                CheckHex
+            ⟩{𝕎𝕩}¨<m←∧`∘¬∘∊⟜' '‿tab⊸/args
+            {𝕊:isFloat?
+                defineOut (double‿float⊑˜'f'=¯1⊑m)⌾(defineIndicies.type⊸⊑)↩
+            ;
+                defineOut (int‿long⊑˜'L'=¯1⊑m)⌾(defineIndicies.type⊸⊑)↩
+                defineOut isHex⌾(defineIndicies.isHex⊸⊑)↩
+            }⍟⊢isNumber
+        }
 
-            defineValueStart ← j
-            {𝕊:defines[defineIndex].type ↩ GUARD}⍟((linePtr[j] = '\0') || (linePtr[j] = '/'))@
-            if (linePtr[j] == '"') defines[defineIndex].type = STRING;
-            else if (linePtr[j] == ⊑"'") defines[defineIndex].type = CHAR;
-            else if (IsTextEqual(linePtr+j, "CLITERAL(Color)", 15)) defines[defineIndex].type = COLOR;
-            else if (isdigit(linePtr[j])) # Parsing numbers
-            {
-                bool isFloat = false, isNumber = true, isHex = false;
-                while ((linePtr[j] != ' ') && (linePtr[j] != '\t') && (linePtr[j] != '\0'))
-                {
-                    char ch = linePtr[j];
-                    if (ch == '.') isFloat = true;
-                    if (ch == 'x') isHex = true;
-                    if (!(isdigit(ch) ||
-                            ((ch >= 'a') && (ch <= 'f')) ||
-                            ((ch >= 'A') && (ch <= 'F')) ||
-                            (ch == 'x') ||
-                            (ch == 'L') ||
-                            (ch == '.') ||
-                            (ch == '+') ||
-                            (ch == '-'))) isNumber = false;
-                    j++;
-                }
-                if (isNumber)
-                {
-                    if (isFloat)
-                    {
-                        defines[defineIndex].type = (linePtr[j-1] == 'f')? FLOAT : DOUBLE;
-                    }
-                    else
-                    {
-                        defines[defineIndex].type = (linePtr[j-1] == 'L')? LONG : INT;
-                        defines[defineIndex].isHex = isHex;
-                    }
-                }
-            }
+        # Extracting value
+        fullValue ← ∨`⌾⌽∘¬∘∊⟜tab‿' '⊸/args/˜¬∨`0∾˜"//"⍷args
+        value ← fullValue↓˜-⊑defineOut.type∊long‿float # Remove number postfix
+        
+        defineOut value⌾(defineIndicies.value⊸⊑)↩
 
-            # Extracting value
-            while ((linePtr[j] != '\\') && (linePtr[j] != '\0') && !((linePtr[j] == '/') && (linePtr[j+1] == '/'))) j++;
-            int defineValueEnd = j-1;
-            while ((linePtr[defineValueEnd] == ' ') || (linePtr[defineValueEnd] == '\t')) defineValueEnd--; # Remove trailing spaces and tabs
-            if ((defines[defineIndex].type == LONG) || (defines[defineIndex].type == FLOAT)) defineValueEnd--; # Remove number postfix
-            int valueLen = defineValueEnd - defineValueStart + 1;
-            if (valueLen > 255) valueLen = 255;
+        # Extracting description
+        args←"diw // dwa"
+        desc ← ∨`∘≠⟜' '⊸/args↓˜2+⊑/"//"⍷args
+        defineOut desc⌾(defineIndicies.desc⊸⊑)↩
 
-            if (valueLen > 0) MemoryCopy(defines[defineIndex].value, &linePtr[defineValueStart], valueLen);
+        # Parse defines of type UNKNOWN to find calculated numbers
+        breakHappened←0⥊˜≠defineOut.value
+        {𝕤
+            largestType ← unknown
+            isMath ← 1
 
-            # Extracting description
-            if ((linePtr[j] == '/') && linePtr[j + 1] == '/')
-            {
-                j += 2;
-                while (linePtr[j] == ' ') j++;
-                int commentStart = j;
-                while ((linePtr[j] != '\\') && (linePtr[j] != '\0')) j++;
-                int commentEnd = j-1;
-                int commentLen = commentEnd - commentStart + 1;
-                if (commentLen > 127) commentLen = 127;
+            {𝕊c:
+                ch ← c⊑value
 
-                MemoryCopy(defines[defineIndex].desc, &linePtr[commentStart], commentLen);
-            }
-
-            # Parse defines of type UNKNOWN to find calculated numbers
-            if (defines[defineIndex].type == UNKNOWN)
-            {
-                int largestType = UNKNOWN;
-                bool isMath = true;
-                char *valuePtr = defines[defineIndex].value;
-
-                for (unsigned int c = 0; c < TextLength(valuePtr); c++)
-                {
-                    char ch = valuePtr[c];
-
-                    # Skip operators and whitespace
-                    if ((ch == '(') ||
-                        (ch == ')') ||
-                        (ch == '+') ||
-                        (ch == '-') ||
-                        (ch == '*') ||
-                        (ch == '/') ||
-                        (ch == ' ') ||
-                        (ch == '\t')) continue;
-
-                    # Read number operand
-                    else if (isdigit(ch))
-                    {
-                        bool isNumber = true, isFloat = false;
-                        while (!((ch == '(') ||
-                                    (ch == ')') ||
-                                    (ch == '*') ||
-                                    (ch == '/') ||
-                                    (ch == ' ') ||
-                                    (ch == '\t') ||
-                                    (ch == '\0')))
-                        {
-                            if (ch == '.') isFloat = true;
-                            if (!(isdigit(ch) ||
-                                ((ch >= 'a') && (ch <= 'f')) ||
-                                ((ch >= 'A') && (ch <= 'F')) ||
-                                (ch == 'x') ||
-                                (ch == 'L') ||
-                                (ch == '.') ||
-                                (ch == '+') ||
-                                (ch == '-')))
-                            {
-                                isNumber = false;
-                                break;
-                            }
-                            c++;
-                            ch = valuePtr[c];
+                # Skip operators and whitespace
+                ¬⊑ch∊"()+-*/ "∾tab?
+                    {ch∊'0'+↕10? # Read number operand
+                        isNumber‿isFloat ← 1‿0
+                        break←1
+                        While {𝕊:break∧CheckHex ch}‿{
+                            {𝕊:isFloat↩1}⍟⊢ch='.'
+                            CheckHex ch?
+                                isNumber ↩ 0
+                                break↩0
+                            ;
+                            c+↩1
+                            ch↩c⊑value
                         }
-                        if (isNumber)
-                        {
+                        isNumber◶{𝕤
+                            isMath = false;
+                            break;
+                        }‿{
                             # Found a valid number -> update largestType
                             int numberType;
-                            if (isFloat) numberType = (valuePtr[c - 1] == 'f')? FLOAT_MATH : DOUBLE_MATH;
-                            else numberType = (valuePtr[c - 1] == 'L')? LONG_MATH : INT_MATH;
+                            if (isFloat) numberType = (value[c - 1] == 'f')? FLOAT_MATH : DOUBLE_MATH;
+                            else numberType = (value[c - 1] == 'L')? LONG_MATH : INT_MATH;
 
                             if (numberType > largestType) largestType = numberType;
                         }
-                        else
-                        {
-                            isMath = false;
-                            break;
-                        }
-                    }
-                    else    # Read string operand
-                    {
+                    ; # Read string operand
                         int operandStart = c;
                         while (!((ch == '\0') ||
                                     (ch == ' ') ||
@@ -638,7 +569,7 @@ defMacro ← "#define"
                                     (ch == '/')))
                         {
                             c++;
-                            ch = valuePtr[c];
+                            ch = value[c];
                         }
                         int operandEnd = c;
                         int operandLength = operandEnd - operandStart;
@@ -647,7 +578,7 @@ defMacro ← "#define"
                         bool foundOperand = false;
                         for (int previousDefineIndex = 0; previousDefineIndex < defineIndex; previousDefineIndex++)
                         {
-                            if (IsTextEqual(defines[previousDefineIndex].name, &valuePtr[operandStart], operandLength))
+                            if (IsTextEqual(defines[previousDefineIndex].name, &value[operandStart], operandLength))
                             {
                                 if ((defines[previousDefineIndex].type >= INT) && (defines[previousDefineIndex].type <= DOUBLE_MATH))
                                 {
@@ -661,27 +592,27 @@ defMacro ← "#define"
                         if (!foundOperand)
                         {
                             isMath = false;
-                            break;
+                            breakHappened 1⌾(c⊸⊑)↩ 
                         }
                     }
-                }
+                ;@
+            }¨↕≠defineOut.value
 
-                if (isMath)
-                {
-                    # Define is a calculated number -> update type
-                    if (largestType == INT) largestType = INT_MATH;
-                    else if (largestType == LONG) largestType = LONG_MATH;
-                    else if (largestType == FLOAT) largestType = FLOAT_MATH;
-                    else if (largestType == DOUBLE) largestType = DOUBLE_MATH;
-                    defines[defineIndex].type = largestType;
-                }
+            if (isMath)
+            {
+                # Define is a calculated number -> update type
+                if (largestType == INT) largestType = INT_MATH;
+                else if (largestType == LONG) largestType = LONG_MATH;
+                else if (largestType == FLOAT) largestType = FLOAT_MATH;
+                else if (largestType == DOUBLE) largestType = DOUBLE_MATH;
+                defineOut.type = largestType;
             }
+        }⍟⊢defineOut.type=unknown
 
-            defineIndex+↩1
-        ;@ # for continue statement
+        defineOut
     }¨loopedOver
 }
-defineCount = defineIndex;
+defineCount ← ≠defines
 
 # Structs info data
 structs = (StructInfo *)calloc(MAX_STRUCTS_TO_PARSE, sizeof(StructInfo));
