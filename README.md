@@ -18,7 +18,7 @@ git submodule update --init --recursive
 cd ..
 ```
 
-second download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-VERSION_win64_mingw-w64`(replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
+second download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-VERSION_win64_msvc16` (replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the raylib folder to "raylib".
 
 ## Linux
 
