@@ -32,14 +32,16 @@ global ← •Import "src/global.bqn"
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
+# Loading dependencies
+⟨bqnLibsPath⟩ ← •Import "src/loadConfig.bqn"
+
 rayFFI  ⇐ •Import⎊{𝕤
   •Out "Error running rayffi.bqn"
   •Out "Attempting reparsing for automatic fix."
   •Import "src/parseC_FFI_BQN/parseRaylibJson.bqn"
-  ⟨⟩•Import 𝕩
+  •Out∘"Fix successful"⊸⊢ ⟨⟩•Import 𝕩
 }"rayffi.bqn"
 
-⟨bqnLibsPath⟩ ← •Import "src/loadConfig.bqn"
 raymath ⇐ •Import "src/raymath.bqn"
 image   ⇐ •Import "src/image.bqn"
 # -------
