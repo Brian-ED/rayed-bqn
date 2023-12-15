@@ -7,7 +7,7 @@
 # -------
 # Exports
 ⟨draw, texture, monitor, window, mouse
- font, key, utils, clipboard⟩⇐
+ font, key, utils, clipboard, StartClock⟩⇐
 
 ⟨
   traceLogLevel
