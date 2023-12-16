@@ -1,5 +1,5 @@
 ⟨color, window, draw, rayffi, k⇐key⟩←r←•Import "../../raylib.bqn"
-⟨IsPressed⟩←k
+
 _setup ← {𝕨𝔽_𝕣𝕩:
   meshes ← rayffi.LoadModelFromMesh¨ ⟨
     rayffi.GenMeshPlane 10‿10‿3‿3
@@ -18,21 +18,21 @@ _setup ← {𝕨𝔽_𝕣𝕩:
   meshes‿lights‿font 𝔽 lightToggle‿camera
   rayffi.UnloadModel¨meshes
 }
+
 PerFrame ← {meshes‿lights‿font𝕊lightToggle‿camera:
-  MoveCamera ← (-´IsPressed⟨k.q, k.up, k.e⟩‿⟨k.left, k.down, k.right⟩)⊸+⌾⊑
-  out←⟨lightToggle≠IsPressed⟨k.y, k.r, k.g, k.b⟩ ⋄ MoveCamera camera⟩
+  MoveCamera ← (-´k.IsPressed⟨k.q, k.up, k.e⟩‿⟨k.left, k.down, k.right⟩)⊸+⌾⊑
+  out←⟨lightToggle≠k.IsPressed⟨k.y, k.r, k.g, k.b⟩ ⋄ MoveCamera camera⟩
   {𝕤
-    rayffi.BeginMode3D camera
+    {𝕤
       (rayffi.DrawModel⟨0‿0‿0, 1, color.white⟩∾˜<)¨meshes
       rayffi.DrawGrid 10‿1
       lightToggle⊣◶⟨
         rayffi.DrawSphereWires ⌈∘×⟜1‿1‿1‿0.3⌾(¯1⊸⊑)∘⊢
         rayffi.DrawSphereEx⊢
       ⟩¨(¯1⌽0.2‿8‿8∾⌽)¨lights
-    rayffi.EndMode3D⟨⟩
+    }r.draw._in3D camera
     rayffi.DrawFPS 10‿10
     color.darkGray‿font‿20 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
-    
   } draw._withCanvas_ color.black @
   out
 }
