@@ -303,10 +303,10 @@ draw ← {
     rayFFI.DrawLineEx(<˘𝕩)∾⌽leftArg
   }
 
-  Texture ← {⟨r‿g‿b‿a⋄texture⋄scale⋄rotation⟩ 𝕊 x‿y:
+  Texture ← {tint‿texture‿scale‿rotation 𝕊 x‿y:
     NeedsWindow@
-    "Texture: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
-    rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄r‿g‿b‿a⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
+    "Texture: wrong types as input"!⟨tint⋄texture⋄scale⋄rotation⟩‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
+    rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄tint⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
   }
 
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
