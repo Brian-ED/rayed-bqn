@@ -49,7 +49,7 @@ LoadFromArr ← {𝕨𝕊img:
   format ← 𝕨⊣default
   NeedsWindow@
   standardImg ← format‿default ReFormat img 
-  l rayffi.Read ptr←rayffi.MemAlloc≠l←⥊standardImg
+  l rayffi.Read ptr←rayffi.MemAlloc≠l←¯128+256|128+⥊standardImg
   ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 
