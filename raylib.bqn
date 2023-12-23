@@ -63,6 +63,10 @@ texture ← {
   }
   Unload ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
   _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
+  _WithRayImage ⇐ {
+    NeedsWindow@
+    (Unload⊢𝔽)rayffi.LoadTextureFromImage 𝕩
+  }
   _WithImage ⇐ {
     NeedsWindow@
     (Unload⊢𝔽)rayffi.LoadTextureFromImage image._AsRayImg 𝕩
