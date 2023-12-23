@@ -1,4 +1,4 @@
-# My highscore is 112... beat that!
+# My highscore is 124... beat that!
 
 ⟨c⇐color,window,draw,k⇐key⟩←r←•Import "../../raylib.bqn"
 textSize ← 100
