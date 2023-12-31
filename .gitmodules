@@ -4,3 +4,6 @@
 [submodule "src/imports/BQN386"]
 	path = src/imports/BQN386
 	url = https://github.com/dzaima/BQN386
+[submodule "src/imports/c-header-to-bqn-ffi"]
+	path = src/imports/c-header-to-bqn-ffi
+	url = https://github.com/Brian-ED/c-header-to-bqn-ffi.git
