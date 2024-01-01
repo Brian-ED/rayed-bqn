@@ -3,6 +3,7 @@ raylib
 
 # config file
 config.txt
+config.bqn
 
 # Tests that aren't done
 0_inProgress
