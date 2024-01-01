@@ -57,8 +57,8 @@ Next, install [raylib](https://github.com/raysan5/raylib/). If you use [Homebrew
 brew install raylib
 ```
 
-And the raylib `.dylib` and header files will be installed to the usual `/opt` locations. But you'll need to change your `config.txt` file to point at this location. You can just create a `config.txt` file in the root `rayed-bqn` folder, or try to run any of the examples (which will fail, but they'll create a `config.txt` file you can edit).
-In the `config.txt` file set `raylib` to point to the homebrew location as follows:
+And the raylib `.dylib` and header files will be installed to the usual `/opt` locations. But you'll need to change your `config.bqn` file to point at this location. You can just create a `config.bqn` file in the root `rayed-bqn` folder, or try to run any of the examples (which will fail, but they'll create a `config.bqn` file you can edit).
+In the `config.bqn` file set `raylib` to point to the homebrew location as follows:
 ```
 raylibPath:/usr/local/opt/raylib/lib/libraylib.dylib
 ```
@@ -100,19 +100,15 @@ Raylib version 5.0.0 via homebrew
 
 ## config file
 
-A config file named "config.txt" will be generated at `./rayed-bqn/config.txt`. Each line of this file has one colon, with a keyword before the colon to indicate the config and after colon is a value to set that config to. If there are two lines with same config, then the bottom most line is picked.
+A config file named "config.bqn" will be generated at `./rayed-bqn/config.bqn`. It's a namespace bqn file with exported variables as settings that are set to a value to set that config to.
 
-The only values supported for now is the path to binary.
-
-The binary being one of the following raylib.ddl/libraylib.so/etc.
-examples are below:
-
-```txt
-raylibPath:raylib/lib/raylib.dll
+For example setting the binary, the binary being one of the following: raylib.ddl/libraylib.so/etc.
+```bqn
+raylibPath ⇐ "raylib/lib/raylib.dll"
 ```
 
-```txt
-raylibPath:raylib/lib/libraylib.so
+```bqn
+raylibPath ⇐ "raylib/lib/libraylib.so"
 ```
 
 
