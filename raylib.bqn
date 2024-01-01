@@ -38,12 +38,13 @@ global.SetNeedsWindow needsWindow
 rayFFI  ⇐ •Import⎊{𝕤
   •Out "Error running rayffi.bqn"
   •Out "Attempting reparsing for automatic fix."
-  •Import "src/parseC_FFI_BQN/parseRaylibJson.bqn"
+  •Import "src/parseFFI.bqn"
   •Out∘"Fix successful"⊸⊢ ⟨⟩•Import 𝕩
 }"rayffi.bqn"
 
 raymath ⇐ •Import "src/raymath.bqn"
 image   ⇐ •Import "src/image.bqn"
+low     ⇐ •Import "src/low.bqn"
 # -------
 
 # Utils:
@@ -374,7 +375,7 @@ font ← {
 }
 clipboard ← {
   ⟨ToBytes⟩ ← •Import bqnLibsPath∾"/strings.bqn"
-  Get ⇐ rayffi.StrLen⊸rayffi.MakeUTF8 rayffi.GetClipboardText∘⟨⟩
+  Get ⇐ low.StrLen⊸low.MakeUTF8 rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText ToBytes⊣NeedsWindow
 }
 utils ← {
