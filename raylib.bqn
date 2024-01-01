@@ -460,6 +460,9 @@ sound ⇐ {
 
   FromFile ⇐ rayffi.LoadSoundFromWave wave._withFile # fileName→Sound
   Play ⇐ rayffi.PlaySound
+  _withAudioDevice ⇐ {
+    rayffi.CloseAudioDevice∘⟨⟩⊢𝔽⊣rayffi.InitAudioDevice∘⟨⟩
+  }
 }
 
 key ← {
