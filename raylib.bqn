@@ -444,7 +444,7 @@ sound ⇐ {
       ⟨
         1⊑≢bqnSound   # frameCount
         bqnoiseOptions.freq  # sampleRate
-        •Show 1⊑bqnoiseOptions.fmt # sampleSize
+        1⊑bqnoiseOptions.fmt # sampleSize
         ≠bqnSound     # channels
         { # *data
           data ← ⥊⍉bqnSound
