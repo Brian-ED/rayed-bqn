@@ -38,7 +38,7 @@ global.SetNeedsWindow needsWindow
 rayFFI  ⇐ •Import⎊{𝕤
   •Out "Error running rayffi.bqn"
   •Out "Attempting reparsing for automatic fix."
-  •Import "src/parseC_FFI_BQN/parseRaylibJson.bqn"
+  •Import "src/parseFFI.bqn"
   •Out∘"Fix successful"⊸⊢ ⟨⟩•Import 𝕩
 }"rayffi.bqn"
 
