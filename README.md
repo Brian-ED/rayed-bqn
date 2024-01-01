@@ -42,8 +42,6 @@ cd ../../
 Now run an example, if it doesn't work please post an issue.
 
 ## Mac
-This section is based on other user reports as I have never tested mac.
-
 First, clone rayed-bqn
 ```SH
 git clone https://github.com/Brian-ED/rayed-bqn.git
@@ -52,33 +50,20 @@ git submodule update --init --recursive
 cd ..
 ```
 
-Next, install [raylib](https://github.com/raysan5/raylib/). If you use [Homebrew](https://brew.sh) this is very straightforward: just run
+Next, install [raylib](https://github.com/raysan5/raylib/). If you use [Homebrew](https://brew.sh):
 ```SH
 brew install raylib
 ```
 
-And the raylib `.dylib` and header files will be installed to the usual `/opt` locations. But you'll need to change your `config.bqn` file to point at this location. You can just create a `config.bqn` file in the root `rayed-bqn` folder, or try to run any of the examples (which will fail, but they'll create a `config.bqn` file you can edit).
-In the `config.bqn` file set `raylib` to point to the homebrew location as follows:
+If you don't use homebrew you can build raylib locally by building [raylib](https://github.com/raysan5/raylib/) and installing it:
+```sh
+git clone https://github.com/raysan5/raylib.git
+cd raylib/src
+make RAYLIB_LIBTYPE=SHARED
+sudo make install RAYLIB_LIBTYPE=SHARED
+cd ../../
 ```
-raylibPath:/usr/local/opt/raylib/lib/libraylib.dylib
-```
-
-That should be immune to any raylib version changes that occur if you ever upgrade your local installation.
-
-If you don't use homebrew you can use the normal linux instructions above to clone and build a local raylib installation. Just set the `raylibPath` accordingly. Note you'll need raylib's header file, not just the `.dylib`, for the next step.
-
-### If you receive errors about undefined symbols
-Undefined symbols usually occur on foot of raylib library updates (though raylib is pretty stable). To fix these, you need to re-parse the raylib header to update your local auto-generated wrapper. Run the following:
-
-```SH
-BQN src/parseC_FFI_BQN/parseRaylibJson.bqn
-```
-
-After that run one of the example files to see if you've resolved the issue, e.g.
-```SH
-BQN examples/1_shapes/DrawEllipse.bqn
-```
-
+Now run an example, if it doesn't work please post an issue.
 
 # Tested Raylib versions:
 
@@ -100,9 +85,9 @@ Raylib version 5.0.0 via homebrew
 
 ## config file
 
-A config file named "config.bqn" will be generated at `./rayed-bqn/config.bqn`. It's a namespace bqn file with exported variables as settings that are set to a value to set that config to.
+A config file named "config.bqn" will be generated at `./rayed-bqn/config.bqn`. It's a namespace bqn file with exported variables as settings.
 
-For example setting the binary, the binary being one of the following: raylib.ddl/libraylib.so/etc.
+For example setting the binary, the binary being one of the following: raylib.ddl, libraylib.so, etc.
 ```bqn
 raylibPath ⇐ "raylib/lib/raylib.dll"
 ```
