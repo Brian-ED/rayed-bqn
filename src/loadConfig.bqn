@@ -33,8 +33,10 @@ newLines ← •platform.os{𝔽_𝕣:
 ;
   𝕗≡"darwin"? { # macOS, assumes you're using homebrew
     𝕩≡"raylibpath"?
-      p←"/usr/local/lib/libraylib.dylib"
-      (•file.Exists p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
+      default ← "/usr/local/lib/libraylib.dylib"
+      exitcode‿stdout‿stderr ← •SH "brew"‿"--prefix"‿"raylib"
+      p ← stdOut⍟(exitcode≡0)default
+      (•file.Exists p)!˜"Incomplete autogeneration of config.bqn, tried searching for the path to libraylib.dylib at:"∾nl∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
     𝕩≡"bqnlibspath"?
