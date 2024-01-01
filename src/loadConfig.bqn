@@ -35,7 +35,7 @@ newLines ← •platform.os{𝔽_𝕣:
     𝕩≡"raylibpath"?
       default ← "/usr/local/lib/libraylib.dylib"
       exitcode‿stdout‿stderr ← •SH "brew"‿"--prefix"‿"raylib"
-      p ← stdOut⍟(exitcode≡0)default
+      p ← (stdOut∾"/libraylib.dylib")⍟(exitcode≡0)default
       (•file.Exists p)!˜"Incomplete autogeneration of config.bqn, tried searching for the path to libraylib.dylib at:"∾nl∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
