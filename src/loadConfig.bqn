@@ -21,7 +21,7 @@ newLines ← •platform.os{𝔽_𝕣:
     𝕩≡"raylibpath"?
       p←"../raylib/lib/raylib.dll"
       (•file.Exists p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
+      𝕩∾" ⇐ "∾•Repr p
   ;
     𝕩≡"bqnlibspath"?
       p←"src/imports/bqn-libs"
@@ -35,7 +35,7 @@ newLines ← •platform.os{𝔽_𝕣:
     𝕩≡"raylibpath"?
       p←"/usr/local/opt/raylib/lib/libraylib.dylib"
       (•file.Exists "../"•file.At p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
+      𝕩∾" ⇐ "∾•Repr p
   ;
     𝕩≡"bqnlibspath"?
       p←"src/imports/bqn-libs"
@@ -49,7 +49,7 @@ newLines ← •platform.os{𝔽_𝕣:
     𝕩≡"raylibpath"?
       p←"/usr/local/lib/libraylib.so"
       (•file.Exists "../"•file.At p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
+      𝕩∾" ⇐ "∾•Repr p
   ;
     𝕩≡"bqnlibspath"?
       p←"src/imports/bqn-libs"
