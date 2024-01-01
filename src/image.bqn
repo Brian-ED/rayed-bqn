@@ -15,8 +15,9 @@
 # No function unloads or mutates input image, except Unload
 
 ⟨pixelFormat⟩ ← •Import "constants.bqn"
-rayffi ← •Import "../rayffi.bqn"
 ⟨NeedsWindow⟩ ← •Import "global.bqn"
+rayffi ← •Import "../rayffi.bqn"
+low    ← •Import "low.bqn"
 
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
 uncompressedFormats ← ⟨
@@ -40,7 +41,7 @@ ToArr ← {𝕨𝕊raylibImg: resultFormat←𝕨⊣@
       "Format "∾⊑∾" isn't implemented"˙
     ⟩ (format=pixelFormat⊸•ns.Get¨)⊸/ •ns.Keys pixelFormat
   }⍟⊢format≢pixelFormat.uncompressed_r8g8b8a8
-  newImg ← width‿hight‿4(⊣⥊256|×´⊸rayffi.Make)dataPtr     # 256|𝕩 is converting from int to uint 
+  newImg ← width‿hight‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
   {{r‿g‿b‿a⇐4⥊8}‿resultFormat ReFormat𝕩}⍟(𝕨0⊘1𝕩) newImg
 }
 
@@ -49,7 +50,7 @@ LoadFromArr ← {𝕨𝕊img:
   format ← 𝕨⊣default
   NeedsWindow@
   standardImg ← format‿default ReFormat img 
-  l rayffi.Read ptr←rayffi.MemAlloc≠l←¯128+256|128+⥊standardImg
+  l low.Read ptr←rayffi.MemAlloc≠l←¯128+256|128+⥊standardImg
   ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 

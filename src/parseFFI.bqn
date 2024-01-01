@@ -3,9 +3,7 @@
 # imports
 ⟨raylibPath⟩ ← •Import "loadConfig.bqn"
 json ← •Import "imports/bqn-libs/json.bqn"
-⟨JsonToFFI⋄ParseHeader⋄ToPrettyJson⟩ ← •Import "imports/c-header-to-bqn-ffi/parse.bqn"
-
-outputLocation ← "../rayffi.bqn"
+⟨ToFFI⋄ParseHeader⟩ ← •Import "imports/c-header-to-bqn-ffi/parse.bqn"
 
 # getting raylib.h path
 raylibHeaderPath ← "include/raylib.h"∾˜"lib/"∾˜⁼{𝕩↓˜-⊑⊐⟜1⌽'/'=𝕩}raylibPath
@@ -13,6 +11,6 @@ raylibHeaderPath ← "include/raylib.h"∾˜"lib/"∾˜⁼{𝕩↓˜-⊑⊐⟜1�
 
 inp ← •FChars raylibHeaderPath
 
-outputLocation •FChars JsonToFFI json.Parse ToPrettyJson "RLAPI" ParseHeader inp
+"../rayffi.bqn" •FChars raylibPath ToFFI "RLAPI" ParseHeader inp
 
 •Out "rayffi.bqn successfully generated"

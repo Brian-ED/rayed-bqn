@@ -1,4 +1,6 @@
-⟨MovePtr⋄Alloc⇐MemAlloc⋄Modify⇐Read⋄Make⋄MakeUTF8⋄StrLen⋄MemFree⟩ ← rayffi ← •Import "../../rayffi.bqn"
+⟨MovePtr⋄Modify⇐Read⋄Make⋄MakeUTF8⋄StrLen⟩ ← low ← •Import "../low.bqn"
+⟨Alloc⇐MemAlloc⋄MemFree⟩ ← rayffi ← •Import "../../rayffi.bqn"
+
 ### make sure all inputs are i8
 ### and make sure to add error message for rank and depth requirement
 _asPtr ← {
@@ -51,7 +53,7 @@ memCopyF32ToI8 ← @•FFI"*:i8"‿"memcpy"‿"&i8"‿"*f32"‿"u64"
 #  0,0,¯128,63 ⋄ 0,0,0,0,0,0, 0,64 
 #  0,0,  64,64 ⋄ 0,0,0,0,0,0,16,64
 #  0,0,¯128,64 ⋄ 0,0,0,0,0,0,24,64
-#⟩ rayffi.Read ptr
+#⟩ low.Read ptr
 #MemFree ptr
 
 ScalerTypeSize ← {
@@ -94,11 +96,9 @@ Construct ← {
 }
 CollapsePtrs ← {𝕤{𝕎¨⌾((2≤≡¨𝕩)⊸/)𝕩}"*:i8"¨⌾(('*'≡¨⊑¨𝕩)⊸/)𝕩}
 
-rayffi.SetTraceLogLevel rayffi.traceLogLevel.warning # makes logs not output INFO: logs to stdOut
-
 out‿⟨len⟩←rayffi.LoadModelAnimationsRef "/mnt/0AD47A53D47A414D/Users/brian/Persinal/Scripts/C/raylib/examples/models/resources/models/m3d/cesium_man.m3d"‿⟨0⟩
 •Show out
-data ← out rayffi.Make˜len×+´{(∾𝕊¨)⍟(1<≡)⥊𝕩} StructSize rayffi.modelAnimation
+data ← out low.Make˜len×+´{(∾𝕊¨)⍟(1<≡)⥊𝕩} StructSize rayffi.modelAnimation
 
 •Show a_int‿b_int←8‿32•bit._cast 8↑data
 •Show ptr1 ← 8↑8↓data
@@ -108,6 +108,6 @@ data ← out rayffi.Make˜len×+´{(∾𝕊¨)⍟(1<≡)⥊𝕩} StructSize rayf
 
 •Show "*{i32,i32,*:i8,*:i8,[32]u8}"
 rayffi.UnloadModelAnimation a_int‿b_int‿ptr1‿ptr2‿u8_32
-•Show 3 rayffi.Make ptr1
+•Show 3 low.Make ptr1
 #•Show CollapsePtrs rayffi.modelAnimation
 #•Show rayffi.modelAnimation Construct data
