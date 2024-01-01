@@ -7,7 +7,8 @@
 # -------
 # Exports
 ⟨draw, texture, monitor, window, mouse
- font, key, utils, clipboard, StartClock⟩⇐
+ font, key, utils, clipboard, StartClock
+ sound, bqnoise, raymath, image, low⟩⇐
 
 ⟨
   traceLogLevel
@@ -42,9 +43,11 @@ rayFFI  ⇐ •Import⎊{𝕤
   •Out∘"Fix successful"⊸⊢ ⟨⟩•Import 𝕩
 }"rayffi.bqn"
 
-raymath ⇐ •Import "src/raymath.bqn"
-image   ⇐ •Import "src/image.bqn"
-low     ⇐ •Import "src/low.bqn"
+raymath ← •Import "src/raymath.bqn"
+image   ← •Import "src/image.bqn"
+low     ← •Import "src/low.bqn"
+bqnoise ← •Import "src/imports/BQNoise/wav.bqn"
+bqnoiseOptions ← •Import "src/imports/BQNoise/options.bqn"
 # -------
 
 # Utils:
@@ -428,6 +431,37 @@ mouse ← {
     not_allowed   ⇐ 10  # The operation-not-allowed shape                              
   }
 }
+
+# Wave, audio wave data
+sound ⇐ {
+
+  wave ⇐ {
+    LoadFromFile ⇐ {𝕊filename:
+      bqnSound ← {
+        freq‿format‿bqnSound ← bqnoise.ReadFull filename
+        ÷⟜(2⋆¯16+1⊑format) bqnSound bqnoiseOptions.Resample˜ freq∾bqnoiseOptions.freq
+      }
+      ⟨
+        1⊑≢bqnSound   # frameCount
+        bqnoiseOptions.freq  # sampleRate
+        •Show 1⊑bqnoiseOptions.fmt # sampleSize
+        ≠bqnSound     # channels
+        { # *data
+          data ← ⥊⍉bqnSound
+          data⊸low.ReadI16⊸⊢ rayffi.MemAlloc 2×≠data # 2 is byte length of int
+        }
+      ⟩
+    }
+
+    Unload ⇐ rayffi.MemFree 4⊸⊑
+
+    _withFile ⇐ {(Unload⊢𝔽)LoadFromFile}
+  }
+
+  FromFile ⇐ rayffi.LoadSoundFromWave wave._withFile # fileName→Sound
+  Play ⇐ rayffi.PlaySound
+}
+
 key ← {
   IsPressed ⇐ {𝕊 key:
     rayFFI.IsKeyPressed @-˜⍟<𝕩
