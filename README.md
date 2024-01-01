@@ -49,20 +49,16 @@ cd rayed-bqn
 git submodule update --init --recursive
 cd ..
 ```
-
+### With Homebrew
 Next, install [raylib](https://github.com/raysan5/raylib/). If you use [Homebrew](https://brew.sh):
 ```SH
 brew install raylib
 ```
+Now run an example, if it doesn't work please post an issue.
 
-If you don't use homebrew you can build raylib locally by building [raylib](https://github.com/raysan5/raylib/) and installing it:
-```sh
-git clone https://github.com/raysan5/raylib.git
-cd raylib/src
-make RAYLIB_LIBTYPE=SHARED
-sudo make install RAYLIB_LIBTYPE=SHARED
-cd ../../
-```
+### Without Homebrew
+If you don't use homebrew you can get raylib by downloading the macos [Raylib release](https://github.com/raysan5/raylib/releases/) with release `raylib-VERSION_macos.tar.gz` (replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the unarchived `raylib-VERSION_macos.tar.gz` folder to "raylib".
+
 Now run an example, if it doesn't work please post an issue.
 
 # Tested Raylib versions:
