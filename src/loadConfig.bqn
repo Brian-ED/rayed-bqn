@@ -37,7 +37,7 @@ newLines ← •platform.os{𝔽_𝕣:
       exitcode‿stdout‿stderr ← •SH "brew"‿"--prefix"‿"raylib"
       p ← ∾⟜"/lib/libraylib.dylib"¨"../raylib"⋈(nl⊸≠⊸/stdOut)⍟(exitcode≡0)default
       (∨´m←•file.Exists¨ "../"⊸•file.At¨ p)!˜"Incomplete autogeneration of config.bqn, tried searching for the path to libraylib.dylib at:"∾∾nl∾¨p
-      𝕩∾" ⇐ •file.At "∾⊑m/p
+      𝕩∾" ⇐ •file.At "∾•Repr ⊑m/p
   ;
     𝕩≡"bqnlibspath"?
       p←"src/imports/bqn-libs"
