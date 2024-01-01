@@ -1,5 +1,5 @@
 # Press A to start a blast noise
-# Press B to start a blast noise
+# Press B to start a slash noise
 
 ⟨⟨red, white, black⟩⇐color, window, key, draw, sound
 ⟩ ← r ← •Import "../../raylib.bqn"
