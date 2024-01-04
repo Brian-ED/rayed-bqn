@@ -114,7 +114,7 @@ window ← {
     mousePassThrough  ⋄ SetMousePassThrough
     interlacedhint    ⋄ SetInterlacedhint
 
-    GetState # get binary list of above settings (including empty ones in the raylib binary format)
+    GetState ⋄ stateNames # get binary list of above settings (including empty ones in the raylib binary format)
   ⟩⇐
 
   Needed ← NeedsWindow
@@ -229,7 +229,7 @@ window ← {
   SetMousePassThrough  ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough }
   SetInterlacedhint    ⇐ { interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    }
   
-  names ← [
+  stateNames ← [
     "                 "
     "fullscreen       "
     "resizable        "
@@ -251,13 +251,12 @@ window ← {
   GetState ← {𝕤 # returns binary list that corrisponds to raylib's config_flags format
     0‿fullscreen‿resizable‿(¬decorated)‿transparent‿msaa_4x_hint‿vsync_hint‿hidden‿runWhileMinimized‿minimized‿maximized‿(¬focused)‿topmost‿highdpi‿mouse_passthrough‿0‿interlaced_hint
   }
-  GetFmtState ← names<⊸∾˘GetState
 }
 
 # Drawing
 draw ← {
   ⟨
-    _withCanvas_ ⋄ _in3D
+    _withCanvas_ ⋄ _in3D ⋄ _withinRectangle
     Rectangle ⋄ Triangle ⋄ Line
     Ellipse ⋄ EllipseOutline
     Text ⋄ Texture ⋄ advanced
@@ -290,6 +289,12 @@ draw ← {
     Start@
     Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
+  }
+
+  _withinRectangle ← {
+    rayffi.BeginScissorMode (⊣⋈-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
+    𝔽𝕩
+    rayffi.EndScissorMode⟨⟩
   }
 
   # Draw text at x‿y in given font, color, and size
