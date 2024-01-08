@@ -83,7 +83,7 @@ Raylib version 5.0.0 via homebrew
 
 A config file named "config.bqn" will be generated at `./rayed-bqn/config.bqn`. It's a namespace bqn file with exported variables as settings.
 
-For example setting the binary, the binary being one of the following: raylib.ddl, libraylib.so, etc.
+For example setting the binary, the binary being one of the following: raylib.dll, libraylib.so, etc.
 ```bqn
 raylibPath ⇐ "raylib/lib/raylib.dll"
 ```
