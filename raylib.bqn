@@ -292,7 +292,7 @@ draw ← {
   }
 
   _withinRectangle ← {
-    rayffi.BeginScissorMode (⊣⋈-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
+    rayffi.BeginScissorMode (⊣∾-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
     𝔽𝕩
     rayffi.EndScissorMode⟨⟩
   }
