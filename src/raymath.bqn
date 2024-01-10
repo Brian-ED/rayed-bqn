@@ -1,13 +1,13 @@
 # Math functions to work with Vectors, Matricies and Quaternions
 
-# GOAL make raylib functions work on arbitrary vectors and matricies
+# GOAL make raylib math functions work on arbitrary vectors and matricies
 # aswell as switch from raylib's collumn model to leading axis model.
 # Also considering making Quaternions be real‿i‿j‿k instead of i‿j‿k‿real
 # raylib and 3d graphics in general uses 4x4 matricies for rotation and position, but 3x3 are enough for just rotation.
 
 # CONVENTIONS:
-# - Functions are always self-contained, no function use another raymath function inside,
-# - Angles are always in radians
+# - Functions are always self-contained, no functions use another raymath function.
+# - Angles are always in radians.
 
 
 #----------------------------------------------------------------------------------
@@ -96,10 +96,6 @@
 
 ⟩⇐
 
-
-
-
-
 # Too simple:
 # Vector2Add         ← Vector2AddValue ← Vector3Add ← Vector3AddValue ← MatrixAdd ← QuaternionAdd ← QuaternionAddValue ←  +
 # Vector2Multiply    ← Vector2Scale ← Vector3Multiply ← Vector3Scale ← QuaternionScale ← ×
@@ -127,8 +123,7 @@
 # Vector2Normalize    ← Vector3Normalize  ← QuaternionNormalize ← VectorNormalize
 # Vector2Angle        ← Vector3Angle      ← VectorAngle
 # Vector2MoveTowards  ← VectorMoveTowards
-# Vector2CrossProduct ← Vector3CrossProduct
-
+# Vector2Reflect      ← Vector3Reflect    ← VectorReflect
 
 #----------------------------------------------------------------------------------
 # Notes
@@ -217,11 +212,6 @@ VectorAngle ← {
 # Current implementation should be aligned with glm::angle
 Vector2LineAngle ← Cos⁼1⌈¯1⌈+´∘× # start 𝕊 end
 
-# Calculate reflected vector to normal
-Vector2Reflect ← {normal𝕊v: # vector vector
-  v-2×normal×+´v×normal
-}
-
 # Rotate vector by angle:  angle 𝕊 vector2
 Vector2Rotate ← (Cos∾Sin)⊸(-´∘×⋈·+´⌽⊸×)
 
@@ -283,14 +273,11 @@ Vector3RotateByAxisAngle ← {𝕊v‿axisV3‿angle:
   a ← Cos angle÷2
   w ← axisV3 ÷⟜(0⊸=⊸++´⌾(×˜))⊸× Sin angle÷2
   F ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
-  wv ← w F v
-  v+2×(w⊸F+a⊸×) wv
+  v+2×(w⊸F+a⊸×) w F v
 }
 
 # Calculate reflected vector to normal
-VectorReflect ← {normal𝕊v:
-  v - (+´v×normal)×2×normal
-}
+VectorReflect ← ⊢-2×⊣×+˝∘× # normal𝕊v
 
 # Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
 # NOTE: Assumes P is on the plane of the triangle
