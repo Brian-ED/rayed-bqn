@@ -46,7 +46,6 @@
   VectorDotProduct
   VectorDistance
   Vector2LineAngle
-  Vector2Reflect
   Vector2Rotate
   VectorMoveTowards
   Vector3CrossProduct
