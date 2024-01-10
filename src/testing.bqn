@@ -12,6 +12,7 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
   QuaternionEquals, Vector3OrthoNormalize, Vector3RotateByAxisAngle, VectorClampValue
   MatrixTranslate, MatrixRotateX, MatrixRotateY, MatrixRotateZ, VectorAngle, deg2rad, rad2deg
   SlopeInterceptToLine, DistanceToPlane, QuaternionFromEuler, QuaternionToEuler
+  VectorReflect
 
   # In progress 
     MatrixPerspective
@@ -118,6 +119,10 @@ e!(Approx QuaternionFromEuler 1|π‿0‿π) ≡ 0.07056‿0.005‿0.07056‿0.9
 
 e↩"QuaternionToEuler"
 e!(Approx QuaternionToEuler 0.07056‿0.005‿0.07056‿0.995) ≡ 0.14159‿1e¯5‿0.14159
+
+e↩"VectorReflect"
+e!(Approx          1‿0‿0 VectorReflect 2‿2‿0) ≡ ¯2‿2‿0
+e!(Approx (+´⌾(×˜)1‿1‿0) VectorReflect 0‿2‿0) ≡ ¯8‿¯6‿¯8
 
 •Out "Raymath tests passed"
 
