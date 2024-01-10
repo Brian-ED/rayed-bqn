@@ -1,16 +1,26 @@
 ## Metaprogram rayffi.bqn automatically.
 
 # imports
-⟨raylibPath⟩ ← •Import "loadConfig.bqn"
+⟨raylibPath⟩ ← conf ← •Import "loadConfig.bqn"
 json ← •Import "imports/bqn-libs/json.bqn"
 ⟨ToFFI⋄ParseHeader⟩ ← •Import "imports/c-header-to-bqn-ffi/parse.bqn"
 
-# getting raylib.h path
-raylibHeaderPath ← "include/raylib.h"∾˜"lib/"∾˜⁼{𝕩↓˜-⊑⊐⟜1⌽'/'=𝕩}raylibPath
-(•file.Exists raylibHeaderPath)!˜"raylib header file expected at "∾raylibHeaderPath
+ParseRayFFI ← {𝕊binPath‿headerPath:
+  (•file.Exists binPath)!˜"Library file expected at "∾binPath
+  (•file.Exists headerPath)!˜"Header file expected at "∾headerPath
+  header ← •FChars headerPath
+  "../rayffi.bqn" •FChars binPath ToFFI "RLAPI" ParseHeader header
+  •Out "rayffi.bqn successfully generated"
+}
 
-inp ← •FChars raylibHeaderPath
+ParseRayGUI ← {𝕊binPath‿headerPath:
+  (•file.Exists binPath)!˜"Library file expected at "∾binPath
+  (•file.Exists headerPath)!˜"Header file expected at "∾headerPath
+  headerAndCode ← •FChars headerPath
+  header ← ¯91↓(1⊐˜"RAYGUI IMPLEMENTATION"⊸⍷)⊸↑headerAndCode
+  "raygui.bqn" •FChars binPath ToFFI "RAYGUIAPI" ParseHeader header
+  •Out "raygui.bqn successfully generated"
+}
 
-"../rayffi.bqn" •FChars raylibPath ToFFI "RLAPI" ParseHeader inp
-
-•Out "rayffi.bqn successfully generated"
+ParseRayFFI ⋈⟜{"include/raylib.h"∾˜"lib/"∾˜⁼𝕩↓˜-⊑⊐⟜1⌽'/'=𝕩} raylibPath
+ParseRayGUI∘(conf⊸•ns.Get¨)⍟(∧´conf⊸•ns.Has¨) "rayguilibpath"‿"rayguiheaderpath"
