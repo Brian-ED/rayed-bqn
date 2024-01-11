@@ -33,3 +33,4 @@ Most are in C and just need translation.
 
 Example folder
 https://github.com/raylib-extras/examples-c
+https://github.com/danilwhale/some-raylib-stuff/blob/main/cpp/editor_fps_camera.cpp
