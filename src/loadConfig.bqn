@@ -34,7 +34,7 @@ newLines ← •platform.os{𝔽_𝕣:
   𝕗≡"darwin"? { # macOS, assumes you're using homebrew
     𝕩≡"raylibpath"?
       default ← "/usr/local"
-      exitcode‿stdout‿stderr ← •SH "brew"‿"--prefix"‿"raylib"
+      exitcode‿stdout‿stderr ← ⟨•path⟩ •BQN "•SH ""brew""‿""--prefix""‿""raylib"""
       p ← ∾⟜"/lib/libraylib.dylib"¨"../raylib"⋈(nl⊸≠⊸/stdOut)⍟(exitcode≡0)default
       (∨´m←•file.Exists¨ "../"⊸•file.At¨ p)!˜"Incomplete autogeneration of config.bqn, tried searching for the path to libraylib.dylib at:"∾∾nl∾¨p
       𝕩∾" ⇐ •file.At "∾•Repr ⊑m/p
