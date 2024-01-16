@@ -149,10 +149,7 @@ epsilon ← 1e¯6
 rad2deg ← ÷deg2rad ← π÷180
 
 ⟨Sin, Cos, Tan, Atan2⟩←•math
-
-raylibPath‿bqnLibsPath ← •Import "loadConfig.bqn"
-
-⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import bqnLibsPath •file.At "matrix.bqn"
+⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
 
 Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
 
