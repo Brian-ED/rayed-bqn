@@ -1,7 +1,8 @@
 ## Metaprogram rayffi.bqn automatically.
 
 # imports
-⟨raylibPath⟩ ← conf ← •Import "loadConfig.bqn"
+⟨raylibLibPath
+ raylibHeaderPath⟩ ← conf ← •Import "loadConfig.bqn"
 json ← •Import "imports/bqn-libs/json.bqn"
 ⟨ToFFI⋄ParseHeader⟩ ← •Import "imports/c-header-to-bqn-ffi/parse.bqn"
 
@@ -22,5 +23,5 @@ ParseRayGUI ← {𝕊binPath‿headerPath:
   •Out "raygui.bqn successfully generated"
 }
 
-ParseRayFFI ⋈⟜{"include/raylib.h"∾˜"lib/"∾˜⁼𝕩↓˜-⊑⊐⟜1⌽'/'=𝕩} raylibPath
+ParseRayFFI raylibLibPath‿raylibHeaderPath
 ParseRayGUI∘(conf⊸•ns.Get¨)⍟(∧´conf⊸•ns.Has¨) "rayguilibpath"‿"rayguiheaderpath"

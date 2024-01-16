@@ -85,18 +85,19 @@ A config file named "config.bqn" will be generated at `./rayed-bqn/config.bqn`. 
 
 For example setting the binary, the binary being one of the following: raylib.dll, libraylib.so, etc.
 ```bqn
-raylibPath ⇐ "raylib/lib/raylib.dll"
+raylibLibPath ⇐ "raylib/lib/raylib.dll"
+raylibHeaderPath ⇐ "raylib/include/raylib.h"
 ```
 
 ```bqn
-raylibPath ⇐ "raylib/lib/libraylib.so"
+raylibLibPath ⇐ "raylib/lib/libraylib.so"
+raylibHeaderPath ⇐ "raylib/include/raylib.h"
 ```
 
-
-The most important file in ./raylib/lib/ is the binary file, which could be located at:
-windows: ./rayed-bqn/raylib/lib/raylib.dll
+"/usr/local"The most important file in ./raylib/lib/ is the binary file, which could be located at:
+windows: raylib/lib/raylib.dll
 linux: /usr/local/lib/libraylib.so"
-macOS: ./some/path/libraylib.dylib (I think)
+macOS: /usr/local/lib/libraylib.dylib
 
 # Ideologies
 

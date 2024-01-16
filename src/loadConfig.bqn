@@ -12,43 +12,65 @@ nl ← @+10
 
 confPath ← "../config.bqn"
 •FChars⟜intro⍟(¬•file.Exists) confPath
-confNow ← ⟨⟩ •Import confPath
+conf ← ⟨⟩ •Import confPath
 
-missing ← ⟨"raylibpath"⟩ (¬∘∊/⊣) •ns.Keys confNow
+missing ← ⟨
+  "raylibheaderpath"
+  "rayliblibpath"
+⟩ (¬∘∊/⊣) •ns.Keys conf
 
-newLines ← •platform.os{𝔽_𝕣:
-  𝕗≡"windows"? {
-    𝕩≡"raylibpath"?
+os ← •platform.os
+{
+  e←"Unknown OS, unable to automatically generate config."
+  e!∨´os⊸≡¨"linux"‿"darwin"‿"windows"
+}
+
+err ← "Incomplete autogeneration of config.bqn: "
+Exists ← •file.Exists (•file.Parent confPath)⊸•file.At
+
+newExports ← {
+  𝕊"rayliblibpath": {
+    os≡"windows"?
       p←"../raylib/lib/raylib.dll"
-      (•file.Exists p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
+      (Exists p)!˜err∾"Couldn't find raylib.dll file at path: "∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
-    !"attempted to implement non-existant config: "∾𝕩
-  }
-;
-  𝕗≡"darwin"? { # macOS, assumes you're using homebrew
-    𝕩≡"raylibpath"?
+    os≡"darwin"?
       default ← "/usr/local"
+      # Using •BQN because CBQN on windows doesn't have the •SH system function
       exitcode‿stdout‿stderr ← ⟨•path⟩ •BQN "•SH ""brew""‿""--prefix""‿""raylib"""
       p ← ∾⟜"/lib/libraylib.dylib"¨"../raylib"⋈(nl⊸≠⊸/stdOut)⍟(exitcode≡0)default
-      (∨´m←•file.Exists¨ "../"⊸•file.At¨ p)!˜"Incomplete autogeneration of config.bqn, tried searching for the path to libraylib.dylib at:"∾∾nl∾¨p
+      (∨´m←•file.Exists¨ ".."⊸•file.At¨ p)!˜err∾"Couldn't find libraylib.dylib file at paths:"∾∾nl∾¨p
       𝕩∾" ⇐ •file.At "∾•Repr ⊑m/p
   ;
-    !"attempted to implement non-existant config: "∾𝕩
-  }
-;
-  𝕗≡"linux"? {
-    𝕩≡"raylibpath"?
+    os≡"linux"?
       p←"/usr/local/lib/libraylib.so"
-      (•file.Exists "../"•file.At p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
+      (Exists p)!˜err∾"Couldn't find libraylib.so file at path: "∾p
+      𝕩∾" ⇐ "∾•Repr p
+  }𝕩
+; 𝕊"raylibheaderpath": {
+    os≡"windows"?
+      p←"../raylib/include/raylib.h"
+      (Exists p)!˜err∾"Couldn't find raylib.h file at path: "∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
-    !"attempted to implement non-existant config: "∾𝕩
-  }
+    os≡"darwin"?
+      default ← "/usr/local"
+      # Using •BQN because CBQN on windows doesn't have the •SH system function
+      exitcode‿stdout‿stderr ← ⟨•path⟩ •BQN "•SH ""brew""‿""--prefix""‿""raylib"""
+      p ← ∾⟜"/include/raylib.h"¨"../raylib"⋈(nl⊸≠⊸/stdOut)⍟(exitcode≡0)default
+      (∨´m←Exists¨p)!˜err∾"Couldn't find file raylib.h at paths:"∾∾nl∾¨p
+      𝕩∾" ⇐ •file.At "∾•Repr ⊑m/p
+  ;
+    os≡"linux"?
+      p←"/usr/local/include/raylib.h"
+      (Exists p)!˜err∾"Couldn't find raylib.h file at path: "∾p
+      𝕩∾" ⇐ "∾•Repr p
+  }𝕩
 ;
-  !"Unknown OS, unable to automatically generate config."
+  !"Attempted to implement non-existant config: "∾𝕩
 }¨missing
 
-confPath •FLines newLines∾˜•FLines confPath
+confPath •FLines newExports∾˜•FLines confPath
 
-•Import "../config.bqn"
+•Import confPath
