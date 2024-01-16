@@ -14,7 +14,7 @@ confPath ← "../config.bqn"
 •FChars⟜intro⍟(¬•file.Exists) confPath
 confNow ← ⟨⟩ •Import confPath
 
-missing ← "raylibpath"‿"bqnlibspath" (¬∘∊/⊣) •ns.Keys confNow
+missing ← ⟨"raylibpath"⟩ (¬∘∊/⊣) •ns.Keys confNow
 
 newLines ← •platform.os{𝔽_𝕣:
   𝕗≡"windows"? {
@@ -22,11 +22,6 @@ newLines ← •platform.os{𝔽_𝕣:
       p←"../raylib/lib/raylib.dll"
       (•file.Exists p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
       𝕩∾" ⇐ "∾•Repr p
-  ;
-    𝕩≡"bqnlibspath"?
-      p←"src/imports/bqn-libs"
-      (•file.Exists •file.At p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
   ;
     !"attempted to implement non-existant config: "∾𝕩
   }
@@ -39,11 +34,6 @@ newLines ← •platform.os{𝔽_𝕣:
       (∨´m←•file.Exists¨ "../"⊸•file.At¨ p)!˜"Incomplete autogeneration of config.bqn, tried searching for the path to libraylib.dylib at:"∾∾nl∾¨p
       𝕩∾" ⇐ •file.At "∾•Repr ⊑m/p
   ;
-    𝕩≡"bqnlibspath"?
-      p←"src/imports/bqn-libs"
-      (•file.Exists "../"•file.At p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
-  ;
     !"attempted to implement non-existant config: "∾𝕩
   }
 ;
@@ -52,11 +42,6 @@ newLines ← •platform.os{𝔽_𝕣:
       p←"/usr/local/lib/libraylib.so"
       (•file.Exists "../"•file.At p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
       𝕩∾" ⇐ "∾•Repr p
-  ;
-    𝕩≡"bqnlibspath"?
-      p←"src/imports/bqn-libs"
-      (•file.Exists "../"•file.At p)!˜"Incomplete autogeneration of config.bqn, couldn't find file at path: "∾nl∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
   ;
     !"attempted to implement non-existant config: "∾𝕩
   }

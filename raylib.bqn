@@ -34,8 +34,6 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
 # Loading dependencies
-⟨bqnLibsPath⟩ ← •Import "src/loadConfig.bqn"
-
 rayFFI  ⇐ •Import⎊{𝕤
   •Out "Error running rayffi.bqn"
   •Out "Attempting reparsing for automatic fix."
@@ -382,7 +380,7 @@ font ← {
   LoadRaylib ← rayffi.GetFontDefault∘⟨⟩
 }
 clipboard ← {
-  ⟨ToBytes⟩ ← •Import bqnLibsPath∾"/strings.bqn"
+  ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
   Get ⇐ low.StrLen⊸low.MakeUTF8 rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText ToBytes⊣NeedsWindow
 }
