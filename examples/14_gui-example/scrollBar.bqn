@@ -1,7 +1,8 @@
 # This example depends on raygui
 
 ⟨⟨red, white, black, raywhite⟩⇐color, window, draw, rf⇐rayffi, low⟩←r←•Import "../../raylib.bqn"
-rg ← •Import "../../raygui.bqn"
+rg ← •Import "../../src/raygui.bqn"
+
 ⟨
   guiControl
   guiControlProperty
