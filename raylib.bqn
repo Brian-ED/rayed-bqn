@@ -34,13 +34,17 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
 # Loading dependencies
-rayFFI  ⇐ •Import⎊{𝕤
-  •Out "Error running rayffi.bqn"
-  •Out "Attempting reparsing for automatic fix."
-  •Import "src/parseFFI.bqn"
-  •Out∘"Fix successful"⊸⊢ ⟨⟩•Import 𝕩
-}"rayffi.bqn"
-
+rayffi‿rlgl ⇐ {
+  paths ← "ffi/rayffi.bqn"‿"ffi/rlgl.bqn"
+  tried ← •Import⎊{
+    0⊣•Out "Error running "∾𝕩
+  }¨paths
+  paths{
+    •Out "Attempting reparsing for automatic fix."
+    •Import "src/parseFFI.bqn"
+    •Out∘"Fix successful"⊸⊢ •Import¨𝕨
+  }⍟(⟨⟩⊸≢)⌾((0⊸≡¨tried)⊸/)tried
+}
 raymath ← •Import "src/raymath.bqn"
 image   ← •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"

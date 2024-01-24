@@ -1,5 +1,5 @@
 ⟨MovePtr⋄Modify⇐Read⋄Make⋄MakeUTF8⋄StrLen⟩ ← low ← •Import "../low.bqn"
-⟨Alloc⇐MemAlloc⋄MemFree⟩ ← rayffi ← •Import "../../rayffi.bqn"
+⟨Alloc⇐MemAlloc⋄MemFree⟩ ← rayffi ← •Import "../../ffi/rayffi.bqn"
 
 ### make sure all inputs are i8
 ### and make sure to add error message for rank and depth requirement

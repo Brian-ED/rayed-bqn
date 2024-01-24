@@ -16,7 +16,7 @@
 
 ⟨pixelFormat⟩ ← •Import "constants.bqn"
 ⟨NeedsWindow⟩ ← •Import "global.bqn"
-rayffi ← •Import "../rayffi.bqn"
+rayffi ← •Import "../ffi/rayffi.bqn"
 low    ← •Import "low.bqn"
 
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat

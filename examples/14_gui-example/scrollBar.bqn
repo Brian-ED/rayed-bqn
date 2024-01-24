@@ -1,7 +1,7 @@
 # This example depends on raygui
 
 ⟨⟨red, white, black, raywhite⟩⇐color, window, draw, rf⇐rayffi, low⟩←r←•Import "../../raylib.bqn"
-rg ← •Import "../../src/raygui.bqn"
+rg ← •Import "../../ffi/raygui.bqn"
 
 ⟨
   guiControl
@@ -81,7 +81,7 @@ PerFrame ← {𝕊panelScroll‿panelView‿panelContentRec‿showContentArea‿
   }⌾(2⊸↓) panelContentRec
 
   panelScrollNew‿panelViewNew‿panelContentRecNew‿showContentAreaNew‿newDrawState
-} draw._withCanvas_ raywhite
+} draw._withCanvas_ r.color.black
 
 Start ← {𝕤
   panelContentRec ← 0‿0‿340‿340
