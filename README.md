@@ -76,6 +76,20 @@ Raylib version 5.0.0 built from source on Ubuntu 22.04.2 LTS.
 
 Raylib version 5.0.0 via homebrew
 
+# Installing the raygui addon
+Examples using this addon can be found in `examples/14_gui-example`.
+Currently you will have to compile raygui yourself, i plan on shipping a pre-built .dll for windows users in the future.
+
+installing (assuming linux, replace `.so` with `.dll` for windows and `.dylib` for mac).
+```bash
+git clone https://raw.githubusercontent.com/raysan5/raygui/master/
+cd src
+gcc -o libraygui.so raygui.c -shared -DRAYGUI_IMPLEMENTATION -lraylib
+```
+After building, you can define `rayguiHeaderPath` and `rayguiLibPath` in config.bqn to be the path where you cloned raygui at.
+
+These instructions are quite new, issues can be expected, please report if issues happen.
+
 # Extra info
 
 ## config file
