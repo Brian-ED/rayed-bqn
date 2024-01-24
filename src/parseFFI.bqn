@@ -66,7 +66,7 @@ ParseRLGL ← {𝕊libPath‿headerPath:
     ⟨"RLGL_VERSION_STRING"⟩
   ]
 
-  headerWMacros ← (⊐⟜1"RLGL IMPLEMENTATION"⊸⍷)⊸↑ •FChars "/mnt/0AD47A53D47A414D/Users/brian/Persinal/Scripts/C/raylib/src/rlgl.h"
+  headerWMacros ← (⊐⟜1"RLGL IMPLEMENTATION"⊸⍷)⊸↑ •FChars "rlgl.h"∾˜•file.Name⊸(∾˜⁼) headerPath
   header ← defines CPreProcessorLean headerWMacros
   "../ffi/rlgl.bqn" •FChars libPath SetPath nameMap ToFFI "RLAPI" ParseHeader header
   •Out "ffi/rlgl.bqn successfully generated"
