@@ -4,11 +4,13 @@
 
 # BQN Pointer functions
 # neccesary for low level programming in bqn
-MovePtr  ⇐ (256⋆↕8){-⟜(256×≥⟜128)256|⌊𝕗÷˜𝕨+´𝕗×256|𝕩}     #      bytes 𝕊 pointer # Move pointer by an amount of bytes
+MovePtr  ⇐ (256⋆↕8){-⟜(256×≥⟜128)256|⌊𝕗÷˜𝕨+´𝕗×256|𝕩}       #      bytes 𝕊 pointer # Move pointer by an amount of bytes
 read     ⇐ @•FFI ""   ‿"bqn_readI8Arr"  ‿"𝕨>a"    ‿">*:i8" #       data 𝕊 pointer # write data to pointer
+readi8   ⇐ read
 readI16  ⇐ @•FFI ""   ‿"bqn_readI16Arr" ‿"𝕨>a"    ‿">*:i8" #       data 𝕊 pointer # write data to pointer
 readI32  ⇐ @•FFI ""   ‿"bqn_readI32Arr" ‿"𝕨>a"    ‿">*:i8" #       data 𝕊 pointer # write data to pointer
 make     ⇐ @•FFI "a"  ‿"bqn_makeI8Vec"  ‿"𝕨>u64"  ‿">*:i8" # bytesCount 𝕊 pointer # turn data at pointer into a number array
+makeI8   ⇐ make
 makeI16  ⇐ @•FFI "a"  ‿"bqn_makeI16Vec" ‿"𝕨>u64"  ‿">*:i8" # bytesCount 𝕊 pointer # turn data at pointer into a number array
 makeI32  ⇐ @•FFI "a"  ‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿">*:i8" #   NumCount 𝕊 pointer # turn data at pointer into a number array
 makeUTF8 ⇐ @•FFI "a"  ‿"bqn_makeUTF8Str"‿"𝕨>u64"  ‿">*:i8" #     length 𝕊 pointer # turn string at pointer into a bqn string
