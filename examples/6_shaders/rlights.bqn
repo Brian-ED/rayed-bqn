@@ -99,13 +99,13 @@ UpdateLightValues ← {shader𝕊⟨
     position
     target
     color
-    passOn1
+    attenuation
     enabledLoc
     typeLoc
     positionLoc
     targetLoc
     colorLoc
-    passOn2
+    attenuationLoc
   ⟩:
 
   F32ToI8 ← (@•FFI"*:i8"‿"memcpy"‿"&i8"‿"*f32"‿"u64"){1⊑𝔽⟨(4×≠𝕩)⥊0, 𝕩, 4×≠𝕩⟩}
@@ -142,12 +142,12 @@ UpdateLightValues ← {shader𝕊⟨
     position
     target
     color
-    passOn1
+    attenuation
     enabledLoc
     typeLoc
     positionLoc
     targetLoc
     colorLoc
-    passOn2
+    attenuationLoc
   ⟩
 }
