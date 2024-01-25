@@ -146,7 +146,7 @@ window.SetSize 0.5
 
     # Check key inputs to enable/disable lights
     lights {
-      (rf.IsKeyPressed 𝕩) ¬⌾(rlights.lightIndex.enabled⊸⊑)∘⊢⍟⊣𝕨
+      ¬⌾(rlights.lightIndex.enabled⊸⊑)⍟(rf.IsKeyPressed 𝕩)𝕨
     }¨↩ ⟨  key.y ⋄ key.r ⋄ key.g ⋄ key.b ⟩
     
     # Update light values (actually, only enable/disable them)
