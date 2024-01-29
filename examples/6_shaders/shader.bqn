@@ -71,7 +71,7 @@ window.SetSize 0.5
 
 {𝕤
   # Define the camera to look into our 3d world
-  camera ← ⟨
+  cameraOrig ← ⟨
     2‿4  ‿6 # Camera position
     0‿0.5‿0 # Camera looking at point
     0‿1  ‿0 # Camera up vector (rotation towards target)
@@ -84,70 +84,55 @@ window.SetSize 0.5
   cube  ← rf.LoadModelFromMesh rf.GenMeshCube  2 ‿4 ‿2
 
   # Load basic lighting shader
-  shader ← rf.LoadShader "vs"‿"fs"∾˜¨<"shaders/glsl"∾(•Repr glslVersion)∾"/lighting."
+  shader ← rf.LoadShader "vs"‿"fs"∾˜¨<"shaders/glsl"∾"/lighting." ∾˜ •Repr glslVersion
 
   # Get some required shader locations
+  veiwPos ← rf.GetShaderLocation shader‿"viewPos"
   {
     locsPtr ← shaderIndex.locs⊑shader
-    movedPtr ← rf.shaderLocationIndex.shader_loc_vector_view low.MovePtr 𝕩
-    movedPtr low.ReadI32 ⋈rf.GetShaderLocation shader‿"viewPos"
+    movedPtr ← locsPtr low.MovePtr˜ 4×rf.shaderLocationIndex.shader_loc_vector_view
+    movedPtr low.ReadI32˜ ⋈veiwPos
   }
-  # Ambient light level (some basic lighting)
-  ambientLoc ← rf.GetShaderLocation shader‿"ambient"
-  
-  F32ToI8 ← (@•FFI"*:i8"‿"memcpy"‿"&i8"‿"*f32"‿"u64"){1⊑𝔽⟨(4×≠𝕩)⥊0, 𝕩, 4×≠𝕩⟩}
+
+  # Ambient light level, makes it so when no lights are on it's gray instead of black
   {
-    ptr ← rf.MemAlloc 4×4
-    (F32ToI8 4⥊1) low.ReadI8 ptr
-    rf.SetShaderValue⟨shader, ambientLoc, ptr, rf.shaderUniformDataType.shader_uniform_vec4⟩
+    ambientLoc ← rf.GetShaderLocation shader‿"ambient"
+    rf.SetShaderValueRaw⟨shader, ambientLoc, low.F32ToI8 4⥊1, rf.shaderUniformDataType.shader_uniform_vec4⟩
   }
 
   # Assign out lighting shader to model
   {
-    matsPtr ← modelIndex.materials⊑model
-    firstMatPtr ← 0 low.MovePtr matsPtr
-    # write each shader value
-    ⟨(2⋆32){𝕨⊸|⌾((𝕨÷2)⊸+)𝕩} shaderIndex.id⊑shader⟩ low.ReadI32 firstMatPtr
-    atLocsPtr ← 8 low.MovePtr firstMatPtr
-    
-    shaderPtr ← shaderIndex.locs⊑shader
-    shaderPtr low.ReadI8 atLocsPtr
-  }
-  {
-    matsPtr ← modelIndex.materials⊑cube
-    firstMatPtr ← 0 low.MovePtr matsPtr
-    ⟨(2⋆32){𝕨⊸|⌾((𝕨÷2)⊸+)𝕩} shaderIndex.id⊑shader⟩ low.ReadI32 firstMatPtr
-    atLocsPtr ← 8 low.MovePtr firstMatPtr
-    
-    shaderPtr ← shaderIndex.locs⊑shader
-    shaderPtr low.ReadI8 atLocsPtr
-  }
+    firstMatPtr ← 0 low.MovePtr modelIndex.materials⊑𝕩
+    firstMatPtr low.ReadI8˜∾8↑¨⟨32‿'u', 8‿'i'⟩•bit._cast∘⋈⌾(shaderIndex.id⊸⊑)shader
+  }¨cube‿model
 
   # Create lights
+  lt ← rlights.lightType.light_point
   lights ← rlights.CreateLight¨⟨
-    ⟨rlights.lightType.light_point, ¯2‿1‿¯2, 0‿0‿0, color.yellow, shader⟩
-    ⟨rlights.lightType.light_point,  2‿1‿ 2, 0‿0‿0, color.red   , shader⟩
-    ⟨rlights.lightType.light_point, ¯2‿1‿ 2, 0‿0‿0, color.green , shader⟩
-    ⟨rlights.lightType.light_point,  2‿1‿¯2, 0‿0‿0, color.blue  , shader⟩
+    ⟨lt, ¯2‿1‿¯2, 0‿0‿0, color.yellow, shader⟩
+    ⟨lt,  2‿1‿ 2, 0‿0‿0, color.red   , shader⟩
+    ⟨lt, ¯2‿1‿ 2, 0‿0‿0, color.green , shader⟩
+    ⟨lt,  2‿1‿¯2, 0‿0‿0, color.blue  , shader⟩
   ⟩
   #--------------------------------------------------------------------------------------
 
   # Main game loop
-  {𝕤
+  {𝕊cameraOld:
     # Update
     #----------------------------------------------------------------------------------
-    ⟨⟨camera⟩⟩ ↩ rf.UpdateCameraRef ⟨⋈camera⋄rf.cameraMode.camera_orbital⟩
+    ⟨⟨camera⟩⟩ ← rf.UpdateCameraRef⟨⋈cameraOld⋄rf.cameraMode.camera_orbital⟩
 
     # Update the shader with the camera view vector (points towards { 0.0f, 0.0f, 0.0f })
-    cameraPos ← cameraIndex.position⊑camera
-    ⟨loc⟩ ← 1 low.MakeI32 (4×rf.shaderLocationIndex.shader_loc_vector_view)low.MovePtr shaderIndex.locs⊑shader
-
-    rf.SetShaderValueRaw⟨shader, loc, F32ToI8 cameraPos, rf.shaderUniformDataType.shader_uniform_vec3⟩
+    rf.SetShaderValueRaw⟨
+      shader, veiwPos
+      low.F32ToI8 cameraIndex.position⊑camera
+      rf.shaderUniformDataType.shader_uniform_vec3
+    ⟩
 
     # Check key inputs to enable/disable lights
     lights {
-      ¬⌾(rlights.lightIndex.enabled⊸⊑)⍟(rf.IsKeyPressed 𝕩)𝕨
-    }¨↩ ⟨  key.y ⋄ key.r ⋄ key.g ⋄ key.b ⟩
+      ¬⌾(rlights.lightIndex.enabled⊸⊑)⍟(rl.key.IsPressed 𝕩)𝕨
+    }¨↩ ⟨ key.y ⋄ key.r ⋄ key.g ⋄ key.b ⟩
     
     # Update light values (actually, only enable/disable them)
     shader⊸rlights.UpdateLightValues¨ lights
@@ -161,20 +146,20 @@ window.SetSize 0.5
         rf.DrawModel⟨cube , 0‿0‿0, 1, color.white⟩
 
         # Draw spheres to show where the lights are
-        {rlights.lightIndex.enabled⊑𝕩?
-          rf.DrawSphereEx   ⟨rlights.lightIndex.position⊑𝕩, 0.2, 8, 8, rlights.lightIndex.color⊑𝕩⟩
-        ; rf.DrawSphereWires⟨rlights.lightIndex.position⊑𝕩, 0.2, 8, 8, ⌈0.3⊸×⌾(3⊸⊑)rlights.lightIndex.color⊑𝕩⟩
+        l←rlights.lightIndex
+        {l.enabled⊑𝕩?
+          rf.DrawSphereEx   ⟨l.position⊑𝕩, 0.2, 8, 8, l.color⊑𝕩⟩
+        ; rf.DrawSphereWires⟨l.position⊑𝕩, 0.2, 8, 8, ⌈0.3⊸×⌾(3⊸⊑)l.color⊑𝕩⟩
         }¨lights
         rf.DrawGrid 10‿1
       } rl.draw._in3D camera
 
       rf.DrawFPS 10‿10
-
       rf.DrawText⟨"Use keys [Y][R][G][B] to toggle lights", 10, 40, 20, color.darkgray⟩
-
     } draw._withCanvas_ color.raywhite @
+    camera
     #----------------------------------------------------------------------------------
-  } •_While_(¬window.ShouldClose) @
+  } •_While_(¬window.ShouldClose) cameraOrig
 
   # De-Initialization
   #--------------------------------------------------------------------------------------
