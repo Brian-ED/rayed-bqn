@@ -1,17 +1,14 @@
 ⟨
   ⟨ReadI32 ⋄ ReadI8⟩⇐low
   rf⇐rayffi
-⟩ ← rl ← •Import "../../raylib.bqn"
-⟨
-  GetShaderLocation ⋄ SetShaderValueRaw ⋄ SetShaderValue
-  MemAlloc ⋄ MemFree
   ⟨
-    SHADER_UNIFORM_INT ⋄ SHADER_UNIFORM_VEC3 ⋄ SHADER_UNIFORM_Vec4
-  ⟩⇐shaderUniformDataType
-⟩ ← rf
-
-
-max_lights ⇐ 4         # Max dynamic lights supported by shader
+    GetShaderLocation ⋄ SetShaderValueRaw ⋄ SetShaderValue
+    MemAlloc ⋄ MemFree
+    ⟨
+      SHADER_UNIFORM_INT ⋄ SHADER_UNIFORM_VEC3 ⋄ SHADER_UNIFORM_Vec4
+    ⟩⇐shaderUniformDataType
+  ⟩⇐rayffi
+⟩ ← rl ← •Import "../../raylib.bqn"
 
 # Light data
 light ⇐ '{'∾'}'«∾','∾¨⟨
@@ -54,21 +51,17 @@ lighttype ⇐ {
   light_point ⇐ 1
 }
 
-#----------------------------------------------------------------------------------
-# Module Functions Declaration
-#----------------------------------------------------------------------------------
 CreateLight ⇐ # Create a light and get shader locations
 UpdateLightValues ⇐ # Send light properties to shader
 
+max_lights  ⇐ 4    # Max dynamic lights supported by shader
 lightsCount ← 0    # Current amount of created lights
-
-#----------------------------------------------------------------------------------
-# Module Functions Definition
-#----------------------------------------------------------------------------------
 
 # Create a light and get shader locations
 CreateLight ← {𝕊type‿position‿target‿color‿shader: # i v3 v3 Color Shader
   ("You can't have more than "∾(•Repr maxLights)∾" lights")!lightsCount<maxLights
+
+  GetShaderLoc ← GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"]."∾⊢
 
   {𝕊:lightsCount+↩1}⊸⊢ shader⊸UpdateLightValues⊸⊢⟨
     type     # type
@@ -80,12 +73,12 @@ CreateLight ← {𝕊type‿position‿target‿color‿shader: # i v3 v3 Color 
   
     # Shader locations
     # NOTE: Lighting shader naming must be the provided ones
-    GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"].enabled"  # enabledLoc
-    GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"].type"     # typeLoc
-    GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"].position" # positionLoc
-    GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"].target"   # targetLoc
-    GetShaderLocation shader⋈"lights["∾(•Repr lightsCount)∾"].color"    # colorLoc
-    0                                                                   # attenuationLoc
+    GetShaderLoc "enabled"
+    GetShaderLoc "type"
+    GetShaderLoc "position"
+    GetShaderLoc "target"
+    GetShaderLoc "color"
+    0 # attenuationLoc
   ⟩
 }
 
