@@ -39,7 +39,6 @@
   # functions applied to a list
   Vector3Unproject
   Vector3OrthoNormalize
-  Vector3RotateByAxisAngle
   VectorClampValue
   VectorAngle
   VectorLength ⋄ VectorLengthSqr
@@ -115,7 +114,7 @@
 # Vector2DotProduct   ← Vector3DotProduct ← VectorDotProduct 
 # Vector2Distance     ← Vector3Distance   ← VectorDistance
 # Vector2Lerp         ← Vector3Lerp       ← QuaternionLerp ← Lerp
-# Vector2Transform    ← Vector3Transform  ← VectorTransform ← 4⊸↑⌾(-⟜1)⊸MP
+# Vector2Transform    ← Vector3Transform  ← VectorTransform ← 4⊸↑⌾¬⊸MP
 # QuaternionTransform ← MP
 # Vector2ClampValue   ← Vector3ClampValue ← VectorClampValue
 # Vector2Equals       ← Vector3Equals     ← VectorEquals ← VectorEquals
@@ -231,7 +230,7 @@ VectorNormalize ← ÷⟜(0⊸=⊸++´⌾(×˜))
 # Makes vectors normalized and orthogonal to each other
 # Gram-Schmidt function implementation
 Vector3OrthoNormalize ← {v1𝕊v2:
-  # Vector3Normalize v1
+  # VectorNormalize v1
   F ← ÷⟜(0⊸=⊸++´⌾(×˜))
 
   # Vector3CrossProduct´v1‿v2
