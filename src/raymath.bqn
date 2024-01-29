@@ -389,9 +389,9 @@ MatrixPerspective ← {𝕊fovy‿aspect‿near‿far:
 
   # MatrixFrustum(-right, right, -top, top, near, far);
   [
-    ⟨near×2 ⋄ 0      ⋄ right+left   ⋄ 0         ⟩0⊸=⊸+÷right-left
-    ⟨0      ⋄ near×2 ⋄   top+bottom ⋄ 0         ⟩0⊸=⊸+÷  top-bottom
-    ⟨0      ⋄ 0      ⋄   far+near   ⋄ far×near×2⟩0⊸=⊸+÷ near-far
+    ⟨near×2 ⋄ 0      ⋄ right+left   ⋄ 0         ⟩÷0⊸=⊸+right-left
+    ⟨0      ⋄ near×2 ⋄   top+bottom ⋄ 0         ⟩÷0⊸=⊸+  top-bottom
+    ⟨0      ⋄ 0      ⋄   far+near   ⋄ far×near×2⟩÷0⊸=⊸+ near-far
     ⟨0      ⋄ 0      ⋄ ¯1           ⋄ 0         ⟩
   ]
 }
@@ -399,9 +399,9 @@ MatrixPerspective ← {𝕊fovy‿aspect‿near‿far:
 # Get orthographic projection matrix
 MatrixOrtho ← {𝕊left‿right‿bottom‿top‿near‿far:
   [
-    ⟨ 2 ⋄ 0 ⋄  0 ⋄ -left+right  ⟩÷right-left
-    ⟨ 0 ⋄ 2 ⋄  0 ⋄ -top +bottom ⟩÷top-bottom
-    ⟨ 0 ⋄ 0 ⋄ ¯2 ⋄ -far +near   ⟩÷far-near
+    ⟨ 2 ⋄ 0 ⋄  0 ⋄ -left+right  ⟩÷0⊸=⊸+right-left
+    ⟨ 0 ⋄ 2 ⋄  0 ⋄ -top +bottom ⟩÷0⊸=⊸+top-bottom
+    ⟨ 0 ⋄ 0 ⋄ ¯2 ⋄ -far +near   ⟩÷0⊸=⊸+far-near
     ⟨ 0 ⋄ 0 ⋄  0 ⋄ 1            ⟩
   ]
 }
