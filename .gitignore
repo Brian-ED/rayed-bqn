@@ -9,3 +9,6 @@ config.bqn
 
 # Tests that aren't done
 0_inProgress
+
+# hide editor files
+.vscode
