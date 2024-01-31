@@ -147,7 +147,6 @@ MatrixScale ← {𝕊v:𝕩×=⌜˜↕≠𝕩}
 epsilon ← 1e¯6
 rad2deg ← ÷deg2rad ← π÷180
 
-⟨Sin, Cos, Tan, Atan2⟩←•math
 ⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
 
 Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
@@ -197,18 +196,18 @@ VectorDistance ← +´⌾(×˜)-
 # Calculate angle between two vectors
 # NOTE: Angle is calculated from origin point (0, 0)
 VectorAngle ← {
-  3≠≠𝕩? (Cos⁼+´∘×÷×○(+´⌾(×˜)))´𝕨‿𝕩  # length3 is faster
+  3≠≠𝕩? (•math.Cos⁼+´∘×÷×○(+´⌾(×˜)))´𝕨‿𝕩  # length3 is faster
 ;
-  (+´∘×Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽})´𝕨‿𝕩
+  (+´∘×•math.Atan2·+´⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽})´𝕨‿𝕩
 }
 
 # Calculate angle defined by a two vectors line
 # NOTE: Parameters need to be normalized
 # Current implementation should be aligned with glm::angle
-Vector2LineAngle ← Cos⁼1⌈¯1⌈+´∘× # start 𝕊 end
+Vector2LineAngle ← •math.Cos⁼1⌈¯1⌈+´∘× # start 𝕊 end
 
 # Rotate vector by angle:  angle 𝕊 vector2
-Vector2Rotate ← (Cos∾Sin)⊸(-´∘×⋈·+´⌽⊸×)
+Vector2Rotate ← (•math.Cos∾•math.Sin)⊸(-´∘×⋈·+´⌽⊸×)
 
 # Move Vector towards target
 VectorMoveTowards ← {target‿maxDistance𝕊v:
@@ -265,8 +264,8 @@ Vector3RotateByAxisAngle ← {𝕊v‿axisV3‿angle:
   # Using Euler-Rodrigues Formula
   # Ref.: https://en.wikipedia.org/w/index.php?title=Euler%E2%80%93Rodrigues_formula
   
-  a ← Cos angle÷2
-  w ← axisV3 ÷⟜(0⊸=⊸++´⌾(×˜))⊸× Sin angle÷2
+  a ← •math.Cos angle÷2
+  w ← axisV3 ÷⟜(0⊸=⊸++´⌾(×˜))⊸× •math.Sin angle÷2
   F ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
   v+2×(w⊸F+a⊸×) w F v
 }
@@ -340,7 +339,7 @@ MatrixTranslate ← {𝕊x‿y‿z:
 MatrixRotate ← {𝕊axis‿angle: # v3 f
   v ← ×⌜˜÷⟜(0⊸=⊸++´⌾(×˜)) axis
   x‿y‿z ← axis
-  (v×¬Cos angle)+((=⌜˜↕3)⊏(Sin∾Cos)angle)×[
+  (v×¬•math.Cos angle)+((=⌜˜↕3)⊏(•math.Sin∾•math.Cos)angle)×[
     ⟨ 1 ⋄-z ⋄ y⟩
     ⟨ z ⋄ 1 ⋄-x⟩
     ⟨-y ⋄ x ⋄ 1⟩
@@ -348,16 +347,16 @@ MatrixRotate ← {𝕊axis‿angle: # v3 f
 }
 
 # NOTE: Angle must be provided in radians
-MatrixRotate2D ←  (≍⟜-˝≍⌽)Cos≍Sin
-MatrixRotateX ← {((≍⟜-˝≍⌽)Cos≍Sin)∘𝕩⌾(⍉·1‿2⊸⊏˘1‿2⊸⊏)=⌜˜↕3}
-MatrixRotateY ← {((≍⟜-˝≍⌽)Cos≍Sin)∘𝕩⌾(  0‿2⊸⊏˘0‿2⊸⊏)=⌜˜↕3}
-MatrixRotateZ ← {((≍⟜-˝≍⌽)Cos≍Sin)∘𝕩⌾(⍉·0‿1⊸⊏˘0‿1⊸⊏)=⌜˜↕3}
+MatrixRotate2D ←  (≍⟜-˝≍⌽)•math.Cos≍•math.Sin
+MatrixRotateX ← {((≍⟜-˝≍⌽)•math.Cos≍•math.Sin)∘𝕩⌾(⍉·1‿2⊸⊏˘1‿2⊸⊏)=⌜˜↕3}
+MatrixRotateY ← {((≍⟜-˝≍⌽)•math.Cos≍•math.Sin)∘𝕩⌾(  0‿2⊸⊏˘0‿2⊸⊏)=⌜˜↕3}
+MatrixRotateZ ← {((≍⟜-˝≍⌽)•math.Cos≍•math.Sin)∘𝕩⌾(⍉·0‿1⊸⊏˘0‿1⊸⊏)=⌜˜↕3}
 
 # Get xyz-rotation matrix
 # NOTE: Angle must be provided in radians
 MatrixRotateXYZ ← {𝕊angle:
   [cx‿cy‿cz
-   sx‿sy‿sz] ← (Cos≍Sin)-𝕩
+   sx‿sy‿sz] ← (•math.Cos≍•math.Sin)-𝕩
   [
     ⟨ cy×cz ⋄ (sx×cz×sy) - sz×cx ⋄ (cx×sy×cz) + sz×sx ⟩
     ⟨ cy×sz ⋄ (sx×sy×sz) + cz×cx ⋄ (cx×sy×sz) - cz×sx ⟩
@@ -382,7 +381,7 @@ MatrixFrustum ← {𝕊left‿right‿bottom‿top‿near‿far:
 # Get perspective projection matrix
 # NOTE: Fovy angle must be provided in radians
 MatrixPerspective ← {𝕊fovy‿aspect‿near‿far:
-  top    ← near×Tan fovy÷2
+  top    ← near×•math.Tan fovy÷2
   bottom ← -top
   right  ← top×aspect
   left   ← -right
@@ -456,9 +455,9 @@ QuaternionSlerp ← {𝕊q1‿q2‿amount:
   ;
     0.95 < cosHalfTheta? ÷⟜(0⊸=⊸++´⌾(×˜))amount⊸×⌾(-⟜q1)q2
   ;
-    sinHalfTheta ← Sin halfTheta ← Cos⁼cosHalfTheta
+    sinHalfTheta ← •math.Sin halfTheta ← •math.Cos⁼cosHalfTheta
     0.001 ≤ sinHalfTheta?
-    +˝[q1⋄q2]×sinHalfTheta÷˜Sin halfTheta×¬⊸⋈amount
+    +˝[q1⋄q2]×sinHalfTheta÷˜•math.Sin halfTheta×¬⊸⋈amount
   ;
     (+˝÷≠)[q1⋄q2]
   }
@@ -479,7 +478,7 @@ QuaternionFromVector3ToVector ← {to𝕊from: # v3𝕊v3
 # NOTE: Angle must be provided in radians
 QuaternionFromAxisAngle ← {angle𝕊axis:
   Norm ← ÷⟜(0⊸=⊸++´⌾(×˜))
-  Norm (Cos∾˜axis Norm⊸×Sin) angle÷2
+  Norm (•math.Cos∾˜axis Norm⊸×•math.Sin) angle÷2
 }
 
 # Get the rotation angle and axis for a given quaternion
@@ -488,10 +487,10 @@ QuaternionToAxisAngle ← {𝕊𝕩:
   # QuaternionNormalize(q);
   x‿y‿z‿w ← ÷⟜(0⊸=⊸++´⌾(×˜))𝕩 # removed ⍟{1<|¯1⊑𝕩}
 
-  angle ← 2×Cos⁼w
+  angle ← 2×•math.Cos⁼w
 
   # when the angle is zero just set an arbitrary normalized axis. (0‿0‿1)
-  axis ← (Sin Cos⁼w){x‿y‿z÷𝕨}⍟(≠⟜0)0‿0‿1
+  axis ← (•math.Sin •math.Cos⁼w){x‿y‿z÷𝕨}⍟(≠⟜0)0‿0‿1
 
   axis‿angle
 }
@@ -502,20 +501,20 @@ QuaternionToEuler‿QuaternionFromEuler ← {f𝕊g:{𝕊⁼:𝕨G𝕩;𝕨F𝕩
   {𝕊x‿y‿z‿w: # QuaternionToEuler
     ⟨
       # Roll (x-axis rotation)
-      (×˜x‿y)¬⊸Atan2○(2×+´)x‿y×w‿z
+      (×˜x‿y)¬⊸•math.Atan2○(2×+´)x‿y×w‿z
 
       # Pitch (y-axis rotation)
-      Sin⁼¯1⌈1⌊2×-´×˝2‿2⥊𝕩
+      •math.Sin⁼¯1⌈1⌊2×-´×˝2‿2⥊𝕩
 
       # Yaw (z-axis rotation)
-      (×˜y‿z)¬⊸Atan2○(2×+´)x‿z×y‿w
+      (×˜y‿z)¬⊸•math.Atan2○(2×+´)x‿z×y‿w
     ⟩
   }
 
   # Get the quaternion equivalent to Euler angles
   # NOTE: Rotation order is ZYX
   {𝕊pitch‿yaw‿roll: # QuaternionFromEuler
-    +⟜(¯1‿1‿¯1‿1⊸×)´ ×˝¨(⋈⟜¬ ⍉4‿3⥊0‿1‿1‿1) ⊏˘¨ <(Sin≍˘Cos) 𝕩÷2
+    +⟜(¯1‿1‿¯1‿1⊸×)´ ×˝¨(⋈⟜¬ ⍉4‿3⥊0‿1‿1‿1) ⊏˘¨ <(•math.Sin≍˘•math.Cos) 𝕩÷2
   }
 ⟩
 
