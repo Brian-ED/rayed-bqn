@@ -56,7 +56,7 @@ brew install raylib
 Now run an example, if it doesn't work please post an issue.
 
 ### Without Homebrew
-If you don't use homebrew you can get raylib by downloading the macos [Raylib release](https://github.com/raysan5/raylib/releases/) `raylib-VERSION_macos.tar.gz` (replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as tests, rayffi.bqn and raylib.bqn and rename the unarchived `raylib-VERSION_macos.tar.gz` folder to "raylib".
+If you don't use Homebrew you can get raylib by downloading the MacOS [Raylib release](https://github.com/raysan5/raylib/releases/) `raylib-VERSION_macos.tar.gz` (replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as tests, `rayffi.bqn` and `raylib.bqn` and rename the unarchived `raylib-VERSION_macos.tar.gz` folder to "raylib".
 
 Now run an example, if it doesn't work please post an issue.
 
