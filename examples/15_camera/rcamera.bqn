@@ -35,12 +35,14 @@
 #
 # Function specifiers definition
 
-⟨rf⇐rayffi, key, mouse
+⟨key, mouse
   ⟨
-    GetMouseDelta
     GetFrameTime
     cameraProjection
     cameraMode
+    gamepadAxis
+    GetGamepadAxisMovement
+    IsGamepadAvailable
   ⟩ ⇐ rayffi
 
   ⟨
@@ -91,7 +93,7 @@ GetCameraRight ← {𝕊camera:
 }
 
 # Moves the camera in its forward direction
-CameraMoveForward ← {𝕊camera‿distance‿moveInWorldPlane:
+CameraMoveForward ← {distance‿moveInWorldPlane𝕊camera:
 
   forward ← {
     # Project vector onto world plane
@@ -103,12 +105,12 @@ CameraMoveForward ← {𝕊camera‿distance‿moveInWorldPlane:
 }
 
 # Moves the camera in its up direction
-CameraMoveUp ← {𝕊camera‿distance:
+CameraMoveUp ← {distance𝕊camera:
   (distance×GetCameraUp camera)⊸+¨⌾(cameraIndex.position‿cameraIndex.target⊸⊏)camera
 }
 
 # Moves the camera target in its current right direction
-CameraMoveRight ← {𝕊camera‿distance‿moveInWorldPlane:
+CameraMoveRight ← {distance‿moveInWorldPlane𝕊camera:
   right ← {
     # Project vector onto world plane
     ÷⟜(0⊸=⊸++´⌾(×˜)) 0⌾(1⊸⊑) 𝕩
@@ -131,7 +133,7 @@ CameraMoveToTarget ← {delta𝕊camera:
 # Yaw is "looking left and right"
 # If rotateAroundTarget is false, the camera rotates around its position
 # Note: angle must be provided in radians
-CameraYaw ← {𝕊camera‿angle‿rotateAroundTarget:
+CameraYaw ← {angle‿rotateAroundTarget𝕊camera:
   up ← GetCameraUp camera # Rotation axis
 
   # View vector
@@ -155,7 +157,7 @@ CameraYaw ← {𝕊camera‿angle‿rotateAroundTarget:
 #  - rotateAroundTarget defines if rotation is around target or around its position
 #  - rotateUp rotates the up direction as well (typically only usefull in CAMERA_FREE)
 # NOTE: angle must be provided in radians
-CameraPitch ← {𝕊camera‿angle‿lockView‿rotateAroundTarget‿rotateUp:
+CameraPitch ← {angle‿lockView‿rotateAroundTarget‿rotateUp𝕊camera:
   # Up direction
   up ← GetCameraUp camera
 
@@ -246,9 +248,8 @@ MakeCameraUpdater ← {𝕊⟨
     camera_mouse_scroll_sensitivity
   ⟩:
   
-  {mode𝕊camera:
-    mouseDelta ← GetMouseDelta⟨⟩
-    cm ← rf.cameraMode
+  {mode‿mouseDelta𝕊camera:
+    cm ← cameraMode
     moveInWorldPlane   ← ∨´mode=cm.camera_third_person                  ‿cm.camera_first_person
     rotateAroundTarget ← ∨´mode=cm.camera_third_person‿cm.camera_orbital
     lockView           ← ∨´mode=cm.camera_third_person‿cm.camera_orbital‿cm.camera_first_person‿cm.camera_free
@@ -262,55 +263,55 @@ MakeCameraUpdater ← {𝕊⟨
       (cameraIndex.target + view)⌾(cameraIndex.position⊸⊑)camera
     ;
       # Camera rotation
-      camera ↩ CameraPitch⟨camera, camera_rotation_speed×-´key.IsDown¨key.up‿key.down , lockView, rotateAroundTarget, rotateUp⟩
-      camera ↩ CameraYaw  ⟨camera, camera_rotation_speed×-´key.IsDown¨key.left‿key.right, rotateAroundTarget⟩
-      camera ↩ CameraRoll⟜camera   camera_rotation_speed×-´key.IsDown¨key.e‿key.q
+      camera CameraPitch˜↩ ⟨camera_rotation_speed×-´key.IsDown¨key.up‿key.down , lockView, rotateAroundTarget, rotateUp⟩
+      camera CameraYaw  ˜↩ ⟨camera_rotation_speed×-´key.IsDown¨key.left‿key.right, rotateAroundTarget⟩
+      camera CameraRoll ˜↩ camera_rotation_speed×-´key.IsDown¨key.e‿key.q
 
       # Camera movement
       # Camera pan (for CAMERA_FREE)
       {(mode = cm.camera_free) ∧ mouse.IsButtonDown mouse.button.middle?
-        camera ↩ CameraMoveRight⟨camera,  camera_pan_speed×(0⊑mouseDelta) > 0, moveInWorldPlane⟩
-        camera ↩ CameraMoveRight⟨camera, -camera_pan_speed×(0⊑mouseDelta) < 0, moveInWorldPlane⟩
-        camera ↩ CameraMoveUp   ⟨camera, -camera_pan_speed×(1⊑mouseDelta) > 0⟩
-        camera ↩ CameraMoveUp   ⟨camera,  camera_pan_speed×(1⊑mouseDelta) < 0⟩
+        camera CameraMoveRight⍟(0<0⊑mouseDelta)˜↩⟨ camera_pan_speed, moveInWorldPlane⟩
+        camera CameraMoveRight⍟(0>0⊑mouseDelta)˜↩⟨-camera_pan_speed, moveInWorldPlane⟩
+        camera CameraMoveUp   ⍟(0<1⊑mouseDelta)˜↩ -camera_pan_speed
+        camera CameraMoveUp   ⍟(0>1⊑mouseDelta)˜↩  camera_pan_speed
       ;
         # Mouse support
-        camera ↩ CameraYaw  ⟨camera, -(0⊑mouseDelta)×camera_mouse_move_sensitivity, rotateAroundTarget⟩
-        camera ↩ CameraPitch⟨camera, -(1⊑mouseDelta)×camera_mouse_move_sensitivity, lockView, rotateAroundTarget, rotateUp⟩
+        camera CameraYaw  ˜↩⟨-(0⊑mouseDelta)×camera_mouse_move_sensitivity, rotateAroundTarget⟩
+        camera CameraPitch˜↩⟨-(1⊑mouseDelta)×camera_mouse_move_sensitivity, lockView, rotateAroundTarget, rotateUp⟩
       }
 
       # Keyboard support
-      camera ↩ CameraMoveForward⟨camera,  camera_move_speed×key.IsDown key.w, moveInWorldPlane⟩
-      camera ↩ CameraMoveRight  ⟨camera, -camera_move_speed×key.IsDown key.a, moveInWorldPlane⟩
-      camera ↩ CameraMoveForward⟨camera, -camera_move_speed×key.IsDown key.s, moveInWorldPlane⟩
-      camera ↩ CameraMoveRight  ⟨camera,  camera_move_speed×key.IsDown key.d, moveInWorldPlane⟩
+      camera CameraMoveForward˜↩⟨ camera_move_speed×key.IsDown key.w, moveInWorldPlane⟩
+      camera CameraMoveRight  ˜↩⟨-camera_move_speed×key.IsDown key.a, moveInWorldPlane⟩
+      camera CameraMoveForward˜↩⟨-camera_move_speed×key.IsDown key.s, moveInWorldPlane⟩
+      camera CameraMoveRight  ˜↩⟨ camera_move_speed×key.IsDown key.d, moveInWorldPlane⟩
 
       # Gamepad movement
       {𝕤
-        # Gamepad controller support
-        camera ↩ CameraYaw  ⟨camera, camera_mouse_move_sensitivity×¯2×rf.GetGamepadAxisMovement 0‿rf.gamepadAxis.gamepad_axis_right_x,           rotateAroundTarget⟩
-        camera ↩ CameraPitch⟨camera, camera_mouse_move_sensitivity×¯2×rf.GetGamepadAxisMovement 0‿rf.gamepadAxis.gamepad_axis_right_y, lockView, rotateAroundTarget, rotateUp⟩
+        G ← GetGamepadAxisMovement 0⊸⋈
 
-        camera ↩ CameraMoveForward⍟(¯0.25≥rf.GetGamepadAxisMovement 0‿rf.gamepadAxis.gamepad_axis_left_y)⟨camera,  camera_move_speed, moveInWorldPlane⟩
-        camera ↩ CameraMoveRight  ⍟(¯0.25≥rf.GetGamepadAxisMovement 0‿rf.gamepadAxis.gamepad_axis_left_x)⟨camera, -camera_move_speed, moveInWorldPlane⟩
-        camera ↩ CameraMoveForward⍟( 0.25≤rf.GetGamepadAxisMovement 0‿rf.gamepadAxis.gamepad_axis_left_y)⟨camera, -camera_move_speed, moveInWorldPlane⟩
-        camera ↩ CameraMoveRight  ⍟( 0.25≤rf.GetGamepadAxisMovement 0‿rf.gamepadAxis.gamepad_axis_left_x)⟨camera,  camera_move_speed, moveInWorldPlane⟩
-      }⍟⊢ rf.IsGamepadAvailable 0
+        # Gamepad controller support
+        camera CameraYaw  ˜↩⟨camera_mouse_move_sensitivity×¯2×G gamepadAxis.gamepad_axis_right_x,           rotateAroundTarget⟩
+        camera CameraPitch˜↩⟨camera_mouse_move_sensitivity×¯2×G gamepadAxis.gamepad_axis_right_y, lockView, rotateAroundTarget, rotateUp⟩
+
+        camera CameraMoveForward⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_y)˜↩ ⟨ camera_move_speed, moveInWorldPlane⟩
+        camera CameraMoveForward⍟( 0.25≤G gamepadAxis.gamepad_axis_left_y)˜↩ ⟨-camera_move_speed, moveInWorldPlane⟩
+        camera CameraMoveRight  ⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_x)˜↩ ⟨-camera_move_speed, moveInWorldPlane⟩
+        camera CameraMoveRight  ⍟( 0.25≤G gamepadAxis.gamepad_axis_left_x)˜↩ ⟨ camera_move_speed, moveInWorldPlane⟩
+      }⍟⊢ IsGamepadAvailable 0
 
       {𝕤
-        camera {CameraMoveUp ⟨𝕩,  camera_move_speed⟩}⍟(key.IsDown key.space) ↩
-        camera {CameraMoveUp ⟨𝕩, -camera_move_speed⟩}⍟(key.IsDown key.left_control) ↩
+        camera CameraMoveUp⍟(key.IsDown key.space       )˜↩  camera_move_speed
+        camera CameraMoveUp⍟(key.IsDown key.left_control)˜↩ -camera_move_speed
       }⍟⊢mode=cm.camera_free
     }
 
     {
       # Zoom target distance
-      camera ↩ 𝕩 CameraMoveToTarget˜-mouse.WheelMoved@
-      camera CameraMoveToTarget˜ 2×+´⟨
-        key.IsPressed key.keypad.subtract
-        -key.IsPressed key.keypad.add
-      ⟩
-    }⍟(∨´mode=cm.camera_third_person‿cm.camera_orbital‿cm.camera_free) camera
+      camera CameraMoveToTarget˜↩-mouse.WheelMoved@
+      camera CameraMoveToTarget˜↩2×-´key.IsPressed¨key.keypad.subtract‿key.keypad.add 
+    }⊢∨´mode=cm.camera_third_person‿cm.camera_orbital‿cm.camera_free
+    camera
   }
 }
 
@@ -327,7 +328,7 @@ updateCamera ← MakeCameraUpdater {
 
 
 # Update camera movement, movement/rotation values should be provided by user
-UpdateCameraPro ← {𝕊camera‿movement‿rotation‿zoom:
+UpdateCameraPro ← {movement‿rotation‿zoom𝕊camera:
   # Required values
   # movement.x - Move forward/backward
   # movement.y - Move right/left
@@ -343,14 +344,14 @@ UpdateCameraPro ← {𝕊camera‿movement‿rotation‿zoom:
   moveInWorldPlane   ← 1
 
   # Camera rotation
-  camera ↩ CameraYaw  ⟨camera, -(0⊑rotation)×deg2rad, rotateAroundTarget⟩
-  camera ↩ CameraPitch⟨camera, -(1⊑rotation)×deg2rad, lockView, rotateAroundTarget, rotateUp⟩
-  camera ↩ CameraRoll ⟨camera,  (2⊑rotation)×deg2rad⟩
+  camera CameraYaw  ˜↩⟨-(0⊑rotation)×deg2rad, rotateAroundTarget⟩
+  camera CameraPitch˜↩⟨-(1⊑rotation)×deg2rad, lockView, rotateAroundTarget, rotateUp⟩
+  camera CameraRoll ˜↩  (2⊑rotation)×deg2rad
 
   # Camera movement
-  camera ↩ CameraMoveForward⟨camera, 0⊑movement, moveInWorldPlane⟩
-  camera ↩ CameraMoveRight  ⟨camera, 1⊑movement, moveInWorldPlane⟩
-  camera ↩ CameraMoveUp     ⟨camera, 2⊑movement⟩
+  camera CameraMoveForward˜↩⟨0⊑movement, moveInWorldPlane⟩
+  camera CameraMoveRight  ˜↩⟨1⊑movement, moveInWorldPlane⟩
+  camera CameraMoveUp     ˜↩ 2⊑movement
 
   # Zoom target distance
   CameraMoveToTarget camera‿zoom

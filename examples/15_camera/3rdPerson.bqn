@@ -57,8 +57,8 @@ PerFrame←{𝕊camera‿cameraMode:
         20 # near plane width in CAMERA_ORTHOGRAPHIC
         rf.cameraProjection.camera_orthographic
       ⟩
-      newCam ↩ rCamera.CameraYaw  ⟨newCam, ¯135×π÷180, 1⟩
-      newCam ↩ rCamera.CameraPitch⟨newCam,  ¯45×π÷180, 1, 1, 0⟩
+      newCam rCamera.CameraYaw  ˜↩⟨¯135×π÷180, 1⟩
+      newCam rCamera.CameraPitch˜↩⟨ ¯45×π÷180, 1, 1, 0⟩
       newCam
   ; (cameraIndex.projection⊑𝕩) = rf.cameraProjection.camera_orthographic?
 
@@ -76,7 +76,7 @@ PerFrame←{𝕊camera‿cameraMode:
   # Update camera computes movement internally depending on the camera mode
   # Some default standard keyboard/mouse inputs are hardcoded to simplify use
   # For advance camera controls, it's reecommended to compute camera movement manually
-  camera rcamera.UpdateCamera˜ ↩ cameraMode
+  camera rcamera.UpdateCamera˜ ↩ cameraMode⋈rf.GetMouseDelta⟨⟩
 
   # Draw
   {𝕤
