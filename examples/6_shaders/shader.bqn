@@ -1,23 +1,3 @@
-# /*******************************************************************************************
-# *
-# *   raylib [shaders] example - basic lighting
-# *
-# *   NOTE: This example requires raylib OpenGL 3.3 or ES2 versions for shaders support,
-# *         OpenGL 1.1 does not support shaders, recompile raylib to OpenGL 3.3 version.
-# *
-# *   NOTE: Shaders used in this example are #version 330 (OpenGL 3.3).
-# *
-# *   Example originally created with raylib 3.0, last time updated with raylib 4.2
-# *
-# *   Example contributed by Chris Camacho (@codifies) and reviewed by Ramon Santamaria (@raysan5)
-# *
-# *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-# *   BSD-like license that allows static linking with closed source software
-# *
-# *   Copyright (c) 2019-2024 Chris Camacho (@codifies) and Ramon Santamaria (@raysan5)
-# *
-# ********************************************************************************************/
-
 P ← •term.Flush∘@∘•Show⊸⊢
 
 # depending on rlgl version, you can set this to 100, 120, and 330
