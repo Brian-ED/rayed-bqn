@@ -385,8 +385,14 @@ font ← {
 }
 clipboard ← {
   ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
-  Get ⇐ low.StrLen⊸low.MakeUTF8 rayffi.GetClipboardText∘⟨⟩
-  Set ⇐ rayffi.SetClipboardText ToBytes⊣NeedsWindow
+  Get ⇐ {𝕊
+    NeedsWindow@
+    low.StrLen⊸low.MakeUTF8 rayffi.GetClipboardText⟨⟩
+  }
+  Set ⇐ {𝕊text:
+    NeedsWindow@
+    rayffi.SetClipboardText ToBytes 𝕩
+  }
 }
 
 # start clock then tick at the start of every frame to get accurate clock.delta and clock.time
