@@ -388,11 +388,6 @@ clipboard ← {
   Get ⇐ low.StrLen⊸low.MakeUTF8 rayffi.GetClipboardText∘⟨⟩
   Set ⇐ rayffi.SetClipboardText ToBytes⊣NeedsWindow
 }
-utils ← {
-  ⟨_FromCenter⋄_bitwise⟩⇐
-  _FromCenter ← {𝔽_𝕣𝕩:c←(+˝÷≠)˘𝕩⋄𝔽⌾(-⟜c)𝕩}                             # example: 2⊸×_FromCenter [x1‿x2‿x3⋄y1‿y2‿y3⋄z1‿z2‿z3]
-  _bitwise ← {2⊸×⊸+˜´𝕨(0⊘1⊣◶⟨𝔽∘⊑⊢⋄𝔽´⊢⟩⌈○≠↑¨⋈)○(2|⌊∘÷⟜2⍟(↕1+·⌊2⋆⁼1⌈⊢))𝕩}
-}
 
 # start clock then tick at the start of every frame to get accurate clock.delta and clock.time
 StartClock ← {𝕊@:

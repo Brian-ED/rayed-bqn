@@ -137,13 +137,3 @@ e!(Approx GetWorldToScreenEx pos‿camera3D‿width‿height) ≡ 2396.74492‿7
 
 
 •Out "RCore tests passed"
-
-
-⟨⟨_FromCenter⟩⇐utils⟩←•Import "../raylib.bqn"
-
-e↩"_FromCenter"
-e!(Approx 2⊸×_FromCenter[10‿15⋄15‿20⋄20‿25]) ≡ (3‿2⥊7.5‿17.5‿12.5‿22.5‿17.5‿27.5)
-e!(Approx 2⊸×_FromCenter[10‿15‿15⋄15‿20‿20]) ≡ (2‿3⥊6.66667‿16.66667‿16.66667‿11.66667‿21.66667‿21.66667)
-
-•Out "utils tests passed"
-
