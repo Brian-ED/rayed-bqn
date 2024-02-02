@@ -7,7 +7,7 @@
 # -------
 # Exports
 ⟨draw, texture, monitor, window, mouse
- font, key, utils, clipboard, StartClock
+ font, key, clipboard, StartClock
  sound, bqnoise, raymath, image, low⟩⇐
 
 ⟨
