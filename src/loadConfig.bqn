@@ -32,7 +32,7 @@ newExports ← {
   𝕊"rayliblibpath": {
     os≡"windows"?
       p←".\raylib\lib\raylib.dll"
-      (Exists ".." •file.At p)!˜err∾"Couldn't find raylib.dll file at path: "∾p
+      (•file.Exists ".." •file.At p)!˜err∾"Couldn't find raylib.dll file at path: "∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
     os≡"darwin"?
@@ -51,7 +51,7 @@ newExports ← {
 ; 𝕊"raylibheaderpath": {
     os≡"windows"?
       p←".\raylib\include\raylib.h"
-      (Exists ".." •file.At p)!˜err∾"Couldn't find raylib.h file at path: "∾p
+      (•file.Exists ".." •file.At p)!˜err∾"Couldn't find raylib.h file at path: "∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
     os≡"darwin"?
