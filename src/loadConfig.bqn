@@ -31,7 +31,7 @@ Exists ← •file.Exists (•file.Parent confPath)⊸•file.At
 newExports ← {
   𝕊"rayliblibpath": {
     os≡"windows"?
-      p←"../raylib/lib/raylib.dll"
+      p←".\raylib\lib\raylib.dll"
       (Exists p)!˜err∾"Couldn't find raylib.dll file at path: "∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
@@ -50,7 +50,7 @@ newExports ← {
   }𝕩
 ; 𝕊"raylibheaderpath": {
     os≡"windows"?
-      p←"../raylib/include/raylib.h"
+      p←".\raylib\include\raylib.h"
       (Exists p)!˜err∾"Couldn't find raylib.h file at path: "∾p
       𝕩∾" ⇐ "∾•Repr p
   ;
