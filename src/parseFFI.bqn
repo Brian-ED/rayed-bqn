@@ -6,8 +6,8 @@
 json ← •Import "imports/bqn-libs/json.bqn"
 ⟨ToFFI⋄ParseHeader⋄SetPath⟩ ← •Import "imports/c-header-to-bqn-ffi/parse.bqn"
 
-HasLibError    ← ".."⊸•file.Exists!˜"Library file expected at "⊸∾∾" according to config.bqn"˙
-HasHeaderError ← (".."⊸•file.Exists∧".h"⊸(⊣≡-∘≠⊸↑))!˜"Header file expected at "⊸∾∾" according to config.bqn"˙
+HasLibError    ← •file.Exists∘(".."⊸•file.At)!˜"Library file expected at "⊸∾∾" according to config.bqn"˙
+HasHeaderError ← (•file.Exists∘(".."⊸•file.At)∧".h"⊸(⊣≡-∘≠⊸↑))!˜"Header file expected at "⊸∾∾" according to config.bqn"˙
 HasPathsError ← {libPath‿headerPath:
   HasLibError libPath
   HasHeaderError headerPath
