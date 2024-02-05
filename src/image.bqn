@@ -50,7 +50,7 @@ LoadFromArr ← {𝕨𝕊img:
   format ← 𝕨⊣default
   NeedsWindow@
   standardImg ← format‿default ReFormat img 
-  l low.Read ptr←rayffi.MemAlloc≠l←¯128+256|128+⥊standardImg
+  l low.Read ptr←rayffi.MemAlloc≠l←¯128+256|128+⥊⍉standardImg
   ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 
@@ -90,22 +90,12 @@ GenGradientLinear ← {𝕊size‿radianDirection‿start‿end: # ⟨i⋄i⟩�
 }
 
 # Generate image: square gradient
-GenGradientSquare ← {𝕊size‿density‿inner‿outer: # ⟨i⋄i⟩‿f‿color‿color # Generate image: square gradient
-  center ← size÷2
-  >{𝕤
-    # Normalize the distances by the dimensions of the gradient rectangle
-    normalizedDist ← center÷˜|𝕩-center
-
-    # Calculate the total normalized Manhattan distance
-    manhattanDist ← ⌈´normalizedDist
-
-    # makes the gradient start from the center when density is 0, and from the edge when density is 1
-    factor ← 1⌊0⌈(manhattanDist⊸-÷¬)density
-
-    # Blend the colors based on the calculated factor
-    (outer⊸×+inner×¬)factor
-
-  }¨↕size
+GenGradientSquare ← {𝕊size‿inner‿outer: # ⟨i⋄i⟩‿f‿color‿color # Generate image: square gradient
+  # Normalize the distances by the dimensions of the gradient rectangle
+  # Calculate the total normalized Manhattan distance
+  # makes the gradient start from the center when density is 0, and from the edge when density is 1
+  # Blend the colors based on the calculated factor
+  ⍉⌊((outer×⌜⊢)+inner×⌜¬) ⌈˝|1+(2÷˜0⊸=⊸+1-size)÷˜⍉⁼>↕size
 }
 
 #----------------------------------------------------------------------------------
@@ -196,3 +186,34 @@ ReFormat ← {oldFormat‿newFormat𝕊image:
 #image ← 3‿3‿2⥊[155‿255,0‿0]
 #
 #•Show oldFormat‿newFormat ReFormat image
+
+# TESTING
+# ⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "/home/brian/rayed-bqn/raylib.bqn"
+# 
+# PerFrame ← {tex1‿tex2‿font𝕊scrolled:
+#   c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.fps.Get⊸∾" FPS"
+#   {d.Texture⟜m.GetPos c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
+#   {d.Texture⟜(0‿700+m.GetPos) c.white‿tex2∾𝕩∾˜÷5}¨𝕩+90×↕4
+#   90|m.WheelMoved⊸+𝕩
+# } d._withCanvas_ c.black
+# 
+# r.window.SetSize 0.5‿0
+# 
+# {𝕤
+#   r.window.SetPos 1000‿0
+#   font ← r.font.LoadBQN@
+#   size ← 1000‿1000
+# 
+#   img1 ← @
+#   •Show {img1↩r.rayffi.GenImageGradientSquare𝕩}•_Timed size∾⟨0, 255‿0‿0‿255, 4⥊255⟩
+#   img2 ← @
+#   •Show {img2↩GenGradientSquare𝕩} •_Timed ⟨size, 255‿0‿0‿255, 4⥊255⟩
+#   img2 LoadFromArr↩
+#   
+#   t‿l ← r.rayffi.LoadTextureFromImage¨ img1‿img2
+#   r.image.Unload¨img1‿img2
+# 
+#   l‿t‿font PerFrame•_While_(¬w.ShouldClose) 0
+#   r.texture.Unload¨t‿l
+#   r.font.Unload font
+# } w._openAs "test"
