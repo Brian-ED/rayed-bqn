@@ -49,6 +49,21 @@ rf.SetConfigFlags rf.configFlags.flag_msaa_4x_hint  # Enable Multi Sampling Anti
 # sets window size to half the monitor size
 window.SetSize 0.5
 
+NestedStructToStr1 ← {
+  1≥≡𝕩?𝕩;
+  F: {'{'∾'}'«∾','∾¨F¨"*:i8"⍟('*'≡⊑)⍟(×≠)¨𝕩}⌾(((0=≡¨)⊸/𝕩)⊸∾⁼)𝕩
+}
+
+NestedStructToStr2 ← {
+  1≥≡𝕩?𝕩;
+  F: {'{'∾'}'«∾','∾¨F¨𝕩}⌾(((0=≡¨)⊸/𝕩)⊸∾⁼)𝕩
+}
+mesh ← NestedStructToStr1 rf.mesh
+model ← NestedStructToStr2 rf.model
+shaderT ← NestedStructToStr2 rf.shader
+
+loadModelFromMesh ← "/usr/local/lib/libraylib.so" •FFI model‿"LoadModelFromMesh"‿('>'∾mesh)
+loadShader ⇐ "/usr/local/lib/libraylib.so" •FFI shaderT‿"LoadShader"‿rf.str‿rf.str                                       # vsFileName fsFileName                                             # Load shader from files and bind default locations
 {𝕤
   # Define the camera to look into our 3d world
   cameraOrig ← ⟨
@@ -58,20 +73,19 @@ window.SetSize 0.5
     45      # Camera field-of-view Y
     rf.cameraProjection.camera_perspective # Camera projection type
   ⟩
-
   # Load plane model from a generated mesh
-  model ← rf.LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
-  cube  ← rf.LoadModelFromMesh rf.GenMeshCube  2 ‿4 ‿2
+  model ← LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
+  model2 ← LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
 
+  cube  ← LoadModelFromMesh rf.GenMeshCube 2‿4‿2
   # Load basic lighting shader
-  shader ← rf.LoadShader "vs"‿"fs"∾˜¨<"shaders/glsl"∾"/lighting." ∾˜ •Repr glslVersion
+  shader ← LoadShader @∾˜¨"vs"‿"fs"∾˜¨<"shaders/glsl"∾"/lighting."∾˜•Repr glslVersion
 
   # Get some required shader locations
   veiwPos ← rf.GetShaderLocation shader‿"viewPos"
   {
     locsPtr ← shaderIndex.locs⊑shader
-    movedPtr ← locsPtr low.MovePtr˜ 4×rf.shaderLocationIndex.shader_loc_vector_view
-    movedPtr low.ReadI32˜ ⋈veiwPos
+    rf.shaderLocationIndex.shader_loc_vector_view locsPtr.Write veiwPos
   }
 
   # Ambient light level, makes it so when no lights are on it's gray instead of black
@@ -82,9 +96,8 @@ window.SetSize 0.5
 
   # Assign out lighting shader to model
   {
-    firstMatPtr ← 0 low.MovePtr modelIndex.materials⊑𝕩
-    firstMatPtr low.ReadI8˜∾8↑¨⟨32‿'u', 8‿'i'⟩•bit._cast∘⋈⌾(shaderIndex.id⊸⊑)shader
-  }¨cube‿model
+    (𝕩.Field 0).Write shader
+  }¨modelIndex.materials⊸⊑¨cube‿model
 
   # Create lights
   lt ← rlights.lightType.light_point
