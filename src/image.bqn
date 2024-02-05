@@ -136,8 +136,6 @@ GenGradientSquare ← {𝕊size‿inner‿outer: # ⟨i⋄i⟩‿f‿color‿col
 # no     : compressed_astc_4x4_rgba  ⇐ 20  # 8 bpp                        
 # no     : compressed_astc_8x8_rgba  ⇐ 21  # 2 bpp                        
 
-MP←+˝∘×⎉1‿∞
-
 formatKeys ← "r"‿"g"‿"b"‿"a"‿"grayscale"
 luminocityMat ← [
 # r     g     b      a
@@ -166,14 +164,14 @@ Normalize ← {format𝕊image:
   # pick out color data from image
   colors ← image ÷⎉1 m/bitLengths
   # multiplying it by luminocityMat, thereby splitting rgba and grayscale into rgba components
-  colors MP ÷⎉1⟜(0⊸=⊸++˝) m/luminocityMat
+  colors +˝∘×⎉1‿∞ ÷⎉1⟜(0⊸=⊸++˝) m/luminocityMat
 }
 
 ReFormat ← {oldFormat‿newFormat𝕊image:
   rgba ← oldFormat Normalize image
   bitLengths ← FormatToLengths newFormat
   m ← 0≠bitLengths
-  x ← ⍉⁼ rgba MP ⍉ m/luminocityMat
+  x ← ⍉⁼ rgba +˝∘×⎉1‿∞ ⍉ m/luminocityMat
   ⌊0.5+x×m/bitLengths
 }
 
