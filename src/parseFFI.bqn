@@ -63,9 +63,8 @@ ParseRLGL ← {𝕊libPath‿headerPath:
     0‿"defined(USE_LIBTYPE_SHARED)"
   ]
 
-  nameMap ← [
-    ⟨"RLGL_VERSION"⟩
-    ⟨"RLGL_VERSION_STRING"⟩
+  nameMap ← ⍉[
+    "RLGL_VERSION"‿"RLGL_VERSION_STRING"
   ]
 
   headerWMacros ← (⊐⟜1"RLGL IMPLEMENTATION"⊸⍷)⊸↑ •FChars "rlgl.h"∾˜•file.Name⊸(∾˜⁼) headerPath
