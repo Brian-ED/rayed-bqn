@@ -19,8 +19,8 @@ nl ← @+10
 ⟨
   CPreProcessorLean
   CPreProcessorStrict
-⟩ ← {g←𝕩⋄⟨1 _G⋄0 _G⟩}{{[bools⋄defines] DoNotErrorOnMissingDefines _𝕣 charsOfHeader:
-  split ← nl ((⊢-˜+`×¬)∘=⊔⊢) 𝕩
+⟩ ← {g←𝕩⋄⟨1 _G⋄0 _G⟩}{{[bools⋄defines] doNotErrorOnMissingDefines _𝕣 charsOfHeader:
+  split ← nl ((⊢-˜+`×¬)∘=⊔⊢) (@+13)⊸≠⊸/ 𝕩
   [if⋄endif] ← "#if "‿"#endif"(⊣≡≠⊸↑)⌜∨`∘≠⟜' '⊸/¨split
   1↓∾nl∾¨ ((∨`∧∨⟜«)⟨⟩⊸≢¨)⊸/ endif¬⊸/𝕗{
     parts ← 𝕩 ⊔˜ +` "#elif "⊸(⊣≡≠⊸↑)¨ ∨`∘≠⟜' '⊸/¨ 𝕩
@@ -59,6 +59,8 @@ ParseRLGL ← {𝕊libPath‿headerPath:
     0‿"(defined(__STDC__) && __STDC_VERSION__ >= 199901L) || (defined(_MSC_VER) && _MSC_VER >= 1800)"
     1‿"!defined(RL_MATRIX_TYPE)"
     1‿"defined(GRAPHICS_API_OPENGL_11) || defined(GRAPHICS_API_OPENGL_33)"
+    0‿"defined(_WIN32)"
+    0‿"defined(USE_LIBTYPE_SHARED)"
   ]
 
   nameMap ← [
