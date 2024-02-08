@@ -179,7 +179,7 @@ window ← {
   }
   _openAs ← {App _𝕣 title: size←𝕨⊣1
     Open 𝕩
-    Close⊸⊢𝔽 {startTime⇐•Monotime@} 
+    Close⊸⊢𝔽@
   }
   # TODO: Needs to test input for image
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩} image._AsRayImg
