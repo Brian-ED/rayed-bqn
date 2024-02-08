@@ -75,6 +75,6 @@ confPath •FLines newExports∾˜•FLines confPath
 
 •Import confPath
 
-# waiting for CBQN v0.7
+# TODO: waiting for CBQN v0.7 to get •SH working on windows 
 #•SH "curl"‿"-o"‿"temp.zip"‿"https://github.com/raysan5/raylib/releases/download/5.0/raylib-5.0_win32_mingw-w64.zip"
 #•SH "Expand-Archive"‿"-Force"‿"temp.zip"‿"raylib"
