@@ -1,3 +1,6 @@
+# ONLY WORKS ON BQN VERSION 0.7 OR HIGHER
+# relies on new pointer objects
+
 P ← •term.Flush∘@∘•Show⊸⊢
 
 # depending on rlgl version, you can set this to 100, 120, and 330
@@ -8,6 +11,7 @@ glslVersion ← 330
   rf⇐rayffi, rm⇐raymath
 ⟩ ← rl ← •Import "../../raylib.bqn"
 rlights ← •Import "rlights.bqn"
+⟨raylibLibPath⟩ ← •Import "../../config.bqn"
 
 cameraIndex ← {
   position   ⇐ 0 # Camera position
@@ -62,8 +66,8 @@ mesh ← NestedStructToStr1 rf.mesh
 model ← NestedStructToStr2 rf.model
 shaderT ← NestedStructToStr2 rf.shader
 
-loadModelFromMesh ← "/usr/local/lib/libraylib.so" •FFI model‿"LoadModelFromMesh"‿('>'∾mesh)
-loadShader ⇐ "/usr/local/lib/libraylib.so" •FFI shaderT‿"LoadShader"‿rf.str‿rf.str                                       # vsFileName fsFileName                                             # Load shader from files and bind default locations
+loadModelFromMesh ← raylibLibPath •FFI model‿"LoadModelFromMesh"‿('>'∾mesh)
+loadShader ⇐ raylibLibPath •FFI shaderT‿"LoadShader"‿rf.str‿rf.str                                       # vsFileName fsFileName                                             # Load shader from files and bind default locations
 {𝕤
   # Define the camera to look into our 3d world
   cameraOrig ← ⟨
