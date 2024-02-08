@@ -34,8 +34,8 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
 # Loading dependencies
-rayffi‿rlgl ⇐ {
-  paths ← "ffi/rayffi.bqn"‿"ffi/rlgl.bqn"
+⟨rayffi⟩ ⇐ {
+  paths ← ⟨"ffi/rayffi.bqn"⟩
   tried ← •Import⎊{
     0⊣•Out "Error running "∾𝕩
   }¨paths

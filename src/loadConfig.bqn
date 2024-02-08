@@ -33,7 +33,7 @@ newExports ← {
     os≡"windows"?
       p←".\raylib\lib\raylib.dll"
       (•file.Exists ".." •file.At p)!˜err∾"Couldn't find raylib.dll file at path: "∾p
-      𝕩∾" ⇐ "∾•Repr p
+      𝕩∾" ⇐ •file.At "∾•Repr p
   ;
     os≡"darwin"?
       default ← "/usr/local"
@@ -52,7 +52,7 @@ newExports ← {
     os≡"windows"?
       p←".\raylib\include\raylib.h"
       (•file.Exists ".." •file.At p)!˜err∾"Couldn't find raylib.h file at path: "∾p
-      𝕩∾" ⇐ "∾•Repr p
+      𝕩∾" ⇐ •file.At "∾•Repr p
   ;
     os≡"darwin"?
       default ← "/usr/local"
@@ -74,3 +74,7 @@ newExports ← {
 confPath •FLines newExports∾˜•FLines confPath
 
 •Import confPath
+
+# waiting for CBQN v0.7
+#•SH "curl"‿"-o"‿"temp.zip"‿"https://github.com/raysan5/raylib/releases/download/5.0/raylib-5.0_win32_mingw-w64.zip"
+#•SH "Expand-Archive"‿"-Force"‿"temp.zip"‿"raylib"
