@@ -140,7 +140,7 @@ CameraYaw ← {angle‿rotateAroundTarget𝕊camera:
   targetPosition ← -´cameraIndex.target‿cameraIndex.position⊏camera
 
   # Rotate view vector around up axis
-  targetPosition ↩ Vector3RotateByAxisAngle targetPosition‿up‿angle
+  targetPosition Vector3RotateByAxisAngle˜↩up‿angle
 
   {rotateAroundTarget?
     # Move position relative to target
@@ -158,13 +158,11 @@ CameraYaw ← {angle‿rotateAroundTarget𝕊camera:
 #  - rotateUp rotates the up direction as well (typically only usefull in CAMERA_FREE)
 # NOTE: angle must be provided in radians
 CameraPitch ← {angle‿lockView‿rotateAroundTarget‿rotateUp𝕊camera:
-  # Up direction
-  up ← GetCameraUp camera
-
   # View vector
   targetPosition ← -´cameraIndex.target‿cameraIndex.position⊏camera
 
   angle {
+    up ← GetCameraUp camera
     # In these camera modes we clamp the Pitch angle
     # to allow only viewing straight up or down.
 
@@ -179,7 +177,7 @@ CameraPitch ← {angle‿lockView‿rotateAroundTarget‿rotateUp𝕊camera:
   right ← GetCameraRight camera
 
   # Rotate view vector around right axis
-  targetPosition ↩ Vector3RotateByAxisAngle targetPosition‿right‿angle
+  targetPosition Vector3RotateByAxisAngle˜↩right‿angle
 
   camera {rotateAroundTarget?
     # Move position relative to target
@@ -190,10 +188,8 @@ CameraPitch ← {angle‿lockView‿rotateAroundTarget‿rotateUp𝕊camera:
     (targetPosition + cameraIndex.position⊑𝕩)⌾(cameraIndex.target⊸⊑) 𝕩
   } ↩
 
-  {
-    # Rotate up direction around right axis
-    Vector3RotateByAxisAngle 𝕩‿right‿angle
-  }⌾(cameraIndex.up⊸⊑)⍟rotateUp camera
+  # Rotate up direction around right axis
+  right‿angle⊸Vector3RotateByAxisAngle⌾(cameraIndex.up⊸⊑)⍟rotateUp camera
 }
 
 # Rotates the camera around its forward vector
@@ -204,7 +200,7 @@ CameraRoll ← {angle𝕊camera:
   forward ← GetCameraForward camera
 
   # Rotate up direction around forward axis
-  {Vector3RotateByAxisAngle 𝕩‿forward‿angle}⌾(cameraIndex.up⊸⊑)camera
+  forward‿angle⊸Vector3RotateByAxisAngle⌾(cameraIndex.up⊸⊑)camera
 }
 
 # Returns the camera view matrix
