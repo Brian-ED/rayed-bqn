@@ -285,7 +285,7 @@ draw ← {
   }
 
   # Start Drawing
-  Start ← {
+  Start ← {𝕤
     NeedsWindow@
     rayFFI.BeginDrawing⟨⟩
   }
