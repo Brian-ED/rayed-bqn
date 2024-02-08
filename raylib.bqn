@@ -126,7 +126,10 @@ window ← {
   GetPos ← {rayffi.GetWindowPosition⟨⟩⊣NeedsWindow𝕩}
   
   # Set the x‿y position of the window   (relative to current monitor?)
-  SetPos ← {rayFFI.SetWindowPosition NeedsWindow𝕩}
+  SetPos ← {
+    NeedsWindow@
+    rayFFI.SetWindowPosition𝕩
+  }
 
   # tempSize is used to store size until window is open
   tempSize ← 0‿0
@@ -170,6 +173,7 @@ window ← {
     rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
     # Setting fps to the refresh rate of the currently selected monitor
     fps.Set rayFFI.GetMonitorRefreshRate rayFFI.GetCurrentMonitor⟨⟩
+    window
   }
   ShouldClose ← rayFFI.WindowShouldClose⟨⟩⊣NeedsWindow
   Close ← {
@@ -281,10 +285,16 @@ draw ← {
   }
 
   # Start Drawing
-  Start ← ⊢⊣rayFFI.BeginDrawing∘⟨⟩⊣NeedsWindow
+  Start ← {
+    NeedsWindow@
+    rayFFI.BeginDrawing⟨⟩
+  }
 
   # End drawing
-  End ← ⊢⊣rayFFI.EndDrawing∘⟨⟩⊣NeedsWindow
+  End ← {𝕤
+    NeedsWindow@
+    rayFFI.EndDrawing⟨⟩
+  }
 
   # Start drawing, draw background, use function 𝔽, end drawing
   _withCanvas_ ← {𝕨DrawingFunc _𝕣_ Func_Returning_A_Color𝕩:
@@ -295,8 +305,7 @@ draw ← {
 
   _withinRectangle ← {
     rayffi.BeginScissorMode (⊣∾-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
-    𝔽𝕩
-    rayffi.EndScissorMode⟨⟩
+    rayffi.EndScissorMode∘⟨⟩⊸⊢𝔽𝕩
   }
 
   # Draw text at x‿y in given font, color, and size
@@ -318,7 +327,7 @@ draw ← {
     rayFFI.DrawLineEx(<˘𝕩)∾⌽leftArg
   }
 
-  Texture ← {tint‿texture‿scale‿rotation 𝕊 x‿y:
+  Texture ← {tint‿texture‿scale‿rotation𝕊x‿y:
     NeedsWindow@
     "Texture: wrong types as input"!⟨tint⋄texture⋄scale⋄rotation⟩‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
     rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄tint⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
@@ -344,7 +353,7 @@ draw ← {
 
   Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
     [p1,p2,p3]← 𝕩
-    rayffi.DrawTriangle ⟨p1,𝕨⟩∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
+    rayffi.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
   }
 
   # These aren't recommended because they are useless if you use _withCanvas_.
