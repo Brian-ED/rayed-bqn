@@ -260,7 +260,7 @@ Vector3RotateByQuaternion ← {q𝕊v: x‿y‿z‿w←q
 }
 
 # Rotates a vector around an axis
-Vector3RotateByAxisAngle ← {𝕊v‿axisV3‿angle:
+Vector3RotateByAxisAngle ← {axisV3‿angle𝕊v:
   # Using Euler-Rodrigues Formula
   # Ref.: https://en.wikipedia.org/w/index.php?title=Euler%E2%80%93Rodrigues_formula
   

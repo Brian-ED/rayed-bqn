@@ -75,7 +75,7 @@ e!((-5+↕4) QuaternionEquals 5+↕4)≡1
 e!((-4+↕4) QuaternionEquals 5+↕4)≡0
 
 e↩"Vector3RotateByAxisAngle"
-e!(Vector3RotateByAxisAngle ⟨↕3, 0‿1‿0, 1⟩) ≡ 1.682941969615793‿1‿1.0806046117362795
+e!(⟨0‿1‿0, 1⟩ Vector3RotateByAxisAngle ↕3) ≡ 1.682941969615793‿1‿1.0806046117362795
 
 e↩"VectorClampValue"
 e!(+´⌾(×˜)⊸⋈ VectorClampValue ⟨2‿2‿2‿2,10,22⟩) ≡ ⟨10,5‿5‿5‿5⟩
