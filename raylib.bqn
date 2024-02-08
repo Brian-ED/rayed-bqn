@@ -34,6 +34,7 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
 # Loading dependencies
+•Import∘"src/parseFFI.bqn"⍟¬•file.Exists "config.bqn"
 ⟨rayffi⟩ ⇐ {
   paths ← ⟨"ffi/rayffi.bqn"⟩
   tried ← •Import⎊{
