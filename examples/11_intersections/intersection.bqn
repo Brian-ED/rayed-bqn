@@ -10,32 +10,22 @@
 # intersection using the slab method
 # https://tavianator.com/2011/ray_box.html#:~:text=The%20fastest%20method%20for%20performing,remains%2C%20it%20intersected%20the%20box.
 RayIntersectRect ← {direction𝕊box: # v2𝕊[v2,v2] → v2
-  minParam‿maxParam ← ⌈´⊸∾⟜(⌊´)˝⍉{𝕊dir‿pos‿siz:
-    (⌊´⋈⌈´) dir÷˜pos‿siz
-  }˘⍉[direction]∾box
-  {
-    ∧´(<⟜0∾0⊸<)˝box?
-      0‿0
+  minParam‿maxParam ← 0⌈⌈´⊸∾⟜(⌊´)˝⍉∧˘direction÷˜⍉box
+  {maxParam>minParam?
+    direction×minParam
   ;
-    {𝕤
-      direction×minParam
-    }⍟(maxParam>0⌈minParam)∞×0⊸=⊸+×direction  # if maxParam < 0, ray is intersecting AABB, but the whole AABB is behind us # if minParam > maxParam, ray doesn't intersect AABB
-  }
+    ∞⊸×⍟(0⊸≠)¨direction
+  }  # if maxParam < 0, ray is intersecting AABB, but the whole AABB is behind us # if minParam > maxParam, ray doesn't intersect AABB
 }
-
-CheckCollisionRay2dCircle ← {𝕊⟨
-    direction  # v2
-    center     # v2
-    radius     # f
-  ⟩:
-  {
-    radius>+´⌾(×˜)center?
-      0‿0
+# maxParam>0⌈minParam
+# (x>0)∧y<x
+CheckCollisionRay2dCircle ← {direction𝕊⟨center⋄radius⟩: # v2 v2 f
+  dot ← 0⌈+´direction×center
+  n ← (+´⌾(×˜)center-direction×dot)
+  {n<radius?
+    direction×0⌈dot-radius-⌾(×˜)n
   ;
-    dot ← 0⌈+´direction×center
-    (+´⌾(×˜)center-direction×dot){
-      direction×dot-radius-⌾(×˜)𝕨
-    }⍟(<⟜radius)∞×0⊸=⊸+direction
+    ∞×0⊸=⊸+direction
   }
 }
 {𝕤
@@ -57,12 +47,12 @@ CheckCollisionRay2dCircle ← {𝕊⟨
     direction rm.MP˜↩ Rotate angleDelta
     origin +↩ walkSpeed×-˝key.IsDown ["DS","AW"]
     touchedRec‿touchedCir ← {
-      intersect ↩ origin⊸+(>○|⊑∾)¨´ 𝕩
-      ∞‿∞⊸≢¨|𝕩
-    } ⟨
+      intersect ↩ origin+⌊˝˘⌾((0⊸=⊸+×direction)⊸×)𝕩
+      ∧˝∞≠|𝕩
+    } ⍉[
       direction RayIntersectRect -⟜origin˘box
-      CheckCollisionRay2dCircle direction‿(center-origin)‿radius
-    ⟩
+      direction CheckCollisionRay2dCircle⟨center-origin, radius⟩
+    ]
     box rl.draw.Rectangle˜ touchedRec⊑colors
     rf.DrawCircleV⟨center⋄radius⋄touchedCir⊑colors⟩
     rf.DrawCircleV origin‿10‿color.yellow
