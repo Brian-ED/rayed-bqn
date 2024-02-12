@@ -63,18 +63,20 @@ rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs
 i32_max ← ¯1+2⋆31
 
 texture ← {
-  Load ⇐ {𝕊strPath: # Load texture from file into GPU memory (VRAM)
+  ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _with ⋄ _WithRayImage ⋄ 
+  ⟩⇐
+  Load ← {𝕊strPath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
     !•file.Exists 𝕩
     rayFFI.LoadTexture 𝕩
   }
-  Unload ⇐ {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
-  _with ⇐ {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
-  _WithRayImage ⇐ {
+  Unload ← {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
+  _with ← {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
+  _WithRayImage ← {
     NeedsWindow@
     (Unload⊢𝔽)rayffi.LoadTextureFromImage 𝕩
   }
-  _WithImage ⇐ {
+  _WithImage ← {
     NeedsWindow@
     (Unload⊢𝔽)rayffi.LoadTextureFromImage image._AsRayImg 𝕩
   }
@@ -353,7 +355,7 @@ draw ← {
   }
 
   Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
-    [p1,p2,p3]← 𝕩
+    [p1,p2,p3] ← 𝕩
     rayffi.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
   }
 
