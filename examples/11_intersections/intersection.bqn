@@ -10,23 +10,12 @@
 # intersection using the slab method
 # https://tavianator.com/2011/ray_box.html#:~:text=The%20fastest%20method%20for%20performing,remains%2C%20it%20intersected%20the%20box.
 RayIntersectRect ← {direction𝕊box: # v2𝕊[v2,v2] → v2
-  minParam‿maxParam ← 0⌈⌈´⊸∾⟜(⌊´)˝⍉∧˘direction÷˜⍉box
-  {maxParam>minParam?
-    direction×minParam
-  ;
-    ∞⊸×⍟(0⊸≠)¨direction
-  }  # if maxParam < 0, ray is intersecting AABB, but the whole AABB is behind us # if minParam > maxParam, ray doesn't intersect AABB
+  𝕨×⍟(0⊸≠)¨˜∞⍟(∨´≤)⟜(0⌈⌈´)˜˝⍉∧˘𝕨÷˜⍉𝕩
 }
 # maxParam>0⌈minParam
 # (x>0)∧y<x
-CheckCollisionRay2dCircle ← {direction𝕊⟨center⋄radius⟩: # v2 v2 f
-  dot ← 0⌈+´direction×center
-  n ← (+´⌾(×˜)center-direction×dot)
-  {n<radius?
-    direction×0⌈dot-radius-⌾(×˜)n
-  ;
-    ∞×0⊸=⊸+direction
-  }
+CheckCollisionRay2dCircle ← {direction𝕊center‿radius: c‿r←𝕩 # v2 𝕊 v2‿f
+  𝕨×⍟(0⊸≠)¨˜-0⌊(0⊸<◶¯∞‿√r×˜⊸-·+´∘×˜c-𝕨×⊢)⌾((0⌈+´𝕨×c)⊸+)0
 }
 {𝕤
   box ← [100‿100
@@ -35,24 +24,24 @@ CheckCollisionRay2dCircle ← {direction𝕊⟨center⋄radius⟩: # v2 v2 f
   direction ← 0‿¯1
   center    ← 600‿200
   radius    ← 50
-  intersect ← ∞‿∞
   colors    ← color.gray‿color.red
   walkSpeed ← 3
   turnSpeed ← 3
 
-  # Main game loop
   Rotate ← (⋈⟜-´≍⌽)•math.Cos∾•math.Sin
+
+  # Main game loop
   {𝕤
     angleDelta ← turnSpeed×rf.GetFrameTime∘⟨⟩⊸×-´key.IsDown key.right‿key.left
     direction rm.MP˜↩ Rotate angleDelta
     origin +↩ walkSpeed×-˝key.IsDown ["DS","AW"]
-    touchedRec‿touchedCir ← {
-      intersect ↩ origin+⌊˝˘⌾((0⊸=⊸+×direction)⊸×)𝕩
-      ∧˝∞≠|𝕩
-    } ⍉[
+    interaction ← ⍉[
       direction RayIntersectRect -⟜origin˘box
       direction CheckCollisionRay2dCircle⟨center-origin, radius⟩
     ]
+    touchedRec‿touchedCir ← ∧˝∞≠|interaction
+    intersect ← origin+⌊˝˘⌾((0⊸=⊸+direction)⊸×)interaction
+
     box rl.draw.Rectangle˜ touchedRec⊑colors
     rf.DrawCircleV⟨center⋄radius⋄touchedCir⊑colors⟩
     rf.DrawCircleV origin‿10‿color.yellow
