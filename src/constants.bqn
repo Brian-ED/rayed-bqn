@@ -263,6 +263,7 @@ color ← {
   darkcyan             ⇐ 0  ‿139‿139‿255
   darkgoldenrod        ⇐ 184‿134‿11 ‿255
   darkGray             ⇐ 80 ‿80 ‿80 ‿255
+  darkGrey             ⇐ 80 ‿80 ‿80 ‿255
   darkgreen            ⇐ 0  ‿117‿44 ‿255
   darkkhaki            ⇐ 189‿183‿107‿255
   darkmagenta          ⇐ 139‿0  ‿139‿255
@@ -275,11 +276,13 @@ color ← {
   darkseagreen         ⇐ 143‿188‿143‿255
   darkslateblue        ⇐ 72 ‿61 ‿139‿255
   darkslategray        ⇐ 47 ‿79 ‿79 ‿255
+  darkslategrey        ⇐ 47 ‿79 ‿79 ‿255
   darkturquoise        ⇐ 64 ‿206‿209‿255
   darkviolet           ⇐ 148‿0  ‿211‿255
   deeppink             ⇐ 255‿20 ‿147‿255
   deepskyblue          ⇐ 0  ‿191‿255‿255
   dimgray              ⇐ 105‿105‿105‿255
+  dimgrey              ⇐ 105‿105‿105‿255
   dodgerblue           ⇐ 30 ‿144‿255‿255
   firebrick            ⇐ 178‿34 ‿34 ‿255
   floralwhite          ⇐ 255‿250‿240‿255
@@ -290,6 +293,7 @@ color ← {
   gold                 ⇐ 255‿203‿0  ‿255
   goldenrod            ⇐ 218‿165‿32 ‿255
   gray                 ⇐ 130‿130‿130‿255
+  grey                 ⇐ 130‿130‿130‿255
   green                ⇐ 0  ‿228‿48 ‿255
   greenyellow          ⇐ 173‿255‿47 ‿255
   honeydew             ⇐ 240‿255‿240‿255
@@ -307,12 +311,14 @@ color ← {
   lightcyan            ⇐ 225‿255‿255‿255
   lightgoldenrodyellow ⇐ 250‿250‿210‿255
   lightGray            ⇐ 200‿200‿200‿255
+  lightGrey            ⇐ 200‿200‿200‿255
   lightgreen           ⇐ 144‿238‿144‿255
   lightred             ⇐ 255‿102‿102‿255
   lightsalmon          ⇐ 255‿160‿122‿255
   lightseagreen        ⇐ 32 ‿178‿170‿255
   lightskyblue         ⇐ 135‿206‿250‿255
   lightslategray       ⇐ 119‿136‿153‿255
+  lightslategrey       ⇐ 119‿136‿153‿255
   lightsteelblue       ⇐ 176‿196‿222‿255
   lightyellow          ⇐ 255‿255‿224‿255
   lime                 ⇐ 0  ‿158‿47 ‿255
@@ -366,6 +372,7 @@ color ← {
   skyblue              ⇐ 102‿191‿255‿255
   slateblue            ⇐ 106‿90 ‿205‿255
   slategray            ⇐ 112‿128‿144‿255
+  slategrey            ⇐ 112‿128‿144‿255
   snow                 ⇐ 255‿250‿250‿255
   springgreen          ⇐ 0  ‿255‿127‿255
   steelblue            ⇐ 70 ‿130‿180‿255
