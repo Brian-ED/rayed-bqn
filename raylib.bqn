@@ -67,6 +67,7 @@ texture ← {
   # texture.Load
   Load ← {𝕊filePath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
+    {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)𝕩
     {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
     rayFFI.LoadTexture 𝕩
   }
@@ -451,6 +452,7 @@ font ← {
         ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
     }
     ·‿filePath←𝕩
+    {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)filePath
     {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists filePath
 
     IsFont rayFFI.LoadFontEx 𝕨F𝕩
@@ -553,6 +555,7 @@ sound ⇐ {
 
     # sound.wave.LoadFromFile
     LoadFromFile ⇐ {𝕊filePath:
+      {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)𝕩
       {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
     
       bqnSound ← {
