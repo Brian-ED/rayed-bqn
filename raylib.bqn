@@ -550,6 +550,11 @@ mouse ← {
 # Wave, audio wave data
 sound ⇐ {
 
+  waveType←"{u32,u32,u32,u32,*i16}"
+  soundType ← "{{*:i8,*:i8,u32,u32,u32},u32}"
+  memAlloc ← rayffi.pathToBinary •FFI "*"‿"MemAlloc"‿('>'∾rayffi.u) # size # Internal memory allocator
+  loadSoundFromWave ← rayffi.pathToBinary •FFI soundType‿"LoadSoundFromWave"‿('>'∾waveType) # size # Internal memory allocator
+
   wave ⇐ {
     ⟨LoadFromFile ⋄ Unload ⋄ _withFile⟩⇐
 
@@ -560,7 +565,7 @@ sound ⇐ {
     
       bqnSound ← {
         freq‿format‿bqnSound ← bqnoise.ReadFull filePath
-        ÷⟜(2⋆¯16+1⊑format) bqnSound bqnoiseOptions.Resample˜ freq∾bqnoiseOptions.freq
+        ⌊∘÷⟜(2⋆¯16+1⊑format) bqnSound bqnoiseOptions.Resample˜ freq∾bqnoiseOptions.freq
       }
       ⟨
         1⊑≢bqnSound   # frameCount
@@ -569,7 +574,7 @@ sound ⇐ {
         ≠bqnSound     # channels
         { # *data
           data ← ⥊⍉bqnSound
-          data⊸low.ReadI16⊸⊢ rayffi.MemAlloc 2×≠data # 2 is byte length of int
+          {↕∘≠⊸(𝕩.Write¨) data}⊸⊢(MemAlloc 2×≠data).Cast "i16"
         }
       ⟩
     }
@@ -582,7 +587,7 @@ sound ⇐ {
   }
 
   # sound.FromFile
-  FromFile ⇐ rayffi.LoadSoundFromWave wave._withFile # fileName→Sound
+  FromFile ⇐ LoadSoundFromWave wave._withFile # fileName→Sound
   
   # sound.Play
   Play ⇐ rayffi.PlaySound
