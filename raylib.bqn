@@ -63,7 +63,7 @@ rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs
 i32_max ← ¯1+2⋆31
 
 texture ← {
-  ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _with ⋄ _WithRayImage ⟩⇐
+  ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _withFile ⋄ _WithRayImage ⟩⇐
   # texture.Load
   Load ← {𝕊filePath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
@@ -556,7 +556,7 @@ sound ⇐ {
       {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
     
       bqnSound ← {
-        freq‿format‿bqnSound ← bqnoise.ReadFull filename
+        freq‿format‿bqnSound ← bqnoise.ReadFull filePath
         ÷⟜(2⋆¯16+1⊑format) bqnSound bqnoiseOptions.Resample˜ freq∾bqnoiseOptions.freq
       }
       ⟨
