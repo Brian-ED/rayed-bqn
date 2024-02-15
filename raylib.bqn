@@ -383,12 +383,12 @@ draw ← {
 
   # Draw a color-filled circle
   # draw.Circle
-  Circle ← {r‿g‿b‿a𝕊⟨x‿y⋄r⟩: # color 𝕊 pos‿radius
+  Circle ← {r‿g‿b‿a𝕊⟨x‿y⋄radius⟩: # color 𝕊 pos‿radius
     NeedsWindow@
     (𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"‿⟨"ii"⋄'i'⟩)!˜"Wrong input types given to draw.Circle"
     ((∧´⌈⊸=∨∞=|)x‿y)!˜"Position for draw.Circle has to be two ints"
     ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
-    rayffi.DrawCircle x‿y‿r‿𝕨
+    rayffi.DrawCircle x‿y‿radius‿𝕨
   }
 
   # draw.EllipseOutline
@@ -506,12 +506,12 @@ StartClock ← {𝕊@:
 
 mouse ← {
   # mouse.GetPos
-  GetPos     ⇐ {
+  GetPos     ⇐ {𝕤
     NeedsWindow@
     rayFFI.GetMousePosition⟨⟩
   }
   # mouse.WheelMoved
-  WheelMoved ⇐ {
+  WheelMoved ⇐ {𝕤
     NeedsWindow@
     rayFFI.GetMouseWheelMove⟨⟩
   }
