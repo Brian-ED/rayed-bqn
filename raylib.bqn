@@ -63,20 +63,24 @@ rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs
 i32_max ← ¯1+2⋆31
 
 texture ← {
-  ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _with ⋄ _WithRayImage ⋄ 
-  ⟩⇐
+  ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _with ⋄ _WithRayImage ⟩⇐
+  # texture.Load
   Load ← {𝕊strPath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
     !•file.Exists 𝕩
     rayFFI.LoadTexture 𝕩
   }
+  # texture.Unload
   Unload ← {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
+  # texture._with
   _with ← {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
-  _WithRayImage ← {
+  # texture._withRayImage
+  _withRayImage ← {
     NeedsWindow@
     (Unload⊢𝔽)rayffi.LoadTextureFromImage 𝕩
   }
-  _WithImage ← {
+  # texture._withImage
+  _withImage ← {
     NeedsWindow@
     (Unload⊢𝔽)rayffi.LoadTextureFromImage image._AsRayImg 𝕩
   }
@@ -85,22 +89,43 @@ monitor ← {
   ⟨Selected ⋄ Count
    RefreshRate ⋄ Size
    Sizemm ⋄ Name⟩⇐
-  Selected    ← rayFFI.GetCurrentMonitor∘⟨⟩NeedsWindow
-  Count       ← rayFFI.GetMonitorCount∘⟨⟩NeedsWindow
+  # monitor.Selected
+  Selected ← {𝕤
+    NeedsWindow@
+    rayFFI.GetCurrentMonitor⟨⟩
+  }
+  # monitor.Count
+  Count ← {𝕤
+    NeedsWindow@
+    rayFFI.GetMonitorCount⟨⟩
+  }
 
   notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
   M ← @⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@} # No need for NeedsWindow because Selected and Count need it so error still works
 
-  RefreshRate ← rayFFI.GetMonitorRefreshRate M
-  Size        ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)M
-  Sizemm      ← (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)M # mm stands for milimeter
-  Name        ← rayFFI.GetMonitorName M
+  # monitor.RefreshRate
+  RefreshRate ← {𝕊monitor:
+    rayFFI.GetMonitorRefreshRate M 𝕩
+  }
+  # monitor.Size
+  Size        ← {𝕊monitor:
+    (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)M 𝕩
+  }
+  # Get size in milimeters
+  # monitor.Sizemm
+  Sizemm      ← {𝕊monitor:
+    (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)M 𝕩
+  }
+  # monitor.Name
+  Name        ← {𝕊monitor:
+    rayFFI.GetMonitorName M 𝕩
+  }
 }
 
 # window functionality
 window ← {
   ⟨
-    isOpen ⋄ _openAs ⋄ SetIcon ⋄ fps ⋄ GetSize
+    _openAs ⋄ Open ⋄ Close ⋄ isOpen ⋄ SetIcon ⋄ fps ⋄ GetSize
     ShouldClose ⋄ Needed ⋄ SetPos ⋄ GetPos ⋄ SetSize ⋄ configFlags
 
     fullscreen        ⋄ SetFullscreen
@@ -121,14 +146,16 @@ window ← {
 
     GetState ⋄ stateNames # get binary list of above settings (including empty ones in the raylib binary format)
   ⟩⇐
-
+  # window.Needed
   Needed ← NeedsWindow
   isOpen ← 0
 
   # Get the x‿y position of the window   (relative to current monitor?)
+  # window.GetPos
   GetPos ← {rayffi.GetWindowPosition⟨⟩⊣NeedsWindow𝕩}
   
   # Set the x‿y position of the window   (relative to current monitor?)
+  # window.SetPos
   SetPos ← {
     NeedsWindow@
     rayFFI.SetWindowPosition𝕩
@@ -138,6 +165,7 @@ window ← {
   tempSize ← 0‿0
 
   # Set the width and hight of the window, width and hight being relative to window position
+  # window.SetSize
   SetSize ← {𝕊size:
     ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
@@ -151,6 +179,7 @@ window ← {
   }
   
   # Get the width and hight of the window, width and hight being relative to window position
+  # window.GetSize
   GetSize ← {𝕤
     isOpen?
       ⟨rayFFI.GetScreenWidth⟨⟩
@@ -160,7 +189,8 @@ window ← {
   }
 
   # Open the window with default settings
-  Open ← {𝕊 title:
+  # window.Open
+  Open ⇐ {𝕊 title:
     (¬isOpen)!˜"The window cannot be opened twice"
     rayFFI.InitWindow 0‿0‿𝕩
     rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
@@ -178,43 +208,56 @@ window ← {
     fps.Set rayFFI.GetMonitorRefreshRate rayFFI.GetCurrentMonitor⟨⟩
     window
   }
-  ShouldClose ← rayFFI.WindowShouldClose⟨⟩⊣NeedsWindow
+  # window.ShouldClose
+  ShouldClose ← {𝕤
+    NeedsWindow@
+    rayFFI.WindowShouldClose⟨⟩
+  }
+  # window.Close
   Close ← {
     NeedsWindow@
     rayFFI.CloseWindow⟨⟩
     𝕩⊣isOpen↩0
   }
+  # window.OpenAs
   _openAs ← {App _𝕣 title: size←𝕨⊣1
     Open 𝕩
     Close⊸⊢𝔽@
   }
   # TODO: Needs to test input for image
+  # window.SetIcon
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩} image._AsRayImg
 
   fps ← {
-    Get ⇐ rayFFI.GetFPS⟨⟩⊣NeedsWindow
+    # window.fps.Get
+    Get ⇐ {𝕤
+      NeedsWindow@
+      rayFFI.GetFPS⟨⟩
+    }
+    # window.fps.Set
     Set ⇐ {
       (𝕩=0⌈⌈𝕩)!˜"FPS has to be a positive int"
       𝕩⊣rayFFI.SetTargetFPS𝕩
     }⊣NeedsWindow
   }
+  # window.ConfigFlags
   configFlags ← windowConfigFlags
 
-  fullscreen        ← 0 # Set to run program in fullscreen
-  resizable         ← 1 # Set to allow resizable window
-  decorated         ← 1 # Set to 0 to disable window decoration (frame and buttons)
-  transparent       ← 0 # Set to allow transparent framebuffer
-  msaa4xhint        ← 0 # Set to try enabling MSAA 4X
-  vsyncHint         ← 0 # Set to try enabling V-Sync on GPU
-  hidden            ← 0 # Set to hide window
-  runWhileMinimized ← 0 # Set to allow windows running while minimized
-  minimized         ← 0 # Set to minimize window (iconify)
-  maximized         ← 0 # Set to maximize window (expanded to monitor)
-  focused           ← 1 # Set to 0 to non focus window
-  topmost           ← 0 # Set to window always on top
-  highDPI           ← 0 # Set to support HighDPI
-  mousePassThrough  ← 0 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
-  interlacedhint    ← 0 # Set to try enabling interlaced video format (for V3D)
+  fullscreen        ← 0 # Set to run program in fullscreen                                              # window.fullscreen
+  resizable         ← 1 # Set to allow resizable window                                                 # window.resizable
+  decorated         ← 1 # Set to 0 to disable window decoration (frame and buttons)                     # window.decorated
+  transparent       ← 0 # Set to allow transparent framebuffer                                          # window.transparent
+  msaa4xhint        ← 0 # Set to try enabling MSAA 4X                                                   # window.msaa4xhint
+  vsyncHint         ← 0 # Set to try enabling V-Sync on GPU                                             # window.vsyncHint
+  hidden            ← 0 # Set to hide window                                                            # window.hidden
+  runWhileMinimized ← 0 # Set to allow windows running while minimized                                  # window.runWhileMinimized
+  minimized         ← 0 # Set to minimize window (iconify)                                              # window.minimized
+  maximized         ← 0 # Set to maximize window (expanded to monitor)                                  # window.maximized
+  focused           ← 1 # Set to 0 to non focus window                                                  # window.focused
+  topmost           ← 0 # Set to window always on top                                                   # window.topmost
+  highDPI           ← 0 # Set to support HighDPI                                                        # window.highDPI
+  mousePassThrough  ← 0 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED # window.mousePassThrough
+  interlacedhint    ← 0 # Set to try enabling interlaced video format (for V3D)                         # window.interlacedhint
 
   cf ← configFlags
   cs ← { # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
@@ -222,22 +265,23 @@ window ← {
     Clear‿Set
   }
   
-  SetFullscreen        ⇐ { fullscreen        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.fullscreen_mode          }
-  SetResizable         ⇐ { resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         }
-  SetDecorated         ⇐ { decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       }
-  SetTransparent       ⇐ { transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       }
-  Setmsaa4xhint        ⇐ { msaa4xhint        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.msaa4xhint               }
-  Setvsynchint         ⇐ { vsyncHint         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.vsync_hint               }
-  SetHidden            ⇐ { hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            }
-  SetRunWhileMinimized ⇐ { runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        }
-  SetMinimized         ⇐ { minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         }
-  SetMaximized         ⇐ { maximized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_maximized         }
-  SetFocused           ⇐ { focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         }
-  SetTopmost           ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           }
-  SetHighDPI           ⇐ { highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  }
-  SetMousePassThrough  ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough }
-  SetInterlacedhint    ⇐ { interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    }
+  SetFullscreen        ⇐ { fullscreen        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.fullscreen_mode          } # window.SetFullscreen
+  SetResizable         ⇐ { resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         } # window.SetResizable
+  SetDecorated         ⇐ { decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       } # window.SetDecorated
+  SetTransparent       ⇐ { transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       } # window.SetTransparent
+  Setmsaa4xhint        ⇐ { msaa4xhint        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.msaa4xhint               } # window.Setmsaa4xhint
+  Setvsynchint         ⇐ { vsyncHint         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.vsync_hint               } # window.Setvsynchint
+  SetHidden            ⇐ { hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
+  SetRunWhileMinimized ⇐ { runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
+  SetMinimized         ⇐ { minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
+  SetMaximized         ⇐ { maximized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_maximized         } # window.SetMaximized
+  SetFocused           ⇐ { focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
+  SetTopmost           ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
+  SetHighDPI           ⇐ { highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  } # window.SetHighDPI
+  SetMousePassThrough  ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
+  SetInterlacedhint    ⇐ { interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
   
+  # window.stateNames
   stateNames ← [
     "                 "
     "fullscreen       "
@@ -257,6 +301,7 @@ window ← {
     "interlacedhint   "
     "interlacedhint   "
   ]
+  # window.GetState
   GetState ← {𝕤 # returns binary list that corrisponds to raylib's config_flags format
     0‿fullscreen‿resizable‿(¬decorated)‿transparent‿msaa_4x_hint‿vsync_hint‿hidden‿runWhileMinimized‿minimized‿maximized‿(¬focused)‿topmost‿highdpi‿mouse_passthrough‿0‿interlaced_hint
   }
@@ -272,46 +317,29 @@ draw ← {
   ⟩⇐
 
   # Start 3d mode, drawing relative to camera using 𝔽, then ends 3d mode
+  # draw._in3D
   _in3D ← {𝕨 Drawing3D _𝕣 camera:
     NeedsWindow@          # pos  target up   FOV Camera projection type
     "_in3D: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
     rayffi.BeginMode3D 𝕩
     rayffi.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
-
-  # Draw background
-  Background ← {𝕊r‿g‿b‿a:
-    NeedsWindow@
-    (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
-    "Background: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
-    rayFFI.ClearBackground 𝕩
-  }
-
-  # Start Drawing
-  Start ← {𝕤
-    NeedsWindow@
-    rayFFI.BeginDrawing⟨⟩
-  }
-
-  # End drawing
-  End ← {𝕤
-    NeedsWindow@
-    rayFFI.EndDrawing⟨⟩
-  }
-
   # Start drawing, draw background, use function 𝔽, end drawing
+  # draw._withCanvas_
   _withCanvas_ ← {𝕨DrawingFunc _𝕣_ Func_Returning_A_Color𝕩:
     Start@
     Background 𝕨𝔾𝕩
     ⊣⟜End𝕨𝔽𝕩
   }
 
+  # draw._withinRectangle
   _withinRectangle ← {
     rayffi.BeginScissorMode (⊣∾-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
     rayffi.EndScissorMode∘⟨⟩⊸⊢𝔽𝕩
   }
 
   # Draw text at x‿y in given font, color, and size
+  # draw.Text
   Text ← {𝕨𝕊⟨x‿y⋄text⟩:
     NeedsWindow@
     t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
@@ -320,6 +348,7 @@ draw ← {
   }
 
   # Draw line from x1‿y1 to x2‿y2
+  # draw.Line
   Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     leftArg←{
@@ -330,35 +359,67 @@ draw ← {
     rayFFI.DrawLineEx(<˘𝕩)∾⌽leftArg
   }
 
+  # draw.Texture
   Texture ← {tint‿texture‿scale‿rotation𝕊x‿y:
     NeedsWindow@
     "Texture: wrong types as input"!⟨tint⋄texture⋄scale⋄rotation⟩‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
     rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄tint⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
   }
 
+  # draw.Rectangle
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
     rayFFI.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩 # capping with max and min to avoid errors at ∞
   }
 
+  # draw.Ellipse
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    ((∧´⌈⊸=∨∞=|)𝕨∾⥊𝕩)!˜"Ellipse only accepts ints as args"
-    (∧´𝕨∊↕256)!˜"𝕗 (color) only accepts ints in the range 0-255 inclusive"
+    ((∧´⌈⊸=∨∞=|)⥊𝕩)!˜"Ellipse only accepts ints as args"
+    ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
     rayffi.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
   }
 
+  # Draw a color-filled circle
+  # draw.Circle
+  Circle ← {r‿g‿b‿a𝕊⟨x‿y⋄r⟩: # color 𝕊 pos‿radius
+    NeedsWindow@
+    (𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"‿⟨"ii"⋄'i'⟩)!˜"Wrong input types given to draw.Circle"
+    ((∧´⌈⊸=∨∞=|)x‿y)!˜"Position for draw.Circle has to be two ints"
+    ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
+    rayffi.DrawCircle x‿y‿r‿𝕨
+  }
+
+  # draw.EllipseOutline
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
   }
 
+  # draw.Triangle
   Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
     [p1,p2,p3] ← 𝕩
     rayffi.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
   }
 
+  # Start Drawing
+  Start ← {𝕤
+    NeedsWindow@
+    rayFFI.BeginDrawing⟨⟩
+  }
+  # Draw background
+  Background ← {𝕊r‿g‿b‿a:
+    NeedsWindow@
+    (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
+    "Background: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
+    rayFFI.ClearBackground 𝕩
+  }
+  # End drawing
+  End ← {𝕤
+    NeedsWindow@
+    rayFFI.EndDrawing⟨⟩
+  }
   # These aren't recommended because they are useless if you use _withCanvas_.
   # They also don't behave well if ran in the wrong order,
   # you only want to run them in the "start, background, end" sequence.
@@ -373,9 +434,14 @@ font ← {
   }
   glyphInfo←{value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
 
-  Unload ← rayFFI.UnloadFont∘IsFont NeedsWindow
-
-  Load ← {
+  # font.Unload
+  Unload ⇐ {
+    NeedsWindow@
+    IsFont 𝕩
+    rayFFI.UnloadFont 𝕩
+  }
+  # font.Load
+  Load ⇐ {
     NeedsWindow@
     F←{
       𝕊size‿filePath:
@@ -384,23 +450,30 @@ font ← {
       charactersAllowed 𝕊 size‿filePath:
         ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
     }
-    fontArgs←𝕨F𝕩
-    IsFont rayFFI.LoadFontEx fontArgs
+    IsFont rayFFI.LoadFontEx 𝕨F𝕩
   }
 
-  LoadBQN ← {𝕊fontSize:
+  # font.LoadBQN
+  LoadBQN ← {𝕊fontSize: fontSize 100⍟(@⊸≡)↩
     NeedsWindow@
     file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt"src/imports/BQN386/BQN386.ttf"
-    rayFFI.LoadFontEx⟨file⋄100⍟(@⊸≡)𝕩⋄bqnFontChars-@⋄≠bqnFontChars⟩
+    rayFFI.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
   }
-  LoadRaylib ← rayffi.GetFontDefault∘⟨⟩
+  # font.LoadRaylib
+  LoadRaylib ← {𝕊@:
+    rayffi.GetFontDefault⟨⟩
+  }
 }
 clipboard ← {
+  ⟨Get ⋄ Set⟩⇐
   ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
+  
+  # clipboard.Get
   Get ⇐ {𝕊
     NeedsWindow@
     low.StrLen⊸low.MakeUTF8 rayffi.GetClipboardText⟨⟩
   }
+  # clipboard.Set
   Set ⇐ {𝕊text:
     NeedsWindow@
     rayffi.SetClipboardText ToBytes 𝕩
@@ -409,14 +482,20 @@ clipboard ← {
 
 # start clock then tick at the start of every frame to get accurate clock.delta and clock.time
 StartClock ← {𝕊@:
+  ⟨startTime ⋄ Time ⋄ Tick⟩⇐
+
   # time is relative to when you started the clock
+  # clock.startTime
   startTime ⇐ •MonoTime@
   lastTime ← 0
   
   delta ⇐ 0
   frame ⇐ 0
 
+  # clock.Time
   Time  ⇐ {𝕊:startTime-˜•Monotime@}
+  
+  # clock.Tick
   Tick ⇐ {𝕊:
     frame+↩1
     delta ↩ lastTime-˜startTime-˜•MonoTime@
@@ -426,17 +505,28 @@ StartClock ← {𝕊@:
 }
 
 mouse ← {
-  GetPos     ⇐ rayFFI.GetMousePosition ⟨⟩⊣NeedsWindow
-  WheelMoved ⇐ rayFFI.GetMouseWheelMove⟨⟩⊣NeedsWindow
+  # mouse.GetPos
+  GetPos     ⇐ {
+    NeedsWindow@
+    rayFFI.GetMousePosition⟨⟩
+  }
+  # mouse.WheelMoved
+  WheelMoved ⇐ {
+    NeedsWindow@
+    rayFFI.GetMouseWheelMove⟨⟩
+  }
+  # mouse.IsButtonDown
   IsButtonDown ⇐ {
     NeedsWindow@
     "Mouse button doesn't exist. (𝕩∊↕7)"!∨´⥊𝕩∊↕buttons
     rayFFI.IsMouseButtonDown⚇0 𝕩
   }
   buttons ← 7
+  # mouse.button.
   button ⇐ {
     left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
   }
+  # mouse.cursor.
   cursor ⇐ { # Mouse cursor
     default       ⇐ 0   # Default pointer shape                                        
     arrow         ⇐ 1   # Arrow shape                                                  
@@ -456,6 +546,9 @@ mouse ← {
 sound ⇐ {
 
   wave ⇐ {
+    ⟨LoadFromFile ⋄ Unload ⋄ _withFile⟩⇐
+
+    # sound.wave.LoadFromFile
     LoadFromFile ⇐ {𝕊filename:
       bqnSound ← {
         freq‿format‿bqnSound ← bqnoise.ReadFull filename
@@ -473,12 +566,17 @@ sound ⇐ {
       ⟩
     }
 
+    # sound.wave.Unload
     Unload ⇐ rayffi.MemFree 4⊸⊑
 
+    # sound.wave._withFile
     _withFile ⇐ {(Unload⊢𝔽)LoadFromFile}
   }
 
+  # sound.FromFile
   FromFile ⇐ rayffi.LoadSoundFromWave wave._withFile # fileName→Sound
+  
+  # sound.Play
   Play ⇐ rayffi.PlaySound
   _withAudioDevice ⇐ {
     rayffi.CloseAudioDevice∘⟨⟩⊢𝔽⊣rayffi.InitAudioDevice∘⟨⟩
@@ -486,18 +584,25 @@ sound ⇐ {
 }
 
 key ← {
+  
+  # key.IsPressed
   IsPressed ⇐ {𝕊 key:
     rayFFI.IsKeyPressed @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
+
+  # key.IsDown
   IsDown ⇐ {
     rayffi.IsKeyDown @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
 
   # Get key pressed as keycode
+  # key.PressedKey
   PressedKey ⇐ {𝕤
     NeedsWindow@
     rayFFI.GetKeyPressed⟨⟩
   }
+
+  # key.PressedChar
   PressedChar ⇐ {𝕤
     NeedsWindow@
     @+rayffi.GetcharPressed⟨⟩
