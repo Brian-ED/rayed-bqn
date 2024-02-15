@@ -65,15 +65,15 @@ i32_max ← ¯1+2⋆31
 texture ← {
   ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _with ⋄ _WithRayImage ⟩⇐
   # texture.Load
-  Load ← {𝕊strPath: # Load texture from file into GPU memory (VRAM)
+  Load ← {𝕊filePath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
-    !•file.Exists 𝕩
+    {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
     rayFFI.LoadTexture 𝕩
   }
   # texture.Unload
   Unload ← {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
   # texture._with
-  _with ← {𝔽_𝕣 strPath : (Unload⊢𝔽)Load𝕩}
+  _withFile ← {𝔽_𝕣 filePath : (Unload⊢𝔽)Load𝕩}
   # texture._withRayImage
   _withRayImage ← {
     NeedsWindow@
@@ -450,6 +450,9 @@ font ← {
       charactersAllowed 𝕊 size‿filePath:
         ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
     }
+    ·‿filePath←𝕩
+    {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists filePath
+
     IsFont rayFFI.LoadFontEx 𝕨F𝕩
   }
 
@@ -549,7 +552,9 @@ sound ⇐ {
     ⟨LoadFromFile ⋄ Unload ⋄ _withFile⟩⇐
 
     # sound.wave.LoadFromFile
-    LoadFromFile ⇐ {𝕊filename:
+    LoadFromFile ⇐ {𝕊filePath:
+      {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
+    
       bqnSound ← {
         freq‿format‿bqnSound ← bqnoise.ReadFull filename
         ÷⟜(2⋆¯16+1⊑format) bqnSound bqnoiseOptions.Resample˜ freq∾bqnoiseOptions.freq
@@ -578,7 +583,7 @@ sound ⇐ {
   
   # sound.Play
   Play ⇐ rayffi.PlaySound
-  _withAudioDevice ⇐ {
+  _withAudio ⇐ {
     rayffi.CloseAudioDevice∘⟨⟩⊢𝔽⊣rayffi.InitAudioDevice∘⟨⟩
   }
 }
