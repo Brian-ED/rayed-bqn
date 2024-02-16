@@ -57,7 +57,7 @@ LogoAnimation ← {𝕊background:
     color.black⊸RecAtLogo¨ ⌽˘⊸⋈ btmrht‿outlineWidth ≍ logoSize∾outlineWidth+⌊btmrht×𝕩
   }∘(÷⟜64) _Scene_ {64≤𝕩}
 
-  font ← rl.font.LoadRaylib 100
+  font ← rl.font.LoadRaylib@
   {𝕊frame:
     # Letters appearing (one by one)
     # Every 12 frames, one more letter!
