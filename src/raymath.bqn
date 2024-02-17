@@ -220,7 +220,11 @@ VectorClampValue ← {𝕊v‿min‿max:
 }
 
 # Calculate two vectors cross product
-Vector3CrossProduct ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
+Vector3CrossProduct ← {
+  𝕊⁼: (𝕩 1⊸⌽⊸×{1⌽𝔽˜-𝔽} 𝕨)÷+´×˜𝕨
+;
+  𝕨 1⊸⌽⊸×{1⌽𝔽˜-𝔽} 𝕩
+}
 
 # Normalize provided vector
 VectorNormalize ← ÷⟜(0⊸=⊸++´⌾(×˜))
