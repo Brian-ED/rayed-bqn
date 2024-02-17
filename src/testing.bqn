@@ -12,7 +12,7 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
   QuaternionEquals, Vector3OrthoNormalize, Vector3RotateByAxisAngle, VectorClampValue
   MatrixTranslate, MatrixRotateX, MatrixRotateY, MatrixRotateZ, VectorAngle, deg2rad, rad2deg
   SlopeInterceptToLine, DistanceToPlane, QuaternionFromEuler, QuaternionToEuler
-  VectorReflect
+  VectorReflect, VectorNormalize, Vector3CrossProduct
 
   # In progress 
     MatrixPerspective
@@ -75,7 +75,8 @@ e!((-5+↕4) QuaternionEquals 5+↕4)≡1
 e!((-4+↕4) QuaternionEquals 5+↕4)≡0
 
 e↩"Vector3RotateByAxisAngle"
-e!(⟨0‿1‿0, 1⟩ Vector3RotateByAxisAngle ↕3) ≡ 1.682941969615793‿1‿1.0806046117362795
+e!(Approx ⟨0‿1‿0, 1⟩ Vector3RotateByAxisAngle ↕3) ≡ 1.68294‿1‿1.0806
+e!(Approx ⟨ 0‿1‿0 ⋄ ¯0.021 ⟩Vector3RotateByAxisAngle ¯2.6848‿1.7908‿¯2.3633) ≡ ¯2.63458‿1.7908‿¯2.41916
 
 e↩"VectorClampValue"
 e!(+´⌾(×˜)⊸⋈ VectorClampValue ⟨2‿2‿2‿2,10,22⟩) ≡ ⟨10,5‿5‿5‿5⟩
@@ -123,6 +124,13 @@ e!(Approx QuaternionToEuler 0.07056‿0.005‿0.07056‿0.995) ≡ 0.14159‿1e�
 e↩"VectorReflect"
 e!(Approx          1‿0‿0 VectorReflect 2‿2‿0) ≡ ¯2‿2‿0
 e!(Approx (+´⌾(×˜)1‿1‿0) VectorReflect 0‿2‿0) ≡ ¯8‿¯6‿¯8
+
+e↩"VectorNormalize"
+e!(VectorNormalize 0‿1‿1)≡○Approx +˜⁼√0‿2‿2
+e!(VectorNormalize 1‿0‿1)≡○Approx +˜⁼√2‿0‿2
+
+e↩"Vector3CrossProduct"
+e!0.70711‿¯1.06066‿1.06066 ≡ Approx 1⊸+⌾((VectorNormalize 0‿1‿1)⊸Vector3CrossProduct) VectorNormalize 1‿0‿1
 
 •Out "Raymath tests passed"
 
