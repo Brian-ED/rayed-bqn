@@ -8,8 +8,8 @@ glslVersion ← 330
 
 ⟨
   color, window, draw, low, key
-  rf⇐rayffi, rm⇐raymath
-⟩ ← rl ← •Import "../../raylib.bqn"
+  rf⇐raylib, rm⇐raymath
+⟩ ← rl ← •Import "../../rayed.bqn"
 rlights ← •Import "rlights.bqn"
 
 cameraIndex ← {
@@ -64,9 +64,7 @@ NestedStructToStr2 ← {
 mesh ← NestedStructToStr1 rf.mesh
 model ← NestedStructToStr2 rf.model
 shaderT ← NestedStructToStr2 rf.shader
-
-loadModelFromMesh ← rf.pathToBinary •FFI model‿"LoadModelFromMesh"‿('>'∾mesh)
-loadShader ⇐ rf.pathToBinary •FFI shaderT‿"LoadShader"‿rf.str‿rf.str                                       # vsFileName fsFileName                                             # Load shader from files and bind default locations
+                                       # vsFileName fsFileName                                             # Load shader from files and bind default locations
 {𝕤
   # Define the camera to look into our 3d world
   cameraOrig ← ⟨
@@ -77,12 +75,12 @@ loadShader ⇐ rf.pathToBinary •FFI shaderT‿"LoadShader"‿rf.str‿rf.str  
     rf.cameraProjection.camera_perspective # Camera projection type
   ⟩
   # Load plane model from a generated mesh
-  model ← LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
-  model2 ← LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
+  model ← rf.LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
+  model2 ← rf.LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
 
-  cube  ← LoadModelFromMesh rf.GenMeshCube 2‿4‿2
+  cube  ← rf.LoadModelFromMesh rf.GenMeshCube 2‿4‿2
   # Load basic lighting shader
-  shader ← LoadShader @∾˜¨"vs"‿"fs"∾˜¨<"shaders/glsl"∾"/lighting."∾˜•Repr glslVersion
+  shader ← rf.LoadShader •file.At¨ "vs"‿"fs"∾˜¨<"shaders/glsl"∾"/lighting."∾˜•Repr glslVersion
 
   # Get some required shader locations
   veiwPos ← rf.GetShaderLocation shader‿"viewPos"

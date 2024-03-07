@@ -1,6 +1,6 @@
 # This example depends on raygui
 
-⟨⟨red, white, black, raywhite⟩⇐color, window, draw, rf⇐rayffi, low⟩←r←•Import "../../raylib.bqn"
+⟨⟨red, white, black, raywhite⟩⇐color, window, draw, rf⇐raylib, low⟩←r←•Import "../../rayed.bqn"
 rg ← •Import "../../ffi/raygui.bqn"
 
 ⟨

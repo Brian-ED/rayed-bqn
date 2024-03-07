@@ -1,18 +1,18 @@
-⟨co⇐color,window,⟨_withCanvas_⟩⇐draw,k⇐key⟩←r←•Import "../../raylib.bqn"
+⟨co⇐color,window,⟨_withCanvas_⟩⇐draw,k⇐key⟩←r←•Import "../../rayed.bqn"
 ⟨lf,Split⟩  ← •Import "../../src/imports/bqn-libs/strings.bqn"
 sysVals     ← •Import"sysVals.bqn"
 fontSize    ← 50
 lineSpacing ← 40
 charSize    ← 27‿50
-IsD ← r.rayffi.IsKeyDown
+IsD ← r.raylib.IsKeyDown
 
 mkUTF ←@•FFI"a"‿"bqn_makeUTF8Str"‿"u64"‿"*:i8"
-strlen←@•FFI"u64"‿"strlen"‿">*:i8" ⋄ 
-#MkUTF r.rayffi.GetCodepointCountP⊸⋈ r.rayffi.GetClipboardText@
+strlen←@•FFI"u64"‿"strlen"‿">*:i8"
+
 Game ← {𝕤
   window.SetPos 0‿540
   font←r.font.LoadBQN fontSize
-  DrawText ← {pos𝕊str:r.rayFFI.DrawTextCodepoints ⟨font, str-@, ≠str, pos, fontSize, 1, co.blue⟩}
+  DrawText ← {pos𝕊str:r.raylib.DrawTextCodepoints ⟨font, str-@, ≠str, pos, fontSize, 1, co.blue⟩}
   rmFn←0
   Back ← {𝕤
     rmFn↩1
@@ -38,7 +38,7 @@ Game ← {𝕤
   ;k.left≡ky?  s‿f∾N p
   ;k.right≡ky? s‿f∾A p
   ;(k.v≡ky)∧IsD k.leftControl?
-    clipS ← MkUTF Strlen⊸⋈ r.rayffi.GetClipboardText@
+    clipS ← MkUTF Strlen⊸⋈ r.raylib.GetClipboardText@
     ⟨p(↑∾clipS∾↓)s,f,p+≠clipS⟩
   ;s‿f‿p
   }}
@@ -58,7 +58,7 @@ Game ← {𝕤
     rr
   }•_While_(¬window.ShouldClose) ""‿⟨⟩‿0
 
-  r.rayffi.UnloadFont font
+  r.raylib.UnloadFont font
 }
 window.SetSize 0.5
 Game window._openAs "BQN Repl"

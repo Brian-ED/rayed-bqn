@@ -3,10 +3,10 @@
  draw
  key
  window
- rf⇐rayffi
+ rf⇐raylib
  rm⇐raymath
  mouse
-⟩←rl←•Import "../../raylib.bqn"
+⟩←rl←•Import "../../rayed.bqn"
 
 # refrence
 # A ← 0‿0

@@ -1,6 +1,6 @@
 # My highscore is 124... beat that!
 
-⟨c⇐color,window,draw,k⇐key⟩←r←•Import "../../raylib.bqn"
+⟨c⇐color,window,draw,k⇐key⟩←r←•Import "../../rayed.bqn"
 textSize ← 100
 size ← 15
 nonDarkMode‿darkMode ← {
@@ -13,7 +13,7 @@ nonDarkMode‿darkMode ← {
 
 LoadConsts ← {𝕊:{
   winSize       ⇐ window.GetSize@
-  textPixelSize ⇐ r.rayFFI.MeasureText¨textSize⋈˜¨"Paused"‿"GAME OVER"
+  textPixelSize ⇐ r.raylib.MeasureText¨textSize⋈˜¨"Paused"‿"GAME OVER"
   tileSize      ⇐ ⌊winSize⌊´⊸÷size+2
   lines         ⇐ ≍´˘⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
   font          ⇐ r.font.LoadBQN 100

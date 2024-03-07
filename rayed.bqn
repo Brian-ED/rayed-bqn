@@ -35,8 +35,8 @@ global.SetNeedsWindow needsWindow
 
 # Loading dependencies
 •Import∘"src/parseFFI.bqn"⍟¬•file.Exists "config.bqn"
-⟨rayffi⟩ ⇐ {
-  paths ← ⟨"ffi/rayffi.bqn"⟩
+⟨raylib⟩ ⇐ {
+  paths ← ⟨"ffi/raylib.bqn"⟩
   tried ← •Import⎊{
     0⊣•Out "Error running "∾𝕩
   }¨paths
@@ -57,7 +57,7 @@ bqnoiseOptions ← •Import "src/imports/BQNoise/options.bqn"
 FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
 
 # Defaults
-rayffi.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
+raylib.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
 
 # constants
 i32_max ← ¯1+2⋆31
@@ -69,21 +69,21 @@ texture ← {
     NeedsWindow@
     {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)𝕩
     {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
-    rayFFI.LoadTexture 𝕩
+    raylib.LoadTexture 𝕩
   }
   # texture.Unload
-  Unload ← {𝕊texture: NeedsWindow@ ⋄ @⊣rayFFI.UnloadTexture𝕩}
+  Unload ← {𝕊texture: NeedsWindow@ ⋄ @⊣raylib.UnloadTexture𝕩}
   # texture._with
   _withFile ← {𝔽_𝕣 filePath : (Unload⊢𝔽)Load𝕩}
   # texture._withRayImage
   _withRayImage ← {
     NeedsWindow@
-    (Unload⊢𝔽)rayffi.LoadTextureFromImage 𝕩
+    (Unload⊢𝔽)raylib.LoadTextureFromImage 𝕩
   }
   # texture._withImage
   _withImage ← {
     NeedsWindow@
-    (Unload⊢𝔽)rayffi.LoadTextureFromImage image._AsRayImg 𝕩
+    (Unload⊢𝔽)raylib.LoadTextureFromImage image._AsRayImg 𝕩
   }
 }
 monitor ← {
@@ -93,12 +93,12 @@ monitor ← {
   # monitor.Selected
   Selected ← {𝕤
     NeedsWindow@
-    rayFFI.GetCurrentMonitor⟨⟩
+    raylib.GetCurrentMonitor⟨⟩
   }
   # monitor.Count
   Count ← {𝕤
     NeedsWindow@
-    rayFFI.GetMonitorCount⟨⟩
+    raylib.GetMonitorCount⟨⟩
   }
 
   notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
@@ -106,20 +106,20 @@ monitor ← {
 
   # monitor.RefreshRate
   RefreshRate ← {𝕊monitor:
-    rayFFI.GetMonitorRefreshRate M 𝕩
+    raylib.GetMonitorRefreshRate M 𝕩
   }
   # monitor.Size
   Size        ← {𝕊monitor:
-    (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight)M 𝕩
+    (raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight)M 𝕩
   }
   # Get size in milimeters
   # monitor.Sizemm
   Sizemm      ← {𝕊monitor:
-    (rayFFI.GetMonitorPhysicalWidth ∾ rayFFI.GetMonitorPhysicalHeight)M 𝕩
+    (raylib.GetMonitorPhysicalWidth ∾ raylib.GetMonitorPhysicalHeight)M 𝕩
   }
   # monitor.Name
   Name        ← {𝕊monitor:
-    rayFFI.GetMonitorName M 𝕩
+    raylib.GetMonitorName M 𝕩
   }
 }
 
@@ -153,13 +153,13 @@ window ← {
 
   # Get the x‿y position of the window   (relative to current monitor?)
   # window.GetPos
-  GetPos ← {rayffi.GetWindowPosition⟨⟩⊣NeedsWindow𝕩}
+  GetPos ← {raylib.GetWindowPosition⟨⟩⊣NeedsWindow𝕩}
   
   # Set the x‿y position of the window   (relative to current monitor?)
   # window.SetPos
   SetPos ← {
     NeedsWindow@
-    rayFFI.SetWindowPosition𝕩
+    raylib.SetWindowPosition𝕩
   }
 
   # tempSize is used to store size until window is open
@@ -171,10 +171,10 @@ window ← {
     ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
     isOpen?
-      s ← (rayFFI.GetMonitorWidth ∾ rayFFI.GetMonitorHeight) rayFFI.GetCurrentMonitor⟨⟩
+      s ← (raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight) raylib.GetCurrentMonitor⟨⟩
       f ← (1⊸>∧0⊸≤)𝕩
       # if given size is 0-1, scale the window relative to monitor size
-      rayFFI.SetWindowSize ⌈2⥊s×⟜¬⌾(f⊸/)2⥊𝕩
+      raylib.SetWindowSize ⌈2⥊s×⟜¬⌾(f⊸/)2⥊𝕩
   ;
     tempSize↩𝕩
   }
@@ -183,8 +183,8 @@ window ← {
   # window.GetSize
   GetSize ← {𝕤
     isOpen?
-      ⟨rayFFI.GetScreenWidth⟨⟩
-       rayFFI.GetScreenHeight⟨⟩⟩
+      ⟨raylib.GetScreenWidth⟨⟩
+       raylib.GetScreenHeight⟨⟩⟩
   ;
     tempSize
   }
@@ -193,31 +193,31 @@ window ← {
   # window.Open
   Open ⇐ {𝕊 title:
     (¬isOpen)!˜"The window cannot be opened twice"
-    rayFFI.InitWindow 0‿0‿𝕩
-    rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
+    raylib.InitWindow 0‿0‿𝕩
+    raylib.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
 
     binary←GetState@
-    rayffi.SetWindowState 2⊸×⊸+˜´ binary
+    raylib.SetWindowState 2⊸×⊸+˜´ binary
 
     isOpen↩1
 
     SetSize tempSize
 
-    rayffi.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
-    rayFFI.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
+    raylib.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
+    raylib.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
     # Setting fps to the refresh rate of the currently selected monitor
-    fps.Set rayFFI.GetMonitorRefreshRate rayFFI.GetCurrentMonitor⟨⟩
+    fps.Set raylib.GetMonitorRefreshRate raylib.GetCurrentMonitor⟨⟩
     window
   }
   # window.ShouldClose
   ShouldClose ← {𝕤
     NeedsWindow@
-    rayFFI.WindowShouldClose⟨⟩
+    raylib.WindowShouldClose⟨⟩
   }
   # window.Close
   Close ← {
     NeedsWindow@
-    rayFFI.CloseWindow⟨⟩
+    raylib.CloseWindow⟨⟩
     𝕩⊣isOpen↩0
   }
   # window.OpenAs
@@ -227,18 +227,18 @@ window ← {
   }
   # TODO: Needs to test input for image
   # window.SetIcon
-  SetIcon ← {𝕊image: NeedsWindow@ ⋄ rayFFI.SetWindowIcon𝕩} image._AsRayImg
+  SetIcon ← {𝕊image: NeedsWindow@ ⋄ raylib.SetWindowIcon𝕩} image._AsRayImg
 
   fps ← {
     # window.fps.Get
     Get ⇐ {𝕤
       NeedsWindow@
-      rayFFI.GetFPS⟨⟩
+      raylib.GetFPS⟨⟩
     }
     # window.fps.Set
     Set ⇐ {
       (𝕩=0⌈⌈𝕩)!˜"FPS has to be a positive int"
-      𝕩⊣rayFFI.SetTargetFPS𝕩
+      𝕩⊣raylib.SetTargetFPS𝕩
     }⊣NeedsWindow
   }
   # window.ConfigFlags
@@ -262,7 +262,7 @@ window ← {
 
   cf ← configFlags
   cs ← { # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
-    ⟨Clear⇐ClearWindowState, Set⇐SetWindowState⟩ ← rayffi
+    ⟨Clear⇐ClearWindowState, Set⇐SetWindowState⟩ ← raylib
     Clear‿Set
   }
   
@@ -322,8 +322,8 @@ draw ← {
   _in3D ← {𝕨 Drawing3D _𝕣 camera:
     NeedsWindow@          # pos  target up   FOV Camera projection type
     "_in3D: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"‿"iii"‿"iii"‿'i'‿'i'
-    rayffi.BeginMode3D 𝕩
-    rayffi.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
+    raylib.BeginMode3D 𝕩
+    raylib.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
   # Start drawing, draw background, use function 𝔽, end drawing
   # draw._withCanvas_
@@ -335,8 +335,8 @@ draw ← {
 
   # draw._withinRectangle
   _withinRectangle ← {
-    rayffi.BeginScissorMode (⊣∾-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
-    rayffi.EndScissorMode∘⟨⟩⊸⊢𝔽𝕩
+    raylib.BeginScissorMode (⊣∾-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
+    raylib.EndScissorMode∘⟨⟩⊸⊢𝔽𝕩
   }
 
   # Draw text at x‿y in given font, color, and size
@@ -344,8 +344,8 @@ draw ← {
   Text ← {𝕨𝕊⟨x‿y⋄text⟩:
     NeedsWindow@
     t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
-    "Text: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾5‿8‿8⥊¨'i')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
-    rayFFI.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
+    "Text: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾(5⥊'i')‿'n'‿'n')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
+    raylib.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
   }
 
   # Draw line from x1‿y1 to x2‿y2
@@ -357,21 +357,21 @@ draw ← {
       𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
     }𝕨
     "Line: wrong types as input"!leftArg‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
-    rayFFI.DrawLineEx(<˘𝕩)∾⌽leftArg
+    raylib.DrawLineEx(<˘𝕩)∾⌽leftArg
   }
 
   # draw.Texture
   Texture ← {tint‿texture‿scale‿rotation𝕊x‿y:
     NeedsWindow@
     "Texture: wrong types as input"!⟨tint⋄texture⋄scale⋄rotation⟩‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿"iiiii"‿'i'‿'i'⋄"ii"⟩
-    rayFFI.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄tint⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
+    raylib.DrawTextureEx ⟨texture⋄x‿y⋄rotation⋄scale⋄tint⟩ # texture‿v2‿f‿f‿color # texture position rotation scale tint
   }
 
   # draw.Rectangle
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
-    rayFFI.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩 # capping with max and min to avoid errors at ∞
+    raylib.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩 # capping with max and min to avoid errors at ∞
   }
 
   # draw.Ellipse
@@ -379,7 +379,7 @@ draw ← {
     NeedsWindow@
     ((∧´⌈⊸=∨∞=|)⥊𝕩)!˜"Ellipse only accepts ints as args"
     ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
-    rayffi.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
+    raylib.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
   }
 
   # Draw a color-filled circle
@@ -389,37 +389,37 @@ draw ← {
     (𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"‿⟨"ii"⋄'i'⟩)!˜"Wrong input types given to draw.Circle"
     ((∧´⌈⊸=∨∞=|)x‿y)!˜"Position for draw.Circle has to be two ints"
     ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
-    rayffi.DrawCircle x‿y‿radius‿𝕨
+    raylib.DrawCircle x‿y‿radius‿𝕨
   }
 
   # draw.EllipseOutline
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    rayffi.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
+    raylib.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
   }
 
   # draw.Triangle
   Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
     [p1,p2,p3] ← 𝕩
-    rayffi.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
+    raylib.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
   }
 
   # Start Drawing
   Start ← {𝕤
     NeedsWindow@
-    rayFFI.BeginDrawing⟨⟩
+    raylib.BeginDrawing⟨⟩
   }
   # Draw background
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
     (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     "Background: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
-    rayFFI.ClearBackground 𝕩
+    raylib.ClearBackground 𝕩
   }
   # End drawing
   End ← {𝕤
     NeedsWindow@
-    rayFFI.EndDrawing⟨⟩
+    raylib.EndDrawing⟨⟩
   }
   # These aren't recommended because they are useless if you use _withCanvas_.
   # They also don't behave well if ran in the wrong order,
@@ -430,8 +430,8 @@ draw ← {
 font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload ⟩⇐
   IsFont ← {
-    (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜8⥊'i')!˜"Expected a valid font"   # Type info can be found in rayffi.bqn https://github.com/Brian-ED/rayed-bqn/blob/1ccf239c9167307c36bcd882c7f1031640f67032/rayffi.bqn#L81
-    𝕩⊣(¬∨´∧´¨0=¯2↑𝕩)!˜"Invalid font. font has null pointers, making it invalid"
+    (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜'n')!˜"Expected a valid font"   # Type info can be found in ffi/raylib.bqn https://github.com/Brian-ED/rayed-bqn/blob/1ccf239c9167307c36bcd882c7f1031640f67032/rayffi.bqn#L81
+    𝕩⊣(¬∨´low.IsNull¨¯2↑𝕩)!˜"Invalid font. font has null pointers, making it invalid"
   }
   glyphInfo←{value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
 
@@ -439,7 +439,7 @@ font ← {
   Unload ⇐ {
     NeedsWindow@
     IsFont 𝕩
-    rayFFI.UnloadFont 𝕩
+    raylib.UnloadFont 𝕩
   }
   # font.Load
   Load ⇐ {
@@ -455,18 +455,18 @@ font ← {
     {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)filePath
     {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists filePath
 
-    IsFont rayFFI.LoadFontEx 𝕨F𝕩
+    IsFont raylib.LoadFontEx 𝕨F𝕩
   }
 
   # font.LoadBQN
   LoadBQN ← {𝕊fontSize: fontSize 100⍟(@⊸≡)↩
     NeedsWindow@
     file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt"src/imports/BQN386/BQN386.ttf"
-    rayFFI.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
+    raylib.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
   }
   # font.LoadRaylib
   LoadRaylib ← {𝕊@:
-    rayffi.GetFontDefault⟨⟩
+    raylib.GetFontDefault⟨⟩
   }
 }
 clipboard ← {
@@ -474,14 +474,17 @@ clipboard ← {
   ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
   
   # clipboard.Get
-  Get ⇐ {𝕊
+  Get ⇐ {𝕤
     NeedsWindow@
-    low.StrLen⊸low.MakeUTF8 rayffi.GetClipboardText⟨⟩
+    low.IsNull◶⟨
+      low.StrLen⊸low.MakeUTF8
+      ""
+    ⟩ raylib.GetClipboardText⟨⟩
   }
   # clipboard.Set
   Set ⇐ {𝕊text:
     NeedsWindow@
-    rayffi.SetClipboardText ToBytes 𝕩
+    raylib.SetClipboardText ToBytes 𝕩
   }
 }
 
@@ -513,18 +516,18 @@ mouse ← {
   # mouse.GetPos
   GetPos     ⇐ {𝕤
     NeedsWindow@
-    rayFFI.GetMousePosition⟨⟩
+    raylib.GetMousePosition⟨⟩
   }
   # mouse.WheelMoved
   WheelMoved ⇐ {𝕤
     NeedsWindow@
-    rayFFI.GetMouseWheelMove⟨⟩
+    raylib.GetMouseWheelMove⟨⟩
   }
   # mouse.IsButtonDown
   IsButtonDown ⇐ {
     NeedsWindow@
     "Mouse button doesn't exist. (𝕩∊↕7)"!∨´⥊𝕩∊↕buttons
-    rayFFI.IsMouseButtonDown⚇0 𝕩
+    raylib.IsMouseButtonDown⚇0 𝕩
   }
   buttons ← 7
   # mouse.button.
@@ -549,12 +552,6 @@ mouse ← {
 
 # Wave, audio wave data
 sound ⇐ {
-
-  waveType←"{u32,u32,u32,u32,*i16}"
-  soundType ← "{{*:i8,*:i8,u32,u32,u32},u32}"
-  memAlloc ← rayffi.pathToBinary •FFI "*"‿"MemAlloc"‿('>'∾rayffi.u) # size # Internal memory allocator
-  loadSoundFromWave ← rayffi.pathToBinary •FFI soundType‿"LoadSoundFromWave"‿('>'∾waveType) # size # Internal memory allocator
-
   wave ⇐ {
     ⟨LoadFromFile ⋄ Unload ⋄ _withFile⟩⇐
 
@@ -574,25 +571,25 @@ sound ⇐ {
         ≠bqnSound     # channels
         { # *data
           data ← ⥊⍉bqnSound
-          {↕∘≠⊸(𝕩.Write¨) data}⊸⊢(MemAlloc 2×≠data).Cast "i16"
+          {↕∘≠⊸(𝕩.Write¨) data}⊸⊢(raylib.MemAlloc 2×≠data).Cast "i16"
         }
       ⟩
     }
 
     # sound.wave.Unload
-    Unload ⇐ rayffi.MemFree 4⊸⊑
+    Unload ⇐ raylib.MemFree 4⊸⊑
 
     # sound.wave._withFile
     _withFile ⇐ {(Unload⊢𝔽)LoadFromFile}
   }
 
   # sound.FromFile
-  FromFile ⇐ LoadSoundFromWave wave._withFile # fileName→Sound
+  FromFile ⇐ raylib.LoadSoundFromWave wave._withFile # fileName→Sound
   
   # sound.Play
-  Play ⇐ rayffi.PlaySound
+  Play ⇐ raylib.PlaySound
   _withAudio ⇐ {
-    rayffi.CloseAudioDevice∘⟨⟩⊢𝔽⊣rayffi.InitAudioDevice∘⟨⟩
+    raylib.CloseAudioDevice∘⟨⟩⊢𝔽⊣raylib.InitAudioDevice∘⟨⟩
   }
 }
 
@@ -600,25 +597,25 @@ key ← {
   
   # key.IsPressed
   IsPressed ⇐ {𝕊 key:
-    rayFFI.IsKeyPressed @-˜⍟<𝕩
+    raylib.IsKeyPressed @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
 
   # key.IsDown
   IsDown ⇐ {
-    rayffi.IsKeyDown @-˜⍟<𝕩
+    raylib.IsKeyDown @-˜⍟<𝕩
   }⚇0⊣NeedsWindow
 
   # Get key pressed as keycode
   # key.PressedKey
   PressedKey ⇐ {𝕤
     NeedsWindow@
-    rayFFI.GetKeyPressed⟨⟩
+    raylib.GetKeyPressed⟨⟩
   }
 
   # key.PressedChar
   PressedChar ⇐ {𝕤
     NeedsWindow@
-    @+rayffi.GetcharPressed⟨⟩
+    @+raylib.GetcharPressed⟨⟩
   }
 
   # Keyboard keys (US keyboard layout)

@@ -16,7 +16,7 @@
 
 ⟨pixelFormat⟩ ← •Import "constants.bqn"
 ⟨NeedsWindow⟩ ← •Import "global.bqn"
-rayffi ← •Import "../ffi/rayffi.bqn"
+raylib ← •Import "../ffi/raylib.bqn"
 low    ← •Import "low.bqn"
 
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
@@ -34,7 +34,7 @@ uncompressedFormats ← ⟨
 ⟩
 
 ToArr ← {𝕨𝕊raylibImg: resultFormat←𝕨⊣@
-  dataPtr‿width‿hight‿mipmaps‿format ← ⊑⊑rayffi.ImageFormatRef ⟨𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
+  dataPtr‿width‿hight‿mipmaps‿format ← ⊑⊑raylib.ImageFormatRef ⟨𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   {𝕤
     0!˜×∘≠◶⟨
       "Format given doesn't exist"
@@ -50,20 +50,20 @@ LoadFromArr ← {𝕨𝕊img:
   format ← 𝕨⊣default
   NeedsWindow@
   standardImg ← format‿default ReFormat img 
-  l low.Read ptr←rayffi.MemAlloc≠l←¯128+256|128+⥊⍉standardImg
+  l low.Read ptr←raylib.MemAlloc≠l←¯128+256|128+⥊⍉standardImg
   ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 
 Unload ← {𝕊img:
   imgDataIndex ← 0
-  rayffi.MemFree imgDataIndex⊑𝕩
+  raylib.MemFree imgDataIndex⊑𝕩
   @
 }
 
 FromFile ← {𝕊strPath:
   NeedsWindow@
   !•file.Exists𝕩
-  (Unload⊢ToArr) rayFFI.LoadImage𝕩
+  (Unload⊢ToArr) raylib.LoadImage𝕩
 }
 
 _AsRayImg ← {(Unload⊢𝔽)LoadFromArr}
@@ -203,12 +203,12 @@ ReFormat ← {oldFormat‿newFormat𝕊image:
 #   size ← 1000‿1000
 # 
 #   img1 ← @
-#   •Show {img1↩r.rayffi.GenImageGradientSquare𝕩}•_Timed size∾⟨0, 255‿0‿0‿255, 4⥊255⟩
+#   •Show {img1↩r.raylib.GenImageGradientSquare𝕩}•_Timed size∾⟨0, 255‿0‿0‿255, 4⥊255⟩
 #   img2 ← @
 #   •Show {img2↩GenGradientSquare𝕩} •_Timed ⟨size, 255‿0‿0‿255, 4⥊255⟩
 #   img2 LoadFromArr↩
 #   
-#   t‿l ← r.rayffi.LoadTextureFromImage¨ img1‿img2
+#   t‿l ← r.raylib.LoadTextureFromImage¨ img1‿img2
 #   r.image.Unload¨img1‿img2
 # 
 #   l‿t‿font PerFrame•_While_(¬w.ShouldClose) 0

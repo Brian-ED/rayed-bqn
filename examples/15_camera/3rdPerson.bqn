@@ -1,5 +1,5 @@
 rcamera ← •Import "rcamera.bqn"
-⟨rf⇐rayffi, key, color, draw⟩ ← rl ← •Import "../../raylib.bqn"
+⟨rf⇐raylib, key, color, draw⟩ ← rl ← •Import "../../rayed.bqn"
 
 max_columns ← 20
 

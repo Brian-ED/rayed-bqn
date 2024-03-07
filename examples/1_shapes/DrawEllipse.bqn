@@ -1,4 +1,4 @@
-⟨⟨white, black⟩⇐color⟩←r←•Import "../../raylib.bqn"
+⟨⟨white, black⟩⇐color⟩←r←•Import "../../rayed.bqn"
 
 PerFrame ← {
   pos ← r.mouse.GetPos@

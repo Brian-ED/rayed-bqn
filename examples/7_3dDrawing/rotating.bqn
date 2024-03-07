@@ -1,11 +1,11 @@
 # The MoveCamera function is what rotates the camera
 
-⟨color, window, draw, rayffi, k⇐key⟩←r←•Import "../../raylib.bqn"
+⟨color, window, draw, raylib, k⇐key⟩←r←•Import "../../rayed.bqn"
 ⟨IsPressed⟩←k
 _setup ← {𝕨𝔽_𝕣𝕩:
-  meshes ← rayffi.LoadModelFromMesh¨ ⟨
-    rayffi.GenMeshPlane 10‿10‿3‿3
-    rayffi.GenMeshCube 2‿4‿2
+  meshes ← raylib.LoadModelFromMesh¨ ⟨
+    raylib.GenMeshPlane 10‿10‿3‿3
+    raylib.GenMeshCube 2‿4‿2
   ⟩
   font ← r.font.LoadBQN 50
   lights ← ⟨
@@ -18,7 +18,7 @@ _setup ← {𝕨𝔽_𝕣𝕩:
           #  pos    target  up     FOV Yaxis  Camera projection type
   camera ← ⟨ 4‿4‿0, 0‿0‿0,  0‿1‿0, 45,        0⟩
   meshes‿lights‿font 𝔽 lightToggle‿camera
-  rayffi.UnloadModel¨meshes
+  raylib.UnloadModel¨meshes
 }
 
 rotMat ← r.raymath.MatrixRotateZ π÷80
@@ -34,14 +34,14 @@ PerFrame ← {meshes‿lights‿font𝕊lightToggle‿camera:
   ⟩
   {𝕤
     {𝕤
-      (rayffi.DrawModel⟨0‿0‿0, 1, color.white⟩∾˜<)¨meshes
-      rayffi.DrawGrid 10‿1
+      (raylib.DrawModel⟨0‿0‿0, 1, color.white⟩∾˜<)¨meshes
+      raylib.DrawGrid 10‿1
       lightToggle⊣◶⟨
-        rayffi.DrawSphereWires ⌈∘×⟜1‿1‿1‿0.3⌾(¯1⊸⊑)∘⊢
-        rayffi.DrawSphereEx⊢
+        raylib.DrawSphereWires ⌈∘×⟜1‿1‿1‿0.3⌾(¯1⊸⊑)∘⊢
+        raylib.DrawSphereEx⊢
       ⟩¨(¯1⌽0.2‿8‿8∾⌽)¨lights
     } draw._in3D camera
-    rayffi.DrawFPS 10‿10
+    raylib.DrawFPS 10‿10
     color.darkGray‿font‿20 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
     
   } draw._withCanvas_ color.black @

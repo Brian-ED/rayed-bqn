@@ -1,14 +1,14 @@
 ⟨
   ⟨ReadI32 ⋄ ReadI8⟩⇐low
-  rf⇐rayffi
+  rf⇐raylib
   ⟨
     GetShaderLocation ⋄ SetShaderValueRaw ⋄ SetShaderValue
     MemAlloc ⋄ MemFree
     ⟨
       SHADER_UNIFORM_INT ⋄ SHADER_UNIFORM_VEC3 ⋄ SHADER_UNIFORM_Vec4
     ⟩⇐shaderUniformDataType
-  ⟩⇐rayffi
-⟩ ← rl ← •Import "../../raylib.bqn"
+  ⟩⇐raylib
+⟩ ← rl ← •Import "../../rayed.bqn"
 
 # Light data
 light ⇐ '{'∾'}'«∾','∾¨⟨

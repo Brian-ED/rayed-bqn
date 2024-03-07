@@ -2,13 +2,13 @@
 # Press B to start a slash noise
 
 ⟨⟨red, white, black⟩⇐color, window, key, draw, sound
-⟩ ← r ← •Import "../../raylib.bqn"
+⟩ ← r ← •Import "../../rayed.bqn"
 
 # sets window size to half the monitor size
 window.SetSize 0.5
 
 PerFrame ← {
-  key.a‿key.b sound.Play∘⊢⍟(key.IsPressed⊣)¨𝕩
+  𝕩 sound.Play∘⊣⍟⊢¨key.IsPressed¨key.a‿key.b
 }⊸⊢ draw._withCanvas_ black
 
 Start ← {𝕤

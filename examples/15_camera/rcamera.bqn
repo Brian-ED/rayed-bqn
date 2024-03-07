@@ -43,7 +43,7 @@
     gamepadAxis
     GetGamepadAxisMovement
     IsGamepadAvailable
-  ⟩ ⇐ rayffi
+  ⟩ ⇐ raylib
 
   ⟨
     Vector3RotateByAxisAngle
@@ -56,7 +56,7 @@
     MatrixRotate
   ⟩ ⇐ raymath
 
-⟩ ← rl ← •Import "../../raylib.bqn"
+⟩ ← rl ← •Import "../../rayed.bqn"
 
 cameraIndex ⇐ {
   position   ⇐ 0 # Camera position

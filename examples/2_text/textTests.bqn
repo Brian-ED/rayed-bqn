@@ -1,4 +1,4 @@
-⟨c⇐color,window,draw⟩←r←•Import "../../raylib.bqn"
+⟨c⇐color,window,draw⟩←r←•Import "../../rayed.bqn"
 fontSize←50
 
 PerFrame ← {

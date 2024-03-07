@@ -16,6 +16,10 @@ makeI32  ⇐ @•FFI "a"  ‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿">*:i8" #   NumC
 makeUTF8 ⇐ @•FFI "a"  ‿"bqn_makeUTF8Str"‿"𝕨>u64"  ‿">*:i8" #     length 𝕊 pointer # turn string at pointer into a bqn string
 strLen   ⇐ @•FFI "i32"‿"strlen"         ‿">*:i8"           #            𝕊 pointer # length of unicode C-string
 
+IsNull ⇐ (@•FFI"*:i8"‿"memcpy"‿"*"‿"&i8"‿"u64"){
+  (8⥊0)≡⟨⟩⋈˜⁼𝔽⟨𝕩,⟨⟩,0⟩
+}
+
 # NumCount 𝕊 pointer # turn data at pointer into a number array
 MakeF32 ⇐ (@•FFI"*:i8"‿"memcpy"‿"&f32"‿"*i8"‿"u64"){
   bytes←∘‿4⥊𝕩 Make˜ 𝕨×4

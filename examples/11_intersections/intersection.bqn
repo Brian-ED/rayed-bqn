@@ -3,9 +3,9 @@
 ⟨color
  draw
  key
- rf⇐rayffi
+ rf⇐raylib
  rm⇐raymath
-⟩←rl←•Import "../../raylib.bqn"
+⟩←rl←•Import "../../rayed.bqn"
 
 # intersection using the slab method
 # https://tavianator.com/2011/ray_box.html#:~:text=The%20fastest%20method%20for%20performing,remains%2C%20it%20intersected%20the%20box.

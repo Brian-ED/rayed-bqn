@@ -1,6 +1,6 @@
 # Import raylib as r, and from r, take out color, window, and draw.
 # from color take out red, white and black
-⟨⟨red, white, black⟩⇐color, window, draw⟩←r←•Import "../../raylib.bqn"
+⟨⟨red, white, black⟩⇐color, window, draw⟩←r←•Import "../../rayed.bqn"
 
 # sizes of the shapes
 rec←60 ⋄ cir←400
