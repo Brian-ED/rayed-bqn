@@ -34,15 +34,16 @@ uncompressedFormats ← ⟨
 ⟩
 
 ToArr ← {𝕨𝕊raylibImg: resultFormat←𝕨⊣@
-  dataPtr‿width‿hight‿mipmaps‿format ← ⊑⊑raylib.ImageFormatRef ⟨𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
-  {𝕤
-    0!˜×∘≠◶⟨
-      "Format given doesn't exist"
-      "Format "∾⊑∾" isn't implemented"˙
-    ⟩ (format=pixelFormat⊸•ns.Get¨)⊸/ •ns.Keys pixelFormat
-  }⍟⊢format≢pixelFormat.uncompressed_r8g8b8a8
-  newImg ← width‿hight‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
-  {{r‿g‿b‿a⇐4⥊8}‿resultFormat ReFormat𝕩}⍟(𝕨0⊘1𝕩) newImg
+  changeFormat←pixelFormat.uncompressed_r8g8b8a8≢4⊑𝕩
+  dataptr‿width‿hight‿·‿format ← {
+    img ← raylib.ImageCopy 𝕩
+    raylib.ImageFormat ⟨img⟩‿pixelFormat.uncompressed_r8g8b8a8
+    img
+  }⍟changeFormat 𝕩
+  "Invalid image format"!×format
+  bqnImg ← width‿hight‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
+  {𝕊:raylib.MemFree dataPtr}⍟changeFormat 𝕩
+  {{r‿g‿b‿a⇐4⥊8}‿resultFormat ReFormat𝕩}⍟(𝕨0⊘1𝕩) bqnImg
 }
 
 LoadFromArr ← {𝕨𝕊img:

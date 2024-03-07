@@ -2,4 +2,4 @@
 d←•Show ('d'=•file.Type¨)⊸/ •file.List "."
 n←(".bqn"≡¯4⊸↑)¨⊸/¨(<•file.At¨•file.List)¨ d
 err←d{(""⊣⟨𝕨⟩•BQN•FChars)⎊(•CurrentError∘@)¨𝕩}¨n
-{•Show⍟(⟨⟩≢⊢) {𝕊·‿a:a≢⟨⟩}¨⊸/𝕩}¨ n ⋈¨¨ err
+•Show⍟(⟨⟩≢⊢)¨ (⟨⟩≢1⊸⊑)¨⊸/¨ n ⋈¨¨ err
