@@ -2,7 +2,7 @@
   GetCameraMatrix2D ⋄ GetWorldToScreenEx ⋄ GetWorldToScreen
 ⟩⇐
 ⟨MP ⋄ Rot2D⇐MatrixRotate2D⟩ ← rm ← •Import "raymath.bqn"
-rf ← •Import "../ffi/rayffi.bqn"
+rf ← •Import "../ffi/raylib.bqn"
 ⟨NeedsWindow⟩ ← •Import "global.bqn"
 ⟨rlgl ⋄ ⟨perspective⋄orthographic⟩⇐cameraProjection⟩ ← •Import "constants.bqn"
 

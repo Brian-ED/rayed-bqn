@@ -1,4 +1,4 @@
-## Metaprogram rayffi.bqn automatically.
+## Metaprogram ffi automatically.
 
 # imports
 ⟨raylibLibPath
@@ -32,10 +32,10 @@ nl ← @+10
   }¨⌾(((+`∘<⟜»⊸×-¬) (1⌊0⌈+)`if-endif)⊸⊔)split
 }}
 
-ParseRayFFI ← {𝕊libPath‿headerPath:
+ParseRaylib ← {𝕊libPath‿headerPath:
   HasPathsError 𝕩
-  "../ffi/rayffi.bqn" •FChars libPath SetPath ToFFI "RLAPI" ParseHeader •FChars headerPath
-  •Out "ffi/rayffi.bqn successfully generated"
+  "../ffi/raylib.bqn" •FChars libPath SetPath ToFFI "RLAPI" ParseHeader •FChars headerPath
+  •Out "ffi/raylib.bqn successfully generated"
 }
 
 ParseRLGL ← {𝕊libPath‿headerPath:
@@ -81,6 +81,6 @@ ParseRayGUI ← {𝕊libPath‿headerPath:
   •Out "ffi/raygui.bqn successfully generated"
 }
 
-ParseRayFFI raylibLibPath‿raylibHeaderPath
+ParseRaylib raylibLibPath‿raylibHeaderPath
 ParseRLGL raylibLibPath⋈"rlgl.h" •file.At˜ •file.Parent raylibHeaderPath
 conf ParseRayGUI∘(•ns.Get¨)⍟(∧´•ns.Has¨) "rayguilibpath"‿"rayguiheaderpath"

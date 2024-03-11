@@ -430,7 +430,7 @@ draw ← {
 font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload ⟩⇐
   IsFont ← {
-    (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜'n')!˜"Expected a valid font"   # Type info can be found in ffi/raylib.bqn https://github.com/Brian-ED/rayed-bqn/blob/1ccf239c9167307c36bcd882c7f1031640f67032/rayffi.bqn#L81
+    (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜'n')!˜"Expected a valid font"
     𝕩⊣(¬∨´low.IsNull¨¯2↑𝕩)!˜"Invalid font. font has null pointers, making it invalid"
   }
   glyphInfo←{value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
