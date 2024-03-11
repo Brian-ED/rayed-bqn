@@ -65,7 +65,7 @@ PerFrame ←{con𝕊⟨gameState,frame,snake,fruit,facing,speed,buffer,pal⟩:
     }⌾(1‿5‿6⊸⊏)
     {
       pauseText←"Paused, d for dark"
-      pal.text‿con.font‿(textSize) draw.Text (2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize)‿pauseText
+      pal.text‿con.font‿textSize draw.Text (2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize)‿pauseText
 
       {𝕩≡nonDarkMode?darkMode;nonDarkMode}⌾(7⊑⊢)⍟(key=k.d)𝕩
     }
