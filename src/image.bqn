@@ -80,7 +80,7 @@ Copy ⇐ {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
   # 1⌈ is security check for NPOT textures
   mapSizes ← ×´¨1⌈⌊∘÷⟜2⍟(↕mipmaps) oldWidth‿oldHeight
   size ← +´format⊸GetPixelDataSize¨mapSizes
-  ptr ← (r.raylib.MemAlloc size).Cast "i8"
+  ptr ← (raylib.MemAlloc size).Cast "i8"
   ptr.Write (dataPtr.Cast "i8").Read size
   ptr‿oldWidth‿oldHeight‿mipmaps‿format
 }
