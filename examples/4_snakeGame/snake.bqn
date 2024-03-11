@@ -11,13 +11,13 @@ nonDarkMode‿darkMode ← {
    ⌈c.white‿c.red‿c.green‿c.white‿c.black÷1.3⟩ # divided to lower intencity
 }
 
-LoadConsts ← {𝕊:{
+LoadConsts ← {𝕤
   winSize       ⇐ window.GetSize@
   textPixelSize ⇐ r.raylib.MeasureText¨textSize⋈˜¨"Paused"‿"GAME OVER"
   tileSize      ⇐ ⌊winSize⌊´⊸÷size+2
   lines         ⇐ ≍´˘⌽¨⊸∾(⊢∾⌜2↑1⌽⁼⊢)tileSize×1+↕1+size # Line drawing positions
   font          ⇐ r.font.LoadBQN 100
-}}
+}
 OnStart ← {𝕤
   frame ← 0 ⋄ speed ← 10
   # 0 is gameOver, 1 is playing, 2 is paused
