@@ -33,10 +33,62 @@ uncompressedFormats ← ⟨
   {r‿g‿b‿a⇐4⥊32   }
 ⟩
 
+# Get pixel data size in bytes for certain format
+# NOTE: Size can be requested for Image or Texture data
+GetPixelDataSize ← {format𝕊size:
+  bpp ← { # Bits per pixel
+    𝕩≡pixelFormat.uncompressed_grayscale? 8;
+    ⊑𝕩∊⟨pixelFormat.uncompressed_gray_alpha
+        pixelFormat.uncompressed_r5g6b5
+        pixelFormat.uncompressed_r5g5b5a1
+        pixelFormat.uncompressed_r4g4b4a4 ⟩? 16;
+    𝕩≡pixelFormat.uncompressed_r8g8b8a8     ? 32;
+    𝕩≡pixelFormat.uncompressed_r8g8b8       ? 24;
+    𝕩≡pixelFormat.uncompressed_r32          ? 32;
+    𝕩≡pixelFormat.uncompressed_r32g32b32    ? 32×3;
+    𝕩≡pixelFormat.uncompressed_r32g32b32a32 ? 32×4;
+    𝕩≡pixelFormat.uncompressed_r16          ? 16;
+    𝕩≡pixelFormat.uncompressed_r16g16b16    ? 16×3;
+    𝕩≡pixelFormat.uncompressed_r16g16b16a16 ? 16×4;
+    ⊑𝕩∊⟨pixelFormat.compressed_dxt1_rgb
+        pixelFormat.compressed_dxt1_rgba
+        pixelFormat.compressed_etc1_rgb
+        pixelFormat.compressed_etc2_rgb
+        pixelFormat.compressed_pvrt_rgb
+        pixelFormat.compressed_pvrt_rgba⟩? 4;
+    ⊑𝕩∊⟨pixelFormat.compressed_dxt3_rgba
+        pixelFormat.compressed_dxt5_rgba
+        pixelFormat.compressed_etc2_eac_rgba
+        pixelFormat.compressed_astc_4x4_rgba⟩? 8;
+    𝕩≡pixelFormat.compressed_astc_8x8_rgba   ? 2;
+    0
+  }format
+
+  dataSize ← 8÷˜bpp×size  # Total data size in bytes
+
+  # Most compressed formats works on 4x4 blocks,
+  # if texture is smaller, minimum dataSize is 8 or 16
+  datasize‿8‿16‿datasize⊑˜⊑format⍋˜⟨
+    pixelFormat.compressed_dxt1_rgb
+    pixelformat.compressed_dxt3_rgba
+    pixelformat.compressed_astc_8x8_rgba
+  ⟩
+}
+
+# Copy a raylib image to a new image
+Copy ⇐ {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
+  # 1⌈ is security check for NPOT textures
+  mapSizes ← ×´¨1⌈⌊∘÷⟜2⍟(↕mipmaps) oldWidth‿oldHeight
+  size ← +´format⊸GetPixelDataSize¨mapSizes
+  ptr ← (r.raylib.MemAlloc size).Cast "i8"
+  ptr.Write (dataPtr.Cast "i8").Read size
+  ptr‿oldWidth‿oldHeight‿mipmaps‿format
+}
+
 ToArr ← {𝕨𝕊raylibImg: resultFormat←𝕨⊣@
   changeFormat←pixelFormat.uncompressed_r8g8b8a8≢4⊑𝕩
   dataptr‿width‿hight‿·‿format ← {
-    ⊑⊑raylib.ImageFormatRef ⟨raylib.ImageCopy 𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
+    ⊑⊑raylib.ImageFormatRef ⟨Copy 𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   }⍟changeFormat 𝕩
   "Invalid image format"!×format
   bqnImg ← width‿hight‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
@@ -174,43 +226,41 @@ ReFormat ← {oldFormat‿newFormat𝕊image:
   ⌊0.5+x×m/bitLengths
 }
 
-# Remove later
-#_Base_ ← {⌽𝕗|⌊∘÷⟜𝕗⍟(↕𝕘)} # Base _𝕣_ Length input → list
-#
-#
 #oldFormat ← {r‿grayscale⇐8‿8}
 #newFormat ← {r⇐8} # 5‿6‿5⥊¨1
 #image ← 3‿3‿2⥊[155‿255,0‿0]
 #
 #•Show oldFormat‿newFormat ReFormat image
 
-# TESTING
-# ⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "/home/brian/rayed-bqn/raylib.bqn"
-# 
-# PerFrame ← {tex1‿tex2‿font𝕊scrolled:
-#   c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.fps.Get⊸∾" FPS"
-#   {d.Texture⟜m.GetPos c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
-#   {d.Texture⟜(0‿700+m.GetPos) c.white‿tex2∾𝕩∾˜÷5}¨𝕩+90×↕4
-#   90|m.WheelMoved⊸+𝕩
-# } d._withCanvas_ c.black
-# 
-# r.window.SetSize 0.5‿0
-# 
-# {𝕤
-#   r.window.SetPos 1000‿0
-#   font ← r.font.LoadBQN@
-#   size ← 1000‿1000
-# 
-#   img1 ← @
-#   •Show {img1↩r.raylib.GenImageGradientSquare𝕩}•_Timed size∾⟨0, 255‿0‿0‿255, 4⥊255⟩
-#   img2 ← @
-#   •Show {img2↩GenGradientSquare𝕩} •_Timed ⟨size, 255‿0‿0‿255, 4⥊255⟩
-#   img2 LoadFromArr↩
-#   
-#   t‿l ← r.raylib.LoadTextureFromImage¨ img1‿img2
-#   r.image.Unload¨img1‿img2
-# 
-#   l‿t‿font PerFrame•_While_(¬w.ShouldClose) 0
-#   r.texture.Unload¨t‿l
-#   r.font.Unload font
-# } w._openAs "test"
+#TESTING
+#⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "/home/brian/rayed-bqn/rayed.bqn"
+#
+#PerFrame ← {tex1‿tex2‿tex3‿font𝕊scrolled:
+#  c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.fps.Get⊸∾" FPS"
+#  {d.Texture⟜m.GetPos c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
+#  {d.Texture⟜(0‿700+m.GetPos) c.white‿tex2∾𝕩∾˜÷5}¨𝕩+90×↕4
+#  {d.Texture⟜(0‿450+m.GetPos) c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
+#  90|m.WheelMoved⊸+𝕩
+#} d._withCanvas_ c.black
+#
+#r.window.SetSize 0.5‿0
+#
+#{𝕤
+#  r.window.SetPos 1000‿0
+#  font ← r.font.LoadBQN@
+#  size ← 1000‿1000
+#
+#  img1 ← @
+#  •Show {img1↩r.raylib.GenImageGradientSquare𝕩}•_Timed size∾⟨0, 255‿0‿0‿255, 4⥊255⟩
+#  img2 ← @
+#  •Show {img2↩GenGradientSquare𝕩} •_Timed ⟨size, 255‿0‿0‿255, 4⥊255⟩
+#  img2 LoadFromArr↩
+#  img3 ← Copy img1
+#
+#  t‿l‿p ← r.raylib.LoadTextureFromImage¨ img1‿img2‿img3
+#  r.image.Unload¨img1‿img2‿img3
+#
+#  l‿t‿p‿font PerFrame•_While_(¬w.ShouldClose) 0
+#  r.texture.Unload¨t‿l
+#  r.font.Unload font
+#} w._openAs "test"
