@@ -6,9 +6,11 @@
 
 # -------
 # Exports
-⟨draw, texture, monitor, window, mouse
- font, key, clipboard, StartClock
- sound, bqnoise, raymath, image, low⟩⇐
+⟨
+  draw, texture, monitor, window, mouse
+  font, key, clipboard, StartClock
+  sound, bqnoise, raymath, image, low
+⟩⇐
 
 ⟨
   traceLogLevel
@@ -89,7 +91,7 @@ texture ← {
 monitor ← {
   ⟨Selected ⋄ Count
    RefreshRate ⋄ Size
-   Sizemm ⋄ Name⟩⇐
+   Sizemm ⋄ Name ⋄ GetPos⟩⇐
   # monitor.Selected
   Selected ← {𝕤
     NeedsWindow@
@@ -120,6 +122,10 @@ monitor ← {
   # monitor.Name
   Name        ← {𝕊monitor:
     raylib.GetMonitorName M 𝕩
+  }
+  # monitor.GetPos
+  GetPos ← {𝕤
+    raylib.GetMonitorPosition M 𝕩
   }
 }
 
@@ -241,7 +247,7 @@ window ← {
       𝕩⊣raylib.SetTargetFPS𝕩
     }⊣NeedsWindow
   }
-  # window.ConfigFlags
+  # window.configFlags
   configFlags ← windowConfigFlags
 
   fullscreen        ← 0 # Set to run program in fullscreen                                              # window.fullscreen
