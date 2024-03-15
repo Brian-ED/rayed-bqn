@@ -202,8 +202,7 @@ window ← {
     raylib.InitWindow 0‿0‿𝕩
     raylib.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
 
-    binary←GetState@
-    raylib.SetWindowState 2⊸×⊸+˜´ binary
+    raylib.SetWindowState 2⊸×⊸+˜´ GetState@
 
     isOpen↩1
 
