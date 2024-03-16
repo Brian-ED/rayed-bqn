@@ -135,21 +135,21 @@ window ← {
     _openAs ⋄ Open ⋄ Close ⋄ isOpen ⋄ SetIcon ⋄ fps ⋄ GetSize
     ShouldClose ⋄ Needed ⋄ SetPos ⋄ GetPos ⋄ SetSize ⋄ configFlags
 
-    fullscreen        ⋄ SetFullscreen
-    resizable         ⋄ SetResizable
-    decorated         ⋄ SetDecorated
-    transparent       ⋄ SetTransparent
-    msaa4xhint        ⋄ Setmsaa4xhint
-    vsyncHint         ⋄ Setvsynchint
-    hidden            ⋄ SetHidden
-    runWhileMinimized ⋄ SetRunWhileMinimized
-    minimized         ⋄ SetMinimized
-    maximized         ⋄ SetMaximized
-    focused           ⋄ SetFocused
-    topmost           ⋄ SetTopmost
-    highDPI           ⋄ SetHighDPI
-    mousePassThrough  ⋄ SetMousePassThrough
-    interlacedhint    ⋄ SetInterlacedhint
+    IsFullscreen        ⋄ SetFullscreen
+    IsResizable         ⋄ SetResizable
+    IsDecorated         ⋄ SetDecorated
+    IsTransparent       ⋄ SetTransparent
+    IsMsaa4xhint        ⋄ Setmsaa4xhint
+    IsVsyncHint         ⋄ Setvsynchint
+    IsHidden            ⋄ SetHidden
+    IsRunWhileMinimized ⋄ SetRunWhileMinimized
+    IsMinimized         ⋄ SetMinimized
+    IsMaximized         ⋄ SetMaximized
+    IsFocused           ⋄ SetFocused
+    IsTopmost           ⋄ SetTopmost
+    IsHighDPI           ⋄ SetHighDPI
+    IsMousePassThrough  ⋄ SetMousePassThrough
+    IsInterlacedhint    ⋄ SetInterlacedhint
 
     GetState ⋄ stateNames # get binary list of above settings (including empty ones in the raylib binary format)
   ⟩⇐
@@ -204,6 +204,7 @@ window ← {
 
     raylib.SetWindowState 2⊸×⊸+˜´ GetState@
 
+    !raylib.IsWindowReady⟨⟩
     isOpen↩1
 
     SetSize tempSize
@@ -265,28 +266,44 @@ window ← {
   mousePassThrough  ← 0 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED # window.mousePassThrough
   interlacedhint    ← 0 # Set to try enabling interlaced video format (for V3D)                         # window.interlacedhint
 
+  # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
+  # window state not available on some platforms so will replace clear‿set with other functions like ToggleFullscreen
+  cs ← raylib.ClearWindowState‿raylib.SetWindowState
   cf ← configFlags
-  cs ← { # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
-    ⟨Clear⇐ClearWindowState, Set⇐SetWindowState⟩ ← raylib
-    Clear‿Set
-  }
-  
-  SetFullscreen        ⇐ { fullscreen        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.fullscreen_mode          } # window.SetFullscreen
-  SetResizable         ⇐ { resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         } # window.SetResizable
-  SetDecorated         ⇐ { decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       } # window.SetDecorated
-  SetTransparent       ⇐ { transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       } # window.SetTransparent
-  Setmsaa4xhint        ⇐ { msaa4xhint        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.msaa4xhint               } # window.Setmsaa4xhint
-  Setvsynchint         ⇐ { vsyncHint         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.vsync_hint               } # window.Setvsynchint
-  SetHidden            ⇐ { hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
-  SetRunWhileMinimized ⇐ { runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
-  SetMinimized         ⇐ { minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
-  SetMaximized         ⇐ { maximized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_maximized         } # window.SetMaximized
-  SetFocused           ⇐ { focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
-  SetTopmost           ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
-  SetHighDPI           ⇐ { highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  } # window.SetHighDPI
-  SetMousePassThrough  ⇐ { topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
-  SetInterlacedhint    ⇐ { interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
-  
+
+  SetFullscreen        ⇐ {!⊑𝕩∊↕2 ⋄ fullscreen        ↩ 𝕩 ⊣ raylib.ToggleFullscreen∘⟨⟩⍟⊢isopen∧𝕩≠IsFullscreen@} # window.SetFullscreen
+  SetResizable         ⇐ {!⊑𝕩∊↕2 ⋄ resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         } # window.SetResizable
+  SetDecorated         ⇐ {!⊑𝕩∊↕2 ⋄ decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       } # window.SetDecorated
+  SetTransparent       ⇐ {!⊑𝕩∊↕2 ⋄ transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       } # window.SetTransparent
+  Setmsaa4xhint        ⇐ {!⊑𝕩∊↕2 ⋄ msaa4xhint        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.msaa4xhint               } # window.Setmsaa4xhint
+  Setvsynchint         ⇐ {!⊑𝕩∊↕2 ⋄ vsyncHint         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.vsync_hint               } # window.Setvsynchint
+  SetHidden            ⇐ {!⊑𝕩∊↕2 ⋄ hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
+  SetRunWhileMinimized ⇐ {!⊑𝕩∊↕2 ⋄ runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
+  SetMinimized         ⇐ {!⊑𝕩∊↕2 ⋄ minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
+  SetMaximized         ⇐ {!⊑𝕩∊↕2 ⋄ maximized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_maximized         } # window.SetMaximized
+  SetFocused           ⇐ {!⊑𝕩∊↕2 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
+  SetTopmost           ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
+  SetHighDPI           ⇐ {!⊑𝕩∊↕2 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  } # window.SetHighDPI
+  SetMousePassThrough  ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
+  SetInterlacedhint    ⇐ {!⊑𝕩∊↕2 ⋄ interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
+
+  IWS ← raylib.IsWindowState
+  IsFullscreen        ⇐ {𝕊: isOpen? IWS cf.fullscreen_mode          ; fullscreen        }
+  IsResizable         ⇐ {𝕊: isOpen? IWS cf.window_resizable         ; resizable         }
+  IsDecorated         ⇐ {𝕊: isOpen? IWS cf.window_undecorated       ; decorated         }
+  IsTransparent       ⇐ {𝕊: isOpen? IWS cf.window_transparent       ; transparent       }
+  IsMsaa4xhint        ⇐ {𝕊: isOpen? IWS cf.msaa4xhint               ; msaa4xhint        }
+  IsVsyncHint         ⇐ {𝕊: isOpen? IWS cf.vsync_hint               ; vsyncHint         }
+  IsHidden            ⇐ {𝕊: isOpen? IWS cf.window_hidden            ; hidden            }
+  IsRunWhileMinimized ⇐ {𝕊: isOpen? IWS cf.window_always_run        ; runWhileMinimized }
+  IsMinimized         ⇐ {𝕊: isOpen? IWS cf.window_minimized         ; minimized         }
+  IsMaximized         ⇐ {𝕊: isOpen? IWS cf.window_maximized         ; maximized         }
+  IsFocused           ⇐ {𝕊: isOpen? IWS cf.window_unfocused         ; focused           }
+  IsTopmost           ⇐ {𝕊: isOpen? IWS cf.window_topmost           ; topmost           }
+  IsHighDPI           ⇐ {𝕊: isOpen? IWS cf.highDPI                  ; highDPI           }
+  IsMousePassThrough  ⇐ {𝕊: isOpen? IWS cf.window_mouse_passthrough ; mousePassThrough  }
+  IsInterlacedhint    ⇐ {𝕊: isOpen? IWS cf.window_interlacedhint    ; interlacedhint    }
+
   # window.stateNames
   stateNames ← [
     "                 "
