@@ -111,16 +111,16 @@ monitor ← {
     raylib.GetMonitorRefreshRate M 𝕩
   }
   # monitor.Size
-  Size        ← {𝕊monitor:
+  Size ← {𝕊monitor:
     (raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight)M 𝕩
   }
   # Get size in milimeters
   # monitor.Sizemm
-  Sizemm      ← {𝕊monitor:
+  Sizemm ← {𝕊monitor:
     (raylib.GetMonitorPhysicalWidth ∾ raylib.GetMonitorPhysicalHeight)M 𝕩
   }
   # monitor.Name
-  Name        ← {𝕊monitor:
+  Name ← {𝕊monitor:
     raylib.GetMonitorName M 𝕩
   }
   # monitor.GetPos
@@ -373,7 +373,7 @@ draw ← {
   # draw.Text
   Text ← {𝕨𝕊⟨x‿y⋄text⟩:
     NeedsWindow@
-    t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
+    t ← ⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
     "Text: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾(5⥊'i')‿'n'‿'n')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
     raylib.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
   }
@@ -382,7 +382,7 @@ draw ← {
   # draw.Line
   Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    leftArg←{
+    leftArg ← {
       𝕊r‿g‿b‿a:1⋈˜𝕩;
       𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
     }𝕨
@@ -463,7 +463,7 @@ font ← {
     (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜'n')!˜"Expected a valid font"
     𝕩⊣(¬∨´low.IsNull¨¯2↑𝕩)!˜"Invalid font. font has null pointers, making it invalid"
   }
-  glyphInfo←{value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
+  glyphInfo ← {value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
 
   # font.Unload
   Unload ⇐ {
@@ -474,14 +474,14 @@ font ← {
   # font.Load
   Load ⇐ {
     NeedsWindow@
-    F←{
+    F ← {
       𝕊size‿filePath:
         ⟨filePath⋄size⋄≍@⋄0⟩
     ;                                           # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
       charactersAllowed 𝕊 size‿filePath:
         ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
     }
-    ·‿filePath←𝕩
+    ·‿filePath ← 𝕩
     {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)filePath
     {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists filePath
 
