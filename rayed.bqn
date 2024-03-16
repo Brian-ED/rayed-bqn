@@ -134,6 +134,7 @@ window ← {
   ⟨
     _openAs ⋄ Open ⋄ Close ⋄ isOpen ⋄ SetIcon ⋄ fps ⋄ GetSize
     ShouldClose ⋄ Needed ⋄ SetPos ⋄ GetPos ⋄ SetSize ⋄ configFlags
+    SetTitle
 
     IsFullscreen        ⋄ SetFullscreen
     IsResizable         ⋄ SetResizable
@@ -234,6 +235,13 @@ window ← {
   # TODO: Needs to test input for image
   # window.SetIcon
   SetIcon ← {𝕊image: NeedsWindow@ ⋄ raylib.SetWindowIcon𝕩} image._AsRayImg
+
+  #window.SetTitle
+  SetTitle ← {
+    NeedsWindow@
+    "𝕩 has to be a list of characters"!(=𝕩)∧∧´2=•Type¨𝕩
+    raylib.SetWindowTitle 𝕩
+  }
 
   fps ← {
     # window.fps.Get
