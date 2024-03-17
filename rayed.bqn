@@ -363,6 +363,12 @@ draw ← {
     ⊣⟜End𝕨𝔽𝕩
   }
 
+  # draw._onTexture
+  {𝔽 _𝕣 texture:
+    raylib.BeginTextureMode𝕩
+    raylib.EndTextureMode∘⟨⟩⊸⊢ 𝔽𝕩
+  }
+
   # draw._withinRectangle
   _withinRectangle ← {
     raylib.BeginScissorMode (⊣∾-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
