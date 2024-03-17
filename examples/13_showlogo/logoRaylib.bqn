@@ -1,11 +1,7 @@
-# IN PROGRESS
 ⟨color
  draw
  key
  window
- rf⇐raylib
- rm⇐raymath
- mouse
 ⟩←rl←•Import "../../rayed.bqn"
 
 # refrence
@@ -23,14 +19,16 @@
 
 # if enabled: press the left and right keys to move forward and backward through animation, space for slowdown
 debug ← 1
+clock ← rl.StartClock@
 
 LogoAnimation ← {𝕊background:
   isClosed ← 0
 
   _Scene_ ← { Scene _𝕣_ Until:
     IsDown‿space‿left‿right←key
-    NextFrame ← {÷⟜10⍟(IsDown space) 2×⍟(IsDown right) -⍟(IsDown left)𝕩}⍟debug 60×rf.GetFrameTime∘⟨⟩
+    NextFrame ← {𝕊:60×clock.delta×´0.1‿2‿¯1/˜IsDown space‿right‿left}
     {
+      clock.Tick@
       isClosed ↩ window.ShouldClose@
       Scene draw._withCanvas_ background 𝕩
       NextFrame⊸+𝕩
