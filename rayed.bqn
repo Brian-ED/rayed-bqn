@@ -253,6 +253,11 @@ window ← {
     (𝕩=0⌈⌈𝕩)!˜"FPS has to be a positive int"
     𝕩⊣raylib.SetTargetFPS𝕩
   }
+  # window.Screenshot
+  Screenshot ← {𝕊:
+    raylib.LoadImageFromScreen⟨⟩
+  }
+
   # window.configFlags
   configFlags ← windowConfigFlags
 
