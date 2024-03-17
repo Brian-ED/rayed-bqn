@@ -1,5 +1,6 @@
 ⟨
-  GetCameraMatrix2D ⋄ GetWorldToScreenEx ⋄ GetWorldToScreen
+  GetCameraMatrix  ⋄ GetCameraMatrix2D
+  GetWorldToScreen ⋄ GetWorldToScreenEx
 ⟩⇐
 ⟨MP ⋄ Rot2D⇐MatrixRotate2D⟩ ← rm ← •Import "raymath.bqn"
 rf ← •Import "../ffi/raylib.bqn"
@@ -26,6 +27,11 @@ rf ← •Import "../ffi/raylib.bqn"
 GetCameraMatrix2D ← {𝕊offset‿target‿rotation‿zoom: # camera2d
   translation‿origin ← rm.MatrixTranslate¨∾⟜0¨offset⋈-target
   origin MP translation MP˜ rm._ToDim_ 4 zoom×Rot2D rm.deg2rad×rotation
+}
+
+# Get transform matrix for camera
+GetCameraMatrix ← {𝕊position‿target‿up‿fovy‿projection:
+  rm.MatrixLookAt position‿target‿up
 }
 
 # Get the screen space position from a 3d world space position
