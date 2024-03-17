@@ -56,7 +56,7 @@ bqnoiseOptions ← •Import "src/imports/BQNoise/options.bqn"
 # -------
 
 # Utils:
-FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At                # remade •FileAt to work for cygwin
+FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At # remade •FileAt to work for cygwin
 
 # Defaults
 raylib.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
@@ -75,7 +75,7 @@ texture ← {
   }
   # texture.Unload
   Unload ← {𝕊texture: NeedsWindow@ ⋄ @⊣raylib.UnloadTexture𝕩}
-  # texture._with
+  # texture._withFile
   _withFile ← {𝔽_𝕣 filePath : (Unload⊢𝔽)Load𝕩}
   # texture._withRayImage
   _withRayImage ← {
@@ -132,7 +132,7 @@ monitor ← {
 # window functionality
 window ← {
   ⟨
-    _openAs ⋄ Open ⋄ Close ⋄ isOpen ⋄ SetIcon ⋄ fps ⋄ GetSize
+    _openAs ⋄ Open ⋄ Close ⋄ isOpen ⋄ SetIcon ⋄ GetFPS ⋄ SetFPS ⋄ GetSize
     ShouldClose ⋄ Needed ⋄ SetPos ⋄ GetPos ⋄ SetSize ⋄ configFlags
     SetTitle
 
@@ -213,7 +213,7 @@ window ← {
     raylib.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
     raylib.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
     # Setting fps to the refresh rate of the currently selected monitor
-    fps.Set raylib.GetMonitorRefreshRate raylib.GetCurrentMonitor⟨⟩
+    SetFPS raylib.GetMonitorRefreshRate raylib.GetCurrentMonitor⟨⟩
     window
   }
   # window.ShouldClose
@@ -242,18 +242,16 @@ window ← {
     "𝕩 has to be a list of characters"!(=𝕩)∧∧´2=•Type¨𝕩
     raylib.SetWindowTitle 𝕩
   }
-
-  fps ← {
-    # window.fps.Get
-    Get ⇐ {𝕤
-      NeedsWindow@
-      raylib.GetFPS⟨⟩
-    }
-    # window.fps.Set
-    Set ⇐ {
-      (𝕩=0⌈⌈𝕩)!˜"FPS has to be a positive int"
-      𝕩⊣raylib.SetTargetFPS𝕩
-    }⊣NeedsWindow
+  # window.GetFPS
+  GetFPS ⇐ {𝕤
+    NeedsWindow@
+    raylib.GetFPS⟨⟩
+  }
+  # window.SetFPS
+  SetFPS ⇐ {𝕊fps:
+    NeedsWindow@
+    (𝕩=0⌈⌈𝕩)!˜"FPS has to be a positive int"
+    𝕩⊣raylib.SetTargetFPS𝕩
   }
   # window.configFlags
   configFlags ← windowConfigFlags
@@ -341,7 +339,7 @@ window ← {
 # Drawing
 draw ← {
   ⟨
-    _withCanvas_ ⋄ _in3D ⋄ _withinRectangle
+    _withCanvas_ ⋄ _in3D ⋄ _inRectangle
     Rectangle ⋄ Triangle ⋄ Line
     Ellipse ⋄ EllipseOutline
     Text ⋄ Texture ⋄ advanced
@@ -363,16 +361,27 @@ draw ← {
     ⊣⟜End𝕨𝔽𝕩
   }
 
-  # draw._onTexture
-  {𝔽 _𝕣 texture:
+  # draw._inTexture
+  _inTexture ← {𝔽 _𝕣 texture:
     raylib.BeginTextureMode𝕩
     raylib.EndTextureMode∘⟨⟩⊸⊢ 𝔽𝕩
   }
 
-  # draw._withinRectangle
-  _withinRectangle ← {
+  # draw._withShader
+  _withShader ← {
+    raylib.BeginShaderMode𝕩
+    raylib.EndShaderMode∘⟨⟩⊸⊢𝔽𝕩
+  }
+
+  # draw._inRectangle
+  _inRectangle ← {
     raylib.BeginScissorMode (⊣∾-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩
     raylib.EndScissorMode∘⟨⟩⊸⊢𝔽𝕩
+  }
+
+  _withBlend ← {
+    raylib.BeginBlendMode𝕩
+    raylib.EndBlendMode∘⟨⟩⊸⊢𝔽𝕩
   }
 
   # Draw text at x‿y in given font, color, and size
@@ -526,7 +535,10 @@ clipboard ← {
 
 # start clock then tick at the start of every frame to get accurate clock.delta and clock.time
 StartClock ← {𝕊@:
-  ⟨startTime ⋄ Time ⋄ Tick⟩⇐
+  ⟨
+    Time ⋄ Tick
+    startTime ⋄ delta ⋄ frame
+  ⟩⇐
 
   # time is relative to when you started the clock
   # clock.startTime
