@@ -1,15 +1,25 @@
 ⟨
-  # Image generation
+  # generation
   GenGradientLinear ⋄ GenGradientSquare
+  GenGradientRadial ⋄ GenChecked
+  GenColor
 
-  # Image conversions
+  # conversions
   Normalize
   FormatToLengths
   ReFormat
-
   
-  _AsRayImg ⋄ ToArr
-  FromFile ⋄ LoadFromArr ⋄ Unload
+  # Raylib image format functions
+  _AsRayImg ⋄ Copy ⋄ ToArr
+  LoadFromArr ⋄ Unload
+  GetPixelDataSize # pixel size of the raylib format
+
+  # Miscellaneous
+  GetAlphaBorder
+  FromFile
+  FromTexture
+  Crop
+  CropAlpha
 ⟩⇐
 
 # No function unloads or mutates input image, except Unload
@@ -20,21 +30,10 @@ raylib ← •Import "../ffi/raylib.bqn"
 low    ← •Import "low.bqn"
 
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
-uncompressedFormats ← ⟨
-  {grayscale  ⇐  8}
-  {grayscale‿a⇐8‿8}
-  {r‿g‿b  ⇐5‿6‿5  }
-  {r‿g‿b  ⇐8‿8‿8  }
-  {r‿g‿b‿a⇐5‿5‿5‿1}
-  {r‿g‿b‿a⇐4‿4‿4‿4}
-  {r‿g‿b‿a⇐8‿8‿8‿8}
-  {r      ⇐32     }
-  {r‿g‿b  ⇐3⥊32   }
-  {r‿g‿b‿a⇐4⥊32   }
-⟩
 
 # Get pixel data size in bytes for certain format
 # NOTE: Size can be requested for Image or Texture data
+# image.GetPixelDataSize
 GetPixelDataSize ← {format𝕊size:
   bpp ← { # Bits per pixel
     𝕩≡pixelFormat.uncompressed_grayscale? 8;
@@ -76,77 +75,89 @@ GetPixelDataSize ← {format𝕊size:
 }
 
 # Copy a raylib image to a new image
-Copy ⇐ {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
+# image.Copy
+Copy ← {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
   # 1⌈ is security check for NPOT textures
-  mapSizes ← ×´¨1⌈⌊∘÷⟜2⍟(↕mipmaps) oldWidth‿oldHeight
+  mapSizes ← ×´¨1⌈⌊∘÷⟜2⍟(↕mipmaps) oldHeight‿oldWidth
   size ← +´format⊸GetPixelDataSize¨mapSizes
   ptr ← (raylib.MemAlloc size).Cast "i8"
   ptr.Write (dataPtr.Cast "i8").Read size
   ptr‿oldWidth‿oldHeight‿mipmaps‿format
 }
-
-ToArr ← {𝕨𝕊raylibImg: resultFormat←𝕨⊣@
+# image.ToArr
+ToArr ← {𝕊raylibImg:
   changeFormat←pixelFormat.uncompressed_r8g8b8a8≢4⊑𝕩
   dataptr‿width‿hight‿·‿format ← {
     ⊑⊑raylib.ImageFormatRef ⟨Copy 𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   }⍟changeFormat 𝕩
   "Invalid image format"!×format
-  bqnImg ← width‿hight‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
+  bqnImg ← hight‿width‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
   raylib.MemFree⍟changeFormat dataPtr
-  {{r‿g‿b‿a⇐4⥊8}‿resultFormat ReFormat𝕩}⍟(𝕨0⊘1𝕩) bqnImg
+  bqnImg
 }
-
-LoadFromArr ← {𝕨𝕊img:
-  default ← {r‿g‿b‿a⇐4⥊8}
-  format ← 𝕨⊣default
+# image.LoadFromArr
+LoadFromArr ← {𝕊img:
   NeedsWindow@
-  standardImg ← format‿default ReFormat img 
-  l low.Read ptr←raylib.MemAlloc≠l←¯128+256|128+⥊⍉standardImg
-  ptr<⊸∾(4⊸∾⁼⌾⌽≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
+  l low.Read ptr←raylib.MemAlloc≠l←¯128+256|128+⥊⍉𝕩 # TODO this transpose here might be wrong
+  ptr<⊸∾(⌽∾⟜4⁼≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
-
+# image.Unload
 Unload ← {𝕊img:
   imgDataIndex ← 0
   raylib.MemFree imgDataIndex⊑𝕩
   @
 }
-
+# image.FromFile
 FromFile ← {𝕊strPath:
   NeedsWindow@
   !•file.Exists𝕩
   (Unload⊢ToArr) raylib.LoadImage𝕩
 }
 
-_AsRayImg ← {(Unload⊢𝔽)LoadFromArr}
+GifToImages ← {𝕊chars:
+  "GIF"≡3↑𝕩?
+    image‿⟨frames⟩ ← raylib.LoadImageAnimFromMemoryRef ⟨".gif"⋄chars⋄≠chars⋄⟨0⟩⟩ # fileType fileData dataSize frames # Load image sequence from memory buffer
+    dataptr‿width‿hight‿·‿format←image
+    width‿hight‿4‿frames(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
+  ;
+  @
+}
 
+# image._asRayImg
+_asRayImg ← {(Unload⊢𝔽)LoadFromArr}
 
 #----------------------------------------------------------------------------------
 # Image generation
 #----------------------------------------------------------------------------------
 
-# Generate image: linear gradient
-# The direction value specifies the direction of the gradient (in degrees)
-# with 0 being vertical (from top to bottom), 90 being horizontal (from left to right).
-# The gradient effectively rotates counter-clockwise by the specified amount.
-GenGradientLinear ← {𝕊size‿radianDirection‿start‿end: # ⟨i⋄i⟩‿i‿color‿color # Generate image: vertical gradient
-  angles ← (•math.Cosf∾•math.Sinf) radianDirection
-  >{𝕊i‿j:
-    # Calculate the relative position of the pixel along the gradient direction
-    pos ← (𝕩⊸×÷○(+´)size⊸×)angles
-    factor ← 1⌊0⌈pos
+# image.GenColor
+GenColor ← ∾⟜4⊸⥊˜
 
-    # Generate the color for this pixel
-    (end⊸×+start×¬)factor
-  }¨↕size
+# image.GenChecked
+GenChecked ← {𝕨⊏˜≠⌜´2|↕¨𝕩}
+
+# Generate image: linear gradient
+# The direction value specifies the direction of the gradient as unit vector
+# image.GenGradientLinear
+GenGradientLinear ← {[start⋄end]𝕊size‿dir:
+  ⍉start+⌊(end-start)×⌜+⌜˜´(↕¨size)×dir÷0⊸=⊸+¯1+´dir×size
 }
 
 # Generate image: square gradient
-GenGradientSquare ← {𝕊size‿inner‿outer: # ⟨i⋄i⟩‿f‿color‿color # Generate image: square gradient
-  # Normalize the distances by the dimensions of the gradient rectangle
-  # Calculate the total normalized Manhattan distance
-  # makes the gradient start from the center when density is 0, and from the edge when density is 1
-  # Blend the colors based on the calculated factor
-  ⍉⌊((outer×⌜⊢)+inner×⌜¬) ⌈˝|1+(2÷˜0⊸=⊸+1-size)÷˜⍉⁼>↕size
+# image.GenGradientSquare
+GenGradientSquare ← {[inner⋄outer]𝕊size:
+  # past impl  ⍉⌊((outer×⌜⊢)+inner×⌜¬) ⌈˝|1+(2÷˜0⊸=⊸+1-size)÷˜⍉⁼>↕size
+  ⍉inner + ⌊(outer-inner)×⌜ ⌈⌜´ |¯1+ (↕¨size) ÷ 0⊸=⊸+ 2÷˜size-1 # dzaima helped a lot :)
+}
+
+# Generate image: radial gradient
+# image.GenGradientRadial
+GenGradientRadial ← {[inner⋄outer]𝕊size‿density:
+  r ← 2÷˜⌊´size
+  radial ← +⌜´⌾(×˜)(size÷2)-˜↕¨size # make circle
+  radial-↩ r×density                # resize center
+  radial÷↩ 0⊸=⊸+r×¬density          # add blur
+  ⍉inner + ⌊(outer-inner)×⌜ 1⌊0⌈ radial # coloring 
 }
 
 #----------------------------------------------------------------------------------
@@ -199,6 +210,7 @@ luminocityMat ← [
 
 # returns format.r‿format.g‿format.b‿format.a‿format.grayscale
 # if value isn't in the namespace, replace it with 0
+# image.FormatToLengths
 FormatToLengths ← {𝕊format:
   {𝕊:0!˜"Keys in format namespace need to be one of the following: "∾2↓∾", "⊸∾¨formatKeys
   }⍟¬∧´formatKeys∊˜•ns.Keys format
@@ -208,6 +220,8 @@ FormatToLengths ← {𝕊format:
   ¯1+2⋆ubits ⊏˜⍋ formatKeys ⊐ uFormats  # sorting by formats
 }
 
+# ImageFromImage ImageCrop
+# image.Normalize
 Normalize ← {format𝕊image:
   bitLengths ← FormatToLengths 𝕨
   size ← 2↑≢image
@@ -218,6 +232,7 @@ Normalize ← {format𝕊image:
   colors +˝∘×⎉1‿∞ ÷⎉1⟜(0⊸=⊸++˝) m/luminocityMat
 }
 
+# image.Reformat
 ReFormat ← {oldFormat‿newFormat𝕊image:
   rgba ← oldFormat Normalize image
   bitLengths ← FormatToLengths newFormat
@@ -226,11 +241,83 @@ ReFormat ← {oldFormat‿newFormat𝕊image:
   ⌊0.5+x×m/bitLengths
 }
 
-#oldFormat ← {r‿grayscale⇐8‿8}
-#newFormat ← {r⇐8} # 5‿6‿5⥊¨1
-#image ← 3‿3‿2⥊[155‿255,0‿0]
-#
-#•Show oldFormat‿newFormat ReFormat image
+# image.FromTexture
+FromTexture ⇐ {𝕊texture:
+  (Unload⊢ToArr) raylib.LoadImageFromTexture 𝕩
+}
+
+# image.Crop
+Crop ← {[x1‿y1⋄x2‿y2]𝕊img:𝕨⌊˝⊸↓𝕨⌈˝⊸↑𝕩}
+
+# Get image alpha border rectangle
+# NOTE: Threshold is defined as a percentage: 0 → 1
+# image.GetAlphaBorder
+GetAlphaBorder ← {threshold𝕊image:
+  (∾⟜4⁼≢𝕩)⊸-⌾(1⊸⊏)⌊´¨+˝¨∧`¨⍉∘⌽⍟[0‿1⋄2‿3](𝕨×255)≥3⊏˘˘𝕩
+}
+
+# Crop image depending on alpha value
+# NOTE: Threshold is defined as a percentage: 0.0f -> 1.0f
+# image.CropAlpha
+CropAlpha ← {threshold𝕊image:
+  𝕩 Crop˜ 𝕨 GetAlphaBorder 𝕩
+}
+
+#TODO
+# genImageWhiteNoise
+# genImagePerlinNoise
+# genImageCellular
+# genImageText
+# imageText
+# imageTextEx
+# imageToPOT
+# imageAlphaClear
+# imageAlphaMask
+# imageAlphaPremultiply
+# imageBlurGaussian
+# imageKernelConvolution
+# imageResize
+# imageResizeNN
+# imageResizeCanvas
+# imageMipmaps
+# imageDither
+# imageFlipVertical
+# imageFlipHorizontal
+# imageRotate
+# imageRotateCW
+# imageRotateCCW
+# imageColorTint
+# imageColorInvert
+# imageColorGrayscale
+# imageColorContrast
+# imageColorBrightness
+# imageColorReplace
+# loadImagePalette
+# unloadImagePalette
+# getImageAlphaBorder
+# getImageColor
+# imageClearBackground
+# imageDrawPixel
+# imageDrawPixelV
+# imageDrawLine
+# imageDrawLineV
+# imageDrawCircle
+# imageDrawCircleV
+# imageDrawCircleLines
+# imageDrawCircleLinesV
+# imageDrawRectangle
+# imageDrawRectangleV
+# imageDrawRectangleRec
+# imageDrawRectangleLines
+# imageDraw
+# imageDrawText
+# imageDrawTextEx
+# 
+# exportImage
+# exportImageToMemory
+# exportImageAsCode
+# 
+
 
 #TESTING
 #⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "/home/brian/rayed-bqn/rayed.bqn"
