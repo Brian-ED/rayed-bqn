@@ -79,6 +79,7 @@ Copy ← {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
   ptr.Write (dataPtr.Cast "i8").Read size
   ptr‿oldWidth‿oldHeight‿mipmaps‿format
 }
+
 # image.ToArr
 ToArr ← {𝕊raylibImg:
   changeFormat←pixelFormat.uncompressed_r8g8b8a8≢4⊑𝕩
@@ -90,28 +91,43 @@ ToArr ← {𝕊raylibImg:
   raylib.MemFree⍟changeFormat dataPtr
   bqnImg
 }
+
 # image.LoadFromArr
 LoadFromArr ← {𝕊img:
   NeedsWindow@
   l low.Read ptr←raylib.MemAlloc≠l←¯128+256|128+⥊⍉𝕩 # TODO this transpose here might be wrong
   ptr<⊸∾(⌽∾⟜4⁼≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
+
 # image.Unload
 Unload ← {𝕊img:
   imgDataIndex ← 0
   raylib.MemFree imgDataIndex⊑𝕩
   @
 }
+
+# Load image from file into CPU memory (RAM)
 # image.FromFile
-FromFile ← {𝕊strPath:
-  NeedsWindow@
-  !•file.Exists𝕩
-  (Unload⊢ToArr) raylib.LoadImage𝕩
+FromFile ← {𝕊path:
+  NeedsWindow@ # raylib.LoadImageFromMemory needs window to be open
+  "Path has to be absolute"!•file.At⊸≡𝕩
+  "No file found at path"!•file.Exists𝕩
+
+  # Loading file to memory
+  ext ← '.'∾∧`⌾⌽∘≠⟜'.'⊸/𝕩
+  fileData ← •FBytes 𝕩
+
+  # Loading image from memory data
+  img ← raylib.LoadImageFromMemory⟨ext, fileData-@, ≠fileData⟩
+  # TODO might need to reformat img
+  (Unload⊢ToArr) img
 }
 
-GifToImages ← {𝕊chars:
+# TODO
+GifToImages ← {𝕊bytes:
   "GIF"≡3↑𝕩?
-    image‿⟨frames⟩ ← raylib.LoadImageAnimFromMemoryRef ⟨".gif"⋄chars⋄≠chars⋄⟨0⟩⟩ # fileType fileData dataSize frames # Load image sequence from memory buffer
+    NeedsWindow@
+    image‿⟨frames⟩ ← raylib.LoadImageAnimFromMemoryRef ⟨".gif"⋄bytes⋄≠bytes⋄⟨0⟩⟩ # fileType fileData dataSize frames # Load image sequence from memory buffer
     dataptr‿width‿hight‿·‿format←image
     width‿hight‿4‿frames(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
   ;
@@ -159,52 +175,14 @@ GenGradientRadial ← {[inner⋄outer]𝕊size‿density:
 # Image conversions
 #----------------------------------------------------------------------------------
 
-# Encode image data in arrays by using encode to encode into binary data by an input format,
-# along with also acounting for luminocity.
-
-# TODOs
-# remember to normalize not only by gray but by all colors, depending on their bytes 
-# after aproximating, turn leftover data into other colors to keep brightness the same 
-# calculate leftovers (that come from shortening bit-lengths and therefore loosing information and brightness) and add them in other colors
-# using _Base_, improve efficienty of images stored as ints to split it to bit components to save space.
-# support compressed formats
-
-# pixel formats for images suported:
-# (kinda means it's supported but not space efficient)
-# yes    : uncompressed_grayscale    ⇐ 1   # 8 bit per pixel (no alpha)   
-# yes    : uncompressed_gray_alpha   ⇐ 2   # 8*2 bpp (2 channels)         
-# kinda  : uncompressed_r5g6b5       ⇐ 3   # 16 bpp                       
-# yes    : uncompressed_r8g8b8       ⇐ 4   # 24 bpp                       
-# kinda  : uncompressed_r5g5b5a1     ⇐ 5   # 16 bpp (1 bit alpha)         
-# yes    : uncompressed_r4g4b4a4     ⇐ 6   # 16 bpp (4 bit alpha)         
-# yes    : uncompressed_r8g8b8a8     ⇐ 7   # 32 bpp                       
-# yes    : uncompressed_r32          ⇐ 8   # 32 bpp (1 channel - float)   
-# yes    : uncompressed_r32g32b32    ⇐ 9   # 32*3 bpp (3 channels - float)
-# yes    : uncompressed_r32g32b32a32 ⇐ 10  # 32*4 bpp (4 channels - float)
-# no     : compressed_dxt1_rgb       ⇐ 11  # 4 bpp (no alpha)             
-# no     : compressed_dxt1_rgba      ⇐ 12  # 4 bpp (1 bit alpha)          
-# no     : compressed_dxt3_rgba      ⇐ 13  # 8 bpp                        
-# no     : compressed_dxt5_rgba      ⇐ 14  # 8 bpp                        
-# no     : compressed_etc1_rgb       ⇐ 15  # 4 bpp                        
-# no     : compressed_etc2_rgb       ⇐ 16  # 4 bpp                        
-# no     : compressed_etc2_eac_rgba  ⇐ 17  # 8 bpp                        
-# no     : compressed_pvrt_rgb       ⇐ 18  # 4 bpp                        
-# no     : compressed_pvrt_rgba      ⇐ 19  # 4 bpp                        
-# no     : compressed_astc_4x4_rgba  ⇐ 20  # 8 bpp                        
-# no     : compressed_astc_8x8_rgba  ⇐ 21  # 2 bpp                        
-
-formatKeys ← "r"‿"g"‿"b"‿"a"‿"grayscale"
-luminocityMat ← [
-# r     g     b      a
-  1    ‿0    ‿0     ‿0  # r
-  0    ‿1    ‿0     ‿0  # g
-  0    ‿0    ‿1     ‿0  # b
-  0    ‿0    ‿0     ‿1  # a
-  0.299‿0.587‿0.114 ‿0  # grayscale
-]
+# used to get brightness of color: 
+#   +´luminocity×color
+# color.luminocity
+luminocity ← 0.299‿0.587‿0.114‿0
 
 # image.FromTexture
 FromTexture ⇐ {𝕊texture:
+  NeedsWindow@
   (Unload⊢ToArr) raylib.LoadImageFromTexture 𝕩
 }
 
