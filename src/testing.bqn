@@ -14,12 +14,12 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
   SlopeInterceptToLine, DistanceToPlane, QuaternionFromEuler, QuaternionToEuler
   VectorReflect, VectorNormalize, Vector3CrossProduct
 
-  # In progress 
+  # In progress
     MatrixPerspective
-  
+
     # These have been extensively tested against C versions
     MatrixOrtho
-    MatrixLookAt, 
+    MatrixLookAt,
 ⟩ ← •Import "raymath.bqn"
 
 Approx ← 5⊸Round
