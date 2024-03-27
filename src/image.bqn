@@ -3,11 +3,6 @@
   GenGradientLinear ⋄ GenGradientSquare
   GenGradientRadial ⋄ GenChecked
   GenColor
-
-  # conversions
-  Normalize
-  FormatToLengths
-  ReFormat
   
   # Raylib image format functions
   _AsRayImg ⋄ Copy ⋄ ToArr
@@ -207,39 +202,6 @@ luminocityMat ← [
   0    ‿0    ‿0     ‿1  # a
   0.299‿0.587‿0.114 ‿0  # grayscale
 ]
-
-# returns format.r‿format.g‿format.b‿format.a‿format.grayscale
-# if value isn't in the namespace, replace it with 0
-# image.FormatToLengths
-FormatToLengths ← {𝕊format:
-  {𝕊:0!˜"Keys in format namespace need to be one of the following: "∾2↓∾", "⊸∾¨formatKeys
-  }⍟¬∧´formatKeys∊˜•ns.Keys format
-  vals‿keys ← 𝕩⊸•ns.Get¨⊸⋈•ns.Keys 𝕩 # namespace to arrays
-# ┌─unsorted──────┐   ┌─adding defaults─────────────────────────────┐
-  [uFormats, ubits] ← ⍉>(∊keys∾formatKeys)/(keys⋈¨vals)∾formatKeys⋈¨0
-  ¯1+2⋆ubits ⊏˜⍋ formatKeys ⊐ uFormats  # sorting by formats
-}
-
-# ImageFromImage ImageCrop
-# image.Normalize
-Normalize ← {format𝕊image:
-  bitLengths ← FormatToLengths 𝕨
-  size ← 2↑≢image
-  m ← 0≠bitLengths
-  # pick out color data from image
-  colors ← image ÷⎉1 m/bitLengths
-  # multiplying it by luminocityMat, thereby splitting rgba and grayscale into rgba components
-  colors +˝∘×⎉1‿∞ ÷⎉1⟜(0⊸=⊸++˝) m/luminocityMat
-}
-
-# image.Reformat
-ReFormat ← {oldFormat‿newFormat𝕊image:
-  rgba ← oldFormat Normalize image
-  bitLengths ← FormatToLengths newFormat
-  m ← 0≠bitLengths
-  x ← ⍉⁼ rgba +˝∘×⎉1‿∞ ⍉ m/luminocityMat
-  ⌊0.5+x×m/bitLengths
-}
 
 # image.FromTexture
 FromTexture ⇐ {𝕊texture:
