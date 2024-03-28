@@ -263,7 +263,7 @@ CropAlpha ← {threshold𝕊image:
 #⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "/home/brian/rayed-bqn/rayed.bqn"
 #
 #PerFrame ← {tex1‿tex2‿tex3‿font𝕊scrolled:
-#  c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.fps.Get⊸∾" FPS"
+#  c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.GetFPS⊸∾" FPS"
 #  {d.Texture⟜m.GetPos c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
 #  {d.Texture⟜(0‿700+m.GetPos) c.white‿tex2∾𝕩∾˜÷5}¨𝕩+90×↕4
 #  {d.Texture⟜(0‿450+m.GetPos) c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4

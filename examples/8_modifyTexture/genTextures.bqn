@@ -9,7 +9,7 @@ _OnStart ← {𝕨 Func _𝕣 𝕩:
   } r.texture._WithImage img
 }
 PerFrame ← {tex‿font𝕊frame‿rot:
-  c.white‿font‿30  d.Text 20‿20⋈•Repr∘w.fps.Get⊸∾" FPS"  
+  c.white‿font‿30  d.Text 20‿20⋈•Repr∘w.GetFPS⊸∾" FPS"  
   (m.GetPos@)⊸{c.white‿tex‿0.2‿𝕩d.Texture𝕨}¨rot+90×↕4
   r.raylib.UpdateTextureRaw tex⋈⥊frame⌽img
   ⟨frame+1⋄90|m.WheelMoved⊸+rot⟩
