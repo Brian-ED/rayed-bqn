@@ -22,7 +22,7 @@ Start ← {𝕊tex:
     PerPixel ← {
         colors⊏˜(≠colors)|¯1+⌊(÷⟜h≠colors)×𝕩-frame
     }
-    pixels ← +˝⌾(×˜)center-˜(1+5÷˜•math.Sin frame×step)×h(⌊|≍÷˜)(⌽size)⥊↕×´size
+    pixels ← +˝⌾(×˜)center-˜(1+5÷˜•math.Sin frame×step)×h(⌊|≍÷˜)size⥊↕×´size
     PerFrame ← {𝕊tex:
         r.raylib.UpdateTextureRaw tex⋈¯128+256|128+⥊PerPixel pixels
 
