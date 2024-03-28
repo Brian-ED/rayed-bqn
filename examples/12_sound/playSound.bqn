@@ -12,7 +12,7 @@ PerFrame ← {
 }⊸⊢ draw._withCanvas_ black
 
 Start ← {𝕤
-  sounds ← sound.FromFile¨ •file.At¨ "testSound1.wav"‿"testSound2.wav"
+  sounds ← sound.LoadFromFile¨ •file.At¨ "testSound1.wav"‿"testSound2.wav"
   PerFrame•_While_(¬window.ShouldClose) sounds
 } sound._withAudio
 
