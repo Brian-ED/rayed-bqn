@@ -95,7 +95,7 @@ ToArr ← {𝕊raylibImg:
 # image.LoadFromArr
 LoadFromArr ← {𝕊img:
   NeedsWindow@
-  l low.Read ptr←raylib.MemAlloc≠l←¯128+256|128+⥊⍉𝕩 # TODO this transpose here might be wrong
+  l low.Read ptr←raylib.MemAlloc≠l←¯128+256|128+⥊𝕩
   ptr<⊸∾(⌽∾⟜4⁼≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 
@@ -118,7 +118,7 @@ FromFile ← {𝕊path:
   fileData ← •FBytes 𝕩
 
   # Loading image from memory data
-  img ← raylib.LoadImageFromMemory⟨ext, fileData-@, ≠fileData⟩
+  img ← raylib.LoadImageFromMemory⟨ext, fileData, ≠fileData⟩
   # TODO might need to reformat img
   (Unload⊢ToArr) img
 }
