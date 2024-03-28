@@ -65,7 +65,7 @@ PerFrame ← {𝕊panelScroll‿panelView‿panelContentRec‿showContentArea‿
 
   {𝕤
     rg.GuiGridRef⟨(panelRec+○(2⊸↑)panelScrollNew)∾2↓panelContentRec, "", 16, 3, ⋈0‿0⟩
-  } draw._withinRectangle +`2‿2⥊panelViewNew
+  } draw._inRectangle +`2‿2⥊panelViewNew
 
   (⌈∘÷⟜10⌾(3⊸⊑)red) r.draw.Rectangle⍟showContentArea +`(panelRec+○(2⊸↑)panelScrollNew)≍¯2↑panelContentRec
 
