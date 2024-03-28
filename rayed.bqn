@@ -9,11 +9,10 @@
 ⟨
   draw, texture, monitor, window, mouse
   font, key, clipboard, StartClock
-  sound, bqnoise, raymath, image, low
+  sound, bqnoise, raymath, image, low, log
 ⟩⇐
 
 ⟨
-  traceLogLevel
   gamepadButton, gamepadAxis
   materialMapIndex
   shaderLocationIndex, shaderUniformDataType, shaderAttributeDataType
@@ -29,6 +28,7 @@
 ⟩ ⇐ ⟨
   bqnFontChars
   windowConfigFlags
+  traceLogLevel
 ⟩ ← •Import "src/constants.bqn"
 
 global ← •Import "src/global.bqn"
@@ -63,6 +63,21 @@ raylib.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs
 
 # constants
 i32_max ← ¯1+2⋆31
+
+log ← {
+  # log.setLevel
+  setLevel ⇐ {
+    S‿t ← raylib.SetTraceLogLevel‿traceloglevel
+    All     ⇐ S∘t.all     # Display all logs
+    Trace   ⇐ S∘t.trace   # Trace logging, intended for internal use only
+    Debug   ⇐ S∘t.debug   # Debug logging, used for internal debugging, it should be disabled on release builds
+    Info    ⇐ S∘t.info    # Info logging, used for program execution info
+    Warning ⇐ S∘t.warning # Warning logging, used on recoverable failures
+    Error   ⇐ S∘t.error   # Error logging, used on unrecoverable failures
+    Fatal   ⇐ S∘t.fatal   # Fatal logging, used to abort program: exit(EXIT_FAILURE)
+    None    ⇐ S∘t.none    # Disable logging
+  }
+}
 
 texture ← {
   ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _withFile ⋄ _WithRayImage ⟩⇐
@@ -200,10 +215,9 @@ window ← {
   # window.Open
   Open ⇐ {𝕊 title:
     (¬isOpen)!˜"The window cannot be opened twice"
+    raylib.SetConfigFlags 2⊸×⊸+˜´ GetState@
     raylib.InitWindow 0‿0‿𝕩
     raylib.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
-
-    raylib.SetWindowState 2⊸×⊸+˜´ GetState@
 
     !raylib.IsWindowReady⟨⟩
     isOpen↩1
@@ -473,7 +487,7 @@ draw ← {
   }
   # These aren't recommended because they are useless if you use _withCanvas_.
   # They also don't behave well if ran in the wrong order,
-  # you only want to run them in the "start, background, end" sequence.
+  # you only want to run them in the "start, background, end" sequence
   advanced ⇐ {Start‿Background‿End⇐Start‿Background‿End}
 }
 
@@ -554,7 +568,7 @@ StartClock ← {𝕊@:
   frame ⇐ 0
 
   # clock.Time
-  Time  ⇐ {𝕊:startTime-˜•Monotime@}
+  Time ⇐ {𝕊:startTime-˜•Monotime@}
   
   # clock.Tick
   Tick ⇐ {𝕊:
@@ -566,27 +580,68 @@ StartClock ← {𝕊@:
 }
 
 mouse ← {
-  # mouse.GetPos
-  GetPos     ⇐ {𝕤
-    NeedsWindow@
-    raylib.GetMousePosition⟨⟩
-  }
-  # mouse.WheelMoved
-  WheelMoved ⇐ {𝕤
-    NeedsWindow@
-    raylib.GetMouseWheelMove⟨⟩
-  }
-  # mouse.IsButtonDown
-  IsButtonDown ⇐ {
-    NeedsWindow@
-    "Mouse button doesn't exist. (𝕩∊↕7)"!∨´⥊𝕩∊↕buttons
-    raylib.IsMouseButtonDown⚇0 𝕩
-  }
+
   buttons ← 7
   # mouse.button.
   button ⇐ {
     left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
   }
+  
+  # mouse.GetPos
+  GetPos     ⇐ {𝕤
+    NeedsWindow@
+    raylib.GetMousePosition⟨⟩
+  }
+  # mouse.SetPos
+  SetPos     ⇐ {𝕊x‿y:
+    NeedsWindow@
+    raylib.SetMousePosition x‿y
+  }
+  # mouse.SetOffset
+  SetOffset ⇐ {𝕊offsetX‿offsetY:
+    NeedsWindow@
+    raylib.SetMouseOffset ⌊𝕩
+  }
+  # mouse.SetScale
+  SetScale ⇐ {𝕊scaleX‿scaleY:
+    NeedsWindow@
+    raylib.SetMouseScale 𝕩
+  }
+
+  # mouse.WheelMoved
+  WheelMoved ⇐ {𝕊:
+    NeedsWindow@
+    raylib.GetMouseWheelMove⟨⟩
+  }
+  
+  IsMouseButton ← "Mouse button doesn't exist. (𝕩∊↕7)"⊸!∘⊑∘∊⟜(↕buttons)⚇0
+  
+  # mouse.IsButtonDown
+  IsButtonDown ⇐ {𝕊mouseButton:
+    NeedsWindow@
+    IsMouseButton 𝕩
+    raylib.IsMouseButtonDown⚇0 𝕩
+  }
+  # mouse.IsButtonPressed
+  IsButtonPressed ⇐ {𝕊mouseButton:
+    NeedsWindow@
+    IsMouseButton 𝕩
+    raylib.IsMouseButtonPressed⚇0 𝕩
+  }
+  # mouse.IsButtonReleased
+  IsButtonReleased ⇐ {𝕊mouseButton:
+    NeedsWindow@
+    IsMouseButton 𝕩
+    raylib.IsMouseButtonReleased⚇0 𝕩
+  }
+  # mouse.IsButtonUp
+  IsButtonUp ⇐ {𝕊mouseButton:
+    NeedsWindow@
+    IsMouseButton 𝕩
+    raylib.IsMouseButtonUp⚇0 𝕩
+  }
+  
+
   # mouse.cursor.
   cursor ⇐ { # Mouse cursor
     default       ⇐ 0   # Default pointer shape                                        
@@ -630,41 +685,94 @@ sound ⇐ {
     }
 
     # sound.wave.Unload
-    Unload ⇐ raylib.MemFree 4⊸⊑
-
+    Unload ⇐ {𝕊frameCount‿sampleRate‿sampleSize‿channels‿data:
+      raylib.MemFree data
+    }
     # sound.wave._withFile
     _withFile ⇐ {(Unload⊢𝔽)LoadFromFile}
   }
 
-  # sound.FromFile
-  FromFile ⇐ raylib.LoadSoundFromWave wave._withFile # fileName→Sound
-  
-  # sound.Play
-  Play ⇐ raylib.PlaySound
+  # sound.LoadFromFile
+  LoadFromFile ⇐ raylib.LoadSoundFromWave wave._withFile # fileName→Sound
+
+  Play  ⇐ raylib.PlaySound  # sound.Play
+  Stop  ⇐ raylib.StopSound  # sound.Stop
+  Pause ⇐ raylib.PauseSound # sound.Pause
+
+  # sound.Resume
+  Resume ⇐ {𝕊sound:
+    raylib.ResumeSound 𝕩
+  }
+  # sound.IsPlaying
+  IsPlaying ⇐ {𝕊sound:
+    raylib.IsSoundPlaying 𝕩
+  }
+  # sound.SetVolume
+  SetVolume ⇐ {𝕊
+    raylib.SetSoundVolume𝕩
+  }
+  # sound.SetPitch
+  SetPitch ⇐ {𝕊
+    raylib.SetSoundPitch𝕩
+  }
+  # sound.SetPan
+  SetPan ⇐ {pan𝕊sound:
+    "Pan must be a number"!0≡•Type𝕨
+    raylib.SetSoundPan𝕩‿𝕨
+  }
+
+  # sound._withAudio
   _withAudio ⇐ {
     raylib.CloseAudioDevice∘⟨⟩⊢𝔽⊣raylib.InitAudioDevice∘⟨⟩
+  }
+
+  # sound.Unload
+  Unload ⇐ {𝕊sound:
+    stream‿· ← sound
+    buffer‿·‿·‿·‿· ← stream
+    raylib.UnloadAudioBuffer buffer
   }
 }
 
 key ← {
-  
-  # key.IsPressed
-  IsPressed ⇐ {𝕊 key:
-    raylib.IsKeyPressed @-˜⍟<𝕩
-  }⚇0⊣NeedsWindow
+  IsKey ⇐ "Key doesn't exist"⊸!∘⊑∘∊⟜(↕512)⚇0 @-˜⍟≤⚇0⊢
 
+  # key.IsPressed
+  IsPressed ⇐ {𝕊key:
+    NeedsWindow@
+    IsKey 𝕩
+    (raylib.IsKeyPressed @-˜⍟≤⊢)⚇0 𝕩
+  }
+  # key.IsPressedRepeat
+  IsPressedRepeat ⇐ {𝕊key:
+    NeedsWindow@
+    IsKey 𝕩
+    (raylib.IsKeyPressedRepeat @-˜⍟≤⊢)⚇0 𝕩
+  }
+  # key.IsReleased
+  IsReleased ⇐ {𝕊key:
+    NeedsWindow@
+    IsKey 𝕩
+    (raylib.IsKeyReleased @-˜⍟≤⊢)⚇0 𝕩
+  }
+  # key.IsKeyUp
+  IsKeyUp ⇐ {𝕊key:
+    NeedsWindow@
+    IsKey 𝕩
+    (raylib.IsKeyUp @-˜⍟≤⊢)⚇0 𝕩
+  }
   # key.IsDown
   IsDown ⇐ {
-    raylib.IsKeyDown @-˜⍟<𝕩
-  }⚇0⊣NeedsWindow
+    NeedsWindow@
+    IsKey 𝕩
+    (raylib.IsKeyDown @-˜⍟<⊢)⚇0 𝕩
+  }
 
-  # Get key pressed as keycode
   # key.PressedKey
   PressedKey ⇐ {𝕤
     NeedsWindow@
     raylib.GetKeyPressed⟨⟩
   }
-
   # key.PressedChar
   PressedChar ⇐ {𝕤
     NeedsWindow@
@@ -796,3 +904,358 @@ key ← {
     volume_down ⇐ 25       # volume down button
   }
 }
+
+
+# # TODO add IsImage, IsTexture etc for error checks
+# # Consider using LoadFontFromMemory instead of accepting path
+# 
+# # TODO functions left to decide to add
+# 
+# loadFontFromImage
+# isWindowState
+# isWindowHidden
+# isWindowMinimized
+# isWindowMaximized
+# isWindowFocused
+# isWindowResized
+# toggleBorderlessWindowed
+# maximizeWindow
+# minimizeWindow
+# restoreWindow
+# setWindowIcons
+# setWindowTitle
+# setWindowMinSize
+# setWindowMaxSize
+# setWindowOpacity
+# setWindowFocused
+# getWindowHandle
+# getRenderWidth
+# getRenderHeight
+# getWindowScaleDPI
+# showCursor
+# hideCursor
+# isCursorHidden
+# enableCursor
+# disableCursor
+# isCursorOnScreen
+# beginMode2D
+# endMode2D
+# beginVrStereoMode
+# endVrStereoMode
+# loadVrStereoConfig
+# unloadVrStereoConfig
+# loadShaderFromMemory
+# getShaderLocation
+# getShaderLocationAttrib
+# setShaderValue
+# setShaderValueV
+# setShaderValueMatrix
+# setShaderValueTexture
+# unloadShader
+# getScreenToWorldRay getScreenToWorldRayEx
+# getWorldToScreen getWorldToScreenEx
+# getWorldToScreen2D
+# getScreenToWorld2D
+# takeScreenshot
+# openURL
+# traceLog
+# memRealloc
+# setTraceLogCallback
+# isFileDropped
+# loadDroppedFiles
+# unloadDroppedFiles
+# getFileModTime
+# 
+# compressData
+# decompressData
+# encodeDataBase64
+# decodeDataBase64
+# 
+# loadAutomationEventList
+# unloadAutomationEventList
+# exportAutomationEventList
+# setAutomationEventList
+# setAutomationEventBaseFrame
+# startAutomationEventRecording
+# stopAutomationEventRecording
+# playAutomationEvent
+# 
+# isGamepadAvailable
+# getGamepadName
+# isGamepadButtonPressed
+# isGamepadButtonDown
+# isGamepadButtonReleased
+# isGamepadButtonUp
+# getGamepadButtonPressed
+# getGamepadAxisCount
+# getGamepadAxisMovement
+# setGamepadMappings
+# setGamepadVibration
+# 
+# getMouseDelta
+# setMouseCursor
+# 
+# getTouchX
+# getTouchY
+# getTouchPosition
+# getTouchPointId
+# getTouchPointCount
+# setGesturesEnabled
+# isGestureDetected
+# getGestureDetected
+# getGestureHoldDuration
+# getGestureDragVector
+# getGestureDragAngle
+# getGesturePinchVector
+# getGesturePinchAngle
+# 
+# setShapesTexture
+# getShapesTexture
+# 
+# getShapesTextureRectangle
+# 
+# # draw
+# drawLineStrip
+# drawLineBezier
+# drawCircleSector
+# drawCircleSectorLines
+# drawCircleGradient
+# drawCircleLines
+# drawRing
+# drawRingLines
+# drawRectangleRec
+# drawRectanglePro
+# drawRectangleGradientV
+# drawRectangleGradientH
+# drawRectangleGradientEx
+# drawRectangleLines
+# drawRectangleLinesEx
+# drawRectangleRounded
+# drawRectangleRoundedLines
+# drawTriangle
+# drawTriangleLines
+# drawTriangleFan
+# drawTriangleStrip
+# drawPoly
+# drawPolyLines
+# drawPolyLinesEx
+# drawSplineLinear
+# drawSplineBasis
+# drawSplineCatmullRom
+# drawSplineBezierQuadratic
+# drawSplineBezierCubic
+# drawSplineSegmentLinear
+# drawSplineSegmentBasis
+# drawSplineSegmentCatmullRom
+# drawSplineSegmentBezierQuadratic
+# drawSplineSegmentBezierCubic
+# getSplinePointLinear
+# getSplinePointBasis
+# getSplinePointCatmullRom
+# getSplinePointBezierQuad
+# getSplinePointBezierCubic
+# 
+# # collision
+# checkCollisionRecs
+# checkCollisionCircles
+# checkCollisionCircleRec
+# checkCollisionPointRec
+# checkCollisionPointCircle
+# checkCollisionPointTriangle
+# checkCollisionPointPoly
+# checkCollisionLines
+# checkCollisionPointLine
+# getCollisionRec
+# 
+# 
+# loadTexture
+# loadTextureFromImage
+# loadTextureCubemap
+# loadRenderTexture
+# unloadTexture
+# unloadRenderTexture
+# updateTexture
+# updateTextureRec
+# genTextureMipmaps
+# setTextureFilter
+# setTextureWrap
+# drawTexture
+# drawTextureV
+# drawTextureEx
+# drawTextureRec
+# drawTexturePro
+# drawTextureNPatch
+# colorIsEqual
+# fade
+# colorToInt
+# colorNormalize
+# colorFromNormalized
+# colorToHSV
+# colorFromHSV
+# colorTint
+# colorBrightness
+# colorContrast
+# colorAlpha
+# colorAlphaBlend
+# getColor
+# getPixelColor
+# setPixelColor
+# getPixelDataSize
+# 
+# loadFontData
+# genImageFontAtlas
+# unloadFontData
+# unloadFont
+# exportFontAsCode
+# drawFPS
+# drawText
+# drawTextEx
+# drawTextPro
+# drawTextCodepoint
+# drawTextCodepoints
+# setTextLineSpacing
+# measureTextEx
+# getGlyphIndex
+# getGlyphInfo
+# getGlyphAtlasRec
+# 
+# # draw3d
+# drawLine3D
+# drawPoint3D
+# drawCircle3D
+# drawTriangle3D
+# drawTriangleStrip3D
+# drawCube
+# drawCubeV
+# drawCubeWires
+# drawCubeWiresV
+# drawSphere
+# drawSphereEx
+# drawSphereWires
+# drawCylinder
+# drawCylinderEx
+# drawCylinderWires
+# drawCylinderWiresEx
+# drawCapsule
+# drawCapsuleWires
+# drawPlane
+# drawRay
+# drawGrid
+# 
+# # models
+# loadModel
+# loadModelFromMesh
+# unloadModel
+# getModelBoundingBox
+# drawModel
+# drawModelEx
+# drawModelWires
+# drawModelWiresEx
+# 
+# # no idea
+# drawBoundingBox
+# drawBillboard
+# drawBillboardRec
+# drawBillboardPro
+# 
+# # mesh
+# uploadMesh
+# updateMeshBuffer
+# unloadMesh
+# drawMesh
+# drawMeshInstanced
+# getMeshBoundingBox
+# genMeshTangents
+# exportMesh
+# exportMeshAsCode
+# genMeshPoly
+# genMeshPlane
+# genMeshCube
+# genMeshSphere
+# genMeshHemiSphere
+# genMeshCylinder
+# genMeshCone
+# genMeshTorus
+# genMeshKnot
+# genMeshHeightmap
+# genMeshCubicmap
+# 
+# # Materials
+# loadMaterials
+# loadMaterialDefault
+# unloadMaterial
+# setMaterialTexture
+# setModelMeshMaterial
+# 
+# # animations
+# loadModelAnimations
+# updateModelAnimation
+# unloadModelAnimation
+# unloadModelAnimations
+# isModelAnimationValid
+# 
+# # collision3d
+# checkCollisionSpheres
+# checkCollisionBoxes
+# checkCollisionBoxSphere
+# getRayCollisionSphere
+# getRayCollisionBox
+# getRayCollisionMesh
+# getRayCollisionTriangle
+# getRayCollisionQuad
+# 
+# # audio
+# setMasterVolume
+# getMasterVolume
+# 
+# loadWave
+# loadWaveFromMemory
+# 
+# loadSound
+# loadSoundAlias
+# unloadSoundAlias
+# updateSound
+# 
+# exportWave
+# waveCopy
+# waveCrop
+# waveFormat
+# loadWaveSamples
+# unloadWaveSamples
+# 
+# # music
+# loadMusicStream
+# loadMusicStreamFromMemory
+# unloadMusicStream
+# playMusicStream
+# isMusicStreamPlaying
+# updateMusicStream
+# stopMusicStream
+# pauseMusicStream
+# resumeMusicStream
+# seekMusicStream
+# setMusicVolume
+# setMusicPitch
+# setMusicPan
+# getMusicTimeLength
+# getMusicTimePlayed
+# 
+# # audiostream
+# loadAudioStream
+# unloadAudioStream
+# updateAudioStream
+# isAudioStreamProcessed
+# playAudioStream
+# pauseAudioStream
+# resumeAudioStream
+# isAudioStreamPlaying
+# stopAudioStream
+# setAudioStreamVolume
+# setAudioStreamPitch
+# setAudioStreamPan
+# setAudioStreamBufferSizeDefault
+# setAudioStreamCallback
+# attachAudioStreamProcessor
+# detachAudioStreamProcessor
+# attachAudioMixedProcessor
+# detachAudioMixedProcessor
