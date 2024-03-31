@@ -63,6 +63,7 @@ raylib.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs
 
 # constants
 i32_max ← ¯1+2⋆31
+i32_min ← -2⋆31
 
 log ← {
   # log.setLevel
@@ -435,14 +436,14 @@ draw ← {
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
-    raylib.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊0⌈⌊𝕩 # capping with max and min to avoid errors at ∞
+    raylib.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈⌊𝕩 # capping with max and min to avoid errors at ∞
   }
 
   # draw.Ellipse
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    ((∧´⌈⊸=∨∞=|)⥊𝕩)!˜"Ellipse only accepts ints as args"
-    ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
+    𝕩(i32_max⌊i32_min⌈⌊)↩
+    ((∧´⌈⊸=∧0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
     raylib.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
   }
 
