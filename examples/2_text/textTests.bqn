@@ -10,5 +10,5 @@ PerFrame ← {
   𝕩
 } draw._withCanvas_ c.darkgreen
 
-App ← {𝕊: PerFrame •_While_(¬window.ShouldClose) r.font.LoadBQN 100} 
+App ← {𝕊: PerFrame •_While_(¬window.ShouldClose) r.font.LoadBQN@} 
 App window._openAs "test"
