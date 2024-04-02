@@ -29,6 +29,8 @@ If you would rather not run the script and setup yourself, download [Raylib](htt
 
 Make sure you've installed [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [CBQN](https://github.com/dzaima/CBQN).
 
+Note! Installing CBQN on develop branch is needed to run rayed-bqn currently. This is because of new features that couldn't wait.
+
 First, clone rayed-bqn
 ```SH
 git clone https://github.com/Brian-ED/rayed-bqn.git
@@ -49,6 +51,11 @@ cd ../../
 Now run an example, if it doesn't work please post an issue.
 
 ## Mac
+Make sure you've installed [CBQN](https://github.com/dzaima/CBQN).
+
+Note! Installing CBQN on develop branch is needed to run rayed-bqn currently. This is because of new features that couldn't wait.
+
+
 First, clone rayed-bqn
 ```SH
 git clone https://github.com/Brian-ED/rayed-bqn.git
