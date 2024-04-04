@@ -276,21 +276,21 @@ window ← {
   # window.configFlags
   configFlags ← windowConfigFlags
 
-  fullscreen        ⇐ 0 # Set to run program in fullscreen                                              # window.fullscreen
-  resizable         ⇐ 1 # Set to allow resizable window                                                 # window.resizable
-  decorated         ⇐ 1 # Set to 0 to disable window decoration (frame and buttons)                     # window.decorated
-  transparent       ⇐ 0 # Set to allow transparent framebuffer                                          # window.transparent
-  msaa4xhint        ⇐ 0 # Set to try enabling MSAA 4X                                                   # window.msaa4xhint
-  vsyncHint         ⇐ 0 # Set to try enabling V-Sync on GPU                                             # window.vsyncHint
-  hidden            ⇐ 0 # Set to hide window                                                            # window.hidden
-  runWhileMinimized ⇐ 0 # Set to allow windows running while minimized                                  # window.runWhileMinimized
-  minimized         ⇐ 0 # Set to minimize window (iconify)                                              # window.minimized
-  maximized         ⇐ 0 # Set to maximize window (expanded to monitor)                                  # window.maximized
-  focused           ⇐ 1 # Set to 0 to non focus window                                                  # window.focused
-  topmost           ⇐ 0 # Set to window always on top                                                   # window.topmost
-  highDPI           ⇐ 0 # Set to support HighDPI                                                        # window.highDPI
-  mousePassThrough  ⇐ 0 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED # window.mousePassThrough
-  interlacedhint    ⇐ 0 # Set to try enabling interlaced video format (for V3D)                         # window.interlacedhint
+  fullscreen        ← 0 # Set to run program in fullscreen                                              # window.fullscreen
+  resizable         ← 1 # Set to allow resizable window                                                 # window.resizable
+  decorated         ← 1 # Set to 0 to disable window decoration (frame and buttons)                     # window.decorated
+  transparent       ← 0 # Set to allow transparent framebuffer                                          # window.transparent
+  msaa4xhint        ← 0 # Set to try enabling MSAA 4X                                                   # window.msaa4xhint
+  vsyncHint         ← 0 # Set to try enabling V-Sync on GPU                                             # window.vsyncHint
+  hidden            ← 0 # Set to hide window                                                            # window.hidden
+  runWhileMinimized ← 0 # Set to allow windows running while minimized                                  # window.runWhileMinimized
+  minimized         ← 0 # Set to minimize window (iconify)                                              # window.minimized
+  maximized         ← 0 # Set to maximize window (expanded to monitor)                                  # window.maximized
+  focused           ← 1 # Set to 0 to non focus window                                                  # window.focused
+  topmost           ← 0 # Set to window always on top                                                   # window.topmost
+  highDPI           ← 0 # Set to support HighDPI                                                        # window.highDPI
+  mousePassThrough  ← 0 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED # window.mousePassThrough
+  interlacedhint    ← 0 # Set to try enabling interlaced video format (for V3D)                         # window.interlacedhint
 
   # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
   # window state not available on some platforms so will replace clear‿set with other functions like ToggleFullscreen
