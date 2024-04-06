@@ -528,11 +528,12 @@ QuaternionEquals ← ∨´·∧˝(|-≍˘+)≤epsilon×1⌈⌈○|
 # point 𝕩 and a Plane-in-paramatized-form 𝕨 in 3a Plane-in-poly-formD
 
 # Generalized distance to arbitrary "plane" (hyperplane),
-# 𝕨 = ax+by+cz+... = 0 represented as a‿b‿c‿... # example ax+by+cz+d=0 → a‿b‿c‿d
-# 𝕩 a point
+# 𝕨 = ax+by+cz+... = 0 represented as a‿b‿c‿... # example a+bx+cy+dz=0 → a‿b‿c‿d
+# 𝕩 list of positions, one less length than 𝕨
 DistanceToPlane ← {plane𝕊point:
-  |+´(1∾𝕩)×𝕨÷+´⌾(×˜)1↓𝕨
+  ⊑⍟(0==)|+˝(𝕩⊸×⌾(1⊸↓)𝕨)÷⎉1+˝⌾(×˜)1↓𝕨
 }
 
-# turn ax+b=y (a‿b) into ax+by+c=0 (a‿b‿c)
-SlopeInterceptToLine ← {𝕊⁼:¯1(-↓÷⊑)𝕩; 𝕩∾¯1}
+
+# turn the plane function ax+b=y (a‿b) into c+ax+by=0 (c‿a‿b)
+SlopeInterceptToLine ← {𝕊⁼:(-1⊸↓÷⊑)𝕩; ¯1∾𝕩}

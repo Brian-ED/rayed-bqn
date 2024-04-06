@@ -102,15 +102,27 @@ e!(Approx 1‿2‿3‿4 VectorAngle 5‿6‿7‿8) ≡ 0.2502
 e!(Approx 1‿2‿3   VectorAngle 2‿3‿4  ) ≡ 0.12187
 
 e↩"SlopeInterceptToLine"
-e!(SlopeInterceptToLine 1‿2         ) ≡ 1‿2‿¯1
-e!(SlopeInterceptToLine⁼ ¯0.5‿¯1‿0.5) ≡ 1‿2
-e!(SlopeInterceptToLine⁼ 1‿2‿¯1     ) ≡ 1‿2
+e!(SlopeInterceptToLine 1‿2         ) ≡ ¯1‿1‿2
+e!(SlopeInterceptToLine⁼ 0.5‿¯0.5‿¯1) ≡ 1‿2
+e!(SlopeInterceptToLine⁼ ¯1‿1‿2     ) ≡ 1‿2
 
 e↩"DistanceToPlane"
-e!6.78903≡Approx 8‿2‿¯2‿5 DistanceToPlane 4‿¯4‿3
-e!1.61658≡Approx ¯8‿1‿7‿¯5 DistanceToPlane 2‿5‿3
-e!2.23607≡Approx ¯0.5‿¯1‿0.5 DistanceToPlane 4‿4
-e!2.23607≡Approx (SlopeInterceptToLine 1‿2) DistanceToPlane 4‿4
+e!2.71058≡Approx 5‿8‿2‿¯2 DistanceToPlane 4‿¯4‿3
+e!0.46829≡Approx ¯5‿¯8‿1‿7 DistanceToPlane 2‿5‿3
+e!5.50598≡Approx ¯3‿3‿3‿1 DistanceToPlane 2‿¯8‿¯3
+e!4.91935≡Approx 0.5‿¯0.5‿¯1 DistanceToPlane 4‿4
+e!4.91935≡Approx (SlopeInterceptToLine 1‿2) DistanceToPlane 4‿4
+
+e!2.71058‿0.46829‿4.91935‿5.50598‿4.91935≡•Show Approx [
+   5‿¯5‿ 0.5‿¯3‿¯1
+   8‿¯8‿¯0.5‿ 3‿1
+   2‿ 1‿¯1  ‿ 3‿2
+  ¯2‿ 7‿ 0  ‿ 1‿0
+] DistanceToPlane [
+   4‿2‿4‿ 2‿4
+  ¯4‿5‿4‿¯8‿4
+   3‿3‿0‿¯3‿0
+]
 
 e↩"MatrixLookAt"
 e!(Approx MatrixLookAt camera3D.position‿camera3D.target‿camera3D.up) ≡ 4‿4⥊¯0.98221‿0.14974‿0.1133‿0‿0‿0.60338‿¯0.79746‿0‿¯0.18778‿¯0.78327‿¯0.59264‿0‿242.80856‿¯36.35183‿122.97376‿1
