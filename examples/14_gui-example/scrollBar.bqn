@@ -11,7 +11,6 @@ rg ← •Import "../../ffi/raygui.bqn"
   guiListViewProperty
 ⟩← rg
 
-x‿y‿width‿height ← ↕4 # indecies of rectangle
 panelRec ← 20‿40‿200‿150
 
 # Draw and process scroll bar style edition controls
