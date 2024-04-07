@@ -587,9 +587,9 @@ mouse ← {
   button ⇐ {
     left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
   }
-  
+
   # mouse.GetPos
-  GetPos     ⇐ {𝕤
+  GetPos     ⇐ {𝕊:
     NeedsWindow@
     raylib.GetMousePosition⟨⟩
   }
@@ -597,6 +597,11 @@ mouse ← {
   SetPos     ⇐ {𝕊x‿y:
     NeedsWindow@
     raylib.SetMousePosition x‿y
+  }
+  # mouse.GetDelta
+  GetDelta ⇐ {𝕊:
+    NeedsWindow@
+    raylib.GetMouseDelta⟨⟩
   }
   # mouse.SetOffset
   SetOffset ⇐ {𝕊offsetX‿offsetY:
@@ -993,7 +998,6 @@ key ← {
 # setGamepadMappings
 # setGamepadVibration
 # 
-# getMouseDelta
 # setMouseCursor
 # 
 # getTouchX
