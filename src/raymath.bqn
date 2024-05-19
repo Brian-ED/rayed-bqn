@@ -196,7 +196,7 @@ VectorDistance ← +´⌾(×˜)-
 # Calculate angle between two vectors
 # NOTE: Angle is calculated from origin point (0, 0)
 VectorAngle ← {
-  ⟨3⟩≢≢𝕩? ⊑⍟(0==)(•math.Cos⁼+˝∘×÷×○(+˝⌾(×˜)))´𝕨‿𝕩
+  3≠≠𝕩? ⊑⍟(0==)(•math.Cos⁼+˝∘×÷·0⊸=⊸+×○(+˝⌾(×˜)))´𝕨‿𝕩
 ;
   ⊑⍟(0==) (+˝∘×•math.Atan2·+˝⌾(×˜)1⊸⌽⊸×{1⌽𝔽˜-𝔽})´𝕨‿𝕩 # length3 is faster
 }
