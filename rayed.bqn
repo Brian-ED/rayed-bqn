@@ -51,8 +51,8 @@ global.SetNeedsWindow needsWindow
 raymath ← •Import "src/raymath.bqn"
 image   ← •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
-bqnoise ← •Import "src/imports/BQNoise/wav.bqn"
-bqnoiseOptions ← •Import "src/imports/BQNoise/options.bqn"
+bqnoise ← •Import "imports/BQNoise/wav.bqn"
+bqnoiseOptions ← •Import "imports/BQNoise/options.bqn"
 # -------
 
 # Utils:
@@ -526,7 +526,7 @@ font ← {
   # font.LoadBQN
   LoadBQN ← {𝕊fontSize: fontSize 100⍟(@⊸≡)↩
     NeedsWindow@
-    file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt"src/imports/BQN386/BQN386.ttf"
+    file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt"imports/BQN386/BQN386.ttf"
     raylib.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
   }
   # font.LoadRaylib
@@ -536,7 +536,7 @@ font ← {
 }
 clipboard ← {
   ⟨Get ⋄ Set⟩⇐
-  ⟨ToBytes⟩ ← •Import "src/imports/bqn-libs/strings.bqn"
+  ⟨ToBytes⟩ ← •Import "imports/bqn-libs/strings.bqn"
   
   # clipboard.Get
   Get ⇐ {𝕤

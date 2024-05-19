@@ -1,5 +1,5 @@
 ⟨co⇐color,window,⟨_withCanvas_⟩⇐draw,k⇐key⟩←r←•Import "../../rayed.bqn"
-⟨lf,Split⟩  ← •Import "../../src/imports/bqn-libs/strings.bqn"
+⟨lf,Split⟩  ← •Import "../../imports/bqn-libs/strings.bqn"
 sysVals     ← •Import"sysVals.bqn"
 fontSize    ← 50
 lineSpacing ← 40

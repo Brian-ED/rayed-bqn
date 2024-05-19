@@ -1,9 +1,9 @@
-[submodule "src/imports/bqn-libs"]
-	path = src/imports/bqn-libs
+[submodule "imports/bqn-libs"]
+	path = imports/bqn-libs
 	url = https://github.com/mlochbaum/bqn-libs
-[submodule "src/imports/BQN386"]
-	path = src/imports/BQN386
+[submodule "imports/BQN386"]
+	path = imports/BQN386
 	url = https://github.com/dzaima/BQN386
-[submodule "src/imports/c-header-to-bqn-ffi"]
-	path = src/imports/c-header-to-bqn-ffi
+[submodule "imports/c-header-to-bqn-ffi"]
+	path = imports/c-header-to-bqn-ffi
 	url = https://github.com/Brian-ED/c-header-to-bqn-ffi.git

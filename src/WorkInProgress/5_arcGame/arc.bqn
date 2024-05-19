@@ -1,6 +1,6 @@
 ⟨c⇐color,window,draw,k⇐key⟩←r←•Import "../../raylib.bqn"
 drawBoard←•Import"drawBoard.bqn"
-⟨_Template⟩←•Import "../../src/imports/bqn-libs/strings.bqn"
+⟨_Template⟩←•Import "../../imports/bqn-libs/strings.bqn"
 Template↩"@"_Template
 
 
