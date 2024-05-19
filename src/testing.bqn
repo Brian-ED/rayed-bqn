@@ -100,6 +100,10 @@ e↩"VectorAngle"
 e!(Approx 1‿2     VectorAngle 3‿4    ) ≡ 0.17985
 e!(Approx 1‿2‿3‿4 VectorAngle 5‿6‿7‿8) ≡ 0.2502
 e!(Approx 1‿2‿3   VectorAngle 2‿3‿4  ) ≡ 0.12187
+e!(Approx[
+  1‿1‿0
+  1‿3‿0
+] VectorAngle○⍉ ≍˜0‿1‿0) ≡ 0.7854‿0.32175
 
 e↩"SlopeInterceptToLine"
 e!(SlopeInterceptToLine 1‿2         ) ≡ ¯1‿1‿2
@@ -113,7 +117,7 @@ e!5.50598≡Approx ¯3‿3‿3‿1 DistanceToPlane 2‿¯8‿¯3
 e!4.91935≡Approx 0.5‿¯0.5‿¯1 DistanceToPlane 4‿4
 e!4.91935≡Approx (SlopeInterceptToLine 1‿2) DistanceToPlane 4‿4
 
-e!2.71058‿0.46829‿4.91935‿5.50598‿4.91935≡•Show Approx [
+e!2.71058‿0.46829‿4.91935‿5.50598‿4.91935≡Approx [
    5‿¯5‿ 0.5‿¯3‿¯1
    8‿¯8‿¯0.5‿ 3‿1
    2‿ 1‿¯1  ‿ 3‿2
