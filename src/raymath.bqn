@@ -269,7 +269,7 @@ Vector3RotateByAxisAngle ← {axisV3‿angle𝕊v:
   # Ref.: https://en.wikipedia.org/w/index.php?title=Euler%E2%80%93Rodrigues_formula
   
   a ← •math.Cos angle÷2
-  w ← axisV3 ÷⟜(0⊸=⊸++´⌾(×˜))⊸× •math.Sin angle÷2
+  w ← axisV3 ÷⟜(0⊸=⊸++˝⌾(×˜))⊸× •math.Sin angle÷2
   F ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
   v+2×(w⊸F+a⊸×) w F v
 }
