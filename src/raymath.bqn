@@ -15,12 +15,12 @@
 #----------------------------------------------------------------------------------
 
 ## Removed QuaternionToMatrix and QuaternionFromMatrix:
-# they have been said to be innacurate by ray - maintainer of raylib. 
-# Under "module: raymath" at https://github.com/raysan5/raylib/discussions/2952 
+# they have been said to be innacurate by ray - maintainer of raylib.
+# Under "module: raymath" at https://github.com/raysan5/raylib/discussions/2952
 ## removed Vector3Perpendicular, as it isn't well defined.
 ⟨
   # new, non-existant in raylib
-  _ToDim_      # set length of square input arrays, 𝔽 being applied to the inputs after padding to length 𝕘 
+  _ToDim_      # set length of square input arrays, 𝔽 being applied to the inputs after padding to length 𝕘
   MatrixExtend # pad square matrix to a length
 
   # multiply by constants for converting
@@ -56,10 +56,10 @@
   Vector3Barycenter
   Vector3Unproject
   Vector3Refract
-  
+
   SlopeInterceptToLine
   DistanceToPlane
-  
+
   # matrix operations
     # generalized
     MP ⋄ Inverse ⋄ MatrixDeterminant # from matrix.bqn in Marshall's bqn-libs
@@ -74,7 +74,7 @@
     MatrixLookAt
     MatrixRotateXYZ
     MatrixRotateZYX
-  
+
     # take scalers
     MatrixFrustum
     MatrixPerspective
@@ -111,7 +111,7 @@
 # extended:
 # Vector2Length       ← Vector3Length     ← QuaternionLength ← VectorLength
 # Vector2LengthSqr    ← Vector3LengthSqr  ← VectorLengthSqr
-# Vector2DotProduct   ← Vector3DotProduct ← VectorDotProduct 
+# Vector2DotProduct   ← Vector3DotProduct ← VectorDotProduct
 # Vector2Distance     ← Vector3Distance   ← VectorDistance
 # Vector2Lerp         ← Vector3Lerp       ← QuaternionLerp ← Lerp
 # Vector2Transform    ← Vector3Transform  ← VectorTransform ← 4⊸↑⌾¬⊸MP
@@ -132,7 +132,7 @@
 #   Matrices define linear transformations between vector spaces.
 #   All linear transformations map the origin of the domain to the origin of the range.
 #   Therefore 3x3 matrices cannot perform translation on 3D vectors since the origin in one space cannot be mapped to anything but the origin on another using linear maps.
-#   To overcome this problem, we can fake the system into performing translations through the use of an extra dimension where all vectors will have a 1 in the last vector component. 
+#   To overcome this problem, we can fake the system into performing translations through the use of an extra dimension where all vectors will have a 1 in the last vector component.
 #   These 4D vectors will never be at the origin (having 1 in the last component) and so are not required to always map to the origin.
 #   Through the use of this we can construct a 4x4 matrix to perform translation.
 
@@ -238,7 +238,7 @@ Vector3OrthoNormalize ← {v1𝕊v2:
 
   # Vector3CrossProduct´v1‿v2
   G ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
-  
+
   v1 G○F˜ v1 F⊸G v2
 }
 
@@ -267,7 +267,7 @@ Vector3RotateByQuaternion ← {q𝕊v: x‿y‿z‿w←q
 Vector3RotateByAxisAngle ← {axisV3‿angle𝕊v:
   # Using Euler-Rodrigues Formula
   # Ref.: https://en.wikipedia.org/w/index.php?title=Euler%E2%80%93Rodrigues_formula
-  
+
   a ← •math.Cos angle÷2
   w ← axisV3 ÷⟜(0⊸=⊸++˝⌾(×˜))⊸× •math.Sin angle÷2
   F ← 1⊸⌽⊸×{1⌽𝔽˜-𝔽}
@@ -303,7 +303,7 @@ Vector3Unproject ← {
   ¯1(↓÷⊑)qtransformed
 }
 
-# Compute the direction of a refracted ray 
+# Compute the direction of a refracted ray
 Vector3Refract ← {𝕊⟨
     v # v3: normalized direction of the incoming ray
     n # v3: normalized normal vector of the interface of two optical media
