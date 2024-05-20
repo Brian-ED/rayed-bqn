@@ -177,7 +177,7 @@ window ← {
   # Get the x‿y position of the window   (relative to current monitor?)
   # window.GetPos
   GetPos ← {raylib.GetWindowPosition⟨⟩⊣NeedsWindow𝕩}
-  
+
   # Set the x‿y position of the window   (relative to current monitor?)
   # window.SetPos
   SetPos ← {
@@ -201,7 +201,7 @@ window ← {
   ;
     tempSize↩𝕩
   }
-  
+
   # Get the width and hight of the window, width and hight being relative to window position
   # window.GetSize
   GetSize ← {𝕤
@@ -526,7 +526,7 @@ font ← {
   # font.LoadBQN
   LoadBQN ← {𝕊fontSize: fontSize 100⍟(@⊸≡)↩
     NeedsWindow@
-    file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt"imports/BQN386/BQN386.ttf"
+    file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt "imports/BQN386/BQN386.ttf"
     raylib.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
   }
   # font.LoadRaylib
@@ -537,7 +537,7 @@ font ← {
 clipboard ← {
   ⟨Get ⋄ Set⟩⇐
   ⟨ToBytes⟩ ← •Import "imports/bqn-libs/strings.bqn"
-  
+
   # clipboard.Get
   Get ⇐ {𝕤
     NeedsWindow@
@@ -564,13 +564,13 @@ StartClock ← {𝕊@:
   # clock.startTime
   startTime ⇐ •MonoTime@
   lastTime ← 0
-  
+
   delta ⇐ 0
   frame ⇐ 0
 
   # clock.Time
   Time ⇐ {𝕊:startTime-˜•Monotime@}
-  
+
   # clock.Tick
   Tick ⇐ {𝕊:
     frame+↩1
@@ -619,9 +619,9 @@ mouse ← {
     NeedsWindow@
     raylib.GetMouseWheelMove⟨⟩
   }
-  
+
   IsMouseButton ← "Mouse button doesn't exist. (𝕩∊↕7)"⊸!∘⊑∘∊⟜(↕buttons)⚇0
-  
+
   # mouse.IsButtonDown
   IsButtonDown ⇐ {𝕊mouseButton:
     NeedsWindow@
@@ -646,21 +646,21 @@ mouse ← {
     IsMouseButton 𝕩
     raylib.IsMouseButtonUp⚇0 𝕩
   }
-  
+
 
   # mouse.cursor.
   cursor ⇐ { # Mouse cursor
-    default       ⇐ 0   # Default pointer shape                                        
-    arrow         ⇐ 1   # Arrow shape                                                  
-    ibeam         ⇐ 2   # Text writing cursor shape                                    
-    crosshair     ⇐ 3   # Cross shape                                                  
-    pointing_hand ⇐ 4   # Pointing hand cursor                                         
-    resize_ew     ⇐ 5   # Horizontal resize/move arrow shape                           
-    resize_ns     ⇐ 6   # Vertical resize/move arrow shape                             
-    resize_nwse   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape    
+    default       ⇐ 0   # Default pointer shape
+    arrow         ⇐ 1   # Arrow shape
+    ibeam         ⇐ 2   # Text writing cursor shape
+    crosshair     ⇐ 3   # Cross shape
+    pointing_hand ⇐ 4   # Pointing hand cursor
+    resize_ew     ⇐ 5   # Horizontal resize/move arrow shape
+    resize_ns     ⇐ 6   # Vertical resize/move arrow shape
+    resize_nwse   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape
     resize_nesw   ⇐ 8   # The top-right to bottom-left diagonal resize/move arrow shape
-    resize_all    ⇐ 9   # The omnidirectional resize/move cursor shape                 
-    not_allowed   ⇐ 10  # The operation-not-allowed shape                              
+    resize_all    ⇐ 9   # The omnidirectional resize/move cursor shape
+    not_allowed   ⇐ 10  # The operation-not-allowed shape
   }
 }
 
@@ -673,7 +673,7 @@ sound ⇐ {
     LoadFromFile ⇐ {𝕊filePath:
       {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)𝕩
       {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
-    
+
       bqnSound ← {
         freq‿format‿bqnSound ← bqnoise.ReadFull filePath
         ⌊∘÷⟜(2⋆¯16+1⊑format) bqnSound bqnoiseOptions.Resample˜ freq∾bqnoiseOptions.freq
@@ -791,7 +791,7 @@ key ← {
 
   # vars           Keycodes   Keys
   null          ⇐ 0        # NULL, used for no key pressed
-  
+
   # Alphanumeric keys
   apostrophe    ⇐ 39       # '
   comma         ⇐ 44       # ,
@@ -840,7 +840,7 @@ key ← {
   backslash     ⇐ 92       # \
   right_bracket ⇐ 93       # ]
   grave         ⇐ 96       # `
-  
+
   # Function keys
   space         ⇐ 32       # Space
   escape        ⇐ 256      # Esc
@@ -914,9 +914,9 @@ key ← {
 
 # # TODO add IsImage, IsTexture etc for error checks
 # # Consider using LoadFontFromMemory instead of accepting path
-# 
+#
 # # TODO functions left to decide to add
-# 
+#
 # loadFontFromImage
 # isWindowState
 # isWindowHidden
@@ -971,12 +971,12 @@ key ← {
 # loadDroppedFiles
 # unloadDroppedFiles
 # getFileModTime
-# 
+#
 # compressData
 # decompressData
 # encodeDataBase64
 # decodeDataBase64
-# 
+#
 # loadAutomationEventList
 # unloadAutomationEventList
 # exportAutomationEventList
@@ -985,7 +985,7 @@ key ← {
 # startAutomationEventRecording
 # stopAutomationEventRecording
 # playAutomationEvent
-# 
+#
 # isGamepadAvailable
 # getGamepadName
 # isGamepadButtonPressed
@@ -997,9 +997,9 @@ key ← {
 # getGamepadAxisMovement
 # setGamepadMappings
 # setGamepadVibration
-# 
+#
 # setMouseCursor
-# 
+#
 # getTouchX
 # getTouchY
 # getTouchPosition
@@ -1013,12 +1013,12 @@ key ← {
 # getGestureDragAngle
 # getGesturePinchVector
 # getGesturePinchAngle
-# 
+#
 # setShapesTexture
 # getShapesTexture
-# 
+#
 # getShapesTextureRectangle
-# 
+#
 # # draw
 # drawLineStrip
 # drawLineBezier
@@ -1059,7 +1059,7 @@ key ← {
 # getSplinePointCatmullRom
 # getSplinePointBezierQuad
 # getSplinePointBezierCubic
-# 
+#
 # # collision
 # checkCollisionRecs
 # checkCollisionCircles
@@ -1071,8 +1071,8 @@ key ← {
 # checkCollisionLines
 # checkCollisionPointLine
 # getCollisionRec
-# 
-# 
+#
+#
 # loadTexture
 # loadTextureFromImage
 # loadTextureCubemap
@@ -1106,7 +1106,7 @@ key ← {
 # getPixelColor
 # setPixelColor
 # getPixelDataSize
-# 
+#
 # loadFontData
 # genImageFontAtlas
 # unloadFontData
@@ -1123,7 +1123,7 @@ key ← {
 # getGlyphIndex
 # getGlyphInfo
 # getGlyphAtlasRec
-# 
+#
 # # draw3d
 # drawLine3D
 # drawPoint3D
@@ -1146,7 +1146,7 @@ key ← {
 # drawPlane
 # drawRay
 # drawGrid
-# 
+#
 # # models
 # loadModel
 # loadModelFromMesh
@@ -1156,13 +1156,13 @@ key ← {
 # drawModelEx
 # drawModelWires
 # drawModelWiresEx
-# 
+#
 # # no idea
 # drawBoundingBox
 # drawBillboard
 # drawBillboardRec
 # drawBillboardPro
-# 
+#
 # # mesh
 # uploadMesh
 # updateMeshBuffer
@@ -1184,21 +1184,21 @@ key ← {
 # genMeshKnot
 # genMeshHeightmap
 # genMeshCubicmap
-# 
+#
 # # Materials
 # loadMaterials
 # loadMaterialDefault
 # unloadMaterial
 # setMaterialTexture
 # setModelMeshMaterial
-# 
+#
 # # animations
 # loadModelAnimations
 # updateModelAnimation
 # unloadModelAnimation
 # unloadModelAnimations
 # isModelAnimationValid
-# 
+#
 # # collision3d
 # checkCollisionSpheres
 # checkCollisionBoxes
@@ -1208,26 +1208,26 @@ key ← {
 # getRayCollisionMesh
 # getRayCollisionTriangle
 # getRayCollisionQuad
-# 
+#
 # # audio
 # setMasterVolume
 # getMasterVolume
-# 
+#
 # loadWave
 # loadWaveFromMemory
-# 
+#
 # loadSound
 # loadSoundAlias
 # unloadSoundAlias
 # updateSound
-# 
+#
 # exportWave
 # waveCopy
 # waveCrop
 # waveFormat
 # loadWaveSamples
 # unloadWaveSamples
-# 
+#
 # # music
 # loadMusicStream
 # loadMusicStreamFromMemory
@@ -1244,7 +1244,7 @@ key ← {
 # setMusicPan
 # getMusicTimeLength
 # getMusicTimePlayed
-# 
+#
 # # audiostream
 # loadAudioStream
 # unloadAudioStream
