@@ -147,7 +147,7 @@ MatrixScale ← {𝕊v:𝕩×=⌜˜↕≠𝕩}
 epsilon ← 1e¯6
 rad2deg ← ÷deg2rad ← π÷180
 
-⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "imports/bqn-libs/matrix.bqn"
+⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "../imports/bqn-libs/matrix.bqn"
 
 Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
 

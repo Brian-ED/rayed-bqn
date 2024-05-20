@@ -3,8 +3,8 @@
 # imports
 ⟨raylibLibPath
  raylibHeaderPath⟩ ← conf ← •Import "loadConfig.bqn"
-json ← •Import "imports/bqn-libs/json.bqn"
-⟨ToFFI⋄ParseHeader⋄SetPath⟩ ← •Import "imports/c-header-to-bqn-ffi/parse.bqn"
+json ← •Import "../imports/bqn-libs/json.bqn"
+⟨ToFFI⋄ParseHeader⋄SetPath⟩ ← •Import "../imports/c-header-to-bqn-ffi/parse.bqn"
 
 HasLibError    ← •file.Exists∘(".."⊸•file.At)!˜"Library file expected at "⊸∾∾" according to config.bqn"˙
 HasHeaderError ← (•file.Exists∘(".."⊸•file.At)∧".h"⊸(⊣≡-∘≠⊸↑))!˜"Header file expected at "⊸∾∾" according to config.bqn"˙
