@@ -1,4 +1,4 @@
-⟨w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "../../raylib.bqn"
+⟨w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "../../../rayed.bqn"
 ns←{
   Get⇐{⟨"","",𝕨⟩•BQN"(⊑•args)."∾𝕩}
   Keys⇐(+`×¬)⊸-∘=⟜'‿'⊸⊔"⇐}{"∾⁼¯2⌽•Fmt
