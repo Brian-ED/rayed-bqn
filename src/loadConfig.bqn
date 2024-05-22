@@ -19,61 +19,60 @@ missing ← ⟨
   "rayliblibpath"
 ⟩ (¬∘∊/⊣) •ns.Keys conf
 
-os ← •platform.os
 {
   e←"Unknown OS, unable to automatically generate config."
-  e!∨´os⊸≡¨"linux"‿"darwin"‿"windows"
+  e!∨´•platform.os⊸≡¨"linux"‿"darwin"‿"windows"
 }
 
 err ← "Incomplete autogeneration of config.bqn: "
 Exists ← •file.Exists (•file.Parent confPath)⊸•file.At
 
 newExports ← {
-  𝕊"rayliblibpath": {
-    os≡"windows"?
+  "rayliblibpath": 𝕩∾{
+    "windows":
       p←".\raylib\lib\raylib.dll"
       (•file.Exists ".." •file.At p)!˜err∾"Couldn't find raylib.dll file at path: "∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
+      " ⇐ •file.At "∾•Repr p
   ;
-    os≡"darwin"?
+    "darwin":
       default ← "/usr/local"
       # Using •BQN because CBQN on windows doesn't have the •SH system function
       exitcode‿stdout‿stderr ← ⟨•path⟩ •BQN "•SH ""brew""‿""--prefix""‿""raylib"""
       p ← ∾⟜"/lib/libraylib.dylib"¨"../raylib"⋈(nl⊸≠⊸/stdOut)⍟(exitcode≡0)default
       (∨´m←•file.Exists¨ ".."⊸•file.At¨ p)!˜err∾"Couldn't find libraylib.dylib file at paths:"∾∾nl∾¨p
-      𝕩∾" ⇐ •file.At "∾•Repr ⊑m/p
+      " ⇐ •file.At "∾•Repr ⊑m/p
   ;
-    os≡"linux"?
+    "linux":
       p←"/usr/local/lib/libraylib.so"
       (Exists p)!˜err∾"Couldn't find libraylib.so file at path: "∾p
-      𝕩∾" ⇐ "∾•Repr p
-  }𝕩
-; 𝕊"raylibheaderpath": {
-    os≡"windows"?
+      " ⇐ "∾•Repr p
+  }•platform.os
+; "raylibheaderpath": 𝕩∾{
+    "windows":
       p←".\raylib\include\raylib.h"
       (•file.Exists ".." •file.At p)!˜err∾"Couldn't find raylib.h file at path: "∾p
-      𝕩∾" ⇐ •file.At "∾•Repr p
+      " ⇐ •file.At "∾•Repr p
   ;
-    os≡"darwin"?
+    "darwin":
       default ← "/usr/local"
       # Using •BQN because CBQN on windows doesn't have the •SH system function
       exitcode‿stdout‿stderr ← ⟨•path⟩ •BQN "•SH ""brew""‿""--prefix""‿""raylib"""
       p ← ∾⟜"/include/raylib.h"¨"../raylib"⋈(nl⊸≠⊸/stdOut)⍟(exitcode≡0)default
       (∨´m←Exists¨p)!˜err∾"Couldn't find file raylib.h at paths:"∾∾nl∾¨p
-      𝕩∾" ⇐ •file.At "∾•Repr ⊑m/p
+      " ⇐ •file.At "∾•Repr ⊑m/p
   ;
-    os≡"linux"?
+    "linux":
       p←"/usr/local/include/raylib.h"
       (Exists p)!˜err∾"Couldn't find raylib.h file at path: "∾p
-      𝕩∾" ⇐ "∾•Repr p
-  }𝕩
+      " ⇐ "∾•Repr p
+  }•platform.os
 ;
   !"Attempted to implement non-existant config: "∾𝕩
 }¨missing
 
 confPath •FLines newExports∾˜•FLines confPath
 
-•Import confPath
+{raylibLibPath‿raylibHeaderPath ← 𝕩}⊸⊢ •Import confPath
 
 # TODO: waiting for CBQN v0.7 to get •SH working on windows
 #•SH "curl"‿"-o"‿"temp.zip"‿"https://github.com/raysan5/raylib/releases/download/5.0/raylib-5.0_win32_mingw-w64.zip"
