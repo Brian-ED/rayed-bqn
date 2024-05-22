@@ -8,7 +8,7 @@ json ← •Import "../imports/bqn-libs/json.bqn"
 
 HasLibError    ← •file.Exists∘(".."⊸•file.At)!˜"Library file expected at "⊸∾∾" according to config.bqn"˙
 HasHeaderError ← (•file.Exists∘(".."⊸•file.At)∧".h"⊸(⊣≡-∘≠⊸↑))!˜"Header file expected at "⊸∾∾" according to config.bqn"˙
-HasPathsError ← {libPath‿headerPath:
+HasPathsError ← {libPath𝕊headerPath:
   HasLibError libPath
   HasHeaderError headerPath
 }
@@ -32,14 +32,14 @@ nl ← @+10
   }¨⌾(((+`∘<⟜»⊸×-¬) (1⌊0⌈+)`if-endif)⊸⊔)split
 }}
 
-ParseRaylib ← {𝕊libPath‿headerPath:
-  HasPathsError 𝕩
+ParseRaylib ← {libPath𝕊headerPath:
+  𝕨 HasPathsError 𝕩
   "../ffi/raylib.bqn" •FChars libPath SetPath ToFFI "RLAPI" ParseHeader •FChars headerPath
   •Out "ffi/raylib.bqn successfully generated"
 }
 
-ParseRLGL ← {𝕊libPath‿headerPath:
-  HasPathsError 𝕩
+ParseRLGL ← {libPath𝕊headerPath:
+  𝕨 HasPathsError 𝕩
 
   defines ← ⍉[
     0‿"defined(_WIN32) && defined(BUILD_LIBTYPE_SHARED)"
@@ -73,14 +73,14 @@ ParseRLGL ← {𝕊libPath‿headerPath:
   •Out "ffi/rlgl.bqn successfully generated"
 }
 
-ParseRayGUI ← {𝕊libPath‿headerPath:
-  HasPathsError 𝕩
+ParseRayGUI ← {libPath𝕊headerPath:
+  𝕨 HasPathsError 𝕩
   headerAndCode ← •FChars headerPath
   header ← ¯91↓(1⊐˜"RAYGUI IMPLEMENTATION"⊸⍷)⊸↑headerAndCode
   "../ffi/raygui.bqn" •FChars libPath SetPath ToFFI "RAYGUIAPI" ParseHeader header
   •Out "ffi/raygui.bqn successfully generated"
 }
 
-ParseRaylib raylibLibPath‿raylibHeaderPath
-ParseRLGL raylibLibPath⋈"rlgl.h" •file.At˜ •file.Parent raylibHeaderPath
-conf ParseRayGUI∘(•ns.Get¨)⍟(∧´•ns.Has¨) "rayguilibpath"‿"rayguiheaderpath"
+raylibLibPath ParseRaylib raylibHeaderPath
+raylibLibPath ParseRLGL "rlgl.h" •file.At˜ •file.Parent raylibHeaderPath
+conf ParseRayGUI´∘(•ns.Get¨)⍟(∧´•ns.Has¨) "rayguilibpath"‿"rayguiheaderpath"
