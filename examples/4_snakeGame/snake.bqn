@@ -8,7 +8,7 @@ nonDarkMode‿darkMode ← {
 }¨{
   yellow ← 255‿200‿0‿255
   ⟨c.black‿c.red‿c.blue ‿c.white‿yellow
-   ⌈c.white‿c.red‿c.green‿c.white‿c.black÷1.3⟩ # divided to lower intencity
+   ⌈1.3÷˜c.white‿c.red‿c.green‿c.white‿c.black⟩ # divided to lower intencity
 }
 
 LoadConsts ← {𝕤
@@ -43,7 +43,7 @@ PerGameFrame ← {𝕊gameState‿snake‿fruit‿facing‿buffer:
     gameState×⍷⊸≡cutSnake # gameState
     cutSnake              # snake
     newFruit              # fruit
-    nowFacing             # facing 
+    nowFacing             # facing
     1↓2↑buffer            # reset buffer
   ⟩
 }⌾(0‿2‿3‿4‿6⊸⊏)
