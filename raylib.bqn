@@ -7,7 +7,7 @@
 # -------
 # Exports
 ⟨draw, texture, monitor, window, mouse
- font, key, utils, clipboard, StartClock
+ font, key, clipboard, StartClock
  sound, bqnoise, raymath, image, low⟩⇐
 
 ⟨
@@ -34,8 +34,8 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 global.SetNeedsWindow needsWindow
 
 # Loading dependencies
-rayffi‿rlgl ⇐ {
-  paths ← "ffi/rayffi.bqn"‿"ffi/rlgl.bqn"
+⟨rayffi⟩ ⇐ {
+  paths ← ⟨"ffi/rayffi.bqn"⟩
   tried ← •Import⎊{
     0⊣•Out "Error running "∾𝕩
   }¨paths
