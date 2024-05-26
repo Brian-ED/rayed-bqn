@@ -12,19 +12,15 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
   QuaternionEquals, Vector3OrthoNormalize, Vector3RotateByAxisAngle, VectorClampValue
   MatrixTranslate, MatrixRotateX, MatrixRotateY, MatrixRotateZ, VectorAngle, deg2rad, rad2deg
   SlopeInterceptToLine, DistanceToPlane, QuaternionFromEuler, QuaternionToEuler
-  VectorReflect, VectorNormalize, Vector3CrossProduct
+  VectorReflect, VectorNormalize, Vector3CrossProduct, Vector2LineAngle, Remap
 
-  # In progress
-    MatrixPerspective
-
-    # These have been extensively tested against C versions
-    MatrixOrtho
-    MatrixLookAt,
+  # These have been extensively tested against C versions
+  MatrixOrtho
+  MatrixLookAt,
 ⟩ ← •Import "raymath.bqn"
 
 Approx ← 5⊸Round
 
-#region Raymath
 e←"Round"
 e!100.2131≡4 Round 100.21312344123
 
@@ -145,8 +141,49 @@ e↩"VectorNormalize"
 e!(VectorNormalize 0‿1‿1)≡○Approx +˜⁼√0‿2‿2
 e!(VectorNormalize 1‿0‿1)≡○Approx +˜⁼√2‿0‿2
 
+e! 0.8‿0.6 ≡ Approx VectorNormalize 4‿3
+
+vnormOut ← [
+  [
+    0.52981‿0.79472‿0.13245‿0.26491
+    0.25355‿0.59161‿0.08452‿0.76064
+    0.73241‿0.24414‿0.48827‿0.40689
+  ]
+  [
+    0.31822‿0.47733‿0.39778‿  0.716
+    0.05641‿0.05641‿ 0.0188‿0.99664
+    0.10038‿0.99263‿0.06692‿0.01115
+  ]
+]
+e!vnormOut ≡○Approx VectorNormalize˘˘ vnormInp ← [[4‿6‿1‿2⋄3‿7‿1‿9⋄9‿3‿6‿5]⋄[4‿6‿5‿9⋄3‿3‿1‿53⋄9‿89‿6‿1]]
+
+e!(VectorNormalize vnormInp) ≡○Approx [
+  [
+    0.70711‿0.70711‿0.19612‿0.21693
+    0.70711‿0.91915‿0.70711‿0.16741
+    0.70711‿0.03369‿0.70711‿0.98058
+  ]
+  [
+    0.70711‿0.70711‿0.98058‿0.97619
+    0.70711‿0.39392‿0.70711‿0.98589
+    0.70711‿0.99943‿0.70711‿0.19612
+  ]
+]
+
+e!(VectorNormalize [1‿3‿5⋄2‿4‿6]) ≡○Approx [0.44721‿0.6‿0.64018⋄0.89443‿0.8‿0.76822]
+e!(VectorNormalize˘[1‿2⋄3‿4⋄5‿6]) ≡○Approx [0.44721‿0.89443⋄0.6‿0.8⋄0.64018‿0.76822]
+
 e↩"Vector3CrossProduct"
-e!0.70711‿¯1.06066‿1.06066 ≡ Approx 1⊸+⌾((VectorNormalize 0‿1‿1)⊸Vector3CrossProduct) VectorNormalize 1‿0‿1
+e!0.70711‿¯1.06066‿1.06066 ≡○Approx 1⊸+⌾((VectorNormalize 0‿1‿1)⊸Vector3CrossProduct) VectorNormalize 1‿0‿1
+
+e↩"Vector2LineAngle"
+e!0.88732 ≡○Approx 4‿100 Vector2LineAngle○(÷⟜(0⊸=⊸++´⌾(×˜))) 4‿3
+e!0.88766‿0.87731 ≡○Approx [4‿100⋄5‿100] Vector2LineAngle○(÷⟜(0⊸=⊸++˝⌾(×˜)))○⍉ ≍˜4‿3
+
+e↩"Remap"
+e! 68 ≡ Remap 12‿ 5‿10‿40‿60
+e! 40 ≡ Remap 10‿10‿20‿40‿60
+
 
 •Out "Raymath tests passed"
 

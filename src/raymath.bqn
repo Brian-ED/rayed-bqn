@@ -168,7 +168,7 @@ Normalize ← {start‿end𝕊value:
 
 # Remap input value within input range to output range
 Remap ← {𝕊value‿inputStart‿inputEnd‿outputStart‿outputEnd:
-  {𝕩×÷´value‿inputEnd-inputStart}⌾(-⟜outputEnd) outputStart
+  (value÷○(-⟜inputStart)inputEnd)⊸×⌾(-⟜outputStart) outputEnd
 }
 
 Wrap ← {𝕊value‿min‿max:
@@ -203,8 +203,8 @@ VectorAngle ← {
 
 # Calculate angle defined by a two vectors line
 # NOTE: Parameters need to be normalized
-# Current implementation should be aligned with glm::angle
-Vector2LineAngle ← •math.Cos⁼1⌈¯1⌈+´∘× # start 𝕊 end
+# start 𝕊 end :
+Vector2LineAngle ← •math.Cos⁼1⌊¯1⌈·⊑⍟(0==)+˝∘×
 
 # Rotate vector by angle:  angle 𝕊 vector2
 Vector2Rotate ← (•math.Cos∾•math.Sin)⊸(-´∘×⋈·+´⌽⊸×)
@@ -227,7 +227,7 @@ Vector3CrossProduct ← {
 }
 
 # Normalize provided vector
-VectorNormalize ← ÷⟜(0⊸=⊸++´⌾(×˜))
+VectorNormalize ← ÷⎉¯1‿∞⟜(0⊸=⊸++˝⌾(×˜))
 
 # Orthonormalize provided vectors
 # Makes vectors normalized and orthogonal to each other
