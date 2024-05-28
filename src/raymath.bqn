@@ -136,10 +136,6 @@
 #   These 4D vectors will never be at the origin (having 1 in the last component) and so are not required to always map to the origin.
 #   Through the use of this we can construct a 4x4 matrix to perform translation.
 
-# Get scaling matrix
-MatrixScale ← {𝕊v:𝕩×=⌜˜↕≠𝕩}
-
-
 #----------------------------------------------------------------------------------
 # Defines
 #----------------------------------------------------------------------------------
@@ -147,13 +143,16 @@ MatrixScale ← {𝕊v:𝕩×=⌜˜↕≠𝕩}
 epsilon ← 1e¯6
 rad2deg ← ÷deg2rad ← π÷180
 
+#----------------------------------------------------------------------------------
+# Utils math
+#----------------------------------------------------------------------------------
+
 ⟨MP, MatrixDeterminant⇐Determinant, Inverse⟩ ← •Import "../imports/bqn-libs/matrix.bqn"
 
 Round ← {⌊∘+⟜0.5⌾((10⋆𝕨)⊸×)𝕩}
 
-#----------------------------------------------------------------------------------
-# Utils math
-#----------------------------------------------------------------------------------
+# Get scaling matrix
+MatrixScale ← {𝕊v:𝕩×=⌜˜↕≠𝕩}
 
 # Calculate linear interpolation between two floats or vectors
 Lerp ← {𝕊v1‿v2‿amount:
