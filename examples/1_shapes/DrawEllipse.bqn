@@ -6,7 +6,6 @@ PerFrame ← {
   s←⍉˘⍉⁼∾˘˘˝q⊸+˘⍷⌽˘⊸∾100×0∾˘¬↕3          # duping
   (white r.draw.EllipseOutline pos⊸+˘)˘s # moving + drawing
   poses ← [pos,400‿300,300‿300]
-  white r.draw.Triangle poses
   100|𝕩+1
 }r.draw._withCanvas_ black
 
