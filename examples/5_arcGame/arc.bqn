@@ -44,35 +44,25 @@ colorMappedTextures ← {
   cMapped⊏˜('0'+↕10)⊐>2↓𝕩
 }¨((+`×¬)⊸-0=≠¨)⊸⊔ •FLines txtFile
 
-DrawBoard ← {
-  {pens𝕊spotMajor:
-    {pen𝕊spotMinor:
-      pen◶pencils 100+scale×+`1‿1≍˜⌽spotMinor+spotMajor×5
-    }¨⟜(↕≢)pens
-  }¨⟜(↕≢)𝕩⊏colorMappedTextures∾˜<↕0‿0
-}⊸⊢
+DrawBoard ← {𝕊colors:
+  𝕩 draw.Rectangle¨¨ 100++`¨¨scale×≍⟜1‿1¨¨⌽¨¨ (<↕≢⊑𝕩) + <¨5×↕≢𝕩
+}∘⊏⟜(⊏⟜colorsRGBA¨colorMappedTextures∾˜<5‿5⥊143)⊸⊢
 
-DrawLaser ← {level𝕊start:
-  directionIndex ← ⊑lasers⊐start⊑level
-  !directionIndex<≠lasers
-  direction ← dirs⊑˜directionIndex
-  direction {
-    empty=𝕩⊑level?
-      c.red⊸draw.Rectangle¨ 100+scale×(+`1‿1≍˜·⌽(5×𝕩)⊸+)¨/○⥊⟜(↕≢)⍉⍟(¬∨´"da"=(⊑(<𝕨)⊐˜dirs)⊑dirLetters)2=⊑¨↕5‿5
-      𝕨𝕊𝕨+𝕩
-  ; rMirror=𝕩⊑level?
-      side ← ⊑𝕨<⊸∊⟨0‿1⋄1‿0⟩
-      c.red⊸draw.Rectangle¨ 100+scale×(+`1‿1≍˜·⌽(5×𝕩)⊸+)¨/○⥊⟜(↕≢)(⌽˘⌽)⍟(¬side)2=⌈⌜˜↕5
-      newDir ← -⌽𝕨
-      newDir𝕊newDir+𝕩
-  ; lMirror=𝕩⊑level?
-      side ← ⊑𝕨<⊸∊⟨0‿1⋄¯1‿0⟩
-      c.red⊸draw.Rectangle¨ 100+scale×(+`1‿1≍˜·⌽(5×𝕩)⊸+)¨/○⥊⟜(↕≢)(⌽˘⌽)⍟(¬side)⌽2=⌈⌜˜↕5
-      newDir ← ⌽𝕨
-      newDir𝕊newDir+𝕩
-  ;
-    goalOff=𝕩⊑level
-  } direction+start
+cornerLasersFlipped ← ⌽˘ cornerLasers ← ⍉⌾⌽⊸≍2=⌈⌜˜↕5
+straightLasers ← ≍⟜⍉5‿5⥊2=↕5
+
+DrawLaser ← {level𝕊startPos:
+  direction ← dirs⊑˜⊑lasers⊐startPos⊑level
+  DrawTile ← {c.red⊸draw.Rectangle¨ 100+scale×(+`1‿1≍˜·⌽(5×𝕩)⊸+)¨/○⥊⟜(↕≢)𝕨}
+
+  ReflectType ← ⊑empty‿rMirror‿lMirror⊐⊑⟜level
+  reflectFuncs ← ⟨
+        ⋈ ⊣ (straightLasers     ⊏˜  0=⊑)⊸DrawTile
+    -∘⌽⊸⋈ ⊣ (cornerLasers       ⊏˜⌽⊸≡⟜¬)⊸DrawTile
+      ⌽⊸⋈ ⊣ (cornerLasersFlipped⊏˜   ≤´)⊸DrawTile
+  ⟩
+  Recurse ← ReflectType∘⊢◶ReflectFuncs´{𝔽+`} •_while_ (2≥⟜ReflectType+´)
+  +´ Recurse direction‿startPos
 }
 
 OnStart ← {𝕤
@@ -124,7 +114,7 @@ OnStart ← {𝕤
     ;
       level
     }
-    won ← ∧´out⊸DrawLaser¨/○⥊⟜(↕≢)level∊lasers
+    won ← ∧´goalOff=⊑⟜level¨out⊸DrawLaser¨/○⥊⟜(↕≢)level∊lasers
 
     out⍟¬won
   } _Scene_ (2==∘⊢) {MiddleScreen∘𝔽}¨˜⟜(↕≠)levels
