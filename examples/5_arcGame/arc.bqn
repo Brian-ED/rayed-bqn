@@ -18,7 +18,7 @@ lf ← @+10
   rMirror, lLaser, rLaser, uLaser, dLaser
 ⟩⇐↕≠chars←" @o#\/<>^v"
 
-goalOn‿ubeam‿hbeam‿vbeam‿xbeam←5↕⊸+≠chars
+goalOn←≠chars
 lasers ← ulaser‿llaser‿dlaser‿rlaser
 dirs ← ⟨¯1‿0⋄0‿¯1⋄1‿0⋄0‿1⟩
 dirLetters ← "wasd"
@@ -30,17 +30,15 @@ levels ← chars⊸⊐∘>¨((+`×¬)⊸-0=≠¨)⊸⊔•FLines "levels.txt"
 colorsRGBA‿colorNames ← {𝕩⊸•ns.Get¨⊸⋈•ns.Keys𝕩}r.color
 
 txtFile ← "sprites.txt"
-pencils ← {𝕩⊸draw.Rectangle}¨colorsRGBA
-
 
 colorMappedTextures ← {
   name‿colorString ← 2↑𝕩
   colorsPicked ← (+`×¬)⊸-∘=⟜' '⊸⊔ (32×1="A["⊸⍋)⊸+colorString
-  cMapped ← 1⌽11↑colorNames⊐⟨"transparent"⟩∾colorsPicked
+  cMapped ← colorsPicked(⊢+11↑-)○(colorNames⊸⊐)<"transparent"
   {𝕊:!∾⟨
     "Invalid color found in "⋄txtFile
-    " (color ≡ "⋄colorsPicked⊑˜⊑⍒¯1↓cmapped⋄")"
-  ⟩}⍟⊢colorNames≠⊸=⌈´¯1↓cMapped
+    " (color ≡ "⋄colorsPicked⊑˜⊑⍒cmapped⋄")"
+  ⟩}⍟⊢colorNames≠⊸=⌈´cMapped
   cMapped⊏˜('0'+↕10)⊐>2↓𝕩
 }¨((+`×¬)⊸-0=≠¨)⊸⊔ •FLines txtFile
 
