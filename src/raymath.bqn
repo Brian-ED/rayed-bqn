@@ -319,11 +319,11 @@ Vector3Refract ← {𝕊⟨
 
 # Extend square matrix by identity matrix:
 MatrixExtend ← {len𝕊mat: # returns square matrix
-  1¨⌾(0‿0⍉((-len-≠𝕩)¨≢𝕩)⊸↑)𝕨¨∘≢⊸↑𝕩
+  1¨⌾(0‿0⍉((≠⥊⌊´)len-˜≢𝕩)⊸↑)𝕨¨∘≢⊸↑𝕩
 }
 
 # 𝔽 is applied after resizing the square matricies 𝕩 and 𝕨 by padding identity matrix, so that 𝕩 and 𝕨 have length 𝕘 (∧´g=≠¨𝕩‿𝕨)
-_ToDim_ ← {𝔽 _𝕣_ dim:𝔽○(𝕘⊸MatrixExtend)}
+_ToDim_ ← {𝔽 _𝕣_ len:𝔽○(𝕘⊸MatrixExtend)}
 
 # Get the trace of the matrix (sum of the values along the diagonal)
 MatrixTrace ← +´0‿0⊸⍉

@@ -1,6 +1,6 @@
 # This example depends on raygui
 
-⟨⟨red, white, black, raywhite⟩⇐color, window, draw, rf⇐raylib, low⟩←r←•Import "../../rayed.bqn"
+⟨⟨red, white, black, raywhite⟩⇐color, window, draw⟩←r←•Import "../../rayed.bqn"
 rg ← •Import "../../ffi/raygui.bqn"
 
 ⟨
@@ -21,7 +21,7 @@ DrawStyleEditControls ← {𝕊borderWidth‿arrowsSize‿sliderPadding‿slider
 
   ·‿⟨tempBorderWidth⟩ ← rg.GuiSpinnerRef⟨670‿190‿90‿20, 20↑"BORDER_WIDTH", ⟨borderWidth⟩, 0, 6, 0⟩
   rg.GuiSetStyle ⟨guiControl.scrollbar⋄guiControlProperty.border_width⋄tempBorderWidth⟩
-  
+
   ·‿⟨newArrowsSize⟩ ← rg.GuiSpinnerRef⟨670‿215‿90‿20, 21↑"ARROWS_SIZE", ⟨arrowsSize⟩, 4, 14, 0⟩
   rg.GuiSetStyle ⟨guiControl.scrollbar⋄guiScrollBarProperty.arrowsSize⋄newArrowsSize⟩
 
@@ -31,7 +31,7 @@ DrawStyleEditControls ← {𝕊borderWidth‿arrowsSize‿sliderPadding‿slider
 
   ·‿⟨newArrowsVisible⟩ ← rg.GuiCheckBoxRef⟨565‿280‿20‿20, "ARROWS_VISIBLE", ⟨arrowVisible⟩⟩
   rg.GuiSetStyle ⟨guiControl.scrollbar⋄guiscrollbarproperty.arrowsVisible⋄newArrowsVisible⟩
-  
+
   ·‿⟨newSliderWidth⟩ ← rg.GuiSpinnerRef⟨670‿345‿90‿20, 21↑"SLIDER_WIDTH", ⟨sliderWidth⟩, 2, 100, 0⟩
   rg.GuiSetStyle ⟨guiControl.scrollbar⋄guiSliderProperty.slider_width⋄newSliderWidth⟩
 
@@ -55,8 +55,8 @@ DrawStyleEditControls ← {𝕊borderWidth‿arrowsSize‿sliderPadding‿slider
 }
 
 # Main game loop
-PerFrame ← {𝕊panelScroll‿panelView‿panelContentRec‿showContentArea‿drawState:
-  rf.DrawText⟨{𝕊a‿b:a∾", "∾b}'-'⍟('¯'⊸=)¨∘•Repr¨ 2↑panelScroll, 4, 4, 20, red⟩
+PerFrame ← {font𝕊panelScroll‿panelView‿panelContentRec‿showContentArea‿drawState:
+  red‿font‿20 draw.Text 4‿4⋈∾⟜", "⊸∾´'-'⍟('¯'⊸=)¨∘•Repr¨ 2↑panelScroll
 
   panelScrollNew‿panelViewNew ← {𝕊panelScroll‿panelView:
     a‿b⊣·‿⟨a⟩‿⟨b⟩←rg.GuiScrollPanelRef⟨panelRec, ⟨⟩, panelContentRec, ⋈panelScroll, ⋈panelView⟩
@@ -83,6 +83,7 @@ PerFrame ← {𝕊panelScroll‿panelView‿panelContentRec‿showContentArea‿
 } draw._withCanvas_ r.color.black
 
 Start ← {𝕤
+  font ← r.font.LoadBQN@
   panelContentRec ← 0‿0‿340‿340
   panelView       ← 4⥊0
   panelScroll     ← 99‿¯20‿0‿0
@@ -98,7 +99,8 @@ Start ← {𝕤
     scrollbarSide  ⇐ 0
     scrollbarWidth ⇐ 6
   }
-  PerFrame •_While_(¬window.ShouldClose) panelScroll‿panelView‿panelContentRec‿showContentArea‿drawState
+  font⊸PerFrame •_While_(¬window.ShouldClose) panelScroll‿panelView‿panelContentRec‿showContentArea‿drawState
+  r.font.Unload font
 }
 
 Start window._openAs "raygui - GuiScrollPanel()"
