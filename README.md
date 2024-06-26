@@ -22,7 +22,7 @@ cd ..
 
 Now run the PowerShell script `install-raylib/windows.ps1` and you should be able to run some examples in the `examples` folder.
 
-If you would rather not run the script and setup yourself, download [Raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-VERSION_win64_msvc16`, where `VERSION` would be the version number, use whichever is latest since it should be most stable. Place the extracted folder inside the rayed-bqn folder and rename the extracted folder to "raylib". Now you can run some examples in the `examples` folder.
+If you would rather not run the script and setup yourself, download [raylib](https://github.com/raysan5/raylib/releases/) with release `raylib-VERSION_win64_msvc16`, where `VERSION` would be the version number, use whichever is latest since it should be most stable. Place the extracted folder inside the rayed-bqn folder and rename the extracted folder to "raylib". Now you can run some examples in the `examples` folder.
 
 ## Linux
 Make sure you've installed [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [CBQN](https://github.com/dzaima/CBQN). rayed-bqn works with CBQN version 0.7.0, and hopefully >0.7.0 aswell.
@@ -62,7 +62,7 @@ Next, install [raylib](https://github.com/raysan5/raylib/). If you use [Homebrew
 brew install raylib
 ```
 
-If you don't use Homebrew you can get raylib by downloading the MacOS [Raylib release](https://github.com/raysan5/raylib/releases/) `raylib-VERSION_macos.tar.gz` (replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as `rayed.bqn` and rename the unarchived `raylib-VERSION_macos.tar.gz` folder to "raylib".
+If you don't use Homebrew you can get raylib by downloading the MacOS [raylib release](https://github.com/raysan5/raylib/releases/) `raylib-VERSION_macos.tar.gz` (replace `VERSION` with whichever is latest, it should be most stable) and place it inside this project, at the same level as `rayed.bqn` and rename the unarchived `raylib-VERSION_macos.tar.gz` folder to "raylib".
 
 Now you should be able to run some examples in the `examples` folder.
 
