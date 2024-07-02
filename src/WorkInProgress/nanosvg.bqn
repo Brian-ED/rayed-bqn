@@ -29,21 +29,25 @@ NSVG__getAverageScale ← {(+´÷≠)+˝⌾(×˜)2‿2⥊𝕩}
 NSVG__xformSetSkewX ← {⥊[1‿0 ⋄ ⟨•math.Tan 𝕩⋄1⟩ ⋄ 0‿0]}
 NSVG__xformSetSkewY ← {⥊[⟨1⋄•math.Tan 𝕩⟩ ⋄ 0‿1 ⋄ 0‿0]}
 nsvg__xformIdentity ← ⥊3↑=⌜˜↕2
+nsvg_kappa90 ← 0.5522847493 # Length proportional to radius of a cubic bezier handle for 90deg arcs.
 
 NSVG__parseTransformArgs ← {𝕊str‿maxNa:
-  ("Incorrect amount of args"!maxNa≡≠)⊸⊢ ToNums str
-}
-
-NSVG__parseSkewX ← {𝕊str: # str→int‿xform
-  args ← NSVG__parseTransformArgs str‿1
-  NSVG__xformSetSkewX π×180÷˜⊑args
+  maxNa↑⍟(≤⟜≠) ToNums str
 }
 
 NSVG__xformSetTranslation ← (⥊=⌜˜↕2)⊸∾
 
 # returns NSVGparser
 CreateState ← {𝕊:
+  npts ⇐ 0
+  pts ⇐ ⟨⟩
+  cpts ⇐ 0
 
+  viewwidth ⇐ viewMinx ⇐ @
+
+  NSVG__resetPath ← {𝕊:
+    npts↩0
+  }
   image ⇐ 0
   defsFlag ⇐ 0
   SetDefsFlag ⇐ {defsFlag↩𝕩}
@@ -59,6 +63,23 @@ CreateState ← {𝕊:
 
   shapesTail ⇐ @
   SetShapesTail ⇐ {shapesTail↩𝕩}
+
+  NSVG__moveTo ⇐ {
+   𝕊x‿y:
+    npts > 0?
+      pts 𝕩⌾((npts-1)⊸⊑)↩
+  ;𝕊x‿y:
+    NSVG__addPoint 𝕩
+  }
+
+  NSVG__addPoint ⇐ {𝕊x‿y:
+    (npts+1) > cpts?
+      cpts ↩ (×cpts) ⊑ 8⋈cpts
+      pts ↩ cpts↑pts
+  ;𝕊x‿y:
+    pts 𝕩⌾(npts⊸⊑)↩
+    npts+↩1
+  }
 
 #  paths ⇐ p.plist
 #  p.SetPlist⟨⟩
@@ -150,12 +171,12 @@ NSVG__findGradientData ← {𝕊p‿id:
 # returns *NSVGgradient ‿ paintType
 # input: NSVG_parser‿str‿*f‿str
 NSVG__createGradient ← {𝕩‿𝕩.paintType}∘{𝕊p‿id‿localBounds:
-	attr ← p.NSVG__getAttr@
-	ref ← @  # NSVGgradientData*
-	stops ← @  # NSVGgradientStop*
-	nstops ⇐ 0
+  attr ← p.NSVG__getAttr@
+  ref ← @  # NSVGgradientData*
+  stops ← @  # NSVGgradientStop*
+  nstops ⇐ 0
 
-	data ← NSVG__findGradientData p‿id
+  data ← NSVG__findGradientData p‿id
   data≢@?
     # TODO: use ref to fill in all unset values too.
     refIter ← 0
@@ -230,26 +251,26 @@ NSVG__createGradient ← {𝕩‿𝕩.paintType}∘{𝕊p‿id‿localBounds:
 }
 
 NSVG__ptInBounds ← {𝕊pt‿bounds:
-	∧´(≤⟜pt∧pt⊸≤)´2(↑⋈↓)bounds
+  ∧´(≤⟜pt∧pt⊸≤)´2(↑⋈↓)bounds
 }
 
 nsvg_epsilon ← 1e¯12
 
 NSVG__evalBezier ← {𝕊t‿p:
-	u ← ¬t
-	+´0‿3‿3‿0×p××˝⍉[t⋄u]⊏˜4↑≤⌜˜↕3
+  u ← ¬t
+  +´0‿3‿3‿0×p××˝⍉[t⋄u]⊏˜4↑≤⌜˜↕3
 }
 
 NSVG__curveBounds ← {𝕊curve: # returns bounds
-	roots ← 0‿0
-	curve 4‿2⊸⥊↩ # ?
+  roots ← 0‿0
+  curve 4‿2⊸⥊↩ # ?
 
-	# Start the bounding box by end points
-	bounds ← (¯1⊏curve) (⌊∾⌈) ⊏curve
+  # Start the bounding box by end points
+  bounds ← (¯1⊏curve) (⌊∾⌈) ⊏curve
 
-	# Bezier curve fits inside the convex hull of it's control points.
-	# If control points are inside the bounds, we're done.
-	{
+  # Bezier curve fits inside the convex hull of it's control points.
+  # If control points are inside the bounds, we're done.
+  {
     ∧´NSVG__ptInBounds¨(1‿2⊏curve)⋈¨<bounds?
       bounds
   ;
@@ -320,8 +341,8 @@ NSVG__addShape ← ⊢{parser𝕊shape:
   fillRule ⇐ attr.fillRule
   opacity ⇐ attr.opacity
 
-	paths ⇐ p.plist
-	p.SetPList ⟨⟩
+  paths ⇐ p.plist
+  p.SetPList ⟨⟩
 
   # Calculate shape bounds
   bounds ⇐ paths.bounds (⌊○(2⊸↑) ∾ ⌈○(2⊸↓))´ {𝕩.bounds}¨paths.list
@@ -364,10 +385,10 @@ NSVG__addShape ← ⊢{parser𝕊shape:
 
 
 NSVG__parseNameValue ← {𝕊p‿str:
-	name‿value ← ∨`∘=⟜':'⊸(¬⊸/⋈1↓/)str
+  name‿value ← ∨`∘=⟜':'⊸(¬⊸/⋈1↓/)str
   name‿value {𝕩/˜(∨`⌾⌽∧∨`)¬𝕩∊' '∾@+9+↕5}¨↩
 
-	NSVG__parseAttr p‿name‿value
+  NSVG__parseAttr p‿name‿value
 }
 
 NSVG__parseStyle ← {𝕊p‿str:
@@ -381,65 +402,25 @@ NSVG__parseStyle ← {𝕊p‿str:
 NSVG__parseUrl ← {𝕊str:
   ∧`∘≠⟜')'⊸/('#'=⊑)⊸↓"url("⊸∾⁼𝕩
 }
-
-NSVG__parseColorHex ← (∾"0A"+⟜↕¨10‿6){hexChars𝕊str:
-	('#'≡⊑𝕩)∨6=≠1↓𝕩?		# 2 digit hex
-		r‿g‿b ← (16⊸×⊸+˜´·⌽𝕨⊸⊐)˘3‿2⥊'#'∾⁼𝕩
-	;('#'≡⊑𝕩)∨3=≠1↓𝕩?		# 1 digit hex, e.g. #abc -> 0xccbbaa
-		r‿g‿b ← 17×16×𝕨⊐'#'∾⁼𝕩
-	;128‿128‿128
+hexchars ← ∾"0A"+⟜↕¨10‿6
+NSVG__parseColorHex ← {𝕊str:
+  ('#'≡⊑𝕩)∨6=≠1↓𝕩?    # 2 digit hex
+    r‿g‿b ← (16⊸×⊸+˜´·⌽hexChars⊸⊐)˘3‿2⥊'#'∾⁼𝕩
+  ;('#'≡⊑𝕩)∨3=≠1↓𝕩?    # 1 digit hex, e.g. #abc -> 0xccbbaa
+    r‿g‿b ← 17×16×hexChars⊐'#'∾⁼𝕩
+  ;128‿128‿128
 }∘(-⟜(32×1="a{"⊸⍋))
 
 # Parse rgb color. The pointer 'str' must point at "rgb(" (4+ characters).
 # This function returns gray (rgb(128, 128, 128) == '#808080') on parse errors
 # for backwards compatibility. Note: other image viewers return black instead.
-NSVG__parseColorRGB ←{𝕊str:
-  int i;
-  rgbi[3]
-  float rgbf[3];
-  # try decimal integers first
-  if (sscanf(str, "rgb(%u, %u, %u)", &rgbi[0], &rgbi[1], &rgbi[2]) != 3) {
-    # integers failed, try percent values (float, locale independent)
-    delimiter ← ",,)"
-    str "rgb("⊸∾⁼↩ # skip "rgb("
-    {
-      str ∨`∘¬∘NSVG__isspace⊸/↩   # skip leading spaces
-      str '+'⊸≡⟜⊑⊸↓↩ # skip '+' (don't allow '-')
-
-      str≢⟨⟩?
-        rgbf[i] ↩ NSVG__atof str
-
-        # Note 1: it would be great if nsvg__atof() returned how many
-        # bytes it consumed but it doesn't. We need to skip the number,
-        # the '%' character, spaces, and the delimiter ',' or ')'.
-
-        # Note 2: The following code does not allow values like "33.%",
-        # i.e. a decimal point w/o fractional part, but this is consistent
-        # with other image viewers, e.g. firefox, chrome, eog, gimp.
-
-        str ∨`∘¬∘NSVG__isdigit⊸/↩
-        str ∨`∘¬∘∊⟜('0'+↕10)⊸/↩ # skip integer part
-        {𝕤
-          str↓˜↩1
-          "error: no digit after '.'"!str⊑⊸∊'0'+↕10
-          str ∨`∘¬∘∊⟜('0'+↕10)⊸/↩
-        }⍟⊢'.'≡⊑str
-        !'%'≡⊑str
-        str↓˜↩1
-        str ∨`∘¬∘∊⟜(' '∾@+9+↕5)⊸/↩
-        !str ⊑⊸= i⊑delimiter
-        str∾⁼˜i⊑delimiter
-    ;
-      @
-    }¨ (+`×¬)⊸-∘=⟜','⊸⊔ str
-    rgbi ← {i=3?
-      ⌊0.5+2.55×rgbf
-    ;
-      3⥊128
-    }
-  }
+NSVG__parseColorRGB ← {𝕊str:
   # clip values as the CSS spec requires
-  0⌈255⌊rgbi
+  0⌈255⌊⌊2.55⊸×⍟(∨´⌈⊸=) 3⥊⟜128⍟(=⟜≠) ToNums str
+}
+
+NSVG__parseColorName ← {𝕊str:
+  3⥊color •ns.Has◶128‿•ns.Get str
 }
 
 NSVG__parseColor ← {
@@ -451,12 +432,180 @@ NSVG__parseColor ← {
   NSVG__parseColorName 𝕩
 } ∨`∘≠⟜' '⊸/
 
+NSVG__parseOpacity ← {𝕊str:
+  1⌊0⌈•ParseFloat 𝕩
+}
+
+coordinateUnits ← >"px"‿"pt"‿"pc"‿"mm"‿"cm"‿"in"‿"em"‿"ex"‿"% "
+coordUnitsValues ← ⟨
+  nsvg_UNITS_PX
+  nsvg_UNITS_PT
+  nsvg_UNITS_PC
+  nsvg_UNITS_MM
+  nsvg_UNITS_CM
+  nsvg_UNITS_IN
+  nsvg_UNITS_PERCENT
+  nsvg_UNITS_EM
+  nsvg_UNITS_EX
+  nsvg_UNITS_USER # default is last
+⟩ ← ↕10
+!coordUnitsValues≠⊸≡1+≠coordinateUnits
+
+NSVG__parseUnits ← {𝕊units:
+  coordUnitsValues⊏˜coordinateUnits⊐2↑units
+}
+
+NSVG__parseCoordinateRaw ← {𝕊str:
+  unitMask ← ∾⟜0∧`⌾⌽∨˝⍉(2↕str)≡⌜○(<˘)coordinateUnits   # ISSUE HERE, ∊/⍷ being annoying
+  units ⇐ NSVG__parseUnits unitMask/str
+  value ⇐•ParseFloat unitMask¬⊸/str
+}
+
+NSVG__convertToPixels ← {𝕊p‿c‿orig‿length:
+  attr ← p.NSVG__getAttr@
+  {𝕩≡nsvg_units_user?           c.value
+  ;𝕩≡nsvg_units_px?             c.value
+  ;𝕩≡nsvg_units_pt?             c.value × p.dpi ÷ 72
+  ;𝕩≡nsvg_units_pc?             c.value × p.dpi ÷ 6
+  ;𝕩≡nsvg_units_mm?             c.value × p.dpi ÷ 25.4
+  ;𝕩≡nsvg_units_cm?             c.value × p.dpi ÷ 2.54
+  ;𝕩≡nsvg_units_in?             c.value × p.dpi
+  ;𝕩≡nsvg_units_em?             c.value × attr.fontSize
+  ;𝕩≡nsvg_units_ex?             c.value × attr.fontSize × 0.52 # x-height of Helvetica.
+  ;𝕩≡nsvg_units_percent? orig + c.value × length ÷ 100
+  ;                             c.value
+  } c.units
+  c.value
+}
+
+NSVG__parseCoordinate ← {𝕊p‿str‿orig‿length:
+  coord ← NSVG__parseCoordinateRaw str
+  NSVG__convertToPixels p‿coord‿orig‿length
+}
+
+NSVG__actualWidth  ← {𝕊p: p.viewWidth}
+NSVG__actualHeight ← {𝕊p: p.viewHeight}
+
+NSVG__actualLength ← {𝕊p:
+  w ← NSVG__actualWidth p
+  h ← NSVG__actualHeight p
+  (√2)÷˜w+⌾(×˜)h
+}
+
+NSVG__parseStrokeDashArray ← {𝕊p‿str:
+  # Handle "none"
+  'n'≠⊑str?
+
+    # Parse dashes
+    strokeDashArray ← |{𝕊item:
+      NSVG__parseCoordinate⟨p, item, 0, NSVG__actualLength p⟩
+    }¨ (¬-˜⊢×·+`»⊸>)∘¬∘∊⟜(" ,"∾@+9+↕5)⊸⊔ str
+
+    ⟨⟩⍟(1e¯6≥+´) strokeDashArray
+;
+  0
+}
+
+NSVG__parseLineCap ← {
+  "butt":
+    nsvglineCap.nsvg_cap_butt
+  ;"round":
+    nsvglineCap.nsvg_cap_round
+  ;"square":
+    nsvglineCap.nsvg_cap_square
+  # TODO: handle inherit.
+  ; nsvglineCap.nsvg_cap_butt
+}
+
+NSVG__parseLineJoin ← {
+  "miter":
+    nsvglineJoin.nsvg_join_miter
+  ;"round":
+    nsvglineJoin.nsvg_join_round
+  ;"bevel":
+    nsvglineJoin.nsvg_join_bevel
+  # TODO: handle inherit.
+  ; nsvglineJoin.nsvg_join_miter
+}
+
+NSVG__parseMiterLimit ← 0⌈•ParseFloat
+
+NSVG__parseFillRule ← {
+  "nonzero":
+    nsvgfillRule.nsvg_fillrule_nonzero
+  ;"evenodd":
+    nsvgfillRule.nsvg_fillrule_evenodd
+  # TODO: handle inherit.
+  ; nsvgfillRule.nsvg_fillrule_nonzero
+}
+
+NSVG__parseMatrix ← {𝕊str:
+  mat ← NSVG__parseTransformArgs str‿6
+  "Incorrect amount of args to Matrix"!6≡≠mat
+  mat
+}
+
+NSVG__parseTranslate ← {𝕊str:
+  NSVG__xformSetTranslation 2↑NSVG__parseTransformArgs str‿2
+}
+
+NSVG__parseScale ← {𝕊str:
+  args ← 2↑2⊸⥊⍟(1=≠)NSVG__parseTransformArgs str‿2
+  {a‿b:a‿0‿0‿b‿0‿0} args
+}
+
+NSVG__parseSkewX ← {𝕊str: # str→xform
+  args ← NSVG__parseTransformArgs str‿1
+  "Skew accepts only 1 argument"!1=≠args
+  NSVG__xformSetSkewX (π÷180)×⊑args
+}
+
+NSVG__parseSkewY ← {𝕊str:
+  skew ← ⊑1↑NSVG__parseTransformArgs str‿1
+  NSVG__xformSetSkewY skew×π÷180
+}
+
+NSVG__parseRotate ← {𝕊str:
+  args ← 3↑NSVG__parseTransformArgs str‿3
+  nsvg__xformIdentity NSVG__xformMultiply˜´⟨
+    NSVG__xformSetTranslation -1↓args
+    NSVG__xformSetRotation (π÷180)×⊑args
+    NSVG__xformSetTranslation 1↓args
+  ⟩
+}
+NSVG__xformSetRotation ← {𝕊a:
+  [
+    cs‿sn ← (•math.Cos⋈•math.Sin) a
+    ⟨-sn ⋄ cs⟩
+    0‿0
+  ]
+}
+
+
+
+NSVG__parseTransform ← {𝕊str:
+
+  p←+`-˝"()"=⌜str
+  !∧´p∊↕2
+  toParse ← ' '((¬-˜⊢×·+`»⊸>)∘(p∨≠)⊔⊢)str
+
+  transforms ← {
+     "matrix"   (⊣≡≠⊸↑)𝕩? NSVG__parseMatrix 𝕩
+    ;"translate"(⊣≡≠⊸↑)𝕩? NSVG__parseTranslate 𝕩
+    ;"scale"    (⊣≡≠⊸↑)𝕩? NSVG__parseScale 𝕩
+    ;"rotate"   (⊣≡≠⊸↑)𝕩? NSVG__parseRotate 𝕩
+    ;"skewX"    (⊣≡≠⊸↑)𝕩? NSVG__parseSkewX 𝕩
+    ;"skewY"    (⊣≡≠⊸↑)𝕩? NSVG__parseSkewY 𝕩
+    ; nsvg__xformIdentity
+  }¨ toParse
+  nsvg__xformIdentity NSVG__xformMultiply´ transforms
+}
 
 # returns int
 # takes NSVGparser*‿str‿str
 NSVG__parseAttr ← {𝕊p‿name‿value:
-	attr ← p.NSVG__getAttr@ # NSVGattrib*
-	attr≢@?
+  attr ← p.NSVG__getAttr@ # NSVGattrib*
+  attr≢@?
     r ← 1
     {"style":
       NSVG__parseStyle p‿value
@@ -507,8 +656,8 @@ NSVG__parseAttr ← {𝕊p‿name‿value:
     ;"font-size":
       attr.SetFontSize NSVG__parseCoordinate⟨p, value, 0, NSVG__actualLength p⟩
     ;"transform":
-    	xform ← NSVG__parseTransform value
-      attr.SetXForm attr.xform NSVG__xformPremultiply xform
+      xform ← NSVG__parseTransform value
+      attr.SetXForm attr.xform NSVG__xformMultiply˜ xform
     ;"stop-color":
       attr.SetStopColor NSVG__parseColor value
     ;"stop-opacity":
@@ -527,56 +676,56 @@ NSVG__parseAttr ← {𝕊p‿name‿value:
 
 
 NSVG__parseRect ← {𝕊p‿attr: # NSVGParser‿*str
-	x ← 0
-	y ← 0
-	w ← 0
-	h ← 0
-	rx ← ¯1 # marks not set
-	ry ← ¯1
+  x ← 0
+  y ← 0
+  w ← 0
+  h ← 0
+  rx ← ¯1 # marks not set
+  ry ← ¯1
 
-	{𝕊attribute‿val:
-		{𝕤
-			attribute≡"x"?      x ↩  NSVG__parseCoordinate⟨p, val, NSVG__actualOrigX p, NSVG__actualWidth p⟩
-			attribute≡"y"?      y ↩  NSVG__parseCoordinate⟨p, val, NSVG__actualOrigY p, NSVG__actualHeight p⟩
-			attribute≡"width"?  w ↩  NSVG__parseCoordinate⟨p, val, 0,                    NSVG__actualWidth p⟩
-			attribute≡"height"? h ↩  NSVG__parseCoordinate⟨p, val, 0,                    NSVG__actualHeight p⟩
-			attribute≡"rx"?    rx ↩ |NSVG__parseCoordinate⟨p, val, 0,                    NSVG__actualWidth p⟩
-			attribute≡"ry"?    ry ↩ |NSVG__parseCoordinate⟨p, val, 0,                    NSVG__actualHeight p⟩
+  {𝕊attribute‿val:
+    {𝕤
+      attribute≡"x"?      x ↩  NSVG__parseCoordinate⟨p, val, p.viewMinx, NSVG__actualWidth p⟩
+      attribute≡"y"?      y ↩  NSVG__parseCoordinate⟨p, val, p.viewMiny, NSVG__actualHeight p⟩
+      attribute≡"width"?  w ↩  NSVG__parseCoordinate⟨p, val, 0,          NSVG__actualWidth p⟩
+      attribute≡"height"? h ↩  NSVG__parseCoordinate⟨p, val, 0,          NSVG__actualHeight p⟩
+      attribute≡"rx"?    rx ↩ |NSVG__parseCoordinate⟨p, val, 0,          NSVG__actualWidth p⟩
+      attribute≡"ry"?    ry ↩ |NSVG__parseCoordinate⟨p, val, 0,          NSVG__actualHeight p⟩
       ;@
     }⍟¬NSVG__parseAttr⟨p⟩∾𝕩
-	}˘⍉attr
+  }˘⍉attr
 
-	{𝕊:rx ↩ ry}⍟⊢ (rx<0) ∧ ry>0
-	{𝕊:ry ↩ rx}⍟⊢ (ry<0) ∧ rx>0
-	{𝕊:rx ↩ 𝕩}⍟(rx⊸<) 0
-	{𝕊:ry ↩ 𝕩}⍟(ry⊸<) 0
-	{𝕊:rx ↩ 𝕩}⍟(rx⊸>) w÷2
-	{𝕊:ry ↩ 𝕩}⍟(ry⊸>) h÷2
+  {𝕊:rx ↩ ry}⍟⊢ (rx<0) ∧ ry>0
+  {𝕊:ry ↩ rx}⍟⊢ (ry<0) ∧ rx>0
+  {𝕊:rx ↩ 𝕩}⍟(rx⊸<) 0
+  {𝕊:ry ↩ 𝕩}⍟(ry⊸<) 0
+  {𝕊:rx ↩ 𝕩}⍟(rx⊸>) w÷2
+  {𝕊:ry ↩ 𝕩}⍟(ry⊸>) h÷2
 
-	{𝕤
-		NSVG__resetPath p
-		{∨´rx‿ry<1e¯5‿1e¯4?
-			NSVG__moveTo⟨p, x, y⟩
-			NSVG__lineTo⟨p, x+w, y⟩
-			NSVG__lineTo⟨p, x+w, y+h⟩
-			NSVG__lineTo⟨p, x, y+h⟩
-		;
-			# Rounded rectangle
-			NSVG__moveTo⟨p, x+rx, y⟩
-			NSVG__lineTo⟨p, x+w-rx, y⟩
-			NSVG__cubicBezTo⟨p, (x+w)-rx×¬NSVG_KAPPA90, y, x+w, y+ry×¬nsvg_KAPPA90, x+w, y+ry⟩
-			NSVG__lineTo⟨p, x+w, (y+h)-ry⟩
-			NSVG__cubicBezTo⟨p, x+w, (y+h)-ry×¬nsvg_KAPPA90, (x+w)-rx×¬nsvg_KAPPA90, y+h, (x+w)-rx, y+h⟩
-			NSVG__lineTo⟨p, x+rx, y+h⟩
-			NSVG__cubicBezTo⟨p, (x+rx)×¬nsvg_KAPPA90, y+h, x, (y+h)-ry×¬nsvg_KAPPA90, x, (y+h)-ry⟩
-			NSVG__lineTo⟨p, x, y+ry⟩
-			NSVG__cubicBezTo⟨p, x, (y+ry)×¬nsvg_KAPPA90, (x+rx)×¬nsvg_KAPPA90, y, x+rx, y⟩
-		}
+  {𝕤
+    p.NSVG__resetPath@
+    {∨´rx‿ry<1e¯5‿1e¯4?
+      p.NSVG__moveTo x‿y
+      p.NSVG__lineTo⟨x+w, y⟩
+      p.NSVG__lineTo⟨x+w, y+h⟩
+      p.NSVG__lineTo⟨x, y+h⟩
+    ;
+      # Rounded rectangle
+      p.NSVG__moveTo⟨x+rx, y⟩
+      p.NSVG__lineTo⟨x+w-rx, y⟩
+      p.NSVG__cubicBezTo⟨(x+w)-rx×¬nsvg_KAPPA90, y, x+w, y+ry×¬nsvg_KAPPA90, x+w, y+ry⟩
+      p.NSVG__lineTo⟨x+w, (y+h)-ry⟩
+      p.NSVG__cubicBezTo⟨x+w, (y+h)-ry×¬nsvg_KAPPA90, (x+w)-rx×¬nsvg_KAPPA90, y+h, (x+w)-rx, y+h⟩
+      p.NSVG__lineTo⟨x+rx, y+h⟩
+      p.NSVG__cubicBezTo⟨(x+rx)×¬nsvg_KAPPA90, y+h, x, (y+h)-ry×¬nsvg_KAPPA90, x, (y+h)-ry⟩
+      p.NSVG__lineTo⟨x, y+ry⟩
+      p.NSVG__cubicBezTo⟨x, (y+ry)×¬nsvg_KAPPA90, (x+rx)×¬nsvg_KAPPA90, y, x+rx, y⟩
+    }
 
-		p.NSVG__addPath p‿1
+    p.NSVG__addPath p‿1
 
-		p.NSVG__addShape
-	}⍟⊢∧´0≠w‿h
+    p.NSVG__addShape
+  }⍟⊢∧´0≠w‿h
 }
 
 NSVG__parseCircle ← •Show
