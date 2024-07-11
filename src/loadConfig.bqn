@@ -68,8 +68,8 @@ newExports ← {
     "darwin":
       default ← "/usr/local"
       # Using •BQN because CBQN on windows doesn't have the •SH system function
-      exitcode‿stdout‿stderr ← ⟨•path⟩ •BQN "•SH ""brew""‿""--prefix""‿""raylib"""
-      p ← ∾⟜"/include/raylib.h"¨"../raylib"⋈(nl⊸≠⊸/stdOut)⍟(exitcode≡0)default
+      exitcode‿stdout‿· ← •SH⎊1‿⟨⟩‿@ "brew"‿"--prefix"‿"raylib"
+      p ← •file.At⟜"include/raylib.h"¨"../raylib"⋈(exitcode≡0)⊑default⋈nl⊸≠⊸/stdOut
       (∨´m←Exists¨p)!˜err∾"Couldn't find file raylib.h at paths:"∾∾nl∾¨p
       " ⇐ •file.At "∾•Repr ⊑m/p
   ;
