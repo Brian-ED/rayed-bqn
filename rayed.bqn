@@ -474,18 +474,19 @@ draw ← {
     NeedsWindow@
     raylib.BeginDrawing⟨⟩
   }
-  # Draw background
+  # draw.Background
   Background ← {𝕊r‿g‿b‿a:
     NeedsWindow@
     (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
     "Background: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
     raylib.ClearBackground 𝕩
   }
-  # End drawing
+  # draw.End
   End ← {𝕤
     NeedsWindow@
     raylib.EndDrawing⟨⟩
   }
+
   # These aren't recommended because they are useless if you use _withCanvas_.
   # They also don't behave well if ran in the wrong order,
   # you only want to run them in the "start, background, end" sequence
@@ -561,12 +562,10 @@ StartClock ← {𝕊@:
   ⟩⇐
 
   # time is relative to when you started the clock
-  # clock.startTime
-  startTime ⇐ •MonoTime@
   lastTime ← 0
-
-  delta ⇐ 0
-  frame ⇐ 0
+  startTime ⇐ •MonoTime@ # clock.startTime
+  delta ⇐ 0 # clock.delta
+  frame ⇐ 0 # clock.frame
 
   # clock.Time
   Time ⇐ {𝕊:startTime-˜•Monotime@}
