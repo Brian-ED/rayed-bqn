@@ -1,4 +1,4 @@
-# Credit to coolpeanut (discord username) 
+# Credit to coolpeanut (discord username)
 # they are the original creator of this example
 
 ⟨c⇐color,window,d⇐draw,m⇐mouse⟩←r←•Import "../../rayed.bqn"
@@ -15,7 +15,7 @@ step ← 0.2÷5
 Start ← {𝕊tex:
     font ← r.font.LoadBQN 100
 
-    size ← ⌊(window.GetSize @) ÷ scale
+    size ← ⌊(window.GetSize@) ÷ scale
     center ← ⌊size÷2
     w‿h ← size
 
@@ -28,11 +28,11 @@ Start ← {𝕊tex:
 
         c.white‿tex‿scale‿0 d.Texture 0‿0
         c.white‿font‿30 d.Text 20‿20⋈•Repr∘window.GetFPS⊸∾" FPS"
-        
+
         frame+↩1
         𝕩
     }d._withCanvas_ c.black
-    
+
     App ← PerFrame •_While_(¬window.ShouldClose)
 
     App r.texture._WithImage (size∾4)⥊255
