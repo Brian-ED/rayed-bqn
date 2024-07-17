@@ -15,11 +15,11 @@ PerFrame ← {𝕤
   # mouse pos floored
   pos←r.mouse.GetPos@
    red     draw.Ellipse   cir⊸+⊸≍  pos-cir÷2
-  {white   draw.Rectangle rec⊸+⊸≍𝕩+pos-rec÷2}˘outerRecs 
+  {white   draw.Rectangle rec⊸+⊸≍𝕩+pos-rec÷2}˘outerRecs
   # color, shape,         positions
   # this drawing function is being used to draw on a black canvas
 } draw._withCanvas_ black
 
-PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!" 
-# run PerFrame while condition is true, and run this with the window opened as "Hello!!!" 
-# if window should close, close it  ¯\_(ツ)_/¯ 
+PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!"
+# run PerFrame while condition is true, and run this with the window opened as "Hello!!!"
+# if window should close, close it  ¯\_(ツ)_/¯
