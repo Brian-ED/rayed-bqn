@@ -38,7 +38,7 @@ Game ← {𝕤
   ;k.left≡ky?  s‿f∾N p
   ;k.right≡ky? s‿f∾A p
   ;(k.v≡ky)∧IsD k.leftControl?
-    clipS ← MkUTF Strlen⊸⋈ r.raylib.GetClipboardText@
+    clipS ← MkUTF Strlen⊸⋈ r.raylib.GetClipboardText⟨⟩
     ⟨p(↑∾clipS∾↓)s,f,p+≠clipS⟩
   ;s‿f‿p
   }}
@@ -63,12 +63,4 @@ Game ← {𝕤
 window.SetSize 0.5
 Game window._openAs "BQN Repl"
 
-# white _Rectangle˜100‿100˙
-# Back@
-# frame←pos←wheel←0
-# {𝕊:frame(100|+)↩1}
-# {𝕤
-#   q←∾˘˘⟜⌽1‿¯1-⊸≍⊸×|0‿100-frame # Morphing
-#   s←∾˘˘˝q⊸+˘⍷⌽˘⊸∾100×0∾˘¬↕3    # duping
-#   white EO r.mouse.GetPos⊸+s   # moving + drawing
-# }
+# white Rectangle [100‿100⋄200‿400]˙
