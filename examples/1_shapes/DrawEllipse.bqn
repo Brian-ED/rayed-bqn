@@ -1,11 +1,10 @@
 ⟨⟨white, black⟩⇐color⟩←r←•Import "../../rayed.bqn"
 
 PerFrame ← {
-  pos ← r.mouse.GetPos@
-  q←∾˘˘⟜⌽1‿¯1-⊸≍⊸×|0‿100-𝕩               # Morphing
-  s←⍉˘⍉⁼∾˘˘˝q⊸+˘⍷⌽˘⊸∾100×0∾˘¬↕3          # duping
-  (white r.draw.EllipseOutline pos⊸+˘)˘s # moving + drawing
-  poses ← [pos,400‿300,300‿300]
+  pos ← r.mouse.GetPos@    # Position
+  q←∾˘˘⟜⌽1‿¯1-⊸≍⊸×|0‿100-𝕩 # Morphing
+  s←q⊸+˘[0‿0⋄100‿0⋄0‿100⋄¯100‿0⋄0‿¯100] # duping
+  (white r.draw.EllipseOutline·⍉pos+⊢)˘˘⍉⁼s # moving + drawing
   100|𝕩+1
 }r.draw._withCanvas_ black
 

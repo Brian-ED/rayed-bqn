@@ -5,8 +5,8 @@
 # sizes of the shapes
 rec←60 ⋄ cir←400
 # positions of the squares
-distFromMiddle ← 170
-outerRecs ← distFromMiddle×¯1+2×>⥊↕2‿2
+distanceFromMiddle ← 170
+outerRecs ← distanceFromMiddle×¯1+2×>⥊↕2‿2
 
 # sets window size to half the monitor size
 window.SetSize 0.5
@@ -22,4 +22,4 @@ PerFrame ← {𝕤
 
 PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!"
 # run PerFrame while condition is true, and run this with the window opened as "Hello!!!"
-# if window should close, close it  ¯\_(ツ)_/¯
+# if window should close, close it

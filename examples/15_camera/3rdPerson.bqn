@@ -12,7 +12,7 @@ cameraIndex ← {
 }
 
 # Generates some random columns
-heights ← 1+•rand.Range¨max_columns⥊13 
+heights ← 1+•rand.Range¨max_columns⥊13
 positions ← <˘⍉[¯15+•rand.Range¨max_columns⥊30, max_columns⥊max_columns÷2, ¯15+•rand.Range¨max_columns⥊30]
 colors ← ⍉[
   20+•rand.Range¨max_columns⥊235
@@ -106,7 +106,7 @@ PerFrame←{𝕊camera‿cameraMode:
     rf.DrawRectangleLines⟨5, 5, 530, 150, color.blue⟩
 
     TextJ←{y𝕊t:rf.DrawText⟨t,15,y,20,color.black⟩}
-    
+
     ⟨
       TextJ⟜"Camera controls:"
       TextJ⟜"- Move keys: W, A, S, D, Space, Left-Ctrl"
@@ -119,7 +119,7 @@ PerFrame←{𝕊camera‿cameraMode:
     rf.DrawRectangleLines⟨600, 5, 195, 100, color.blue⟩
 
     rf.DrawText⟨"Camera status:", 610, 15, 10, color.black⟩
-    
+
     modeText ← {
       [a,b] ← ⍉[
         rf.cameraMode.camera_free        ‿"FREE"
@@ -162,7 +162,7 @@ PerFrame∘{𝕤
     rf.cameraProjection.camera_perspective # Camera projection type
   ⟩
   # Define the camera to look into our 3d world (position, target, up vector)
-  cameraMode ← rf.cameraMode.camera_first_person
+  cameraMode ← rf.cameraMode.camera_free
 
   camera‿cameraMode
 } rl.window._openAs "raylib [core] example - 3d camera first person"

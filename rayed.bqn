@@ -9,7 +9,7 @@
 ⟨
   draw, texture, monitor, window, mouse
   font, key, clipboard, StartClock
-  sound, bqnoise, raymath, image, low, log
+  sound, bqnoise, raymath, image, model, low, log
 ⟩⇐
 
 ⟨
@@ -86,7 +86,7 @@ texture ← {
   Load ← {𝕊filePath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
     {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)𝕩
-    {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
+    {𝕊:!"Couldn't find file at "∾filePath}⍟¬•file.Exists 𝕩   #TODO verify if the error message errors when file doesn't exist.
     raylib.LoadTexture 𝕩
   }
   # texture.Unload
@@ -519,7 +519,7 @@ font ← {
     }
     ·‿filePath ← 𝕩
     {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)filePath
-    {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists filePath
+    {𝕊:!"Couldn't find file at "∾filePath}⍟¬•file.Exists filePath
 
     IsFont raylib.LoadFontEx 𝕨F𝕩
   }
@@ -671,7 +671,7 @@ sound ⇐ {
     # sound.wave.LoadFromFile
     LoadFromFile ⇐ {𝕊filePath:
       {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)𝕩
-      {𝕊:!"Couldn't find file at "∾•file.RealPath filePath}⍟¬•file.Exists 𝕩
+      {𝕊:!"Couldn't find file at "∾filePath}⍟¬•file.Exists 𝕩
 
       bqnSound ← {
         freq‿format‿bqnSound ← bqnoise.ReadFull filePath
@@ -797,44 +797,10 @@ key ← {
   minus         ⇐ 45       # -
   period        ⇐ 46       # .
   slash         ⇐ 47       # /
-  zero          ⇐ 48       # 0
-  one           ⇐ 49       # 1
-  two           ⇐ 50       # 2
-  three         ⇐ 51       # 3
-  four          ⇐ 52       # 4
-  five          ⇐ 53       # 5
-  six           ⇐ 54       # 6
-  seven         ⇐ 55       # 7
-  eight         ⇐ 56       # 8
-  nine          ⇐ 57       # 9
+  zero‿one‿two‿three‿four‿five‿six‿seven‿eight‿nine ⇐ 48+↕10 # 0-9
   semicolon     ⇐ 59       # ;
   equal         ⇐ 61       # =
-  a             ⇐ 65       # A | a
-  b             ⇐ 66       # B | b
-  c             ⇐ 67       # C | c
-  d             ⇐ 68       # D | d
-  e             ⇐ 69       # E | e
-  f             ⇐ 70       # F | f
-  g             ⇐ 71       # G | g
-  h             ⇐ 72       # H | h
-  i             ⇐ 73       # I | i
-  j             ⇐ 74       # J | j
-  k             ⇐ 75       # K | k
-  l             ⇐ 76       # L | l
-  m             ⇐ 77       # M | m
-  n             ⇐ 78       # N | n
-  o             ⇐ 79       # O | o
-  p             ⇐ 80       # P | p
-  q             ⇐ 81       # Q | q
-  r             ⇐ 82       # R | r
-  s             ⇐ 83       # S | s
-  t             ⇐ 84       # T | t
-  u             ⇐ 85       # U | u
-  v             ⇐ 86       # V | v
-  w             ⇐ 87       # W | w
-  x             ⇐ 88       # X | x
-  y             ⇐ 89       # Y | y
-  z             ⇐ 90       # Z | z
+  a‿b‿c‿d‿e‿f‿g‿h‿i‿j‿k‿l‿m‿n‿o‿p‿q‿r‿s‿t‿u‿v‿w‿x‿y‿z ⇐ 65+↕26 # A-Z | a-z
   left_bracket  ⇐ 91       # [
   backslash     ⇐ 92       # \
   right_bracket ⇐ 93       # ]
@@ -860,18 +826,7 @@ key ← {
   scroll_lock   ⇐ 281      # Scroll down
   print_screen  ⇐ 283      # Print screen
   pause         ⇐ 284      # Pause
-  f1            ⇐ 290      # F1
-  f2            ⇐ 291      # F2
-  f3            ⇐ 292      # F3
-  f4            ⇐ 293      # F4
-  f5            ⇐ 294      # F5
-  f6            ⇐ 295      # F6
-  f7            ⇐ 296      # F7
-  f8            ⇐ 297      # F8
-  f9            ⇐ 298      # F9
-  f10           ⇐ 299      # F10
-  f11           ⇐ 300      # F11
-  f12           ⇐ 301      # F12
+  f1‿f2‿f3‿f4‿f5‿f6‿f7‿f8‿f9‿f10‿f11‿f12 ⇐ 290+↕12 # F1 - F12
   left_shift    ⇐ 340      # Shift left
   left_control  ⇐ 341      # Control left
   left_alt      ⇐ 342      # Alt left
@@ -884,16 +839,7 @@ key ← {
 
   keypad ⇐ {
     num_lock    ⇐ 282      # Num lock
-    zero        ⇐ 320      # Keypad 0
-    one         ⇐ 321      # Keypad 1
-    two         ⇐ 322      # Keypad 2
-    three       ⇐ 323      # Keypad 3
-    four        ⇐ 324      # Keypad 4
-    five        ⇐ 325      # Keypad 5
-    six         ⇐ 326      # Keypad 6
-    seven       ⇐ 327      # Keypad 7
-    eight       ⇐ 328      # Keypad 8
-    nine        ⇐ 329      # Keypad 9
+    zero‿one‿two‿three‿four‿five‿six‿seven‿eight‿nine←320+↕10 # Keypad 0-9
     decimal     ⇐ 330      # Keypad .
     divide      ⇐ 331      # Keypad /
     multiply    ⇐ 332      # Keypad *
@@ -909,6 +855,48 @@ key ← {
     volume_down ⇐ 25       # volume down button
   }
 }
+
+# model
+model ← {
+  ⟨LoadFile ⋄ Unload ⋄ Draw⟩⇐
+
+  # model.LoadFile
+  LoadFile ← {𝕊filePath:
+    {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)𝕩
+    {!"Couldn't find file at "∾𝕩}⍟(¬•file.Exists) 𝕩   #TODO verify if the error message errors when file doesn't exist.
+
+    raylib.LoadModel •file.At 𝕩
+  }
+
+  # model.Unload
+  # Unload model (including meshes) from memory (RAM and/or VRAM)
+  Unload ← {𝕊:
+    "model.Unload: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iinnninn"∾˜<16⥊'i'
+    raylib.UnloadModel 𝕩
+  }
+
+  # model.Draw
+  Draw ← {𝕨𝕊model‿position‿scale‿tint:
+    rotationAxis‿rotationAngle←𝕨⊣0‿1‿0⋈0
+    scale ⥊˜↩ 3
+    {
+      "model.Draw: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨
+        "iii"⋄"iii"⋄"iinnninn"∾˜<16⥊'i'⋄"iii"⋄"iii"⋄'i'
+      ⟩
+      raylib.DrawModelEx 𝕩
+    } rotationAxis‿rotationAngle‿model‿position‿scale‿tint
+  }
+
+
+
+  # TODO
+  # loadModelFromMesh
+  # getModelBoundingBox
+  # drawModelWires
+  # drawModelWiresEx
+}
+
+
 
 
 # # TODO add IsImage, IsTexture etc for error checks
@@ -1145,16 +1133,6 @@ key ← {
 # drawPlane
 # drawRay
 # drawGrid
-#
-# # models
-# loadModel
-# loadModelFromMesh
-# unloadModel
-# getModelBoundingBox
-# drawModel
-# drawModelEx
-# drawModelWires
-# drawModelWiresEx
 #
 # # no idea
 # drawBoundingBox
