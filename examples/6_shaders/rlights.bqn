@@ -10,23 +10,6 @@
   ⟩⇐raylib
 ⟩ ← rl ← •Import "../../rayed.bqn"
 
-# Light data
-light ⇐ '{'∾'}'«∾','∾¨⟨
-  "i32"    # type
-  "i8"     # enabled
-  "[3]f32" # position
-  "[3]f32" # target
-  "[4]u8"  # color
-  "f32"    # attenuation
-  
-  # Shader locations
-  "i32" # enabledLoc
-  "i32" # typeLoc
-  "i32" # positionLoc
-  "i32" # targetLoc
-  "i32" # colorLoc
-  "i32" # attenuationLoc
-⟩
 lightIndex ⇐ {
   type        ⇐ 0
   enabled     ⇐ 1
@@ -34,7 +17,7 @@ lightIndex ⇐ {
   target      ⇐ 3
   color       ⇐ 4
   attenuation ⇐ 5
-  
+
   # Shader locations
   enabledLoc     ⇐ 6
   typeLoc        ⇐ 7
@@ -70,7 +53,7 @@ CreateLight ← {𝕊type‿position‿target‿color‿shader: # i v3 v3 Color 
     target   # target
     color    # color
     0        # attenuation
-  
+
     # Shader locations
     # NOTE: Lighting shader naming must be the provided ones
     GetShaderLoc "enabled"
@@ -83,7 +66,7 @@ CreateLight ← {𝕊type‿position‿target‿color‿shader: # i v3 v3 Color 
 }
 
 # Send light properties to shader
-# NOTE: Light shader locations should be available 
+# NOTE: Light shader locations should be available
 
 UpdateLightValues ← {shader𝕊⟨
     # Send to shader light enabled state and type
@@ -114,7 +97,7 @@ UpdateLightValues ← {shader𝕊⟨
   }
   {
     # [3]f32
-    ptr ← MemAlloc 4×3 
+    ptr ← MemAlloc 4×3
     (F32ToI8 position) ReadI8 ptr
     SetShaderValue⟨shader, positionLoc, ptr, SHADER_UNIFORM_VEC3⟩ # Send to shader light position values
   }
