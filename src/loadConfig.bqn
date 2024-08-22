@@ -75,9 +75,10 @@ newExports ← {
       " ⇐ •file.At "∾•Repr ⊑m/p
   ;
     "linux":
-      p←"/usr/local/include/raylib.h"
-      (Exists p)!˜err∾"Couldn't find raylib.h file at path: "∾p
-      " ⇐ "∾•Repr p
+      p←"/usr/local"‿"../raylib" •file.At¨<"include/raylib.h"
+      m←Exists¨p
+      (∨´m)!˜err∾"Couldn't find raylib.h file at path: "∾∾nl∾¨p
+      " ⇐ "∾•Repr⊑m/p
   }•platform.os
 ;
   !"Attempted to implement non-existant config: "∾𝕩
