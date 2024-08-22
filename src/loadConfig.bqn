@@ -55,9 +55,10 @@ newExports ← {
       " ⇐ •file.At "∾•Repr ⊑m/p
   ;
     "linux":
-      p←"/usr/local/lib/libraylib.so"
-      (Exists p)!˜err∾"Couldn't find libraylib.so file at path: "∾p
-      " ⇐ "∾•Repr p
+      p←"/usr/local"‿"../raylib"•file.At¨<"lib/libraylib.dylib"
+      m←Exists¨p
+      (∨´m)!˜err∾"Couldn't find libraylib.so file at paths: "∾∾nl∾¨p
+      " ⇐ "∾•Repr⊑m/p
   }•platform.os
 ; "raylibheaderpath": 𝕩∾{
     "windows":
