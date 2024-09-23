@@ -773,17 +773,17 @@ sound ⇐ {
     raylib.LoadSoundFromWave 𝕩
   } wave._withFile
   # sound.Play
-  Play  ⇐ {
+  Play  ⇐ {𝕊sound:
     NeedsAudio@
     raylib.PlaySound 𝕩
   }
   # sound.Stop
-  Stop  ⇐ {
+  Stop  ⇐ {𝕊sound:
     NeedsAudio@
     raylib.StopSound 𝕩
   }
   # sound.Pause
-  Pause ⇐ {
+  Pause ⇐ {𝕊sound:
     NeedsAudio@
     raylib.PauseSound𝕩
   }
@@ -798,20 +798,22 @@ sound ⇐ {
     raylib.IsSoundPlaying 𝕩
   }
   # sound.SetVolume
-  SetVolume ⇐ {𝕊
+  SetVolume ⇐ {volume𝕊sound:
+    "Volume must be a number"!0≡•Type𝕨
     NeedsAudio@
-    raylib.SetSoundVolume𝕩
+    raylib.SetSoundVolume 𝕩‿𝕨
   }
   # sound.SetPitch
-  SetPitch ⇐ {𝕊
+  SetPitch ⇐ {pitch𝕊sound:
+    "Pitch must be a number"!0≡•Type𝕨
     NeedsAudio@
-    raylib.SetSoundPitch𝕩
+    raylib.SetSoundPitch 𝕩‿𝕨
   }
   # sound.SetPan
   SetPan ⇐ {pan𝕊sound:
-    NeedsAudio@
     "Pan must be a number"!0≡•Type𝕨
-    raylib.SetSoundPan𝕩‿𝕨
+    NeedsAudio@
+    raylib.SetSoundPan 𝕩‿𝕨
   }
   # sound.Unload
   Unload ⇐ raylib.UnloadSound
