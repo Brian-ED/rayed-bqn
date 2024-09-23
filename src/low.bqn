@@ -16,6 +16,8 @@ makeI32  ⇐ @•FFI "a"  ‿"bqn_makeI32Vec" ‿"𝕨>u64"  ‿">*:i8" #   NumC
 makeUTF8 ⇐ @•FFI "a"  ‿"bqn_makeUTF8Str"‿"𝕨>u64"  ‿">*:i8" #     length 𝕊 pointer # turn string at pointer into a bqn string
 strLen   ⇐ @•FFI "i32"‿"strlen"         ‿">*:i8"           #            𝕊 pointer # length of unicode C-string
 
+null ⇐ ⟨⟩⋈˜⁼(@•FFI"*"‿"memcpy"‿"*:i8"‿"&i8"‿"u64"){𝔽}⟨8⥊0,⟨⟩,0⟩
+
 IsNull ⇐ (@•FFI"*:i8"‿"memcpy"‿"*"‿"&i8"‿"u64"){
   (8⥊0)≡⟨⟩⋈˜⁼𝔽⟨𝕩,⟨⟩,0⟩
 }
@@ -27,3 +29,12 @@ MakeF32 ⇐ (@•FFI"*:i8"‿"memcpy"‿"&f32"‿"*i8"‿"u64"){
 }
 
 F32ToI8 ⇐ (@•FFI"*:i8"‿"memcpy"‿"&i8"‿"*f32"‿"u64"){1⊑𝔽⟨(4×≠𝕩)⥊0, 𝕩, 4×≠𝕩⟩}
+
+AllocNeeded ← {
+  Alloc ← 𝕏
+  AllocCStr ⇐ {𝕊str:
+    p ← (Alloc 1+≠str).Cast "i8"
+    (↕1+≠𝕩)p.Write¨ @-˜𝕩∾@
+    p
+  }
+}
