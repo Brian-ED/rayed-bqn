@@ -9,13 +9,13 @@
 # B ← 0∾logoSize-outlineWidth
 # C ← ⌽B
 # D ← ∾˜logoSize-outlineWidth
-#   A ###B 
-#     ###  
+#   A ###B
+#     ###
 #   ##   ##
 #   ##   ##
 #   ##   ##
-#   C ###D 
-#     ###  
+#   C ###D
+#     ###
 
 # if enabled: press the left and right keys to move forward and backward through animation, space for slowdown
 debug ← 1
@@ -60,12 +60,12 @@ LogoAnimation ← {𝕊background:
     # Letters appearing (one by one)
     # Every 12 frames, one more letter!
     lettersCount ← ⌊frame÷12
-    
+
     # When all letters have appeared, just fade out everything
     alpha ← ⌊0⌈255⌊255-30×10-˜frame÷12
     (alpha⌾(¯1⊸⊑) color.black)    RecAtLogo ⌽⊸≍0‿logoSize          # outer black
     (alpha⌾(¯1⊸⊑) color.raywhite) RecAtLogo ⌽⊸≍outlineWidth‿btmrht # inner white of logo
-    
+
     # text
     (alpha⌾(¯1⊸⊑) color.black)‿font‿50 draw.Text ⟨
       Logoposition⊸+84‿176
