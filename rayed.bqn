@@ -4,12 +4,18 @@
 
 # x and y as variables (also x1 y1, x2 y2 etc) are always positions
 
+# Wrapping rayed.bqn as a namespace.
+# This is so that libs that require rayed.bqn as dependency,
+# can still live in rayed.bqn.
+{𝕩.StartUp𝕩⋄𝕩}{
+StartUp ⇐ {𝕩⊣camera ↩ 𝕩 •Import "src/camera.bqn"}
+
 # -------
 # Exports
 ⟨
   draw, texture, monitor, window, mouse
   font, key, clipboard, StartClock
-  sound, bqnoise, raymath, image, model, low, log
+  sound, bqnoise, raymath, camera, image, model, low, log
 ⟩⇐
 
 ⟨
@@ -53,6 +59,7 @@ image   ← •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
 bqnoise ← •Import "imports/BQNoise/wav.bqn"
 bqnoiseOptions ← •Import "imports/BQNoise/options.bqn"
+camera ← @ # has rayed.bqn as a dependency. Defined in Startup function.
 # -------
 
 # Utils:
@@ -81,7 +88,7 @@ log ← {
 }
 
 texture ← {
-  ⟨ Load ⋄ Unload ⋄ _WithImage ⋄ _withFile ⋄ _WithRayImage ⟩⇐
+  ⟨ Load ⋄ Unload ⋄ LoadFromImage ⋄ _WithImage ⋄ _withFile ⋄ _WithRayImage ⟩⇐
   # texture.Load
   Load ← {𝕊filePath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
@@ -103,6 +110,7 @@ texture ← {
     NeedsWindow@
     (Unload⊢𝔽)raylib.LoadTextureFromImage image._AsRayImg 𝕩
   }
+  LoadFromImage ← raylib.LoadTextureFromImage image._AsRayImg⊣NeedsWindow
 }
 monitor ← {
   ⟨Selected ⋄ Count
@@ -176,13 +184,19 @@ window ← {
 
   # Get the x‿y position of the window   (relative to current monitor?)
   # window.GetPos
-  GetPos ← {raylib.GetWindowPosition⟨⟩⊣NeedsWindow𝕩}
+  GetPos ← {𝕊:isopen?
+    raylib.GetWindowPosition⟨⟩
+  ;
+    pos
+  }
 
   # Set the x‿y position of the window   (relative to current monitor?)
   # window.SetPos
-  SetPos ← {
-    NeedsWindow@
-    raylib.SetWindowPosition𝕩
+  pos ← 0‿0
+  SetPos ← {isopen?
+    raylib.SetWindowPosition⊸⊢𝕩
+  ;
+    pos ↩ 𝕩
   }
 
   # tempSize is used to store size until window is open
@@ -192,7 +206,7 @@ window ← {
   # window.SetSize
   SetSize ← {𝕊size:
     ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
-    ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scaler (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
+    ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scalar (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
     isOpen?
       s ← (raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight) raylib.GetCurrentMonitor⟨⟩
       f ← (1⊸>∧0⊸≤)𝕩
@@ -216,13 +230,11 @@ window ← {
   # window.Open
   Open ⇐ {𝕊 title:
     (¬isOpen)!˜"The window cannot be opened twice"
-    raylib.SetConfigFlags 2⊸×⊸+˜´ GetState@
-    raylib.InitWindow 0‿0‿𝕩
-    raylib.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
-
-    !raylib.IsWindowReady⟨⟩
+    raylib.SetConfigFlags flags←2⊸×⊸+˜´GetState@
+    raylib.InitWindow pos∾<𝕩
     isOpen↩1
-
+#    raylib.SetWindowState flags # I don't think this works
+    SetFullscreen fullscreen # Probably  not needed??
     SetSize tempSize
 
     raylib.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
@@ -243,7 +255,7 @@ window ← {
     𝕩⊣isOpen↩0
   }
   # window.OpenAs
-  _openAs ← {App _𝕣 title: size←𝕨⊣1
+  _openAs ← {App _𝕣 title:
     Open 𝕩
     Close⊸⊢𝔽@
   }
@@ -294,10 +306,11 @@ window ← {
 
   # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
   # window state not available on some platforms so will replace clear‿set with other functions like ToggleFullscreen
+  IWS ← raylib.IsWindowState
   cs ← raylib.ClearWindowState‿raylib.SetWindowState
   cf ← configFlags
 
-  SetFullscreen        ⇐ {!⊑𝕩∊↕2 ⋄ fullscreen        ↩ 𝕩 ⊣ raylib.ToggleFullscreen∘⟨⟩⍟⊢isopen∧𝕩≠IsFullscreen@} # window.SetFullscreen
+  SetFullscreen        ⇐ {!⊑𝕩∊↕2 ⋄ fullscreen        ↩ 𝕩 ⊣ raylib.ToggleFullscreen∘⟨⟩⍟(𝕩≠IWS)⍟isopen cf.fullscreen_mode} # window.SetFullscreen
   SetResizable         ⇐ {!⊑𝕩∊↕2 ⋄ resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         } # window.SetResizable
   SetDecorated         ⇐ {!⊑𝕩∊↕2 ⋄ decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       } # window.SetDecorated
   SetTransparent       ⇐ {!⊑𝕩∊↕2 ⋄ transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       } # window.SetTransparent
@@ -313,43 +326,40 @@ window ← {
   SetMousePassThrough  ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
   SetInterlacedhint    ⇐ {!⊑𝕩∊↕2 ⋄ interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
 
-  IWS ← raylib.IsWindowState
-  IsFullscreen        ⇐ {𝕊: isOpen? IWS cf.fullscreen_mode          ; fullscreen        }
-  IsResizable         ⇐ {𝕊: isOpen? IWS cf.window_resizable         ; resizable         }
-  IsDecorated         ⇐ {𝕊: isOpen? IWS cf.window_undecorated       ; decorated         }
-  IsTransparent       ⇐ {𝕊: isOpen? IWS cf.window_transparent       ; transparent       }
-  IsMsaa4xhint        ⇐ {𝕊: isOpen? IWS cf.msaa4xhint               ; msaa4xhint        }
-  IsVsyncHint         ⇐ {𝕊: isOpen? IWS cf.vsync_hint               ; vsyncHint         }
-  IsHidden            ⇐ {𝕊: isOpen? IWS cf.window_hidden            ; hidden            }
-  IsRunWhileMinimized ⇐ {𝕊: isOpen? IWS cf.window_always_run        ; runWhileMinimized }
-  IsMinimized         ⇐ {𝕊: isOpen? IWS cf.window_minimized         ; minimized         }
-  IsMaximized         ⇐ {𝕊: isOpen? IWS cf.window_maximized         ; maximized         }
-  IsFocused           ⇐ {𝕊: isOpen? IWS cf.window_unfocused         ; focused           }
-  IsTopmost           ⇐ {𝕊: isOpen? IWS cf.window_topmost           ; topmost           }
-  IsHighDPI           ⇐ {𝕊: isOpen? IWS cf.highDPI                  ; highDPI           }
-  IsMousePassThrough  ⇐ {𝕊: isOpen? IWS cf.window_mouse_passthrough ; mousePassThrough  }
-  IsInterlacedhint    ⇐ {𝕊: isOpen? IWS cf.window_interlacedhint    ; interlacedhint    }
+  IsFullscreen        ⇐ {𝕊: isOpen?  IWS cf.fullscreen_mode          ; fullscreen        }
+  IsResizable         ⇐ {𝕊: isOpen?  IWS cf.window_resizable         ; resizable         }
+  IsDecorated         ⇐ {𝕊: isOpen? ¬IWS cf.window_undecorated       ; decorated         }
+  IsTransparent       ⇐ {𝕊: isOpen?  IWS cf.window_transparent       ; transparent       }
+  IsMsaa4xhint        ⇐ {𝕊: isOpen?  IWS cf.msaa4xhint               ; msaa4xhint        }
+  IsVsyncHint         ⇐ {𝕊: isOpen?  IWS cf.vsync_hint               ; vsyncHint         }
+  IsHidden            ⇐ {𝕊: isOpen?  IWS cf.window_hidden            ; hidden            }
+  IsRunWhileMinimized ⇐ {𝕊: isOpen?  IWS cf.window_always_run        ; runWhileMinimized }
+  IsMinimized         ⇐ {𝕊: isOpen?  IWS cf.window_minimized         ; minimized         }
+  IsMaximized         ⇐ {𝕊: isOpen?  IWS cf.window_maximized         ; maximized         }
+  IsFocused           ⇐ {𝕊: isOpen? ¬IWS cf.window_unfocused         ; focused           }
+  IsTopmost           ⇐ {𝕊: isOpen?  IWS cf.window_topmost           ; topmost           }
+  IsHighDPI           ⇐ {𝕊: isOpen?  IWS cf.highDPI                  ; highDPI           }
+  IsMousePassThrough  ⇐ {𝕊: isOpen?  IWS cf.window_mouse_passthrough ; mousePassThrough  }
+  IsInterlacedhint    ⇐ {𝕊: isOpen?  IWS cf.window_interlacedhint    ; interlacedhint    }
 
   # window.stateNames
-  stateNames ← [
-    "                 "
-    "fullscreen       "
-    "resizable        "
-    "undecorated      "
-    "transparent      "
-    "msaa4xhint       "
-    "vsyncHint        "
-    "hidden           "
+  stateNames ← ⟨
+    "fullscreen"
+    "resizable"
+    "undecorated"
+    "transparent"
+    "msaa4xhint"
+    "vsyncHint"
+    "hidden"
     "runWhileMinimized"
-    "minimized        "
-    "maximized        "
-    "unfocused        "
-    "topmost          "
-    "highDPI          "
-    "mousePassThrough "
-    "interlacedhint   "
-    "interlacedhint   "
-  ]
+    "minimized"
+    "maximized"
+    "unfocused"
+    "topmost"
+    "highDPI"
+    "mousePassThrough"
+    "interlacedhint"
+  ⟩
   # window.GetState
   GetState ← {𝕤 # returns binary list that corrisponds to raylib's config_flags format
     0‿fullscreen‿resizable‿(¬decorated)‿transparent‿msaa_4x_hint‿vsync_hint‿hidden‿runWhileMinimized‿minimized‿maximized‿(¬focused)‿topmost‿highdpi‿mouse_passthrough‿0‿interlaced_hint
@@ -645,7 +655,10 @@ mouse ← {
     IsMouseButton 𝕩
     raylib.IsMouseButtonUp⚇0 𝕩
   }
-
+  # mouse.DisableCursor
+  DisableCursor ⇐ {𝕊:
+    raylib.DisableCursor⟨⟩
+  }
 
   # mouse.cursor.
   cursor ⇐ { # Mouse cursor
@@ -858,7 +871,10 @@ key ← {
 
 # model
 model ← {
-  ⟨LoadFile ⋄ Unload ⋄ Draw⟩⇐
+  ⟨
+    LoadFile ⋄ Unload ⋄ Draw ⋄ LoadFromMesh
+    GetBoundingBox ⋄ DrawWires ⋄ DrawWiresEx
+  ⟩⇐
 
   # model.LoadFile
   LoadFile ← {𝕊filePath:
@@ -888,12 +904,10 @@ model ← {
   }
 
 
-
-  # TODO
-  # loadModelFromMesh
-  # getModelBoundingBox
-  # drawModelWires
-  # drawModelWiresEx
+  LoadFromMesh ← {raylib.LoadModelFromMesh 𝕩}
+  GetBoundingBox ← {raylib.GetModelBoundingBox 𝕩}
+  DrawWires ← {raylib.DrawModelWires 𝕩}
+  DrawWiresEx ← {raylib.DrawModelWiresEx 𝕩}
 }
 
 
@@ -1241,3 +1255,4 @@ model ← {
 # detachAudioStreamProcessor
 # attachAudioMixedProcessor
 # detachAudioMixedProcessor
+}
