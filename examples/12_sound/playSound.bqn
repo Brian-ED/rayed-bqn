@@ -14,6 +14,6 @@ PerFrame ← {
 Start ← {𝕤
   sounds ← sound.LoadFromFile¨ •file.At¨ "testSound1.wav"‿"testSound2.wav"
   PerFrame•_While_(¬window.ShouldClose) sounds
-} sound._withAudio
+} sound._withDevice
 
 Start window._openAs "Hello!!!"
