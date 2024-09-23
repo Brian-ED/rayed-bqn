@@ -1,3 +1,5 @@
+# rcamera - Basic camera system with support for multiple camera modes
+
 ⟨
   GetCameraForward
   GetCameraUp
@@ -16,47 +18,53 @@
 
   GetCameraViewMatrix
   GetCameraProjectionMatrix
+  CustomGetCameraProjectionMatrix
 
   UpdateCamera
+
+  cameraMode
+  cameraProjection
+  cameraIndex
 ⟩⇐
 
-#   rcamera - Basic camera system with support for multiple camera modes
-#
-#   CONFIGURATION:
-#       #define RCAMERA_IMPLEMENTATION
-#           Generates the implementation of the library into the included file.
-#           If not defined, the library is in header only mode and can be included in other headers
-#           or source files without problems. But only ONE file should hold the implementation.
-#
-#       #define RCAMERA_STANDALONE
-#           If defined, the library can be used as standalone as a camera system but some
-#           functions must be redefined to manage inputs accordingly.
-#
-#
-# Function specifiers definition
+key‿mouse‿raylib‿raymath ← •args
 
-⟨key, mouse
-  ⟨
-    GetFrameTime
-    cameraProjection
-    cameraMode
-    gamepadAxis
-    GetGamepadAxisMovement
-    IsGamepadAvailable
-  ⟩ ⇐ raylib
+⟨
+  up, left, down, right
+  w, a, s, d, e, q
+  space, left_control, IsPressed, keypad,
+  IsDown
+⟩ ← key
 
-  ⟨
-    Vector3RotateByAxisAngle
-    VectorAngle
-    MatrixLookAt
-    MatrixPerspective
-    MatrixOrtho
-    deg2rad
-    MP
-    MatrixRotate
-  ⟩ ⇐ raymath
+⟨
+  GetFrameTime
+  gamepadAxis
+  GetGamepadAxisMovement
+  IsGamepadAvailable
+⟩ ← raylib
+⟨
+  Vector3RotateByAxisAngle
+  VectorAngle
+  MatrixLookAt
+  MatrixPerspective
+  MatrixOrtho
+  deg2rad
+  MP
+  MatrixRotate
+⟩ ← raymath
 
-⟩ ← rl ← •Import "../../rayed.bqn"
+cameraMode ← { # Camera system modes
+  cAMERA_CUSTOM       ⇐ 0  # Custom camera
+  cAMERA_FREE         ⇐ 1  # Free camera
+  cAMERA_ORBITAL      ⇐ 2  # Orbital camera
+  cAMERA_FIRST_PERSON ⇐ 3  # First person camera
+  cAMERA_THIRD_PERSON ⇐ 4  # Third person camera
+}
+
+cameraProjection ⇐ { # Camera projection
+  cAMERA_PERSPECTIVE  ⇐ 0  # Perspective projection
+  cAMERA_ORTHOGRAPHIC ⇐ 1  # Orthographic projection
+}
 
 cameraIndex ⇐ {
   position   ⇐ 0 # Camera position
@@ -66,12 +74,6 @@ cameraIndex ⇐ {
   projection ⇐ 4 # Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
 }
 
-camera_first_person_step_trigonometric_divider ← 8
-camera_first_person_step_divider ← 30
-camera_first_person_waving_divider ← 200
-
-# PLAYER (used by camera)
-player_movement_sensitivity ← 20
 
 #----------------------------------------------------------------------------------
 # Module Functions Definition
@@ -162,7 +164,7 @@ CameraYaw ← {angle‿rotateAroundTarget𝕊camera:
     # rotate around camera.position
     # Move target relative to position
     (targetPosition + cameraIndex.position⊑camera)⌾(cameraIndex.target⊸⊑)camera
-  } 
+  }
 }
 
 # Rotates the camera around its right vector, pitch is "looking up and down"
@@ -221,32 +223,25 @@ GetCameraViewMatrix ← {𝕊camera:
   MatrixLookAt cameraIndex.position‿cameraIndex.target‿cameraIndex.up⊏camera
 }
 
-# Returns the camera projection matrix
-PickCullDist ← {𝕊camera_cull_distance_near‿camera_cull_distance_far:
-  ⟨
-    {aspect𝕊camera: # GetCameraProjectionMatrix
-      { 𝕩 ≡ rl.cameraProjection.camera_perspective?
-        MatrixPerspective⟨deg2rad×cameraIndex.fovy⊑camera, aspect, camera_cull_distance_near, camera_cull_distance_far⟩
+# Make GetCameraProjectionMatrix with your own camera cull distance
+CustomGetCameraProjectionMatrix ← {𝕊cull_distance_near‿cull_distance_far:
+  {aspect𝕊camera:
+    { 𝕩 ≡ cameraProjection.camera_perspective?
+      MatrixPerspective⟨deg2rad×cameraIndex.fovy⊑camera, aspect, cull_distance_near, cull_distance_far⟩
 
-      ; 𝕩 ≡ rl.cameraProjection.camera_orthographic?
-        top ← 2÷˜cameraIndex.fovy⊑camera
-        right ← top×aspect
+    ; 𝕩 ≡ cameraProjection.camera_orthographic?
+      top ← 2÷˜cameraIndex.fovy⊑camera
+      right ← top×aspect
 
-        MatrixOrtho⟨-right, right, -top, top, camera_cull_distance_near, camera_cull_distance_far⟩
-      ;
-        =⌜˜↕4
-      }cameraIndex.projection⊑camera
-    }
-  ⟩
+      MatrixOrtho⟨-right, right, -top, top, cull_distance_near, cull_distance_far⟩
+    ;
+      =⌜˜↕4
+    }cameraIndex.projection⊑camera
+  }
 }
 
 # Default cull distance
-⟨GetCameraProjectionMatrix⟩ ← PickCullDist 0.01‿1000
-
-
-#if !defined(RCAMERA_STANDALONE)
-# Update camera position for selected mode
-# Camera mode: CAMERA_FREE, CAMERA_FIRST_PERSON, CAMERA_THIRD_PERSON, CAMERA_ORBITAL or CUSTOM
+GetCameraProjectionMatrix ← CustomGetCameraProjectionMatrix {𝔽𝕘}0.01‿1000
 
 MakeCameraUpdater ← {𝕊⟨
     camera_orbital_speed
@@ -256,7 +251,7 @@ MakeCameraUpdater ← {𝕊⟨
     camera_mouse_move_sensitivity
     camera_mouse_scroll_sensitivity
   ⟩:
-  
+
   {mode‿mouseDelta𝕊camera:
     cm ← cameraMode
     moveInWorldPlane   ← ∨´mode=cm.camera_third_person                  ‿cm.camera_first_person
@@ -271,10 +266,11 @@ MakeCameraUpdater ← {𝕊⟨
       view MP↩ rotation
       (cameraIndex.target + view)⌾(cameraIndex.position⊸⊑)camera
     ;
+      frameAdjusting ← 60×GetFrameTime⟨⟩
       # Camera rotation
-      camera CameraPitch˜↩ ⟨camera_rotation_speed×-´key.IsDown¨key.up‿key.down , lockView, rotateAroundTarget, rotateUp⟩
-      camera CameraYaw  ˜↩ ⟨camera_rotation_speed×-´key.IsDown¨key.left‿key.right, rotateAroundTarget⟩
-      camera CameraRoll ˜↩ camera_rotation_speed×-´key.IsDown¨key.e‿key.q
+      camera CameraPitch˜↩ ⟨frameAdjusting×camera_rotation_speed×-´IsDown¨up‿down , lockView, rotateAroundTarget, rotateUp⟩
+      camera CameraYaw  ˜↩ ⟨frameAdjusting×camera_rotation_speed×-´IsDown¨left‿right, rotateAroundTarget⟩
+      camera CameraRoll ˜↩  frameAdjusting×camera_rotation_speed×-´IsDown¨e‿q
 
       right   ← moveInWorldPlane⊑CameraMoveRight‿CameraMoveRightInWorldPlane
       forward ← moveInWorldPlane⊑CameraMoveForward‿CameraMoveForwardInWorldPlane
@@ -291,8 +287,8 @@ MakeCameraUpdater ← {𝕊⟨
       }
 
       # Keyboard support
-      camera Forward˜↩ camera_move_speed×-´key.IsDown¨key.w‿key.s
-      camera Right  ˜↩-camera_move_speed×-´key.IsDown¨key.a‿key.d
+      camera Forward˜↩ frameAdjusting × camera_move_speed×-´IsDown¨w‿s
+      camera Right  ˜↩ frameAdjusting ×-camera_move_speed×-´IsDown¨a‿d
 
       # Gamepad movement
       {𝕤
@@ -302,22 +298,22 @@ MakeCameraUpdater ← {𝕊⟨
         camera CameraYaw  ˜↩⟨camera_mouse_move_sensitivity×¯2×G gamepadAxis.gamepad_axis_right_x,           rotateAroundTarget⟩
         camera CameraPitch˜↩⟨camera_mouse_move_sensitivity×¯2×G gamepadAxis.gamepad_axis_right_y, lockView, rotateAroundTarget, rotateUp⟩
 
-        camera Forward⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_y)˜↩  camera_move_speed
-        camera Forward⍟( 0.25≤G gamepadAxis.gamepad_axis_left_y)˜↩ -camera_move_speed
-        camera Right  ⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_x)˜↩ -camera_move_speed
-        camera Right  ⍟( 0.25≤G gamepadAxis.gamepad_axis_left_x)˜↩  camera_move_speed
+        camera Forward⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_y)˜↩ frameAdjusting ×  camera_move_speed
+        camera Forward⍟( 0.25≤G gamepadAxis.gamepad_axis_left_y)˜↩ frameAdjusting × -camera_move_speed
+        camera Right  ⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_x)˜↩ frameAdjusting × -camera_move_speed
+        camera Right  ⍟( 0.25≤G gamepadAxis.gamepad_axis_left_x)˜↩ frameAdjusting ×  camera_move_speed
       }⍟⊢ IsGamepadAvailable 0
 
       {𝕤
-        camera CameraMoveUp⍟(key.IsDown key.space       )˜↩  camera_move_speed
-        camera CameraMoveUp⍟(key.IsDown key.left_control)˜↩ -camera_move_speed
+        camera CameraMoveUp⍟(IsDown space       )˜↩ frameAdjusting ×  camera_move_speed
+        camera CameraMoveUp⍟(IsDown left_control)˜↩ frameAdjusting × -camera_move_speed
       }⍟⊢mode=cm.camera_free
     }
 
     {
       # Zoom target distance
       camera CameraMoveToTarget˜↩-mouse.WheelMoved@
-      camera CameraMoveToTarget˜↩2×-´key.IsPressed¨key.keypad.subtract‿key.keypad.add 
+      camera CameraMoveToTarget˜↩2×-´IsPressed¨keypad.subtract‿keypad.add
     }⊢∨´mode=cm.camera_third_person‿cm.camera_orbital‿cm.camera_free
     camera
   }
