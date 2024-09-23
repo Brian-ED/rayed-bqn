@@ -8,7 +8,12 @@
 window.SetSize 0.5
 
 PerFrame ← {
+  •term.Flush@
   𝕩 sound.Play∘⊣⍟⊢¨key.IsPressed¨key.a‿key.b
+  𝕩 sound.Pause∘⊣⍟⊢¨key.IsPressed¨key.c‿key.d
+  𝕩 sound.Resume∘⊣⍟⊢¨key.IsPressed¨key.e‿key.f
+  𝕩 sound.Stop∘⊣⍟⊢¨key.IsPressed¨key.g‿key.h
+  𝕩 •Show∘sound.IsPlaying∘⊣⍟⊢¨key.IsPressed¨key.i‿key.j
 }⊸⊢ draw._withCanvas_ black
 
 Start ← {𝕤
