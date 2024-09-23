@@ -1,4 +1,3 @@
-rcamera ← •Import "rcamera.bqn"
 ⟨rf⇐raylib, key, color, draw⟩ ← rl ← •Import "../../rayed.bqn"
 
 max_columns ← 20
@@ -21,8 +20,12 @@ colors ← ⍉[
   max_columns⥊255
 ]
 
-
+stut←1
 PerFrame←{𝕊camera‿cameraMode:
+  stut≠↩rl.key.IsPressed key.g
+
+  rl.window.SetFPS stut⊑ 1000‿60
+  rf.DrawFPS 200‿0
   # Switch camera mode
   {𝕤
     cameraMode ↩ rf.cameraMode.camera_free
@@ -57,8 +60,8 @@ PerFrame←{𝕊camera‿cameraMode:
         20 # near plane width in CAMERA_ORTHOGRAPHIC
         rf.cameraProjection.camera_orthographic
       ⟩
-      newCam rCamera.CameraYaw  ˜↩⟨¯135×π÷180, 1⟩
-      newCam rCamera.CameraPitch˜↩⟨ ¯45×π÷180, 1, 1, 0⟩
+      newCam rl.camera.CameraYaw  ˜↩⟨¯135×π÷180, 1⟩
+      newCam rl.camera.CameraPitch˜↩⟨ ¯45×π÷180, 1, 1, 0⟩
       newCam
   ; (cameraIndex.projection⊑𝕩) = rf.cameraProjection.camera_orthographic?
 
@@ -76,7 +79,7 @@ PerFrame←{𝕊camera‿cameraMode:
   # Update camera computes movement internally depending on the camera mode
   # Some default standard keyboard/mouse inputs are hardcoded to simplify use
   # For advance camera controls, it's reecommended to compute camera movement manually
-  camera rcamera.UpdateCamera˜ ↩ cameraMode⋈rf.GetMouseDelta⟨⟩
+  camera rl.camera.UpdateCamera˜ ↩ cameraMode⋈rf.GetMouseDelta⟨⟩
 
   # Draw
   {𝕤
@@ -153,6 +156,7 @@ PerFrame←{𝕊camera‿cameraMode:
 rl.window.SetSize 0.5
 
 PerFrame∘{𝕤
+rl.window.SetFullscreen 0
   rf.DisableCursor⟨⟩                    # Limit cursor to relative movement inside the window
   camera ← ⟨
     0‿2‿4    # Camera position
