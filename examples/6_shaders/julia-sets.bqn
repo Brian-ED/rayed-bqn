@@ -31,14 +31,9 @@ offsetSpeedMul ← 2
 
 startingZoom ← 0.75
 
-
-
 {𝕤
-
   # Load julia set shader
-  # NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-#  shader ← rf.LoadShader⟨0, "resources/shaders/glsl330/julia_set.fs"⟩
-  shader ← rf.LoadShader ""⋈•file.RealPath"shaders/glsl330/julia_set.fs"
+  shader ← rf.LoadShader •file.RealPath¨ "shaders/glsl330"⊸•file.At¨ "default.vs"‿"julia_set.fs"
 
   # Get some required shader locations
   veiwPos ← rf.GetShaderLocation shader‿"viewPos"
