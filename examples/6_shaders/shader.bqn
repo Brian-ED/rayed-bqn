@@ -1,8 +1,3 @@
-# ONLY WORKS ON BQN VERSION 0.7 OR HIGHER
-# relies on new pointer objects
-
-P ← •term.Flush∘@∘•Show⊸⊢
-
 # depending on rlgl version, you can set this to 100, 120, and 330
 glslVersion ← 330
 
@@ -75,10 +70,10 @@ shaderT ← NestedStructToStr2 rf.shader
     rf.cameraProjection.camera_perspective # Camera projection type
   ⟩
   # Load plane model from a generated mesh
-  model ← rf.LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
-  model2 ← rf.LoadModelFromMesh rf.GenMeshPlane 10‿10‿3‿3
+  model ← rl.model.LoadFromMesh rf.GenMeshPlane 10‿10‿3‿3
+  model2 ← rl.model.LoadFromMesh rf.GenMeshPlane 10‿10‿3‿3
 
-  cube  ← rf.LoadModelFromMesh rf.GenMeshCube 2‿4‿2
+  cube  ← rl.model.LoadFromMesh rf.GenMeshCube 2‿4‿2
   # Load basic lighting shader
   shader ← rf.LoadShader •file.At¨ "vs"‿"fs"∾˜¨<"shaders/glsl"∾"/lighting."∾˜•Repr glslVersion
 
