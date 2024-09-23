@@ -97,7 +97,10 @@ texture ← {
     raylib.LoadTexture 𝕩
   }
   # texture.Unload
-  Unload ← {𝕊texture: NeedsWindow@ ⋄ @⊣raylib.UnloadTexture𝕩}
+  Unload ← {𝕊texture:
+    NeedsWindow@
+    @⊣raylib.UnloadTexture𝕩
+  }
   # texture._withFile
   _withFile ← {𝔽_𝕣 filePath : (Unload⊢𝔽)Load𝕩}
   # texture._withRayImage
@@ -655,29 +658,74 @@ mouse ← {
     IsMouseButton 𝕩
     raylib.IsMouseButtonUp⚇0 𝕩
   }
-  # mouse.DisableCursor
-  DisableCursor ⇐ {𝕊:
-    raylib.DisableCursor⟨⟩
-  }
 
-  # mouse.cursor.
-  cursor ⇐ { # Mouse cursor
-    default       ⇐ 0   # Default pointer shape
-    arrow         ⇐ 1   # Arrow shape
-    ibeam         ⇐ 2   # Text writing cursor shape
-    crosshair     ⇐ 3   # Cross shape
-    pointing_hand ⇐ 4   # Pointing hand cursor
-    resize_ew     ⇐ 5   # Horizontal resize/move arrow shape
-    resize_ns     ⇐ 6   # Vertical resize/move arrow shape
-    resize_nwse   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape
-    resize_nesw   ⇐ 8   # The top-right to bottom-left diagonal resize/move arrow shape
-    resize_all    ⇐ 9   # The omnidirectional resize/move cursor shape
-    not_allowed   ⇐ 10  # The operation-not-allowed shape
+  cursor ⇐ {
+    # mouse.cursor.Show
+    Show ⇐ {𝕊:
+      NeedsWindow@
+      𝕩⊣raylib.ShowCursor⟨⟩
+    }
+    # mouse.cursor.Hide
+    Hide ⇐ {𝕊:
+      NeedsWindow@
+      𝕩⊣raylib.HideCursor⟨⟩
+    }
+    # mouse.cursor.IsHidden
+    IsHidden ⇐ {𝕊:
+      NeedsWindow@
+      𝕩⊣raylib.IsCursorHidden⟨⟩
+    }
+    # mouse.cursor.Enable
+    Enable ⇐ {𝕊:
+      NeedsWindow@
+      𝕩⊣raylib.EnableCursor⟨⟩
+    }
+    # mouse.cursor.Disable
+    Disable ⇐ {𝕊:
+      NeedsWindow@
+      𝕩⊣raylib.DisableCursor⟨⟩
+    }
+    # mouse.cursor.IsOnScreen
+    IsOnScreen ⇐ {𝕊:
+      NeedsWindow@
+      𝕩⊣raylib.IsCursorOnScreen⟨⟩
+    }
+    # mouse.cursor.Set
+    Set ⇐ {
+      NeedsWindow@
+      𝕩⊣raylib.SetMouseCursor 𝕩
+    }
+
+    # mouse.cursor.shape
+    shape ⇐ {
+      default       ⇐ 0   # Default pointer shape
+      arrow         ⇐ 1   # Arrow shape
+      ibeam         ⇐ 2   # Text writing cursor shape
+      crosshair     ⇐ 3   # Cross shape
+      pointing_hand ⇐ 4   # Pointing hand cursor
+      resize_ew     ⇐ 5   # Horizontal resize/move arrow shape
+      resize_ns     ⇐ 6   # Vertical resize/move arrow shape
+      resize_nwse   ⇐ 7   # Top-left to bottom-right diagonal resize/move arrow shape
+      resize_nesw   ⇐ 8   # The top-right to bottom-left diagonal resize/move arrow shape
+      resize_all    ⇐ 9   # The omnidirectional resize/move cursor shape
+      not_allowed   ⇐ 10  # The operation-not-allowed shape
+    }
   }
 }
 
 # Wave, audio wave data
 sound ⇐ {
+  ⟨
+    Play ⋄ Stop ⋄ Pause ⋄ Resume ⋄ IsPlaying
+    SetVolume ⋄ SetPitch ⋄ SetPan
+    LoadFromFile ⋄ Unload
+    _withDevice ⋄ wave
+  ⟩⇐
+  audioReady ← 0
+  NeedsAudio ← { # Everything that needs audio also needs the window to be open
+    NeedsWindow@
+    𝕩⊣"Audio not started, run audio with sound._withDevice"!audioReady
+  }
   wave ⇐ {
     ⟨LoadFromFile ⋄ Unload ⋄ _withFile⟩⇐
 
@@ -709,51 +757,68 @@ sound ⇐ {
     # sound.wave._withFile
     _withFile ⇐ {(Unload⊢𝔽)LoadFromFile}
   }
-
+  # sound._withDevice
+  _withDevice ⇐ {𝕨𝔽_𝕣𝕩:
+    NeedsWindow@
+    raylib.InitAudioDevice⟨⟩
+    audioReady ↩ 1
+    r←𝕨𝔽𝕩
+    raylib.CloseAudioDevice⟨⟩
+    audioReady ↩ 0
+    r
+  }
   # sound.LoadFromFile
-  LoadFromFile ⇐ raylib.LoadSoundFromWave wave._withFile # fileName→Sound
-
-  Play  ⇐ raylib.PlaySound  # sound.Play
-  Stop  ⇐ raylib.StopSound  # sound.Stop
-  Pause ⇐ raylib.PauseSound # sound.Pause
-
+  LoadFromFile ⇐ {𝕊:
+    NeedsAudio@
+    raylib.LoadSoundFromWave 𝕩
+  } wave._withFile
+  # sound.Play
+  Play  ⇐ {
+    NeedsAudio@
+    raylib.PlaySound 𝕩
+  }
+  # sound.Stop
+  Stop  ⇐ {
+    NeedsAudio@
+    raylib.StopSound 𝕩
+  }
+  # sound.Pause
+  Pause ⇐ {
+    NeedsAudio@
+    raylib.PauseSound𝕩
+  }
   # sound.Resume
   Resume ⇐ {𝕊sound:
+    NeedsAudio@
     raylib.ResumeSound 𝕩
   }
   # sound.IsPlaying
   IsPlaying ⇐ {𝕊sound:
+    NeedsAudio@
     raylib.IsSoundPlaying 𝕩
   }
   # sound.SetVolume
   SetVolume ⇐ {𝕊
+    NeedsAudio@
     raylib.SetSoundVolume𝕩
   }
   # sound.SetPitch
   SetPitch ⇐ {𝕊
+    NeedsAudio@
     raylib.SetSoundPitch𝕩
   }
   # sound.SetPan
   SetPan ⇐ {pan𝕊sound:
+    NeedsAudio@
     "Pan must be a number"!0≡•Type𝕨
     raylib.SetSoundPan𝕩‿𝕨
   }
-
-  # sound._withAudio
-  _withAudio ⇐ {
-    raylib.CloseAudioDevice∘⟨⟩⊢𝔽⊣raylib.InitAudioDevice∘⟨⟩
-  }
-
   # sound.Unload
-  Unload ⇐ {𝕊sound:
-    stream‿· ← sound
-    buffer‿·‿·‿·‿· ← stream
-    raylib.UnloadAudioBuffer buffer
-  }
+  Unload ⇐ raylib.UnloadSound
 }
 
 key ← {
-  IsKey ⇐ "Key doesn't exist"⊸!∘⊑∘∊⟜(↕512)⚇0 @-˜⍟≤⚇0⊢
+  IsKey ⇐ ("Key doesn't exist"!0⊸≤∧<⟜512)⚇0 @-˜⍟≤⚇0⊢
 
   # key.IsPressed
   IsPressed ⇐ {𝕊key:
@@ -785,7 +850,6 @@ key ← {
     IsKey 𝕩
     (raylib.IsKeyDown @-˜⍟<⊢)⚇0 𝕩
   }
-
   # key.PressedKey
   PressedKey ⇐ {𝕤
     NeedsWindow@
@@ -939,12 +1003,6 @@ model ← {
 # getRenderWidth
 # getRenderHeight
 # getWindowScaleDPI
-# showCursor
-# hideCursor
-# isCursorHidden
-# enableCursor
-# disableCursor
-# isCursorOnScreen
 # beginMode2D
 # endMode2D
 # beginVrStereoMode
@@ -999,7 +1057,6 @@ model ← {
 # setGamepadMappings
 # setGamepadVibration
 #
-# setMouseCursor
 #
 # getTouchX
 # getTouchY
