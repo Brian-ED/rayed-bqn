@@ -18,7 +18,7 @@ _setup ← {𝕨𝔽_𝕣𝕩:
           #  pos    target  up     FOV Yaxis  Camera projection type
   camera ← ⟨ 4‿4‿0, 0‿0‿0,  0‿1‿0, 45,        0⟩
   meshes‿lights‿font 𝔽 lightToggle‿camera
-  raylib.UnloadModel¨meshes
+  r.model.Unload¨meshes
 }
 
 rotMat ← r.raymath.MatrixRotateZ π÷80
@@ -43,7 +43,7 @@ PerFrame ← {meshes‿lights‿font𝕊lightToggle‿camera:
     } draw._in3D camera
     raylib.DrawFPS 10‿10
     color.darkGray‿font‿20 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
-    
+
   } draw._withCanvas_ color.black @
   out
 }
