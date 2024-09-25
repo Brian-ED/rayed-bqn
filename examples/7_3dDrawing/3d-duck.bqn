@@ -47,8 +47,7 @@ PerFrame ← {duck𝕊oldCamera:
     # Draws FPS at x=40 y=40
     rl.DrawFPS 40‿40
 
-    # Draw 3d stuff relative to the camera
-    rl.BeginMode3D camera
+    {𝕊:
 
       # draws grid
       rl.DrawGrid 20‿10
@@ -57,8 +56,8 @@ PerFrame ← {duck𝕊oldCamera:
       position ← 0‿0‿0 ⋄ scale ← 1
       rl.DrawModel duck‿position‿scale‿color.white
 
-    # Stop drawing 3d
-    rl.EndMode3D⟨⟩
+    # Draw 3d stuff relative to the camera
+    } r.draw._in3d camera
 
   } r.draw._withCanvas_ r.color.white@
 
