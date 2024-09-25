@@ -29,7 +29,7 @@ NSVG__getAverageScale ← {(+´÷≠)+˝⌾(×˜)2‿2⥊𝕩}
 NSVG__xformSetSkewX ← {⥊[1‿0 ⋄ ⟨•math.Tan 𝕩⋄1⟩ ⋄ 0‿0]}
 NSVG__xformSetSkewY ← {⥊[⟨1⋄•math.Tan 𝕩⟩ ⋄ 0‿1 ⋄ 0‿0]}
 nsvg__xformIdentity ← ⥊3↑=⌜˜↕2
-nsvg_kappa90 ← 0.5522847493 # Length proportional to radius of a cubic bezier handle for 90deg arcs.
+nsvg_KAPPA90 ← 0.5522847493 # Length proportional to radius of a cubic bezier handle for 90deg arcs.
 
 NSVG__parseTransformArgs ← {𝕊str‿maxNa:
   maxNa↑⍟(≤⟜≠) ToNums str
@@ -38,14 +38,14 @@ NSVG__parseTransformArgs ← {𝕊str‿maxNa:
 NSVG__xformSetTranslation ← (⥊=⌜˜↕2)⊸∾
 
 # returns NSVGparser
-CreateState ← {𝕊:
+CreateState ⇐ {𝕊:
   npts ⇐ 0
   pts ⇐ ⟨⟩
   cpts ⇐ 0
 
   viewwidth ⇐ viewMinx ⇐ @
 
-  NSVG__resetPath ← {𝕊:
+  NSVG__resetPath ⇐ {𝕊:
     npts↩0
   }
   image ⇐ 0
@@ -675,6 +675,60 @@ NSVG__parseAttr ← {𝕊p‿name‿value:
 }
 
 
+NSVG__cubicBezTo ← {𝕊p‿cpx1‿cpy1‿cpx2‿cpy2‿x‿y:
+  p.npts > 0?
+    p.NSVG__addPoint cpx1‿cpy1
+    p.NSVG__addPoint cpx2‿cpy2
+    p.NSVG__addPoint x‿y
+  ;@
+}
+
+nsvgPathDefault ← ⟨
+  ⟨⟩       # pts    # float*             # Cubic bezier points: x0,y0, [cpx1,cpx1,cpx2,cpy2,x1,y1], ...
+  0        # npts   # int                # Total number of bezier points.
+  0        # closed # char               # Flag indicating if shapes should be treated as closed.
+  0‿0‿0‿0  # bounds # float[4]           # Tight bounding box of the shape [minx,miny,maxx,maxy].
+  @        # next   # struct NSVGpath*   # Pointer to next path, or NULL if last element.
+⟩
+
+NSVG__addPath ← {𝕊p‿closed:
+  attr ← p.NSVG__getAttr
+  path ← NULL
+  float bounds[4];
+  float* curve;
+  int i;
+
+  p.npts ≥ 4?
+
+    p.NSVG__lineTo⍟closed 2↑p.pts
+
+    # Expect 1 + N*3 points (N = number of cubic bezier segments).
+    1=3|p->npts?
+
+      path ← nsvgPathDefault
+
+      path.pts ← 0⥊˜p.npts×2
+      path.closed ← closed
+      path.npts ← p.npts
+
+      # Transform path.
+      {𝕊:
+        NSVG__xformPoint(&path->pts[i*2], &path->pts[i*2+1], p->pts[i*2], p->pts[i*2+1], attr->xform);
+      }¨↕p->npts
+
+          curves ← NSVG__xformPoint˘˘path.pts⊏˜⍉0‿1+⌜2×1+⌊‿3⥊↕1+path.npts
+
+      # Find bounds
+      for (i = 0; i < path.npts-1; i += 3) {
+        NSVG__curveBounds bounds‿⟨path.pts⊑˜i×2⟩
+        path.bounds (⌊○(2⊸↑)∾⌈○(2⊸↓))⍟(i=0)↩ bounds
+      }
+
+      path.next ← p.plist
+      p.plist ← path
+  ;@
+}
+
 NSVG__parseRect ← {𝕊p‿attr: # NSVGParser‿*str
   x ← 0
   y ← 0
@@ -695,12 +749,9 @@ NSVG__parseRect ← {𝕊p‿attr: # NSVGParser‿*str
     }⍟¬NSVG__parseAttr⟨p⟩∾𝕩
   }˘⍉attr
 
-  {𝕊:rx ↩ ry}⍟⊢ (rx<0) ∧ ry>0
-  {𝕊:ry ↩ rx}⍟⊢ (ry<0) ∧ rx>0
-  {𝕊:rx ↩ 𝕩}⍟(rx⊸<) 0
-  {𝕊:ry ↩ 𝕩}⍟(ry⊸<) 0
-  {𝕊:rx ↩ 𝕩}⍟(rx⊸>) w÷2
-  {𝕊:ry ↩ 𝕩}⍟(ry⊸>) h÷2
+  rx‿ry (2⥊⌈´)⍟(∨´<⟜0)↩
+  rx‿ry ⌈↩ 0
+  rx‿ry ⌊↩ w‿h÷2
 
   {𝕤
     p.NSVG__resetPath@
@@ -712,7 +763,7 @@ NSVG__parseRect ← {𝕊p‿attr: # NSVGParser‿*str
     ;
       # Rounded rectangle
       p.NSVG__moveTo⟨x+rx, y⟩
-      p.NSVG__lineTo⟨x+w-rx, y⟩
+      p.NSVG__lineTo⟨(x+w)-rx, y⟩
       p.NSVG__cubicBezTo⟨(x+w)-rx×¬nsvg_KAPPA90, y, x+w, y+ry×¬nsvg_KAPPA90, x+w, y+ry⟩
       p.NSVG__lineTo⟨x+w, (y+h)-ry⟩
       p.NSVG__cubicBezTo⟨x+w, (y+h)-ry×¬nsvg_KAPPA90, (x+w)-rx×¬nsvg_KAPPA90, y+h, (x+w)-rx, y+h⟩
@@ -728,10 +779,106 @@ NSVG__parseRect ← {𝕊p‿attr: # NSVGParser‿*str
   }⍟⊢∧´0≠w‿h
 }
 
-NSVG__parseCircle ← •Show
+NSVG__parseCircle ← {𝕊p‿attr: # attr is x‿2≡≢𝕩 of strings
+  cx ← 0
+  cy ← 0
+  r ← 0
+
+  {𝕊a‿b:
+    {𝕊:
+      {𝕊:cx ↩ NSVG__parseCoordinate ⟨p, b, p.NSVG__actualOrigX@, p.NSVG__actualWidth@⟩   }⍟⊢a≡"cx"
+      {𝕊:cy ↩ NSVG__parseCoordinate ⟨p, b, p.NSVG__actualOrigY@, NSVG__actualHeight p⟩  }⍟⊢a≡"cy"
+      {𝕊: r ↩ |NSVG__parseCoordinate ⟨p, b, 0, NSVG__actualLength p⟩                   }⍟⊢a≡"r"
+    }⍟¬NSVG__parseAttr p‿a‿b
+  }˘attr
+
+  r > 0?
+    p.NSVG__resetPath@
+    p.NSVG__moveTo ⟨cx+r, cy⟩
+    NSVG__cubicBezTo ⟨p, cx+r, cy+r×nsvg_KAPPA90, cx+r×nsvg_KAPPA90, cy+r, cx, cy+r⟩
+    NSVG__cubicBezTo ⟨p, cx-r×nsvg_KAPPA90, cy+r, cx-r, cy+r×nsvg_KAPPA90, cx-r, cy⟩
+    NSVG__cubicBezTo ⟨p, cx-r, cy-r×nsvg_KAPPA90, cx-r×nsvg_KAPPA90, cy-r, cx, cy-r⟩
+    NSVG__cubicBezTo ⟨p, cx+r×nsvg_KAPPA90, cy-r, cx+r, cy-r×nsvg_KAPPA90, cx+r, cy⟩
+
+    NSVG__addPath p‿1
+
+    NSVG__addShape p
+  ;
+    @
+}
+
+NSVG__parseEllipse {𝕊p‿attr: # attr is x‿2≡≢𝕩 of strings
+  cx‿cy‿rx‿ry ← 4⥊0
+
+  {𝕊a‿b:
+    {𝕊:
+       a≡"cx"? cx ↩  NSVG__parseCoordinate⟨p, b, p.NSVG__actualOrigX@, NSVG__actualWidth p⟩
+      ;a≡"cy"? cy ↩  NSVG__parseCoordinate⟨p, b, p.NSVG__actualOrigY@, NSVG__actualHeight p⟩
+      ;a≡"rx"? rx ↩ |NSVG__parseCoordinate⟨p, b, 0, NSVG__actualWidth p⟩
+      ;a≡"ry"? ry ↩ |NSVG__parseCoordinate⟨p, b, 0, NSVG__actualHeight p⟩
+    }⍟¬NSVG__parseAttr p‿a‿b
+  }˘attr
+
+  ∧´rx‿ry > 0?
+    NSVG__resetPath p
+
+    NSVG__moveTo ⟨p, cx+rx, cy⟩
+    NSVG__cubicBezTo⟨p, cx+rx, cy+ry×nsvg_KAPPA90, cx+rx×nsvg_KAPPA90, cy+ry, cx, cy+ry⟩
+    NSVG__cubicBezTo⟨p, cx-rx×nsvg_KAPPA90, cy+ry, cx-rx, cy+ry×nsvg_KAPPA90, cx-rx, cy⟩
+    NSVG__cubicBezTo⟨p, cx-rx, cy-ry×nsvg_KAPPA90, cx-rx×nsvg_KAPPA90, cy-ry, cx, cy-ry⟩
+    NSVG__cubicBezTo⟨p, cx+rx×nsvg_KAPPA90, cy-ry, cx+rx, cy-ry×nsvg_KAPPA90, cx+rx, cy⟩
+
+    NSVG__addPath p‿1
+
+    NSVG__addShape p
+  ;@
+}
+
+NSVG__parseLine ← {𝕊p‿attr:
+  x1‿y1‿x2‿y2 ← 4⥊0
+
+  {𝕊a‿b:
+    {𝕊:
+       a≡"x1"? x1 ↩ NSVG__parseCoordinate⟨p, b, p.NSVG__actualOrigX@, NSVG__actualWidth p⟩
+      ;a≡"y1"? y1 ↩ NSVG__parseCoordinate⟨p, b, p.NSVG__actualOrigY@, NSVG__actualHeight p⟩
+      ;a≡"x2"? x2 ↩ NSVG__parseCoordinate⟨p, b, p.NSVG__actualOrigX@, NSVG__actualWidth p⟩
+      ;a≡"y2"? y2 ↩ NSVG__parseCoordinate⟨p, b, p.NSVG__actualOrigY@, NSVG__actualHeight p⟩
+    }⍟¬NSVG__parseAttr p‿a‿b
+  }˘attr
+
+  NSVG__resetPath p
+
+  NSVG__moveTo⟨p, x1, y1⟩
+  NSVG__lineTo⟨p, x2, y2⟩
+
+  NSVG__addPath p‿0
+
+  NSVG__addShape p
+}
+
+
+ParsePath ← (⊑¨≍˘ToNums¨)1↓(+`>⟜»)∘∊⟜letters⊸⊔
+
+NSVG__parsePoly ← {p‿attr‿closeFlag: # NSVGparser*, str*, int
+  nargs‿npts ← 0
+
+  p.NSVG__resetPath@
+
+  {𝕊a‿b:
+    {𝕊:
+      ⟨start⟩‿moves ← 1(↑⋈↓)ParsePath b
+      p.NSVG__moveTo start
+      p.NSVG__lineTo¨moves
+    }⍟⊢ (a≡"points")∧¬NSVG__parseAttr p‿a‿b
+    @
+  }˘attr
+
+  NSVG__addPath⟨p, closeFlag⟩
+
+  NSVG__addShape p
+}
+
 NSVG__parseEllipse ← •Show
-NSVG__parseLine ← •Show
-NSVG__parsePoly ← •Show
 NSVG__parseGradient ← •Show
 NSVG__parseGradientStop ← •Show
 NSVG__parseAttribs ← •Show
