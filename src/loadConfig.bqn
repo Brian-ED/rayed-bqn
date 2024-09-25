@@ -70,15 +70,15 @@ newExports ← {
       default ← "/usr/local"
       # Using •BQN because CBQN on windows doesn't have the •SH system function
       exitcode‿stdout‿· ← •SH⎊1‿⟨⟩‿@ "brew"‿"--prefix"‿"raylib"
-      p ← •file.At⟜"include/raylib.h"¨"../raylib"⋈(exitcode≡0)⊑default⋈nl⊸≠⊸/stdOut
+      p ← •file.At⟜"include/raylib.h"¨"../raylib"‿{exitcode≡0?nl⊸≠⊸/stdOut;default}
       (∨´m←Exists¨p)!˜err∾"Couldn't find file raylib.h at paths:"∾∾nl∾¨p
-      " ⇐ •file.At "∾•Repr ⊑m/p
+      " ⇐ "∾"•file.At "⊸∾⍟('/'=⊑) ".."•file.At ⊑m/p
   ;
     "linux":
       p←"/usr/local"‿"../raylib" •file.At¨<"include/raylib.h"
       m←Exists¨p
       (∨´m)!˜err∾"Couldn't find raylib.h file at path: "∾∾nl∾¨p
-      " ⇐ "∾•Repr⊑m/p
+      " ⇐ "∾"•file.At "⊸∾⍟('/'=⊑)".."•file.At ⊑m/p
   }•platform.os
 ;
   !"Attempted to implement non-existant config: "∾𝕩
