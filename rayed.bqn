@@ -236,8 +236,6 @@ window ← {
     raylib.SetConfigFlags flags←2⊸×⊸+˜´GetState@
     raylib.InitWindow pos∾<𝕩
     isOpen↩1
-#    raylib.SetWindowState flags # I don't think this works
-    SetFullscreen fullscreen # Probably  not needed??
     SetSize tempSize
 
     raylib.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
@@ -372,7 +370,7 @@ window ← {
 # Drawing
 draw ← {
   ⟨
-    _withCanvas_ ⋄ _in3D ⋄ _inRectangle
+    _WithCanvas_ ⋄ _in3D ⋄ _inRectangle
     Rectangle ⋄ Triangle ⋄ Line
     Ellipse ⋄ EllipseOutline
     Text ⋄ Texture ⋄ advanced
@@ -386,12 +384,18 @@ draw ← {
     raylib.BeginMode3D 𝕩
     raylib.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
-  # Start drawing, draw background, use function 𝔽, end drawing
-  # draw._withCanvas_
-  _withCanvas_ ← {𝕨DrawingFunc _𝕣_ Func_Returning_A_Color𝕩:
-    Start@
-    Background 𝕨𝔾𝕩
-    ⊣⟜End𝕨𝔽𝕩
+  # Start drawing, draw background as color 𝕨𝔾𝕩, use function 𝕨𝔽𝕩, end drawing
+  # draw._WithCanvas_
+  _withCanvas_ ← {𝕨DrawingFunc _𝕣_ Func_returning_a_color𝕩:
+    color←𝕨𝔾𝕩
+    NeedsWindow@
+    "_WithCanvas_ only accepts a color as output of 𝔾; 4 ints in the range 0-255 inclusive"!∧´⟨
+      color•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
+      ∧´(255⊸≥∧0⊸≤)color
+    ⟩
+    raylib.BeginDrawing⟨⟩
+    raylib.ClearBackground 𝕨𝔾𝕩
+    raylib.EndDrawing∘⟨⟩⊸⊢𝕨𝔽𝕩
   }
 
   # draw._inTexture
@@ -450,7 +454,7 @@ draw ← {
     NeedsWindow@
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
     raylib.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈⌊𝕩 # capping with max and min to avoid errors at ∞
-  }
+  }⎉1‿2
 
   # draw.Ellipse
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
@@ -458,7 +462,7 @@ draw ← {
     𝕩(i32_max⌊i32_min⌈⌊)↩
     ((∧´⌈⊸=∧0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
     raylib.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
-  }
+  }⎉1‿2
 
   # Draw a color-filled circle
   # draw.Circle
@@ -474,36 +478,38 @@ draw ← {
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     raylib.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
-  }
+  }⎉1‿2
 
   # draw.Triangle
   Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
     [p1,p2,p3] ← 𝕩
     raylib.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
-  }
+  }⎉1‿2
 
-  # Start Drawing
-  Start ← {𝕤
-    NeedsWindow@
-    raylib.BeginDrawing⟨⟩
-  }
-  # draw.Background
-  Background ← {𝕊r‿g‿b‿a:
-    NeedsWindow@
-    (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
-    "Background: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
-    raylib.ClearBackground 𝕩
-  }
-  # draw.End
-  End ← {𝕤
-    NeedsWindow@
-    raylib.EndDrawing⟨⟩
-  }
-
-  # These aren't recommended because they are useless if you use _withCanvas_.
+  # These aren't recommended because they are useless if you use _WithCanvas_.
   # They also don't behave well if ran in the wrong order,
   # you only want to run them in the "start, background, end" sequence
-  advanced ⇐ {Start‿Background‿End⇐Start‿Background‿End}
+  advanced ⇐ {
+    Start‿Background‿End⇐
+
+    # draw.advanced.Start
+    Start ← {𝕤
+      NeedsWindow@
+      raylib.BeginDrawing⟨⟩
+    }
+    # draw.advanced.Background
+    Background ← {𝕊r‿g‿b‿a:
+      NeedsWindow@
+      "Background: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
+      (∧´(255⊸≥∧>0⊸≤)𝕩)!˜"ClearBackground only accepts ints in the range 0-255 inclusive"
+      raylib.ClearBackground 𝕩
+    }
+    # draw.advanced.End
+    End ← {𝕤
+      NeedsWindow@
+      raylib.EndDrawing⟨⟩
+    }
+  }
 }
 
 font ← {
