@@ -55,7 +55,7 @@ newExports ← {
       " ⇐ •file.At "∾•Repr ⊑m/p
   ;
     "linux":
-      p←"/usr/local"‿"../raylib"•file.At¨<"lib/libraylib.dylib"
+      p←"/usr/local"‿"../raylib"•file.At¨<"lib/libraylib.so"
       m←Exists¨p
       (∨´m)!˜err∾"Couldn't find libraylib.so file at paths: "∾∾nl∾¨p
       " ⇐ "∾•Repr⊑m/p
@@ -72,13 +72,13 @@ newExports ← {
       exitcode‿stdout‿· ← •SH⎊1‿⟨⟩‿@ "brew"‿"--prefix"‿"raylib"
       p ← •file.At⟜"include/raylib.h"¨"../raylib"‿{exitcode≡0?nl⊸≠⊸/stdOut;default}
       (∨´m←Exists¨p)!˜err∾"Couldn't find file raylib.h at paths:"∾∾nl∾¨p
-      " ⇐ "∾"•file.At "⊸∾⍟('/'=⊑) ".."•file.At ⊑m/p
+      " ⇐ "∾"•file.At "⊸∾⍟('/'=⊑) •Repr ".."•file.At ⊑m/p
   ;
     "linux":
       p←"/usr/local"‿"../raylib" •file.At¨<"include/raylib.h"
       m←Exists¨p
       (∨´m)!˜err∾"Couldn't find raylib.h file at path: "∾∾nl∾¨p
-      " ⇐ "∾"•file.At "⊸∾⍟('/'=⊑)".."•file.At ⊑m/p
+      " ⇐ "∾"•file.At "⊸∾⍟('/'=⊑) •Repr ".."•file.At ⊑m/p
   }•platform.os
 ;
   !"Attempted to implement non-existant config: "∾𝕩
