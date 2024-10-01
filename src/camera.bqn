@@ -295,8 +295,8 @@ MakeCameraUpdater ← {𝕊⟨
         G ← GetGamepadAxisMovement 0⊸⋈
 
         # Gamepad controller support
-        camera CameraYaw  ˜↩⟨camera_mouse_move_sensitivity×¯2×G gamepadAxis.gamepad_axis_right_x,           rotateAroundTarget⟩
-        camera CameraPitch˜↩⟨camera_mouse_move_sensitivity×¯2×G gamepadAxis.gamepad_axis_right_y, lockView, rotateAroundTarget, rotateUp⟩
+        camera CameraYaw  ˜↩⟨camera_mouse_move_sensitivity×¯20×G gamepadAxis.gamepad_axis_right_x,           rotateAroundTarget⟩
+        camera CameraPitch˜↩⟨camera_mouse_move_sensitivity×¯20×G gamepadAxis.gamepad_axis_right_y, lockView, rotateAroundTarget, rotateUp⟩
 
         camera Forward⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_y)˜↩ frameAdjusting ×  camera_move_speed
         camera Forward⍟( 0.25≤G gamepadAxis.gamepad_axis_left_y)˜↩ frameAdjusting × -camera_move_speed
