@@ -29,7 +29,7 @@ OnStart ← {𝕤
   # first in list is the current facing, pressing right 1⌽ pressing left 1⌽⁼
   facing ← [1‿0, 0‿¯1, ¯1‿0, 0‿1]
   # buffer for key presses
-  buffer ← ⟨⟩
+  buffer ← ↕0
   palete ← nonDarkMode
   gameState‿frame‿snake‿fruit‿facing‿speed‿buffer‿palete
 }
