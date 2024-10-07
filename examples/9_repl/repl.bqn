@@ -1,6 +1,5 @@
 ⟨co⇐color,window,⟨_withCanvas_⟩⇐draw,k⇐key⟩←r←•Import "../../rayed.bqn"
 ⟨lf,Split⟩  ← •Import "../../imports/bqn-libs/strings.bqn"
-sysVals     ← •Import"sysVals.bqn"
 fontSize    ← 50
 lineSpacing ← 40
 charSize    ← 27‿50
@@ -18,7 +17,7 @@ Game ← {𝕤
     rmFn↩1
   }
   bqn ← •ReBQN{
-    s←sysvals∾⟨"r"‿r,"drawtext"‿DrawText,"back"‿Back⟩
+    s←(⋈⟜(•state•BQN'•'⊸∾)¨•listSys)∾⟨"r"‿r,"drawtext"‿DrawText,"back"‿Back⟩
     system ⇐ s∾<"listsys"(⊣⋈<⊸∾)⊑¨s
     repl   ⇐ "loose"
   }
@@ -53,8 +52,8 @@ Game ← {𝕤
     {
       DrawText˜´¨(⊢⋈¨50∾¨50×↕∘≠)lf Split𝕩
       co.white r.draw.Line ⍉[0‿0,0‿50]+50‿0+charSize×(∧`⌾⌽∘¬⋈○(+´)⊢)lf=p↑s
-    }_withCanvas_ co.black newS 
-    
+    }_withCanvas_ co.black newS
+
     rr
   }•_While_(¬window.ShouldClose) ""‿⟨⟩‿0
 

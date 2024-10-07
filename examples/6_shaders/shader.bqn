@@ -122,7 +122,7 @@ shaderT ← NestedStructToStr2 rf.shader
     lights {
       ¬⌾(rlights.lightIndex.enabled⊸⊑)⍟(rl.key.IsPressed 𝕩)𝕨
     }¨↩ ⟨ key.y ⋄ key.r ⋄ key.g ⋄ key.b ⟩
-    
+
     # Update light values (actually, only enable/disable them)
     shader⊸rlights.UpdateLightValues¨ lights
     #----------------------------------------------------------------------------------
