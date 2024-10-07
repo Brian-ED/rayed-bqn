@@ -190,16 +190,16 @@ window ← {
   GetPos ← {𝕊:isopen?
     raylib.GetWindowPosition⟨⟩
   ;
-    pos
+    tempPos
   }
 
   # Set the x‿y position of the window   (relative to current monitor?)
   # window.SetPos
-  pos ← 0‿0
+  tempPos ← 0‿0
   SetPos ← {isopen?
     raylib.SetWindowPosition⊸⊢𝕩
   ;
-    pos ↩ 𝕩
+    tempPos ↩ 2⥊𝕩
   }
 
   # tempSize is used to store size until window is open
@@ -211,12 +211,17 @@ window ← {
     ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
     ((⟨⟩⊸≡∨⟨2⟩⊸≡)≢𝕩)!˜"Size can be a scalar (⟨⟩≢≢𝕨) or length two list (⟨2⟩≡≢𝕨)"
     isOpen?
+
+      #TODO: instead of error, save the size for when you make the window normal again.
+      "Cannot set window size while it's maximized"!¬raylib.IsWindowMaximized⟨⟩
+      "Cannot set window size while it's minimized"!¬raylib.IsWindowMinimized⟨⟩
+
       s ← (raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight) raylib.GetCurrentMonitor⟨⟩
       f ← (1⊸>∧0⊸≤)𝕩
       # if given size is 0-1, scale the window relative to monitor size
       raylib.SetWindowSize ⌈2⥊s×⟜¬⌾(f⊸/)2⥊𝕩
   ;
-    tempSize↩𝕩
+    tempSize↩2⥊𝕩
   }
 
   # Get the width and hight of the window, width and hight being relative to window position
@@ -234,12 +239,22 @@ window ← {
   Open ⇐ {𝕊 title:
     (¬isOpen)!˜"The window cannot be opened twice"
     raylib.SetConfigFlags flags←2⊸×⊸+˜´GetState@
-    raylib.InitWindow pos∾<𝕩
+    raylib.InitWindow 0‿0‿𝕩
     isOpen↩1
-    SetSize tempSize
-
     raylib.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
-    raylib.SetWindowPosition⍟("windows"≡•platform.os) 0‿42 # 42 here is the window header on windows only
+    # if given size is 0-1, scale the window relative to monitor size
+    S ← {𝕊:s⊣s↩(raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight) raylib.GetCurrentMonitor⟨⟩}
+    isScalingPos ← (1⊸>∧0⊸≤)tempPos
+    raylib.SetWindowPosition {
+      ("windows"≡•platform.os) ∧ IsDecorated⊸∧ ¬IsFullscreen@?
+        0‿42+𝕩  # 42 here is the window header on windows only
+      ; 𝕩
+    } {isScalingPos/S@}⍟(×≠)⊸×⟜¬⌾(isScalingPos⊸/) tempPos
+
+    "Cannot set fullscreen and set window size to non-0" !¬ IsFullscreen⊸∧0‿0≢tempSize
+    isScaling ← (1⊸>∧0⊸≤)tempSize
+    raylib.SetWindowSize ⌈{∨´isScaling?isScaling/S@;⟨⟩}⊸×⟜¬⌾(isScaling⊸/)tempSize
+
     # Setting fps to the refresh rate of the currently selected monitor
     SetFPS raylib.GetMonitorRefreshRate raylib.GetCurrentMonitor⟨⟩
     window
@@ -320,7 +335,7 @@ window ← {
   SetHidden            ⇐ {!⊑𝕩∊↕2 ⋄ hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
   SetRunWhileMinimized ⇐ {!⊑𝕩∊↕2 ⋄ runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
   SetMinimized         ⇐ {!⊑𝕩∊↕2 ⋄ minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
-  SetMaximized         ⇐ {!⊑𝕩∊↕2 ⋄ maximized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_maximized         } # window.SetMaximized
+  SetMaximized         ⇐ {!⊑𝕩∊↕2 ⋄ maximized         ↩ 𝕩 ⊣   raylib.MaximizeWindow∘⟨⟩⍟(𝕩=IWS)⍟isOpen cf.window_maximized         } # window.SetMaximized
   SetFocused           ⇐ {!⊑𝕩∊↕2 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
   SetTopmost           ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
   SetHighDPI           ⇐ {!⊑𝕩∊↕2 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  } # window.SetHighDPI
@@ -432,7 +447,13 @@ draw ← {
 
   # Draw line from x1‿y1 to x2‿y2
   # draw.Line
-  Line ← {𝕨𝕊[x1‿y1⋄x2‿y2]:
+  Line ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
+    NeedsWindow@
+    "Line: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"⋄2‿2⥊'i'⟩
+    raylib.DrawLineEx(<˘𝕩)∾1⋈𝕨
+  }⎉1‿2
+
+  ThickLine ← {𝕊:
     NeedsWindow@
     leftArg ← {
       𝕊r‿g‿b‿a:1⋈˜𝕩;
@@ -742,7 +763,7 @@ sound ⇐ {
 
       bqnSound ← {
         freq‿format‿bqnSound ← bqnoise.ReadFull filePath
-        ⌊∘÷⟜(2⋆¯16+1⊑format) bqnSound bqnoiseOptions.Resample˜ freq∾bqnoiseOptions.freq
+        ⌊∘÷⟜(2⋆¯16+1⊑format) freq‿bqnoiseOptions.freq bqnoiseOptions.Resample⍟(≢´⊣) bqnSound
       }
       ⟨
         1⊑≢bqnSound   # frameCount
