@@ -32,12 +32,6 @@ modelIndex ← { # Model, meshes, materials and animation data
   bindPose      ⇐ 8 # "*"∾transform  # Bones base transformation (pose)
 }
 
-materialIndex ⇐ ⟨ # Material, includes shader and maps
-  shader ⇐ 0 # shader          # Material shader
-  maps   ⇐ 1 # "*"∾materialMap # Material maps array (MAX_MATERIAL_MAPS)
-  params ⇐ 2 # "[4]"∾f         # Material generic parameters (if required)
-⟩
-
 #------------------------------------------------------------------------------------
 # Program main entry point
 #--------------------------------------------------------------------------------------

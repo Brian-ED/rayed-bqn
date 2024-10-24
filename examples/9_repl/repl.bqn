@@ -46,7 +46,6 @@ Game ← {𝕤
   {𝕊s‿f‿p:
     ky‿c ← {1↓𝕏⊸∾•_While_(∧´0‿@≠⊑)𝕏@}¨k.PressedKey‿k.PressedChar # Input
     {ky‿c𝕏s}¨f
-    # •Show⍟(⟨⟩⊸≢)k # debugging
     newS←⊑rr←{rmFn↩0⋄¯1⊸↓⌾(1⊑⊢)𝕩}⍟rmFn(+⟜(≠c)⋈↑∾c∾↓)´⌾(2‿0⊸⊏)s‿f‿p KeyFunc´ky
     # Rendering
     {

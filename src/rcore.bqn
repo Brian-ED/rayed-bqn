@@ -3,8 +3,7 @@
   GetWorldToScreen ⋄ GetWorldToScreenEx
 ⟩⇐
 ⟨MP ⋄ Rot2D⇐MatrixRotate2D⟩ ← rm ← •Import "raymath.bqn"
-rf ← •Import "../ffi/raylib.bqn"
-⟨NeedsWindow⟩ ← •Import "global.bqn"
+⟨raylib ⋄ NeedsWindow⟩ ← •args
 ⟨rlgl ⋄ ⟨perspective⋄orthographic⟩⇐cameraProjection⟩ ← •Import "constants.bqn"
 
 # Get camera 2d transform matrix
@@ -37,7 +36,7 @@ GetCameraMatrix ← {𝕊position‿target‿up‿fovy‿projection:
 # Get the screen space position from a 3d world space position
 GetWorldToScreen ← {𝕊position‿camera: # v3‿cam3d
   NeedsWindow@
-  screenPos ← GetWorldToScreenEx⟨position, camera, rf.GetScreenWidth⟨⟩, rf.GetScreenHeight⟨⟩⟩
+  screenPos ← GetWorldToScreenEx⟨position, camera, raylib.GetScreenWidth⟨⟩, raylib.GetScreenHeight⟨⟩⟩
 }
 
 # Get size position for a 3d world space position (useful for texture drawing)

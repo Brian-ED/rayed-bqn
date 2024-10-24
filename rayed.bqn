@@ -4,12 +4,6 @@
 
 # x and y as variables (also x1 y1, x2 y2 etc) are always positions
 
-# Wrapping rayed.bqn as a namespace.
-# This is so that libs that require rayed.bqn as dependency,
-# can still live in rayed.bqn.
-{𝕩.StartUp𝕩⋄𝕩}{
-StartUp ⇐ {𝕩⊣camera ↩ 𝕩 •Import "src/camera.bqn"}
-
 # -------
 # Exports
 ⟨
@@ -19,7 +13,6 @@ StartUp ⇐ {𝕩⊣camera ↩ 𝕩 •Import "src/camera.bqn"}
 ⟩⇐
 
 ⟨
-  gamepadButton, gamepadAxis
   materialMapIndex
   shaderLocationIndex, shaderUniformDataType, shaderAttributeDataType
   pixelFormat
@@ -31,46 +24,47 @@ StartUp ⇐ {𝕩⊣camera ↩ 𝕩 •Import "src/camera.bqn"}
   cameramode, cameraProjection
   nPatchLayout
   color
+  rlglValues⇐rlgl
 ⟩ ⇐ ⟨
+  gamepadButton, gamepadAxis
   bqnFontChars
   windowConfigFlags
   traceLogLevel
 ⟩ ← •Import "src/constants.bqn"
 
-global ← •Import "src/global.bqn"
-NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
-global.SetNeedsWindow needsWindow
 
-# Loading dependencies
-⟨raylib⟩ ⇐ {
-  paths ← ⟨"ffi/raylib.bqn"⟩
-  {𝕊:⟨⟩•Import"src/parseFFI.bqn"}⍟¬∧´•file.Exists¨paths
-  !∧´•file.Exists¨paths
-  {𝕊:
-    •Out "Attempting reparsing for automatic fix."
-    ⟨⟩ •Import "src/parseFFI.bqn"
-    •Out∘"Fix successful"⊸⊢ •Import¨paths
-  }⍟(∨´0⊸≡¨) •Import⎊{
-    0⊣•Out "Error running "∾𝕩
-  }¨paths
-}
+{!"git-submodules "∾(•Repr𝕩)∾" not found.
+Use the following command to install the neccessary git submodules:
+
+  git submodule update --init --recursive
+"}⍟(0≠≠){¬•file.Exists"imports"•file.At𝕩}¨⊸/ "bqn-libs"‿"BQN386"‿"BQNoise"‿"raylib-bqn"
+
+# -------
+# internal functions
+NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
+# -------
+
+# -------
+# Imports
+raylib  ⇐ ⟨•file⟩ •Import "src/loadRaylib.bqn"
 raymath ← •Import "src/raymath.bqn"
-image   ← •Import "src/image.bqn"
+image   ← raylib‿NeedsWindow •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
 bqnoise ← •Import "imports/BQNoise/wav.bqn"
 bqnoiseOptions ← •Import "imports/BQNoise/options.bqn"
-camera ← @ # has rayed.bqn as a dependency. Defined in Startup function.
+camera ← @ # has rayed.bqn as a dependency. camera is defined later in rayed.bqn.
 # -------
 
-# Utils:
-FileAt ← "/cygdrive/c"("C:"∾≠⊸↓)⍟(⊣≡≠⊸↑)•file.At # remade •FileAt to work for cygwin
+# -------
+# defaults
+raylib.SetTraceLogLevel traceLogLevel.warning # makes logs not output "INFO:" logs to stdOut
+# -------
 
-# Defaults
-raylib.SetTraceLogLevel traceLogLevel.warning # makes logs not output INFO: logs to stdOut
-
+# -------
 # constants
 i32_max ← ¯1+2⋆31
 i32_min ← -2⋆31
+# -------
 
 log ← {
   # log.setLevel
@@ -298,6 +292,7 @@ window ← {
   }
   # window.Screenshot
   Screenshot ← {𝕊:
+    NeedsWindow@
     raylib.LoadImageFromScreen⟨⟩
   }
 
@@ -335,7 +330,7 @@ window ← {
   SetHidden            ⇐ {!⊑𝕩∊↕2 ⋄ hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
   SetRunWhileMinimized ⇐ {!⊑𝕩∊↕2 ⋄ runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
   SetMinimized         ⇐ {!⊑𝕩∊↕2 ⋄ minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
-  SetMaximized         ⇐ {!⊑𝕩∊↕2 ⋄ maximized         ↩ 𝕩 ⊣   raylib.MaximizeWindow∘⟨⟩⍟(𝕩=IWS)⍟isOpen cf.window_maximized         } # window.SetMaximized
+  SetMaximized         ⇐ {!⊑𝕩∊↕2 ⋄ maximized         ↩ 𝕩 ⊣   raylib.MaximizeWindow∘⟨⟩⍟(𝕩=IWS)⍟isOpen cf.window_maximized} # window.SetMaximized
   SetFocused           ⇐ {!⊑𝕩∊↕2 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
   SetTopmost           ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
   SetHighDPI           ⇐ {!⊑𝕩∊↕2 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  } # window.SetHighDPI
@@ -567,7 +562,7 @@ font ← {
   # font.LoadBQN
   LoadBQN ← {𝕊fontSize: fontSize 100⍟(@⊸≡)↩
     NeedsWindow@
-    file ← ("Expected file at: "⊸∾!•file.Exists)⊸⊢ FileAt "imports/BQN386/BQN386.ttf"
+    file ← •file.RealPath ("Expected file at: "⊸∾!•file.Exists)⊸⊢ •file.At "imports/BQN386/BQN386.ttf"
     raylib.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
   }
   # font.LoadRaylib
@@ -846,6 +841,50 @@ sound ⇐ {
   Unload ⇐ raylib.UnloadSound
 }
 
+#gamepad ← {
+#  button‿axis⇐gamepadButton‿gamepadAxis
+#
+#  unknown          ⇐ 0   # Unknown button, just for error checking
+#  left_face_up     ⇐ 1   # Gamepad left DPAD up button
+#  left_face_right  ⇐ 2   # Gamepad left DPAD right button
+#  left_face_down   ⇐ 3   # Gamepad left DPAD down button
+#  left_face_left   ⇐ 4   # Gamepad left DPAD left button
+#  right_face_up    ⇐ 5   # Gamepad right button up (i.e. PS3: Triangle, Xbox: Y)
+#  right_face_right ⇐ 6   # Gamepad right button right (i.e. PS3: Square, Xbox: X)
+#  right_face_down  ⇐ 7   # Gamepad right button down (i.e. PS3: Cross, Xbox: A)
+#  right_face_left  ⇐ 8   # Gamepad right button left (i.e. PS3: Circle, Xbox: B)
+#  left_trigger_1   ⇐ 9   # Gamepad top/back trigger left (first), it could be a trailing button
+#  left_trigger_2   ⇐ 10  # Gamepad top/back trigger left (second), it could be a trailing button
+#  right_trigger_1  ⇐ 11  # Gamepad top/back trigger right (one), it could be a trailing button
+#  right_trigger_2  ⇐ 12  # Gamepad top/back trigger right (second), it could be a trailing button
+#  middle_left      ⇐ 13  # Gamepad center buttons, left one (i.e. PS3: Select)
+#  middle           ⇐ 14  # Gamepad center buttons, middle one (i.e. PS3: PS, Xbox: XBOX)
+#  middle_right     ⇐ 15  # Gamepad center buttons, right one (i.e. PS3: Start)
+#  left_thumb       ⇐ 16  # Gamepad joystick pressed button left
+#  right_thumb      ⇐ 17  # Gamepad joystick pressed button right
+#
+#  ps4 ← {
+#    x ⇐ right_face_down
+#    o ⇐ right_face_left
+#    square ⇐ right_face_right
+#    triangle ⇐ right_face_up
+#  }
+#  xboxButton ← 
+
+# isGamepadAvailable
+# getGamepadName
+# isGamepadButtonPressed
+# isGamepadButtonDown
+# isGamepadButtonReleased
+# isGamepadButtonUp
+# getGamepadButtonPressed
+# getGamepadAxisCount
+# getGamepadAxisMovement
+# setGamepadMappings
+# setGamepadVibration
+
+#}
+
 key ← {
   IsKey ⇐ ("Key doesn't exist"!0⊸≤∧<⟜512)⚇0 @-˜⍟≤⚇0⊢
 
@@ -1003,6 +1042,8 @@ model ← {
   DrawWiresEx ← {raylib.DrawModelWiresEx 𝕩}
 }
 
+# Late imports that need rayed.bqn as dependency
+camera ↩ key‿mouse‿raylib‿raymath •Import "src/camera.bqn"
 
 
 
@@ -1073,20 +1114,6 @@ model ← {
 # startAutomationEventRecording
 # stopAutomationEventRecording
 # playAutomationEvent
-#
-# isGamepadAvailable
-# getGamepadName
-# isGamepadButtonPressed
-# isGamepadButtonDown
-# isGamepadButtonReleased
-# isGamepadButtonUp
-# getGamepadButtonPressed
-# getGamepadAxisCount
-# getGamepadAxisMovement
-# setGamepadMappings
-# setGamepadVibration
-#
-#
 # getTouchX
 # getTouchY
 # getTouchPosition
@@ -1171,9 +1198,6 @@ model ← {
 # genTextureMipmaps
 # setTextureFilter
 # setTextureWrap
-# drawTexture
-# drawTextureV
-# drawTextureEx
 # drawTextureRec
 # drawTexturePro
 # drawTextureNPatch
@@ -1341,4 +1365,3 @@ model ← {
 # detachAudioStreamProcessor
 # attachAudioMixedProcessor
 # detachAudioMixedProcessor
-}

@@ -3,7 +3,7 @@
   GenGradientLinear ⋄ GenGradientSquare
   GenGradientRadial ⋄ GenChecked
   GenColor
-  
+
   # Raylib image format functions
   _AsRayImg ⋄ Copy ⋄ ToArr
   LoadFromArr ⋄ Unload
@@ -20,9 +20,8 @@
 # No function unloads or mutates input image, except Unload
 
 ⟨pixelFormat⟩ ← •Import "constants.bqn"
-⟨NeedsWindow⟩ ← •Import "global.bqn"
-raylib ← •Import "../ffi/raylib.bqn"
-low    ← •Import "low.bqn"
+low ← •Import "low.bqn"
+raylib‿NeedsWindow ← •args
 
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
 
@@ -87,7 +86,7 @@ ToArr ← {𝕊raylibImg:
     ⊑⊑raylib.ImageFormatRef ⟨Copy 𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   }⍟changeFormat 𝕩
   "Invalid image format"!×format
-  bqnImg ← hight‿width‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
+  bqnImg ← hight‿width‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint
   raylib.MemFree⍟changeFormat dataPtr
   bqnImg
 }
@@ -129,7 +128,7 @@ GifToImages ← {𝕊bytes:
     NeedsWindow@
     image‿⟨frames⟩ ← raylib.LoadImageAnimFromMemoryRef ⟨".gif"⋄bytes⋄≠bytes⋄⟨0⟩⟩ # fileType fileData dataSize frames # Load image sequence from memory buffer
     dataptr‿width‿hight‿·‿format←image
-    width‿hight‿4‿frames(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint 
+    width‿hight‿4‿frames(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint
   ;
   @
 }
@@ -168,14 +167,14 @@ GenGradientRadial ← {[inner⋄outer]𝕊size‿density:
   radial ← +⌜´⌾(×˜)(size÷2)-˜↕¨size # make circle
   radial-↩ r×density                # resize center
   radial÷↩ 0⊸=⊸+r×¬density          # add blur
-  ⍉inner + ⌊(outer-inner)×⌜ 1⌊0⌈ radial # coloring 
+  ⍉inner + ⌊(outer-inner)×⌜ 1⌊0⌈ radial # coloring
 }
 
 #----------------------------------------------------------------------------------
 # Image conversions
 #----------------------------------------------------------------------------------
 
-# used to get brightness of color: 
+# used to get brightness of color:
 #   +´luminocity×color
 # color.luminocity
 luminocity ← 0.299‿0.587‿0.114‿0
@@ -252,11 +251,11 @@ CropAlpha ← {threshold𝕊image:
 # imageDraw
 # imageDrawText
 # imageDrawTextEx
-# 
+#
 # exportImage
 # exportImageToMemory
 # exportImageAsCode
-# 
+#
 
 
 #TESTING

@@ -4,6 +4,6 @@
 [submodule "imports/BQN386"]
 	path = imports/BQN386
 	url = https://github.com/dzaima/BQN386
-[submodule "imports/c-header-to-bqn-ffi"]
-	path = imports/c-header-to-bqn-ffi
-	url = https://github.com/Brian-ED/c-header-to-bqn-ffi.git
+[submodule "imports/raylib-bqn"]
+	path = imports/raylib-bqn
+	url = https://github.com/Brian-ED/raylib-bqn.git
