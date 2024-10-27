@@ -35,14 +35,14 @@ raylibLibPath ← {
 
 {𝕊:
   ⟨raylibLibPath⟩ •Import RealPath "imports/raylib-bqn/raylib.bqn"
-}{𝕘⋄𝔽}{𝕊:
+}⎊{𝕊:
   !•CurrentError⊸∾ ∾lf∾¨⟨
     "Likely incorrect raylib version."
     "Run the following script to install the correct version."
     "Requires an internet connection."
     "Output is ./rayed-bqn/raylib."
     ""
-    "  "∾RealPath "install-raylib/install.bqn"
+    "  bqn """∾""""∾˜RealPath "install-raylib.bqn"
     ""
   ⟩
 }@
