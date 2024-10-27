@@ -33,15 +33,12 @@
 ⟩ ← •Import "src/constants.bqn"
 
 
-{ # make sure all libraries are properly imported
-  imports ← "bqn-libs"‿"BQN386"‿"BQNoise"‿"raylib-bqn"
-  imports "imports"⊸•file.At¨↩
-  {!"git-submodules "∾(•Repr𝕩)∾" not imported.
-  Use the following command to install the neccessary git submodules:
+{!"git-submodules "∾(•Repr𝕩)∾" not found.
+Use the following command to install the neccessary git submodules:
 
-    git submodule update --init --recursive
-  "}⍟(0≠≠) {•file.Exists𝕩?⟨⟩≡•file.List𝕩?0;1}¨⊸/ imports
-}
+  git submodule update --init --recursive
+"}⍟(0≠≠){¬•file.Exists"imports"•file.At𝕩}¨⊸/ "bqn-libs"‿"BQN386"‿"BQNoise"‿"raylib-bqn"
+
 # -------
 # internal functions
 NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
