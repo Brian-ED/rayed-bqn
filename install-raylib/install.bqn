@@ -9,28 +9,33 @@ binariesPath ← "../lib"
 ;  "windows": ⟨".zip"   ⋄"raylib.dll"     ⋄"raylib-"∾version∾"_win64_msvc16"⟩
 } os
 
+git_clone_path ← "https://www.github.com/raysan5/raylib/releases/download/"∾version∾"/"∾raylibFolder∾ext
+
+Exec ← {e‿·‿o:o!0≡e}•SH
+
 # Expected library to not exist
-{𝕊:
-  !"raylib already installed. Delete it to re-install. (rm "∾')'∾˜Realpath 𝕩
-}⍟Exists binariesPath At libFile
+{𝕊:!"
+raylib already installed. Delete it to re-install.
+  rm "∾(Realpath 𝕩)∾"
+"}⍟Exists binariesPath At libFile
 
 # ---------------
 # download raylib
 # ---------------
 
-{"windows"≡os?
-  •SH ⋈ RealPath "windows.ps1"
-;
-  unarchive ← {
-    ".tar.gz": {"tar"‿"-xzf"‿𝕩‿"-C"‿path}
-  ; ".zip": {"unzip"‿"-d"‿path‿𝕩}
-  } ext
-  Exec ← {e‿·‿o:o!0≡e}•SH
-  Exec ⟨"wget" ⋄ "-O" ⋄ At"temp"∾ext
-    "https://www.github.com/raysan5/raylib/releases/download/"∾version∾"/"∾raylibFolder∾ext
+# Download raylib zip/tar file
+Exec {"windows"≡os?
+  ⟨
+    "Powershell.exe" ⋄ "-Command"
+    "curl -o """∾(At"temp"∾ext)∾""" "∾git_clone_path
   ⟩
-  Exec Unarchive Realpath"temp"∾ext
+;
+  ⟨"wget" ⋄ "-O" ⋄ At"temp"∾ext ⋄ git_clone_path⟩
 }
+
+# unzip/untar/unarchive raylib
+# tar on windows handles zip files, while mac/linux get raylib as tar.gz files
+Exec ⟨"tar" ⋄ "-xzf"⋄Realpath"temp"∾ext ⋄ "-C"⋄path⟩
 Remove Realpath"temp"∾ext
 
 # ---------------------
@@ -42,17 +47,18 @@ CreateDir⍟(¬Exists) binariesPath
 # -----------------
 # clean away raylib
 # -----------------
-
-(raylibFolder At "a") •FChars "helloo.txt"
-
-filesToBeDeleted ← raylibFolder⊸At¨ ∾"lib"‿"include"‿"" At⚇1 ⟨
-  •file.List raylibFolder At"lib"
-  "raylib.h"‿"raymath.h"‿"rlgl.h"
-  "CHANGELOG"‿"LICENSE"‿"README.md"‿"a"
+filesToBeDeleted ← raylibFolder⊸At¨ ∾⟨
+  "lib"    ⊸At¨•file.List raylibFolder At"lib"
+  "include"⊸At¨"raylib.h"‿"raymath.h"‿"rlgl.h"
+  "CHANGELOG"‿"LICENSE"‿"README.md"
 ⟩
 {𝕊:!"Unexpected files in "∾raylibFolder∾", "∾•Repr filesToBeDeleted
 }⍟(0≠≠)¬∘Exists¨⊸/filesToBeDeleted
 Remove¨filesToBeDeleted
 cleaupErrorMsg ← "Cleanup unsuccessful. Please delete "∾raylibFolder∾" manually "
-{cleaupErrorMsg!0‿⟨⟩‿⟨⟩≡•SH"rmdir"⋈Realpath raylibFolder At𝕩}¨"lib"‿"include"‿""
-#•file.Remove Realpath raylibFolder
+RMDirCmd ← {
+  os≡"windows"?
+    ⟨"Powershell.exe" ⋄ "-Command" ⋄ "RD '"∾𝕩∾"'"⟩
+; "rmdir"⋈𝕩
+}
+{cleaupErrorMsg!0‿⟨⟩‿⟨⟩≡•SH RMDirCmd Realpath raylibFolder At𝕩}¨"lib"‿"include"‿""
