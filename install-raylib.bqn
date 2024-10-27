@@ -1,7 +1,8 @@
+#!usr/bin/env bqn
 ⟨Realpath⋄At⋄Exists⋄CreateDir⋄Remove⋄List⋄Bytes⋄path⟩ ← •file
 ⟨os⟩←•platform
 version ← "5.0"
-binariesPath ← "../lib"
+binariesPath ← "lib"
 
 ⟨               ext     ⋄ libFile         ⋄ raylibFolder
 ⟩←{"darwin":  ⟨".tar.gz"⋄"libraylib.dylib"⋄"raylib-"∾version∾"_macos"       ⟩
