@@ -21,7 +21,7 @@
 debug ← 1
 clock ← rl.StartClock@
 
-LogoAnimation ← {𝕊background:
+LogoAnimation ← {𝕊:
   isClosed ← 0
 
   _Scene_ ← { Scene _𝕣_ Until:
@@ -30,7 +30,7 @@ LogoAnimation ← {𝕊background:
     {
       clock.Tick@
       isClosed ↩ window.ShouldClose@
-      Scene draw._withCanvas_ background 𝕩
+      Scene draw._withCanvas⟜color.red 𝕩
       NextFrame⊸+𝕩
     } •_while_ {¬isClosed∨Until𝕩}0
   }
@@ -73,4 +73,4 @@ LogoAnimation ← {𝕊background:
     ⟩
   } _Scene_ {255≤30×¯10+𝕩÷12}
 }
-LogoAnimation∘color.red window._openAs "helloo"
+LogoAnimation window._openAs "helloo"

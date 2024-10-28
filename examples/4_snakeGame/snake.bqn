@@ -49,28 +49,30 @@ PerGameFrame ← {𝕊gameState‿snake‿fruit‿facing‿buffer:
 }⌾(0‿2‿3‿4‿6⊸⊏)
 PerFrame ←{con𝕊⟨gameState,frame,snake,fruit,facing,speed,buffer,pal⟩:
   pauseP ← k.right_shift = key ← k.PressedKey@
-  c.black‿con.font‿40 draw.Text 10‿10⋈•Repr ¯1+≠snake
-  ⊑◶⟨ # each function is one scene
-    {
-      pal.text‿con.font‿textSize draw.Text "GAME OVER"⋈˜2⥊2÷˜con.winSize-1⊑con.textPixelSize
-      pal⌾(7⊑⊢)OnStart⍟pauseP 𝕩 # nums mean values to reset
-    }
-    PerGameFrame⍟(1=speed|frame) {𝕤
-      c.white⊸draw.Line˘con.lines
-      pal.fruit draw.Rectangle +`(1+con.tileSize×1+fruit)≍2⥊con.tileSize-2
-      pal.snake⊸draw.Rectangle⟜⍉˘(con.tileSize-2)(⍉+≍⊢)˘1+con.tileSize×1+snake
-      ⟨frame+1
-       2⌈speed+-´key=k.down‿k.up        # speed
-       key∾⍟(⊑∊⟜k.left‿k.right) buffer⟩ # Key buffer
-    }⌾(1‿5‿6⊸⊏)
-    {
-      pauseText←"Paused, d for dark"
-      pal.text‿con.font‿textSize draw.Text (2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize)‿pauseText
+  𝕨⊸{𝕊:
+    c.black‿con.font‿40 draw.Text 10‿10⋈•Repr ¯1+≠snake
+    ⊑◶⟨ # each function is one scene
+      {
+        pal.text‿con.font‿textSize draw.Text "GAME OVER"⋈˜2⥊2÷˜con.winSize-1⊑con.textPixelSize
+        pal⌾(7⊑⊢)OnStart⍟pauseP 𝕩 # nums mean values to reset
+      }
+      PerGameFrame⍟(1=speed|frame) {𝕤
+        c.white⊸draw.Line˘con.lines
+        pal.fruit draw.Rectangle +`(1+con.tileSize×1+fruit)≍2⥊con.tileSize-2
+        pal.snake⊸draw.Rectangle⟜⍉˘(con.tileSize-2)(⍉+≍⊢)˘1+con.tileSize×1+snake
+        ⟨frame+1
+        2⌈speed+-´key=k.down‿k.up        # speed
+        key∾⍟(⊑∊⟜k.left‿k.right) buffer⟩ # Key buffer
+      }⌾(1‿5‿6⊸⊏)
+      {
+        pauseText←"Paused, d for dark"
+        pal.text‿con.font‿textSize draw.Text (2÷˜con.winSize-con.textPixelSize⊑⊸∾textSize)‿pauseText
 
-      {𝕩≡nonDarkMode?darkMode;nonDarkMode}⌾(7⊑⊢)⍟(key=k.d)𝕩
-    }
-  ⟩  {1:2;2:1;𝕩}⍟pauseP⌾⊑ 𝕩
-} draw._withCanvas_ {(7⊑𝕩).background}
+        {𝕩≡nonDarkMode?darkMode;nonDarkMode}⌾(7⊑⊢)⍟(key=k.d)𝕩
+      }
+    ⟩  {1:2;2:1;𝕩}⍟pauseP⌾⊑ 𝕩
+  }⟜𝕩 draw._withCanvas pal.background
+}
 
 Game ← LoadConsts PerFrame•_While_(¬window.ShouldClose) OnStart
 Game window._openAs "Snake"

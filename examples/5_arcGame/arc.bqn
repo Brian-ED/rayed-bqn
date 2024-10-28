@@ -70,7 +70,7 @@ OnStart ← {𝕤
   font←r.font.LoadBQN 100
   DT ← ⟨c.white⋄font⋄30⟩ draw.Text ⋈⟜((»⊸∨≠⟜' ')⊸/)
 
-  _Scene_ ← {𝔽 draw._withCanvas_ c.black •_While_ (window.ShouldClose<𝔾)}
+  _Scene_ ← {𝔽draw._withCanvas⟜c.black •_While_ (window.ShouldClose<𝔾)}
 
   StartScreen ← DT´¨∘⟨
     30‿30⋈"Power the machines by moving the mirrors"
@@ -90,7 +90,7 @@ OnStart ← {𝕤
 
   StartScreen@
 
-  {levelNumber𝕊level:
+  {𝕊levelNumber‿level:
     0‿0 DT "Level "∾•Repr 1+levelNumber
     key ← k.PressedChar@
     hit ← DrawBoard level
@@ -114,8 +114,8 @@ OnStart ← {𝕤
     }
     won ← ∧´goalOff=⊑⟜level¨out⊸DrawLaser¨/○⥊⟜(↕≢)level∊lasers
 
-    out⍟¬won
-  } _Scene_ (2==∘⊢) {MiddleScreen∘𝔽}¨˜⟜(↕≠)levels
+    levelNumber⋈out⍟¬won
+  } _Scene_ ((2==∘⊢)´) {MiddleScreen∘𝔽⋈}¨˜⟜(↕≠)levels
 
   EndScreen@
 

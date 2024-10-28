@@ -161,7 +161,7 @@ lightIndex ⇐ {
       "Press KEY_SPACE to stop movement animation"
       "Press KEY_R to recenter the camera"
     ⟩
-  }rl.draw._withCanvas_ black •_while_ (¬rl.window.ShouldClose)@
+  }rl.draw._withCanvas⟜black •_while_ (¬rl.window.ShouldClose)@
   # De-Initialization
   #--------------------------------------------------------------------------------------
   rf.UnloadShader shader              # Unload shader

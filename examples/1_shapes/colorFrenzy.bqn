@@ -25,7 +25,7 @@ Start ← {𝕊tex:
         c.white‿tex‿scale‿0 d.Texture 0‿0
         c.white‿font‿30 d.Text 20‿20⋈•Repr∘window.GetFPS⊸∾" FPS"
         frame+↩1
-    }⊸⊢d._withCanvas_ c.black
+    }⊸⊢d._withCanvas⟜c.black
 
     App ← PerFrame •_While_(¬window.ShouldClose)
     App r.texture._WithImage (size∾4)⥊255

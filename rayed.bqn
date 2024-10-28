@@ -380,7 +380,7 @@ window ← {
 # Drawing
 draw ← {
   ⟨
-    _WithCanvas_ ⋄ _in3D ⋄ _inRectangle
+    _WithCanvas ⋄ _in3D ⋄ _inRectangle
     Rectangle ⋄ Triangle ⋄ Line
     Ellipse ⋄ EllipseOutline
     Text ⋄ Texture ⋄ advanced
@@ -394,18 +394,17 @@ draw ← {
     raylib.BeginMode3D 𝕩
     raylib.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
-  # Start drawing, draw background as color 𝕨𝔾𝕩, use function 𝕨𝔽𝕩, end drawing
-  # draw._WithCanvas_
-  _withCanvas_ ← {𝕨DrawingFunc _𝕣_ Func_returning_a_color𝕩:
-    color←𝕨𝔾𝕩
+  # Start drawing, draw background as color 𝕩, use function 𝔽𝕨, end drawing
+  # draw._WithCanvas
+  _withCanvas ← {𝕨DrawingFunc _𝕣 color: arg←𝕨⊣@
     NeedsWindow@
-    "_WithCanvas_ only accepts a color as output of 𝔾; 4 ints in the range 0-255 inclusive"!∧´⟨
-      color•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
-      ∧´(255⊸≥∧0⊸≤)color
+    "_WithCanvas only accepts 𝕩 as a color; 4 ints in the range 0-255 inclusive"!∧´⟨
+      𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
+      ∧´(255⊸≥∧0⊸≤)𝕩
     ⟩
     raylib.BeginDrawing⟨⟩
-    raylib.ClearBackground 𝕨𝔾𝕩
-    raylib.EndDrawing∘⟨⟩⊸⊢𝕨𝔽𝕩
+    raylib.ClearBackground 𝕩
+    raylib.EndDrawing∘⟨⟩⊸⊢𝔽arg
   }
 
   # draw._inTexture
@@ -502,7 +501,7 @@ draw ← {
     raylib.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
   }⎉1‿2
 
-  # These aren't recommended because they are useless if you use _WithCanvas_.
+  # These aren't recommended because they are useless if you use _WithCanvas.
   # They also don't behave well if ran in the wrong order,
   # you only want to run them in the "start, background, end" sequence
   advanced ⇐ {

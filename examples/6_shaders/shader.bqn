@@ -139,7 +139,7 @@ shaderT ← NestedStructToStr2 rf.shader
 
       rf.DrawFPS 10‿10
       rf.DrawText⟨"Use keys [Y][R][G][B] to toggle lights", 10, 40, 20, color.darkgray⟩
-    } draw._withCanvas_ color.raywhite @
+    }draw._withCanvas⟜color.raywhite @
     camera
     #----------------------------------------------------------------------------------
   } •_While_(¬window.ShouldClose) cameraOrig

@@ -80,7 +80,7 @@ PerFrame ← {font𝕊panelScroll‿panelView‿panelContentRec‿showContentAre
   }⌾(2⊸↓) panelContentRec
 
   panelScrollNew‿panelViewNew‿panelContentRecNew‿showContentAreaNew‿newDrawState
-} draw._withCanvas_ r.color.black
+}draw._withCanvas⟜r.color.black
 
 Start ← {𝕤
   font ← r.font.LoadBQN@

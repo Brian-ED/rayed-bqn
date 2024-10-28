@@ -14,7 +14,7 @@ PerFrame ← {
   𝕩 sound.Resume∘⊣⍟⊢¨key.IsPressed¨key.e‿key.f
   𝕩 sound.Stop∘⊣⍟⊢¨key.IsPressed¨key.g‿key.h
   𝕩 sound.IsPlaying∘⊣⍟⊢¨key.IsPressed¨key.i‿key.j
-}⊸⊢ draw._withCanvas_ black
+}⊸⊢draw._withCanvas⟜black
 
 Start ← {𝕤
   sounds ← sound.LoadFromFile¨ •file.At¨ "testSound1.wav"‿"testSound2.wav"

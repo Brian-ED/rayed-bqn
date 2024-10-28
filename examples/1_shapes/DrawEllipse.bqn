@@ -6,7 +6,7 @@ PerFrame ← {
   s←q⊸+˘[0‿0⋄100‿0⋄0‿100⋄¯100‿0⋄0‿¯100] # duping
   (white r.draw.EllipseOutline·⍉pos+⊢)˘˘⍉⁼s # moving + drawing
   100|𝕩+1
-}r.draw._withCanvas_ black
+}r.draw._withCanvas⟜black
 
 r.window.SetSize 0.5
 

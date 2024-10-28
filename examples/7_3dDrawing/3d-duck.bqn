@@ -59,7 +59,7 @@ PerFrame ← {duck𝕊oldCamera:
     # Draw 3d stuff relative to the camera
     } r.draw._in3d camera
 
-  } r.draw._withCanvas_ r.color.white@
+  }r.draw._withCanvas⟜r.color.white@
 
   camera # return the output state
 }

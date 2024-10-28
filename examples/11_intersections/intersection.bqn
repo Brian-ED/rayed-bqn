@@ -47,5 +47,5 @@ CheckCollisionRay2dCircle ← {direction𝕊center‿radius: c‿r←𝕩 # v2 �
     rf.DrawCircleV origin‿10‿color.yellow
     rf.DrawCircleV intersect‿5‿color.green
     color.blue rl.draw.Line +`origin≍direction×500
-  } draw._withCanvas_ color.black •_while_ (¬rl.window.ShouldClose)@
+  }draw._withCanvas⟜color.black •_while_ (¬rl.window.ShouldClose)@
 } rl.window._openAs "raylib extras [Math2d] example - ray rect intersection"

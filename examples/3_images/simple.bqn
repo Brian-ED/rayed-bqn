@@ -7,7 +7,7 @@ w.SetSize 0.5
 
   {𝕤
     c.white‿tex‿0.2‿0 d.Texture 0‿0
-  }d._withCanvas_ c.black •_While_(¬w.ShouldClose)@
+  }d._withCanvas⟜c.black •_While_(¬w.ShouldClose)@
 
   r.texture.Unload tex
 } w._openAs "test"

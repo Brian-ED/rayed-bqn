@@ -149,7 +149,7 @@ PerFrame←{𝕊camera‿cameraMode:
     TextI⟨"- Target: ("  ∾')'∾˜R cameraIndex.target⊑camera, 75⟩
     TextI⟨"- Up: ("      ∾')'∾˜R cameraIndex.up⊑camera, 90⟩
 
-  } draw._withCanvas_ color.raywhite @
+  }draw._withCanvas⟜color.raywhite @
   camera‿cameraMode
 } •_While_(¬rl.window.ShouldClose)
 

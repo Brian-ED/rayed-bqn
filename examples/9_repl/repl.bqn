@@ -1,4 +1,4 @@
-⟨co⇐color,window,⟨_withCanvas_⟩⇐draw,k⇐key⟩←r←•Import "../../rayed.bqn"
+⟨co⇐color,window,⟨_withCanvas⟩⇐draw,k⇐key⟩←r←•Import "../../rayed.bqn"
 ⟨lf,Split⟩  ← •Import "../../imports/bqn-libs/strings.bqn"
 fontSize    ← 50
 lineSpacing ← 40
@@ -51,7 +51,7 @@ Game ← {𝕤
     {
       DrawText˜´¨(⊢⋈¨50∾¨50×↕∘≠)lf Split𝕩
       co.white r.draw.Line ⍉[0‿0,0‿50]+50‿0+charSize×(∧`⌾⌽∘¬⋈○(+´)⊢)lf=p↑s
-    }_withCanvas_ co.black newS
+    }_withCanvas⟜co.black newS
 
     rr
   }•_While_(¬window.ShouldClose) ""‿⟨⟩‿0

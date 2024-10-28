@@ -44,7 +44,7 @@ PerFrame ← {meshes‿lights‿font𝕊lightToggle‿camera:
     raylib.DrawFPS 10‿10
     color.darkGray‿font‿20 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
 
-  } draw._withCanvas_ color.black @
+  }draw._withCanvas⟜color.black @
   out
 }
 

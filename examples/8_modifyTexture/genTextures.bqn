@@ -8,12 +8,14 @@ _OnStart ← {𝕨 Func _𝕣 𝕩:
     tex‿font Func 0‿0
   } r.texture._WithImage img
 }
-PerFrame ← {tex‿font𝕊frame‿rot:
-  c.white‿font‿30  d.Text 20‿20⋈•Repr∘w.GetFPS⊸∾" FPS"
-  (m.GetPos@)⊸{c.white‿tex‿0.2‿𝕩d.Texture𝕨}¨rot+90×↕4
-  r.raylib.UpdateTextureRaw tex⋈⥊frame⌽img
-  ⟨frame+1⋄90|m.WheelMoved⊸+rot⟩
-} d._withCanvas_ c.black
-
-Game ← PerFrame •_While_(¬w.ShouldClose)_OnStart
+PerFrame ← {𝕊:
+  tex‿font←𝕨
+  {𝕊frame‿rot:
+    c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.GetFPS⊸∾" FPS"
+    (m.GetPos@)⊸{c.white‿tex‿0.2‿𝕩d.Texture𝕨}¨rot+90×↕4
+    r.raylib.UpdateTextureRaw tex⋈⥊frame⌽img
+    ⟨frame+1⋄90|m.WheelMoved⊸+rot⟩
+  }d._withCanvas⟜c.black •_While_(¬w.ShouldClose)𝕩
+}
+Game ← PerFrame _OnStart
 Game w._openAs "test"

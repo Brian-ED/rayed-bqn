@@ -267,7 +267,7 @@ CropAlpha ← {threshold𝕊image:
 #  {d.Texture⟜(0‿700+m.GetPos) c.white‿tex2∾𝕩∾˜÷5}¨𝕩+90×↕4
 #  {d.Texture⟜(0‿450+m.GetPos) c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
 #  90|m.WheelMoved⊸+𝕩
-#} d._withCanvas_ c.black
+#}d._withCanvas⟜c.black
 #
 #r.window.SetSize 0.5‿0
 #

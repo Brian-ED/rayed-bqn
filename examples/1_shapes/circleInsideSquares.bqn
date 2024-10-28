@@ -18,7 +18,7 @@ PerFrame ← {𝕤
   {white   draw.Rectangle rec⊸+⊸≍𝕩+pos-rec÷2}˘outerRecs
   # color, shape,         positions
   # this drawing function is being used to draw on a black canvas
-} draw._withCanvas_ black
+}draw._withCanvas⟜black
 
 PerFrame•_While_(¬window.ShouldClose)window._openAs "Hello!!!"
 # run PerFrame while condition is true, and run this with the window opened as "Hello!!!"

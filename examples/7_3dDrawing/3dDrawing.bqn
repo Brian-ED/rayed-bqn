@@ -34,7 +34,7 @@ PerFrame ← {models‿lights‿font𝕊lightToggle‿camera:
     }r.draw._in3D camera
     raylib.DrawFPS 10‿10
     color.lightGray‿font‿20 draw.Text 10‿40⋈"Use keys [Y][R][G][B] to toggle lights"
-  } draw._withCanvas_ color.black @
+  }draw._withCanvas⟜color.black @
   lightToggle‿camera
 }
 
