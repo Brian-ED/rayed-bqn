@@ -1,4 +1,4 @@
-⟨⟨RealPath ⋄ Exists ⋄ At⟩⟩ ← •args
+⟨⟨RealPath ⋄ Exists ⋄ At⟩⟩ ← {𝕊:⋈⟨".."⟩•BQN"•file"}⍟(0=≠) •args
 lf ← @+10
 raylibLibPath ← {
   raylibName ← {
@@ -14,16 +14,16 @@ raylibLibPath ← {
       brewPath ← ⟨(@+10)⊸≠⊸/stdout⟩⍟(0≢e)⟨⟩
       "lib"‿"/usr/local/lib"∾brewPath
     ;!∾lf∾¨⟨
-      "Unknown OS, unable to find path to raylib shared library file automatically."
+      "Unknown OS, unable to find path to raylib binary automatically."
       "Try providing binary as argument (⟨""raylib.so""⟩•Import""rayed.bqn"")"
     ⟩
   }•platform.os
   {𝕊:
     !∾lf∾¨⟨
-      "Path to raylib not found at install location."
+      "Path to raylib binary not found at install location."
       ""
       "  To install raylib, run the install-raylib script:"
-      "    "∾RealPath "install-raylib/install.bqn"
+      "    bqn "∾•file.RealPath "../install-raylib.bqn"
       ""
       "  Already installed raylib? Tell rayed.bqn where to find it"
       "    ⟨""path/to/"∾raylibName∾"""⟩•Import""rayed.bqn"")"
@@ -34,15 +34,15 @@ raylibLibPath ← {
 }
 
 {𝕊:
-  ⟨raylibLibPath⟩ •Import RealPath "imports/raylib-bqn/raylib.bqn"
+  ⟨raylibLibPath⟩ •Import "../imports/raylib-bqn/raylib.bqn"
 }⎊{𝕊:
   !•CurrentError⊸∾ ∾lf∾¨⟨
     "Likely incorrect raylib version."
     "Run the following script to install the correct version."
     "Requires an internet connection."
-    "Output is ./rayed-bqn/raylib."
+    "Output goes in ./rayed-bqn/lib/"
     ""
-    "  bqn """∾""""∾˜RealPath "install-raylib.bqn"
+    "  bqn """∾""""∾˜•file.RealPath "install-raylib.bqn"
     ""
   ⟩
 }@

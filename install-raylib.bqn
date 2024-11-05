@@ -12,17 +12,16 @@ binariesPath ← "lib"
 
 git_clone_path ← "https://www.github.com/raysan5/raylib/releases/download/"∾version∾"/"∾raylibFolder∾ext
 
-Exec ← {e‿·‿o:o!0≡e}•SH
-
 # Expected library to not exist
-{𝕊:!"
-raylib already installed. Delete it to re-install.
+!∘{𝕊:"raylib already installed. Delete it to re-install.
   rm "∾(Realpath 𝕩)∾"
 "}⍟Exists binariesPath At libFile
 
 # ---------------
 # download raylib
 # ---------------
+
+Exec ← {e‿·‿o:o!0≡e}•SH
 
 # Download raylib zip/tar file
 Exec {"windows"≡os?
@@ -31,29 +30,31 @@ Exec {"windows"≡os?
     "curl -o """∾(At"temp"∾ext)∾""" "∾git_clone_path
   ⟩
 ;
-  ⟨"wget" ⋄ "-O" ⋄ At"temp"∾ext ⋄ git_clone_path⟩
+  ⟨"curl" ⋄ "-o" ⋄ At"temp"∾ext ⋄ git_clone_path, "-L"⟩
 }
+"Downloading raylib failed from github failed. Likely due to redirects not being followed."!⟨⟩≢•FBytes "temp"∾ext
 
 # unzip/untar/unarchive raylib
 # tar on windows handles zip files, while mac/linux get raylib as tar.gz files
 Exec ⟨"tar" ⋄ "-xzf"⋄Realpath"temp"∾ext ⋄ "-C"⋄path⟩
 Remove Realpath"temp"∾ext
+"Extracting raylib failed"!Exists raylibFolder At "lib" At libFile
 
 # ---------------------
-# move binary to binariesPath
+# Copy binary file to binariesPath
 # ---------------------
 CreateDir⍟(¬Exists) binariesPath
 (binariesPath At libFile) Bytes Bytes Realpath raylibFolder At "lib" At libFile
 
 # -----------------
-# clean away raylib
+# Clean away raylib
 # -----------------
 filesToBeDeleted ← raylibFolder⊸At¨ ∾⟨
   "lib"    ⊸At¨•file.List raylibFolder At"lib"
   "include"⊸At¨"raylib.h"‿"raymath.h"‿"rlgl.h"
   "CHANGELOG"‿"LICENSE"‿"README.md"
 ⟩
-{𝕊:!"Unexpected files in "∾raylibFolder∾", "∾•Repr filesToBeDeleted
+!∘{𝕊:"Unexpected files in "∾raylibFolder∾", "∾•Repr filesToBeDeleted
 }⍟(0≠≠)¬∘Exists¨⊸/filesToBeDeleted
 Remove¨filesToBeDeleted
 cleaupErrorMsg ← "Cleanup unsuccessful. Please delete "∾raylibFolder∾" manually "
@@ -63,3 +64,5 @@ RMDirCmd ← {
 ; "rmdir"⋈𝕩
 }
 {cleaupErrorMsg!0‿⟨⟩‿⟨⟩≡•SH RMDirCmd Realpath raylibFolder At𝕩}¨"lib"‿"include"‿""
+
+•Out "raylib installed successfully"
