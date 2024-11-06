@@ -231,23 +231,28 @@ window ← {
   # Open the window with default settings
   # window.Open
   Open ⇐ {𝕊 title:
+    # Errors
     (¬isOpen)!˜"The window cannot be opened twice"
+    "Cannot set fullscreen and set window size to non-0" !¬ IsFullscreen⊸∧0‿0≢tempSize
+
+    # startup
     raylib.SetConfigFlags flags←2⊸×⊸+˜´GetState@
-    raylib.InitWindow 0‿0‿𝕩
+    raylib.InitWindow 400‿400‿𝕩
     isOpen↩1
     raylib.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
-    # if given size is 0-1, scale the window relative to monitor size
+
+    # constants
     S ← {𝕊:s⊣s↩(raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight) raylib.GetCurrentMonitor⟨⟩}
-    isScalingPos ← (1⊸>∧0⊸≤)tempPos
+    isScaling ← (1⊸>∧0⊸≤)tempSize # if given size is 0-1, scale the window relative to monitor size
+    windowSize ← ⌈{∨´isScaling?isScaling/S@;⟨⟩}⊸×⟜¬⌾(isScaling⊸/)tempSize
+
     raylib.SetWindowPosition {
       ("windows"≡•platform.os) ∧ IsDecorated⊸∧ ¬IsFullscreen@?
         0‿42+𝕩  # 42 here is the window header on windows only
       ; 𝕩
-    } {isScalingPos/S@}⍟(×≠)⊸×⟜¬⌾(isScalingPos⊸/) tempPos
+    } tempPos
 
-    "Cannot set fullscreen and set window size to non-0" !¬ IsFullscreen⊸∧0‿0≢tempSize
-    isScaling ← (1⊸>∧0⊸≤)tempSize
-    raylib.SetWindowSize ⌈{∨´isScaling?isScaling/S@;⟨⟩}⊸×⟜¬⌾(isScaling⊸/)tempSize
+    raylib.SetWindowSize windowSize
 
     # Setting fps to the refresh rate of the currently selected monitor
     SetFPS raylib.GetMonitorRefreshRate raylib.GetCurrentMonitor⟨⟩
