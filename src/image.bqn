@@ -20,9 +20,10 @@
 # No function unloads or mutates input image, except Unload
 
 ⟨pixelFormat⟩ ← •Import "constants.bqn"
+perlin ← •Import "../imports/bqn-libs/perlin.bqn"
 low ← •Import "low.bqn"
-raylib‿NeedsWindow ← •args
-
+raylib ← •Import"loadRaylib.bqn"
+⟨NeedsWindow⟩ ← ⟨@⟩⍟(0=≠)•args
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
 
 # Get pixel data size in bytes for certain format
@@ -128,7 +129,8 @@ GifToImages ← {𝕊bytes:
     NeedsWindow@
     image‿⟨frames⟩ ← raylib.LoadImageAnimFromMemoryRef ⟨".gif"⋄bytes⋄≠bytes⋄⟨0⟩⟩ # fileType fileData dataSize frames # Load image sequence from memory buffer
     dataptr‿width‿hight‿·‿format←image
-    width‿hight‿4‿frames(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint
+    r ← width‿hight‿4‿frames(⊣⥊256|×´⊸low.Make)dataPtr # 256|𝕩 is converting from int to uint
+    r ⊣ raylib.MemFree dataPtr
   ;
   @
 }
@@ -170,6 +172,11 @@ GenGradientRadial ← {[inner⋄outer]𝕊size‿density:
   ⍉inner + ⌊(outer-inner)×⌜ 1⌊0⌈ radial # coloring
 }
 
+# Generate image: white noise
+GenWhiteNoise ← {factor𝕊size:
+  [0‿0‿0‿255⋄255‿255‿255‿255] ⊏˜ (⌊100×𝕨)> 𝕩 •rand.Range 100
+}
+
 #----------------------------------------------------------------------------------
 # Image conversions
 #----------------------------------------------------------------------------------
@@ -203,8 +210,6 @@ CropAlpha ← {threshold𝕊image:
 }
 
 #TODO
-# genImageWhiteNoise
-# genImagePerlinNoise
 # genImageCellular
 # genImageText
 # imageText
@@ -259,34 +264,77 @@ CropAlpha ← {threshold𝕊image:
 
 
 #TESTING
-#⟨c⇐color,w⇐window,d⇐draw,m⇐mouse⟩←r←•Import "/home/brian/rayed-bqn/rayed.bqn"
+#PerFrame ← {⟨tex1⋄tex2⋄tex3⋄tex4⋄tex5
+#  ⟩𝕊scrolled:
+#  raylib.BeginDrawing⟨⟩
+#    raylib.ClearBackground 4⥊0
+#    raylib.DrawFPS 0‿0
+#    raylib.DrawTextureEx ⟨tex1⋄300‿0+   raylib.GetMousePosition⟨⟩⋄𝕩⋄÷5⋄4⥊255⟩
+#    raylib.DrawTextureEx ⟨tex2⋄300‿600+raylib.GetMousePosition⟨⟩⋄𝕩⋄÷5⋄4⥊255⟩
+#    raylib.DrawTextureEx ⟨tex3⋄300‿300+raylib.GetMousePosition⟨⟩⋄𝕩⋄÷5⋄4⥊255⟩
+#    raylib.DrawTextureEx ⟨tex4⋄0‿0+raylib.GetMousePosition⟨⟩⋄𝕩⋄÷5⋄4⥊255⟩
+#    raylib.DrawTextureEx ⟨tex5⋄0‿300+raylib.GetMousePosition⟨⟩⋄𝕩⋄÷5⋄4⥊255⟩
+#  raylib.EndDrawing⟨⟩
+#  90|raylib.GetMouseWheelMove∘⟨⟩⊸+𝕩
+#}
 #
-#PerFrame ← {tex1‿tex2‿tex3‿font𝕊scrolled:
-#  c.white‿font‿30 d.Text 20‿20⋈•Repr∘w.GetFPS⊸∾" FPS"
-#  {d.Texture⟜m.GetPos c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
-#  {d.Texture⟜(0‿700+m.GetPos) c.white‿tex2∾𝕩∾˜÷5}¨𝕩+90×↕4
-#  {d.Texture⟜(0‿450+m.GetPos) c.white‿tex1∾𝕩∾˜÷5}¨𝕩+90×↕4
-#  90|m.WheelMoved⊸+𝕩
-#}d._withCanvas⟜c.black
+#raylib.SetTraceLogLevel raylib.traceLogLevel.log_warning
 #
-#r.window.SetSize 0.5‿0
+#perlinSeed ← perlin.MakeData @
+
+
+
+#50⊸GenImageWhiteNoise•_timed 1000‿1000
+#•Show aa←100 50⊸GenWhiteNoise•_timed 1000‿1000
+#•Show bb←100 raylib.GenImageWhiteNoise•_timed 1000‿1000‿50
+#•Show aa÷˜bb
 #
-#{𝕤
-#  r.window.SetPos 1000‿0
-#  font ← r.font.LoadBQN@
+#
+## Calculate a better perlin noise using fbm (fractal brownian motion)
+## Typical values to start playing with:
+##   lacunarity = ~2.0   -- spacing between successive octaves (use exactly 2.0 for wrapping output)
+##   gain       =  0.5   -- relative weighting applied to each successive octave
+##   octaves    =  6     -- number of "octaves" of noise3() to sum
+#
+## Generate image: perlin noise
+#GenPerlinNoise ← {scale𝕊size:
+#  lacunarity ← 2
+#  octaves←6
+#  gain ← 0.25
+#  scales ← 10×lacunarity⋆↕octaves
+#
+## float nx = x*(scale/width);
+## float ny = y*(scale/height);
+#
+#
+#  NoiseAtScale ← {perlinSeed perlin.NoiseN⎉1 𝕩÷⎉1 1000×size÷˜⎉1 𝕨}⟜(⍉(><⥊¨·⊣⌜˜`⌾⌽↕¨)size)
+#  255∾˜⎉1 3⥊⎉0 ⌊255 × 0 NoiseAtScale⊸+⟜(gain⊸×)´ lacunarity⋆↕octaves
+#}
+
+
+#raylib.InitWindow 700‿700‿"hello"
+#  raylib.SetTargetFPS 60
+#  raylib.SetWindowPosition 0‿50
 #  size ← 1000‿1000
 #
-#  img1 ← @
-#  •Show {img1↩r.raylib.GenImageGradientSquare𝕩}•_Timed size∾⟨0, 255‿0‿0‿255, 4⥊255⟩
-#  img2 ← @
-#  •Show {img2↩GenGradientSquare𝕩} •_Timed ⟨size, 255‿0‿0‿255, 4⥊255⟩
-#  img2 LoadFromArr↩
+#  img2 ← img1 ← @
+#  a‿b‿c‿d‿e ← size∾⟨0, 4⥊255, 255‿0‿0‿255⟩
+#  {img1↩ToArr raylib.GenImageGradientSquare𝕩}•_Timed a‿b‿c‿d‿e
+#  {img2↩[d⋄e]GenGradientSquare𝕩}•_Timed a‿b
+#  img1‿img2 LoadFromArr¨↩
 #  img3 ← Copy img1
 #
-#  t‿l‿p ← r.raylib.LoadTextureFromImage¨ img1‿img2‿img3
-#  r.image.Unload¨img1‿img2‿img3
+#  img4 ← raylib.GenImageWhiteNoise size∾0.52
+#  img5 ← LoadFromArr 0.5 GenImageWhiteNoise size
 #
-#  l‿t‿p‿font PerFrame•_While_(¬w.ShouldClose) 0
-#  r.texture.Unload¨t‿l
-#  r.font.Unload font
-#} w._openAs "test"
+#  # int width, int height, int offsetX, int offsetY, float scale);           // Generate image: perlin noise
+##  img4 ← raylib.GenImagePerlinNoise size∾0‿0‿1
+##  img5 ← LoadFromArr 3 GenPerlinNoise size
+#
+#  t ← raylib.LoadTextureFromImage¨ img1‿img2‿img3‿img4‿img5
+#  Unload¨img1‿img2‿img3‿img4‿img5
+#
+#  t PerFrame•_While_(¬raylib.WindowShouldClose∘⟨⟩) 0
+#  raylib.UnloadTexture¨t
+#
+#raylib.CloseWindow⟨⟩
