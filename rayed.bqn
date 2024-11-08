@@ -32,6 +32,8 @@
   traceLogLevel
 ⟩ ← •Import "src/constants.bqn"
 
+# Check if CBQN was compiled with FFI
+(⊑⟨"ffi"⟩∊•listsys)!˜"CBQN compiled without ffi (FFI=0)"
 
 {!"git-submodules "∾(•Repr𝕩)∾" not found.
 Use the following command to install the neccessary git submodules:
