@@ -247,8 +247,9 @@ window ← {
     windowSize ← ⌈{∨´isScaling?isScaling/S@;⟨⟩}⊸×⟜¬⌾(isScaling⊸/)tempSize
 
     raylib.SetWindowPosition {
-      ("windows"≡•platform.os) ∧ IsDecorated⊸∧ ¬IsFullscreen@?
-        0‿42+𝕩  # 42 here is the window header on windows only
+      •platform.os≡"windows"?
+        IsDecorated⊸∧ ¬IsFullscreen@?
+          0‿42+𝕩  # 42 here is the window header on windows only
       ; 𝕩
     } tempPos
 
