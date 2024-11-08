@@ -42,7 +42,7 @@ raylibLibPath ← {
     "Requires an internet connection."
     "Output goes in ./rayed-bqn/lib/"
     ""
-    "  bqn """∾""""∾˜•file.RealPath "install-raylib.bqn"
+    "  bqn """∾""""∾˜•file.RealPath "../install-raylib.bqn"
     ""
   ⟩
 }@
