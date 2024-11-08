@@ -75,7 +75,7 @@ Copy ← {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
   mapSizes ← ×´¨1⌈⌊∘÷⟜2⍟(↕mipmaps) oldHeight‿oldWidth
   size ← +´format⊸GetPixelDataSize¨mapSizes
   ptr ← (raylib.MemAlloc size).Cast "i8"
-  ptr.Write (dataPtr.Cast "i8").Read size
+  (↕size) ptr.Write¨ (dataPtr.Cast "i8").Read¨ ↕size
   ptr‿oldWidth‿oldHeight‿mipmaps‿format
 }
 
