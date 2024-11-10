@@ -50,7 +50,7 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 # Imports
 raylib  ⇐ ⟨•file⟩ •Import "src/loadRaylib.bqn"
 raymath ← •Import "src/raymath.bqn"
-image   ← raylib‿NeedsWindow •Import "src/image.bqn"
+image   ← NeedsWindow‿raylib •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
 bqnoise ← •Import "imports/BQNoise/wav.bqn"
 bqnoiseOptions ← •Import "imports/BQNoise/options.bqn"
