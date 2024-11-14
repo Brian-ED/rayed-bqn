@@ -22,7 +22,7 @@
 ⟨pixelFormat⟩ ← •Import "constants.bqn"
 perlin ← •Import "../imports/bqn-libs/perlin.bqn"
 low ← •Import "low.bqn"
-⟨NeedsWindow,raylib⟩ ← {𝕊:@⋈˜•Import"loadRaylib.bqn"}⍟(0=≠)•args
+⟨NeedsWindow,raylib⟩ ← {𝕊:@⋈•Import"loadRaylib.bqn"}⍟(0=≠)•args
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
 
 # Get pixel data size in bytes for certain format
