@@ -14,9 +14,9 @@ window.SetSize 0.5
 PerFrame ← {𝕤
   # mouse pos floored
   pos←r.mouse.GetPos@
+  # color, shape,         positions
    red     draw.Ellipse   cir⊸+⊸≍  pos-cir÷2
   {white   draw.Rectangle rec⊸+⊸≍𝕩+pos-rec÷2}˘outerRecs
-  # color, shape,         positions
   # this drawing function is being used to draw on a black canvas
 }draw._withCanvas⟜black
 
