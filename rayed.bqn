@@ -98,7 +98,9 @@ texture ← {
     @⊣raylib.UnloadTexture𝕩
   }
   # texture._withFile
-  _withFile ← {𝔽_𝕣 filePath : (Unload⊢𝔽)Load𝕩}
+  _withFile ← {𝔽_𝕣 filePath:
+    (Unload⊢𝔽)Load𝕩
+  }
   # texture._withRayImage
   _withRayImage ← {
     NeedsWindow@
