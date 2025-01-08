@@ -546,36 +546,42 @@ draw ← {
     }
   }
 }
-
 font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload ⟩⇐
-  IsFont ← {
+  IsValid ← {
     (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜'n')!˜"Expected a valid font"
-    𝕩⊣(¬∨´low.IsNull¨¯2↑𝕩)!˜"Invalid font. font has null pointers, making it invalid"
+    𝕩⊣(¬∨´low.IsNull¨¯2↑𝕩)!˜"Invalid font. font has null pointers, likely due to unsuported format."
   }
   glyphInfo ← {value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
 
   # font.Unload
   Unload ⇐ {
     NeedsWindow@
-    IsFont 𝕩
+    IsValid 𝕩
     raylib.UnloadFont 𝕩
   }
   # font.Load
   Load ⇐ {
-    NeedsWindow@
-    F ← {
-      𝕊size‿filePath:
-        ⟨filePath⋄size⋄≍@⋄0⟩
-    ;                                           # fontSize fontChars glyphCount # use NULL for fontChars and 0 for glyphCount to load the default character set
-      charactersAllowed 𝕊 size‿filePath:
-        ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
-    }
-    ·‿filePath ← 𝕩
-    {!"Path given wasn't absolute 𝕩≡"∾•Repr𝕩}⍟("."⊸•file.At⊸≢)filePath
-    {𝕊:!"Couldn't find file at "∾filePath}⍟¬•file.Exists filePath
+    𝕊size‿fileType‿fontFileChars:
+      𝕩𝕊˜' '+↕95
+  ;
+    charactersAllowed 𝕊 size‿fileType‿fontFileChars:
+      NeedsWindow@
+      raylib.LoadFontFromMemory⟨fileType⋄fontFileChars⋄≠fontFileChars⋄size⋄@-˜charactersAllowed⋄≠charactersAllowed⟩
+  }
 
-    IsFont raylib.LoadFontEx 𝕨F𝕩
+  # font.LoadFile
+  # Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
+  LoadFile ⇐ {
+    𝕊size‿filePath:
+      𝕩𝕊˜' '+↕95
+  ;
+    charactersAllowed 𝕊 size‿filePath:
+      NeedsWindow@
+      {!"Path given wasn't absolute: "∾•Repr𝕩}⍟("."⊸•file.At⊸≢)filePath
+      {!"Couldn't find file: "∾•Repr𝕩}⍟(¬•file.Exists) filePath
+
+      raylib.LoadFontEx ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
   }
 
   # font.LoadBQN
@@ -586,6 +592,7 @@ font ← {
   }
   # font.LoadRaylib
   LoadRaylib ← {𝕊@:
+    NeedsWindow@
     raylib.GetFontDefault⟨⟩
   }
 }
