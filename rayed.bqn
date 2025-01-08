@@ -84,7 +84,8 @@ log ← {
 }
 
 texture ← {
-  ⟨ Load ⋄ Unload ⋄ LoadFromImage ⋄ _WithImage ⋄ _withFile ⋄ _WithRayImage ⟩⇐
+  ⟨ Load ⋄ Unload ⋄ LoadFromImage ⋄ Update
+  _WithImage ⋄ _withFile ⋄ _WithRayImage ⟩⇐
   # texture.Load
   Load ← {𝕊filePath: # Load texture from file into GPU memory (VRAM)
     NeedsWindow@
@@ -96,6 +97,16 @@ texture ← {
   Unload ← {𝕊texture:
     NeedsWindow@
     @⊣raylib.UnloadTexture𝕩
+  }
+  # texture.LoadFromImage
+  LoadFromImage ← {
+    NeedsWindow@
+    raylib.LoadTextureFromImage image._AsRayImg 𝕩
+  }
+  # texture.Update
+  Update ← {image𝕊texture:
+    NeedsWindow@
+    raylib.UpdateTextureRaw⟨texture⋄⥊image⟩
   }
   # texture._withFile
   _withFile ← {𝔽_𝕣 filePath:
@@ -111,7 +122,6 @@ texture ← {
     NeedsWindow@
     (Unload⊢𝔽)raylib.LoadTextureFromImage image._AsRayImg 𝕩
   }
-  LoadFromImage ← raylib.LoadTextureFromImage image._AsRayImg⊣NeedsWindow
 }
 monitor ← {
   ⟨Selected ⋄ Count
