@@ -13,6 +13,6 @@ PerFrame ← {
   font ← r.font.LoadBQN@
   {
     𝕩‿font PerFrame•_While_(¬w.ShouldClose) 0
-  } r.texture._WithImage r.image.FromFile •file.At "logo.png"
+  } r.texture._WithFile •file.At "logo.png"
   r.font.Unload font
 } w._openAs "test"
