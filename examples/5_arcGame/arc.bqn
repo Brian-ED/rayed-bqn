@@ -90,12 +90,20 @@ OnStart ← {𝕤
 
   StartScreen@
 
-  {𝕊levelNumber‿level:
+  LevelScreen ← {𝕊levelNumber‿level‿worldUndoBuffer:
     0‿0 DT "Level "∾•Repr 1+levelNumber
     key ← k.PressedChar@
     hit ← DrawBoard level
     out←{
+      key='z'? # undo
+        {𝕊
+          r←⊢˝worldUndoBuffer
+          worldUndoBuffer↓˜↩¯1
+          r
+        }⍟(×≠worldUndoBuffer) level
+    ;
       ⊑key∊dirLetters? # movement
+        worldUndoBuffer∾↩level
         move ← dirs⊑˜⊑dirLetters⊐key
         relivants ← (move×⌜↕3) + ⊑ /○⥊⟜(↕≢) 1=level
         {player‿spaceInfront‿spaceAfterFront:
@@ -114,8 +122,10 @@ OnStart ← {𝕤
     }
     won ← ∧´goalOff=⊑⟜level¨out⊸DrawLaser¨/○⥊⟜(↕≢)level∊lasers
 
-    levelNumber⋈out⍟¬won
-  } _Scene_ ((2==∘⊢)´) {MiddleScreen∘𝔽⋈}¨˜⟜(↕≠)levels
+    ⟨levelNumber ⋄ out⍟¬won ⋄ worldUndoBuffer⟩
+  } _Scene_ ((2==∘⊢)´2⊸↑)
+
+  MiddleScreen∘LevelScreen¨ {𝕩‿𝕨‿(↕0∾≢𝕨)}¨⟜(↕≠)levels
 
   EndScreen@
 
