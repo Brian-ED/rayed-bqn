@@ -101,7 +101,8 @@ ToArr ← {𝕊raylibImg:
 # image.LoadFromArr
 LoadFromArr ← {𝕊img:
   NeedsWindow@
-  l low.Read ptr←raylib.MemAlloc≠l←¯128+256|128+⥊𝕩
+  ptr ← {𝕩.Cast"i8"} raylib.MemAlloc≠l←¯128+256|128+⥊𝕩
+  l ptr.Write¨˜↕≠l
   ptr<⊸∾(⌽∾⟜4⁼≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 
