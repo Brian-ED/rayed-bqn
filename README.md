@@ -14,9 +14,7 @@ Make sure bqn is on PATH. To check, run `bqn` in the terminal, in the case of wi
 First step in installing is cloning rayed-bqn and installing raylib by typing the following in the terminal, in the case of windows it's the `Command Prompt` or `Windows PowerShell`.
 ```SH
 git clone --filter=blob:none --recurse-submodules https://github.com/Brian-ED/rayed-bqn.git
-cd rayed-bqn
-bqn install-raylib.bqn
-cd ..
+bqn rayed-bqn/install-raylib.bqn
 ```
 
 Run the following example to make sure rayed-bqn is set up properly:
