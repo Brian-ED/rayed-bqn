@@ -151,4 +151,3 @@ shaderT ← NestedStructToStr2 rf.shader
   rf.UnloadShader shader   # Unload shader
 
 } window._openAs "raylib [shaders] example - basic lighting"
-

@@ -895,7 +895,7 @@ sound ⇐ {
 #    square ⇐ right_face_right
 #    triangle ⇐ right_face_up
 #  }
-#  xboxButton ← 
+#  xboxButton ←
 
 # isGamepadAvailable
 # getGamepadName

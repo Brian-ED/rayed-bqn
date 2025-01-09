@@ -16,4 +16,3 @@ PerFrame ← {
   } r.texture._WithImage r.image.FromFile •file.At "logo.png"
   r.font.Unload font
 } w._openAs "test"
-

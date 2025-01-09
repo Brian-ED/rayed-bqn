@@ -1,3 +1,7 @@
+
+# Example input:
+# white Rectangle [100‿100⋄200‿400]˙
+
 ⟨co⇐color,window,⟨_withCanvas⟩⇐draw,k⇐key⟩←r←•Import "../../rayed.bqn"
 ⟨lf,Split⟩  ← •Import "../../imports/bqn-libs/strings.bqn"
 fontSize    ← 50
@@ -60,5 +64,3 @@ Game ← {𝕤
 }
 window.SetSize 0.5
 Game window._openAs "BQN Repl"
-
-# white Rectangle [100‿100⋄200‿400]˙
