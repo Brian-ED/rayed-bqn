@@ -13,14 +13,20 @@ Make sure bqn is on PATH. To check, run `bqn` in the terminal, in the case of wi
 
 First step in installing is cloning rayed-bqn and installing raylib by typing the following in the terminal, in the case of windows it's the `Command Prompt` or `Windows PowerShell`.
 ```SH
-git clone https://github.com/Brian-ED/rayed-bqn.git
+git clone --filter=blob:none --recurse-submodules https://github.com/Brian-ED/rayed-bqn.git
 cd rayed-bqn
-git submodule update --init --recursive
 bqn install-raylib.bqn
 cd ..
 ```
 
+Run the following example to make sure rayed-bqn is set up properly:
+```SH
+bqn rayed-bqn/examples/1_shapes/circleInsideSquares.bqn
+```
+
 ### Explanation
+`git clone` has the option [`--filter=blob:none`](https://github.blog/open-source/git/get-up-to-speed-with-partial-clone-and-shallow-clone/) to clone the repository faster, and [`--recurse-submodules`](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to also install the submodules automatically.
+
 Running `bqn install-raylib.bqn` downloads [raylib](https://github.com/raysan5/raylib/releases/) with release 5.0. In the case of windows, this is `raylib-5.0_win64_msvc16`. It then takes the shared-binary from `raylib/lib/` folder and places it in `rayed-bqn/lib/`.
 
 # Tested raylib versions:
