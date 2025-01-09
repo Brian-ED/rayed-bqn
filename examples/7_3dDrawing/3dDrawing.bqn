@@ -40,5 +40,3 @@ PerFrame ← {models‿lights‿font𝕊lightToggle‿camera:
 
 Game ← PerFrame•_While_(¬window.ShouldClose) _setup
 Game window._openAs "raylib [shaders] example - basic lighting"
-
-
