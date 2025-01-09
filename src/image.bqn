@@ -24,6 +24,13 @@ perlin ← •Import "../imports/bqn-libs/perlin.bqn"
 low ← •Import "low.bqn"
 ⟨NeedsWindow,raylib⟩ ← {𝕊:@⋈•Import"loadRaylib.bqn"}⍟(0=≠)•args
 allFormats ← (•ns.Get¨⍋⊸⊏⊢)⟜•ns.Keys pixelFormat
+Squeeze‿Type ← ⟨
+  {⟨S⇐Squeeze⟩: S; ⊢}
+  {⟨T⇐Type⟩: T; ""}
+⟩{𝕎𝕩}¨•BQN∘"•internal"⍟(∨´"internal"⊸≡¨)•listsys
+
+#R        G        B        A
+#00110011 00110011 00110011 00110011
 
 # Get pixel data size in bytes for certain format
 # NOTE: Size can be requested for Image or Texture data
@@ -86,7 +93,7 @@ ToArr ← {𝕊raylibImg:
     ⊑⊑raylib.ImageFormatRef ⟨Copy 𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   }⍟changeFormat 𝕩
   "Invalid image format"!×format
-  bqnImg ← hight‿width‿4(⊣⥊256|×´⊸low.Make)dataPtr     # 256|𝕩 is converting from int to uint
+  bqnImg ← hight‿width‿4(⊣⥊×´⊸low.Make)dataPtr
   raylib.MemFree⍟changeFormat dataPtr
   bqnImg
 }
@@ -128,7 +135,7 @@ GifToImages ← {𝕊bytes:
     NeedsWindow@
     image‿⟨frames⟩ ← raylib.LoadImageAnimFromMemoryRef ⟨".gif"⋄bytes⋄≠bytes⋄⟨0⟩⟩ # fileType fileData dataSize frames # Load image sequence from memory buffer
     dataptr‿width‿hight‿·‿format←image
-    r ← width‿hight‿4‿frames(⊣⥊256|×´⊸low.Make)dataPtr # 256|𝕩 is converting from int to uint
+    r ← width‿hight‿4‿frames(⊣⥊×´⊸low.Make)dataPtr
     r ⊣ raylib.MemFree dataPtr
   ;
   @
@@ -158,7 +165,7 @@ GenGradientLinear ← {[start⋄end]𝕊size‿dir:
 # image.GenGradientSquare
 GenGradientSquare ← {[inner⋄outer]𝕊size:
   # past impl  ⍉⌊((outer×⌜⊢)+inner×⌜¬) ⌈˝|1+(2÷˜0⊸=⊸+1-size)÷˜⍉⁼>↕size
-  ⍉inner + ⌊(outer-inner)×⌜ ⌈⌜´ |¯1+ (↕¨size) ÷ 0⊸=⊸+ 2÷˜size-1 # dzaima helped a lot :)
+  Squeeze ¯128+256|128+⍉inner + ⌊(outer-inner)×⌜ ⌈⌜´ |¯1+ (↕¨size) ÷ 0⊸=⊸+ 2÷˜size-1 # dzaima helped a lot :)
 }
 
 # Generate image: radial gradient
@@ -168,12 +175,12 @@ GenGradientRadial ← {[inner⋄outer]𝕊size‿density:
   radial ← +⌜´⌾(×˜)(size÷2)-˜↕¨size # make circle
   radial-↩ r×density                # resize center
   radial÷↩ 0⊸=⊸+r×¬density          # add blur
-  ⍉inner + ⌊(outer-inner)×⌜ 1⌊0⌈ radial # coloring
+  Squeeze ¯128+256|128+ ⍉inner + ⌊(outer-inner)×⌜ 1⌊0⌈ radial # coloring
 }
 
 # Generate image: white noise
 GenWhiteNoise ← {factor𝕊size:
-  [0‿0‿0‿255⋄255‿255‿255‿255] ⊏˜ (⌊100×𝕨)> 𝕩 •rand.Range 100
+  [0‿0‿0‿¯1⋄¯1‿¯1‿¯1‿¯1] ⊏˜ (⌊100×𝕨)> 𝕩 •rand.Range 100
 }
 
 #----------------------------------------------------------------------------------
@@ -209,6 +216,7 @@ CropAlpha ← {threshold𝕊image:
 }
 
 #TODO
+# genImagePerlinNoise
 # genImageCellular
 # genImageText
 # imageText
@@ -279,56 +287,19 @@ CropAlpha ← {threshold𝕊image:
 #
 #raylib.SetTraceLogLevel raylib.traceLogLevel.log_warning
 #
-#perlinSeed ← perlin.MakeData @
-
-
-
-#50⊸GenImageWhiteNoise•_timed 1000‿1000
-#•Show aa←100 50⊸GenWhiteNoise•_timed 1000‿1000
-#•Show bb←100 raylib.GenImageWhiteNoise•_timed 1000‿1000‿50
-#•Show aa÷˜bb
-#
-#
-## Calculate a better perlin noise using fbm (fractal brownian motion)
-## Typical values to start playing with:
-##   lacunarity = ~2.0   -- spacing between successive octaves (use exactly 2.0 for wrapping output)
-##   gain       =  0.5   -- relative weighting applied to each successive octave
-##   octaves    =  6     -- number of "octaves" of noise3() to sum
-#
-## Generate image: perlin noise
-#GenPerlinNoise ← {scale𝕊size:
-#  lacunarity ← 2
-#  octaves←6
-#  gain ← 0.25
-#  scales ← 10×lacunarity⋆↕octaves
-#
-## float nx = x*(scale/width);
-## float ny = y*(scale/height);
-#
-#
-#  NoiseAtScale ← {perlinSeed perlin.NoiseN⎉1 𝕩÷⎉1 1000×size÷˜⎉1 𝕨}⟜(⍉(><⥊¨·⊣⌜˜`⌾⌽↕¨)size)
-#  255∾˜⎉1 3⥊⎉0 ⌊255 × 0 NoiseAtScale⊸+⟜(gain⊸×)´ lacunarity⋆↕octaves
-#}
-
-
 #raylib.InitWindow 700‿700‿"hello"
 #  raylib.SetTargetFPS 60
 #  raylib.SetWindowPosition 0‿50
 #  size ← 1000‿1000
 #
-#  img2 ← img1 ← @
 #  a‿b‿c‿d‿e ← size∾⟨0, 4⥊255, 255‿0‿0‿255⟩
-#  {img1↩ToArr raylib.GenImageGradientSquare𝕩}•_Timed a‿b‿c‿d‿e
-#  {img2↩[d⋄e]GenGradientSquare𝕩}•_Timed a‿b
-#  img1‿img2 LoadFromArr¨↩
-#  img3 ← Copy img1
+#  img1←ToArr raylib.GenImageGradientSquare a‿b‿c‿d‿e
+#  img2←[d⋄e]GenGradientSquare a‿b
+#  img3 ← [d⋄e] GenGradientRadial ⟨1000‿1000,0.5⟩
+#  img1‿img2‿img3 LoadFromArr¨↩
 #
 #  img4 ← raylib.GenImageWhiteNoise size∾0.52
-#  img5 ← LoadFromArr 0.5 GenImageWhiteNoise size
-#
-#  # int width, int height, int offsetX, int offsetY, float scale);           // Generate image: perlin noise
-##  img4 ← raylib.GenImagePerlinNoise size∾0‿0‿1
-##  img5 ← LoadFromArr 3 GenPerlinNoise size
+#  img5 ← LoadFromArr 0.5 GenWhiteNoise size
 #
 #  t ← raylib.LoadTextureFromImage¨ img1‿img2‿img3‿img4‿img5
 #  Unload¨img1‿img2‿img3‿img4‿img5
