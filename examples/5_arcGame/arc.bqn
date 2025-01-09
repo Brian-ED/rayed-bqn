@@ -95,7 +95,8 @@ OnStart ← {𝕤
     key ← k.PressedChar@
     hit ← DrawBoard level
     out←{
-      key='z'? # undo
+      (k.z k.IsPressed⊸∧k.IsDown k.leftControl)∨key='z'? # undo
+        •term.Flush@
         {𝕊
           r←⊢˝worldUndoBuffer
           worldUndoBuffer↓˜↩¯1
