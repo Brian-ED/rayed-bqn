@@ -1,6 +1,6 @@
 # Rayed BQN
 Rayed BQN is a library made to write cross-platform applications using the [BQN programming language](https://mlochbaum.github.io/BQN/).
-It inter-ops with [Raylib](https://github.com/raysan5/raylib), but changes a lot of the functions to be more in-lined with BQN's syntax.
+It inter-ops with [raylib](https://github.com/raysan5/raylib) via [FFI](https://mlochbaum.github.io/BQN/spec/system.html#foreign-function-interface-ffi), but changes a lot of raylib's functions to be more in-lined with BQN's syntax.
 
 Breaking changes to any feature in rayed.bqn should be expected for now, as this library is very young and experimental.
 `imports/raylib-bqn/raylib.bqn` from [raylib-bqn](https://github.com/Brian-ED/raylib-bqn) contains the bindings to raylib. Because of [c-header-to-bqn-ffi](https://github.com/Brian-ED/c-header-to-bqn-ffi) for parsing `raylib.h`, the binding is made automatically.
@@ -21,7 +21,7 @@ cd ..
 ```
 
 ### Explanation
-Running `bqn install-raylib.bqn` downloads [raylib](https://github.com/raysan5/raylib/releases/) with release 5.0. In the case of windows, this is `raylib-5.0_win64_msvc16`. It then takes the shared-binary from `raylib/lib/` folder, take it out and place it inside rayed-bqn.
+Running `bqn install-raylib.bqn` downloads [raylib](https://github.com/raysan5/raylib/releases/) with release 5.0. In the case of windows, this is `raylib-5.0_win64_msvc16`. It then takes the shared-binary from `raylib/lib/` folder and places it in `rayed-bqn/lib/`.
 
 # Tested raylib versions:
 `raylib-4.5.0_win64_mingw-w64` on Windows 10  
