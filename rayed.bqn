@@ -942,7 +942,7 @@ key ← {
   IsDown ⇐ {
     NeedsWindow@
     IsKey 𝕩
-    (raylib.IsKeyDown @-˜⍟<⊢)⚇0 𝕩
+    (raylib.IsKeyDown @-˜⍟≤⊢)⚇0 𝕩
   }
   # key.PressedKey
   PressedKey ⇐ {𝕤
