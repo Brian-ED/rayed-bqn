@@ -100,7 +100,7 @@ PerFrame←{𝕊camera‿cameraMode:
       {𝕤
         rf.DrawCube     ⟨cameraIndex.target⊑camera, 0.5, 0.5, 0.5, color.purple⟩
         rf.DrawCubeWires⟨cameraIndex.target⊑camera, 0.5, 0.5, 0.5, color.darkpurple⟩
-      }⍟⊢cameraMode = rf.cameraMode.camera_third_person
+      }⍟⊢∨´ cameraMode = rf.cameraMode.camera_orbital‿rf.cameraMode.camera_third_person
 
     } draw._in3D camera
 
