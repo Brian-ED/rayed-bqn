@@ -261,10 +261,7 @@ MakeCameraUpdater ← {𝕊⟨
 
     {mode=cm.camera_orbital?
       # Orbital can just orbit
-      rotation ← MatrixRotate⟨GetCameraUp camera, camera_orbital_speed×GetFrameTime⟨⟩⟩
-      view ← -´cameraIndex.position‿cameraIndex.target⊏camera
-      view MP↩ rotation
-      (cameraIndex.target + view)⌾(cameraIndex.position⊸⊑)camera
+      camera CameraYaw˜↩1⋈˜camera_orbital_speed×GetFrameTime⟨⟩
     ;
       frameAdjusting ← 60×GetFrameTime⟨⟩
       # Camera rotation
@@ -310,11 +307,11 @@ MakeCameraUpdater ← {𝕊⟨
       }⍟⊢mode=cm.camera_free
     }
 
-    {
+    {𝕊:
       # Zoom target distance
       camera CameraMoveToTarget˜↩-mouse.WheelMoved@
       camera CameraMoveToTarget˜↩2×-´IsPressed¨keypad.subtract‿keypad.add
-    }⊢∨´mode=cm.camera_third_person‿cm.camera_orbital‿cm.camera_free
+    }⍟⊢∨´mode=cm.camera_third_person‿cm.camera_orbital
     camera
   }
 }
