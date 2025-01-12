@@ -79,7 +79,7 @@ PerFrame←{𝕊camera‿cameraMode:
   # Update camera computes movement internally depending on the camera mode
   # Some default standard keyboard/mouse inputs are hardcoded to simplify use
   # For advance camera controls, it's reecommended to compute camera movement manually
-  camera rl.camera.Update˜ ↩ cameraMode⋈rf.GetMouseDelta⟨⟩
+  camera rl.camera.Update˜ ↩ cameraMode
 
   # Draw
   {𝕤

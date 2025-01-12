@@ -38,6 +38,7 @@ key‿mouse‿raylib‿raymath ← •args
 
 ⟨
   GetFrameTime
+  GetMouseDelta
   gamepadAxis
   GetGamepadAxisMovement
   IsGamepadAvailable
@@ -253,11 +254,13 @@ MakeUpdater ← {𝕊⟨
   ⟩:
 
   cm ← mode
-  {mode‿mouseDelta𝕊camera:
+  {mode𝕊camera:
     moveInWorldPlane   ← ∨´mode=cm.third_person                  ‿cm.first_person
     rotateAroundTarget ← ∨´mode=cm.third_person‿cm.orbital
     lockView           ← ∨´mode=cm.third_person‿cm.orbital‿cm.first_person‿cm.free
     rotateUp           ← 0
+
+    mouseDelta ← GetMouseDelta⟨⟩
 
     {mode=cm.orbital?
       # Orbital can just orbit
