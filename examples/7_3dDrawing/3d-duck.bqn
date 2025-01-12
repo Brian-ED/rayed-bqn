@@ -40,7 +40,7 @@ Game ← {𝕊:
 
 PerFrame ← {duck𝕊oldCamera:
   # Look for keystrokes from user, move the camera
-  camera ← ⊑⊑rl.UpdateCameraRef ⟨⋈oldCamera⋄rl.cameraMode.camera_third_person⟩
+  camera ← ⊑⊑rl.UpdateCameraRef ⟨⋈oldCamera⋄r.camera.mode.third_person⟩
 
   # Preparing another buffer to draw the new frame, with white background
   {𝕊:
