@@ -6,7 +6,7 @@
 # raylib and 3d graphics in general uses 4x4 matricies for rotation and position, but 3x3 are enough for just rotation.
 
 # CONVENTIONS:
-# - Functions are always self-contained, no functions use another raymath function.
+# - Functions are always self-contained, no functions use another math function.
 # - Angles are always in radians.
 
 
@@ -285,7 +285,7 @@ Vector3Barycenter ← {𝕊p‿a‿b‿c: # v3‿v3‿v3‿v3→v3
 }
 
 # Projects a Vector3 from screen space into object space
-# NOTE: We are avoiding calling other raymath functions despite available
+# NOTE: We are avoiding calling other math functions despite available
 Vector3Unproject ← {
   𝕊⟨
     source     # v3

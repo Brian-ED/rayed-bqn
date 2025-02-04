@@ -6,7 +6,7 @@ camera2D ← {target⇐20‿30 ⋄ offset⇐40‿60 ⋄ zoom⇐1.2 ⋄ rotation�
 camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0‿1‿0 ⋄ fovy⇐100 ⋄ projection⇐1}
 
 
-# Raymath:
+# Math:
 ⟨
   MatrixRotate, Wrap, Normalize, Vector3Unproject, MP, _ToDim_, MatrixExtend, Round
   QuaternionEquals, Vector3OrthoNormalize, Vector3RotateByAxisAngle, VectorClampValue
@@ -17,7 +17,7 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
   # These have been extensively tested against C versions
   MatrixOrtho
   MatrixLookAt,
-⟩ ← •Import "raymath.bqn"
+⟩ ← •Import "math.bqn"
 
 Approx ← 5⊸Round
 
@@ -186,7 +186,7 @@ e! 68 ≡ Remap 12‿ 5‿10‿40‿60
 e! 40 ≡ Remap 10‿10‿20‿40‿60
 
 
-•Out "Raymath tests passed"
+•Out "Math tests passed"
 
 
 ⟨GetWorldToScreenEx⟩ ← •Import "rcore.bqn"

@@ -3,7 +3,7 @@ glslVersion ← 330
 
 ⟨
   color, window, draw, low, key
-  rf⇐raylib, rm⇐raymath
+  rf⇐raylib, rm⇐math
 ⟩ ← rl ← •Import "../../rayed.bqn"
 rlights ← •Import "rlights.bqn"
 

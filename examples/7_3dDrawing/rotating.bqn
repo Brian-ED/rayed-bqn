@@ -21,10 +21,10 @@ _setup ← {𝕨𝔽_𝕣𝕩:
   r.model.Unload¨meshes
 }
 
-rotMat ← r.raymath.MatrixRotateZ π÷80
+rotMat ← r.math.MatrixRotateZ π÷80
 MoveCamera ← {
   n ← -´IsPressed⟨k.q, k.up, k.e⟩‿⟨k.left, k.down, k.right⟩
-  rotMat r.raymath.MP 𝕩+n
+  rotMat r.math.MP 𝕩+n
 }⌾⊑
 
 PerFrame ← {meshes‿lights‿font𝕊lightToggle‿camera:

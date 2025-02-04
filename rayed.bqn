@@ -9,7 +9,7 @@
 ⟨
   draw, texture, monitor, window, mouse
   font, key, clipboard, StartClock
-  sound, bqnoise, raymath, camera, image, model, low, log
+  sound, bqnoise, math, camera, image, model, low, log
 ⟩⇐
 
 ⟨
@@ -49,7 +49,7 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 # -------
 # Imports
 raylib  ⇐ ⟨•file⟩ •Import "src/loadRaylib.bqn"
-raymath ← •Import "src/raymath.bqn"
+math ← •Import "src/math.bqn"
 image   ← NeedsWindow‿raylib •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
 bqnoise ← •Import "imports/BQNoise/wav.bqn"
@@ -1069,7 +1069,7 @@ model ← {
 }
 
 # Late imports that need rayed.bqn as dependency
-camera ↩ key‿mouse‿raylib‿raymath •Import "src/camera.bqn"
+camera ↩ key‿mouse‿raylib‿math •Import "src/camera.bqn"
 
 
 
