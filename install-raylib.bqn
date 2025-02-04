@@ -51,7 +51,7 @@ CreateDir⍟(¬Exists) binariesPath
 # -----------------
 filesToBeDeleted ← raylibFolder⊸At¨ ∾⟨
   "lib"    ⊸At¨•file.List raylibFolder At"lib"
-  "include"⊸At¨"raylib.h"‿"math.h"‿"rlgl.h"
+  "include"⊸At¨"raylib.h"‿"raymath.h"‿"rlgl.h"
   "CHANGELOG"‿"LICENSE"‿"README.md"
 ⟩
 !∘{𝕊:"Unexpected files in "∾raylibFolder∾", "∾•Repr filesToBeDeleted

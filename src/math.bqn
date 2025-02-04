@@ -16,7 +16,7 @@
 
 ## Removed QuaternionToMatrix and QuaternionFromMatrix:
 # they have been said to be innacurate by ray - maintainer of raylib.
-# Under "module: math" at https://github.com/raysan5/raylib/discussions/2952
+# Under "module: raymath" at https://github.com/raysan5/raylib/discussions/2952
 ## removed Vector3Perpendicular, as it isn't well defined.
 ⟨
   # new, non-existant in raylib
