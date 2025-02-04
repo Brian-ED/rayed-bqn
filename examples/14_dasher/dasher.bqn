@@ -4,7 +4,7 @@
  draw
  key
  rf⇐raylib
- rm⇐raymath
+ rm⇐math
 ⟩ ← rl ← •Import "../../rayed.bqn"
 
 {𝕊
