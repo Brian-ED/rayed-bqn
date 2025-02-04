@@ -27,7 +27,7 @@
   index
 ⟩⇐
 
-key‿mouse‿raylib‿raymath ← •args
+key‿mouse‿raylib‿math ← •args
 
 ⟨
   up, left, down, right
@@ -52,7 +52,7 @@ key‿mouse‿raylib‿raymath ← •args
   deg2rad
   MP
   MatrixRotate
-⟩ ← raymath
+⟩ ← math
 
 mode ← { # Camera system modes
   custom       ⇐ 0  # Custom camera
