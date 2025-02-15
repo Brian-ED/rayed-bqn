@@ -21,7 +21,6 @@ Game ← {𝕊:
   font          ← r.font.LoadBQN 100
 
   s←⟨⟩
-
   i ← {
     f ← {
       i←¯1
