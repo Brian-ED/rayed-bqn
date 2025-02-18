@@ -38,7 +38,6 @@
 
   # functions applied to a list
   Vector3Unproject
-  Vector3OrthoNormalize
   VectorClampValue
   VectorAngle
   VectorLength ⋄ VectorLengthSqr
