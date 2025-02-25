@@ -20,7 +20,7 @@ colors ← ⍉[
   max_columns⥊255
 ]
 
-stut←1
+stut←1 # Testing stutter. Meaning checking if frame-rate effects movemenet. It shouldn't.
 PerFrame←{𝕊camera‿cameraMode:
   stut≠↩rl.key.IsPressed key.g
 
@@ -49,9 +49,9 @@ PerFrame←{𝕊camera‿cameraMode:
 
   # Switch camera projection
   camera {𝕤
-    (cameraIndex.projection⊑𝕩) = rf.cameraProjection.camera_perspective?
       # Create isometric view
-      cameraMode ↩ rf.cameraMode.camera_third_person
+      (cameraIndex.projection⊑𝕩) = rf.cameraProjection.camera_perspective?
+
       # Note: The target distance is related to the render distance in the orthographic projection
       newCam ← ⟨
         0‿2‿¯100
@@ -65,23 +65,25 @@ PerFrame←{𝕊camera‿cameraMode:
       newCam
   ; (cameraIndex.projection⊑𝕩) = rf.cameraProjection.camera_orthographic?
 
-    # Reset to default view
-    cameraMode ↩ rf.cameraMode.camera_third_person
     ⟨
       0‿2‿10
       0‿2‿ 0
-      0‿1‿0 # Reset roll
+      0‿1‿ 0 # Reset roll
       60
-      rf.cameraProjcection.camera_perspective
+      rf.cameraProjection.camera_perspective
     ⟩
+  }∘{𝕊:
+    # Reset to default view
+    𝕩⊣cameraMode↩rf.cameraMode.camera_third_person
   }⍟(key.IsPressed key.p) ↩
 
   # Update camera computes movement internally depending on the camera mode
   # Some default standard keyboard/mouse inputs are hardcoded to simplify use
-  # For advance camera controls, it's reecommended to compute camera movement manually
-  camera rl.camera.Update˜ ↩ cameraMode
+  # For advance camera controls, it's recommended to compute camera movement manually
+  camera cameraMode◶⊢‿rl.camera.UpdateFree‿rl.camera.UpdateOrbital‿rl.camera.UpdateFirstPerson‿rl.camera.UpdateThirdPerson↩
 
   # Draw
+  camera rl.camera.ToTarget⍟(rl.key.IsPressed rl.key.i)↩
   {𝕤
     {𝕤
 
@@ -100,7 +102,7 @@ PerFrame←{𝕊camera‿cameraMode:
       {𝕤
         rf.DrawCube     ⟨cameraIndex.target⊑camera, 0.5, 0.5, 0.5, color.purple⟩
         rf.DrawCubeWires⟨cameraIndex.target⊑camera, 0.5, 0.5, 0.5, color.darkpurple⟩
-      }⍟⊢∨´ cameraMode = rl.camera.mode.orbital‿rl.camera.mode.third_person
+      }⍟⊢∨´ cameraMode = rf.cameramode.camera_orbital‿rf.cameramode.camera_third_person
 
     } draw._in3D camera
 
@@ -156,8 +158,8 @@ PerFrame←{𝕊camera‿cameraMode:
 rl.window.SetSize 0.5
 
 PerFrame∘{𝕤
-rl.window.SetFullscreen 0
-  rf.DisableCursor⟨⟩                    # Limit cursor to relative movement inside the window
+  rl.window.SetFullscreen 0
+  rf.DisableCursor⟨⟩ # Limit cursor to relative movement inside the window
   camera ← ⟨
     0‿2‿4    # Camera position
     0‿2‿0    # Camera target, its looking at point

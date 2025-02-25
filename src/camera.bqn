@@ -20,9 +20,14 @@
   GetProjectionMatrix
   MakeGetProjectionMatrix
 
-  Update
+  MakeUpdater
 
-  mode
+  UpdateFree
+  UpdateFirstPerson
+  UpdateThirdPerson
+  UpdatePro
+  UpdateMinecraft
+
   projection
   index
 ⟩⇐
@@ -53,14 +58,6 @@ key‿mouse‿raylib‿math ← •args
   MP
   MatrixRotate
 ⟩ ← math
-
-mode ← { # Camera system modes
-  custom       ⇐ 0  # Custom camera
-  free         ⇐ 1  # Free camera
-  orbital      ⇐ 2  # Orbital camera
-  first_person ⇐ 3  # First person camera
-  third_person ⇐ 4  # Third person camera
-}
 
 projection ⇐ { # Camera projection
   perspective  ⇐ 0  # Perspective projection
@@ -149,7 +146,7 @@ MoveToTarget ← {delta𝕊camera:
 # Yaw is "looking left and right"
 # If rotateAroundTarget is false, the camera rotates around its position
 # Note: angle must be provided in radians
-Yaw ← {angle‿rotateAroundTarget𝕊camera:
+Yaw ← {angle𝕊camera:
   up ← GetUp camera # Rotation axis
 
   # View vector
@@ -158,51 +155,32 @@ Yaw ← {angle‿rotateAroundTarget𝕊camera:
   # Rotate view vector around up axis
   targetPosition Vector3RotateByAxisAngle˜↩up‿angle
 
-  {rotateAroundTarget?
-    # Move position relative to target
-    (targetPosition -˜ index.target⊑camera)⌾(index.position⊸⊑)camera
-  ;
-    # rotate around camera.position
-    # Move target relative to position
-    (targetPosition + index.position⊑camera)⌾(index.target⊸⊑)camera
-  }
+  # rotate around camera.position
+  # Move target relative to position
+  (targetPosition + index.position⊑camera)⌾(index.target⊸⊑)camera
 }
 
 # Rotates the camera around its right vector, pitch is "looking up and down"
 #  - lockView prevents camera overrotation (aka "somersaults")
-#  - rotateAroundTarget defines if rotation is around target or around its position
 #  - rotateUp rotates the up direction as well (typically only useful in mode.free)
 # NOTE: angle must be provided in radians
-Pitch ← {angle‿lockView‿rotateAroundTarget‿rotateUp𝕊camera:
-  # View vector
-  targetPosition ← -´index.target‿index.position⊏camera
+Pitch ← {angle‿lockView‿rotateUp𝕊camera:
 
+  # clamp the Pitch angle to allow only viewing straight up or down.
   angle {
-    up ← GetUp camera
-    # In these camera modes we clamp the Pitch angle
-    # to allow only viewing straight up or down.
-
-    # Clamp view up
-    𝕩 ⌊↩ ¯0.001+up VectorAngle targetPosition
-
-    # Clamp view down
-    𝕩 ⌈ 0.001-(-up) VectorAngle targetPosition
+    t ← -´index.target‿index.position⊏camera
+    𝕩 {𝕎𝕩}´ ⌊‿⌈{𝕎⟜𝕩}¨1‿¯1×¯0.001+t VectorAngle˜ ≍˘⟜-GetUp camera
   }⍟lockView ↩
 
   # Rotation axis
   right ← GetRight camera
 
   # Rotate view vector around right axis
-  targetPosition Vector3RotateByAxisAngle˜↩right‿angle
+  targetPosition ← right‿angle Vector3RotateByAxisAngle -´index.target‿index.position⊏camera
 
-  camera {rotateAroundTarget?
-    # Move position relative to target
-    (targetPosition -˜ index.target⊑𝕩)⌾(index.position⊸⊑) 𝕩
-  ;
-    # rotate around camera.position
-    # Move target relative to position
-    (targetPosition + index.position⊑𝕩)⌾(index.target⊸⊑) 𝕩
-  } ↩
+  # rotate around camera.position
+  # Move target relative to position
+  camera {𝕩⋈𝕩+targetPosition}∘⊑⌾(index.position‿index.target⊸⊏) ↩
 
   # Rotate up direction around right axis
   right‿angle⊸Vector3RotateByAxisAngle⌾(index.up⊸⊑)⍟rotateUp camera
@@ -244,95 +222,176 @@ MakeGetProjectionMatrix ← {𝕊cull_distance_near‿cull_distance_far:
 # Default cull distance
 GetProjectionMatrix ← MakeGetProjectionMatrix {𝔽𝕘}0.01‿1000
 
+ToTarget ⇐ {
+  𝕊⁼:𝕩+<-´𝕩;
+  𝕊: 𝕩-<-´𝕩
+}⌾(index.position‿index.target⊸⊏)
+
 MakeUpdater ← {𝕊⟨
-    orbital_speed
+    moveInWorldPlane
+    lockView
+    rotateUp
+
     rotation_speed
     move_speed
     pan_speed
     mouse_move_sensitivity
     mouse_scroll_sensitivity
+    keys
   ⟩:
+  t←{height‿pitch‿yaw‿panMode⇐keys}
+  hUpKey‿hDownKey←t.height
+  pUpKey‿pDownKey←t.pitch
+  yUpKey‿yDownKey←t.yaw
+  panModeKey←t.panMode
 
-  cm ← mode
-  {mode𝕊camera:
-    moveInWorldPlane   ← ∨´mode=cm.third_person                  ‿cm.first_person
-    rotateAroundTarget ← ∨´mode=cm.third_person‿cm.orbital
-    lockView           ← ∨´mode=cm.third_person‿cm.orbital‿cm.first_person‿cm.free
-    rotateUp           ← 0
+  {𝕊camera:
 
     mouseDelta ← GetMouseDelta⟨⟩
+    frameAdjusting ← 60×GetFrameTime⟨⟩
 
-    {mode=cm.orbital?
-      # Orbital can just orbit
-      camera Yaw˜↩1⋈˜orbital_speed×GetFrameTime⟨⟩
-    ;
-      frameAdjusting ← 60×GetFrameTime⟨⟩
-      # Camera rotation
-      camera Pitch˜↩ ⟨frameAdjusting×rotation_speed×-´IsDown¨up‿down , lockView, rotateAroundTarget, rotateUp⟩
-      camera Yaw  ˜↩ ⟨frameAdjusting×rotation_speed×-´IsDown¨left‿right, rotateAroundTarget⟩
-      camera Roll ˜↩  frameAdjusting×rotation_speed×-´IsDown¨e‿q
+    # Camera rotation
+    camera Pitch˜↩ ⟨frameAdjusting×rotation_speed×-´IsDown¨pUpKey‿pDownKey, lockView, rotateUp⟩
+    camera Yaw  ˜↩  frameAdjusting×rotation_speed×-´IsDown¨yUpKey‿yDownKey
 
-      right   ← moveInWorldPlane⊑MoveRight‿MoveRightInWorldPlane
-      forward ← moveInWorldPlane⊑MoveForward‿MoveForwardInWorldPlane
+    right   ← moveInWorldPlane⊑MoveRight‿MoveRightInWorldPlane
+    forward ← moveInWorldPlane⊑MoveForward‿MoveForwardInWorldPlane
 
-      # Camera movement
+    # Camera movement
+    {mouse.IsButtonDown panModeKey?
       # Camera pan (for camera.free)
-      {(mode = cm.free) ∧ mouse.IsButtonDown mouse.button.middle?
-        camera Right       ˜↩  pan_speed××0⊑mouseDelta
-        camera MoveUp˜↩ -pan_speed××1⊑mouseDelta
-      ;
-        # Mouse support
-        camera Yaw  ˜↩⟨-mouse_move_sensitivity×0⊑mouseDelta, rotateAroundTarget⟩
-        camera Pitch˜↩⟨-mouse_move_sensitivity×1⊑mouseDelta, lockView, rotateAroundTarget, rotateUp⟩
-      }
-
-      # Keyboard support
-      camera Forward˜↩ frameAdjusting × move_speed×-´IsDown¨w‿s
-      camera Right  ˜↩ frameAdjusting ×-move_speed×-´IsDown¨a‿d
-
-      # Gamepad movement
-      {𝕤
-        G ← GetGamepadAxisMovement 0⊸⋈
-
-        # Gamepad controller support
-        camera Yaw  ˜↩⟨mouse_move_sensitivity×¯20×G gamepadAxis.gamepad_axis_right_x,           rotateAroundTarget⟩
-        camera Pitch˜↩⟨mouse_move_sensitivity×¯20×G gamepadAxis.gamepad_axis_right_y, lockView, rotateAroundTarget, rotateUp⟩
-
-        camera Forward⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_y)˜↩ frameAdjusting ×  move_speed
-        camera Forward⍟( 0.25≤G gamepadAxis.gamepad_axis_left_y)˜↩ frameAdjusting × -move_speed
-        camera Right  ⍟(¯0.25≥G gamepadAxis.gamepad_axis_left_x)˜↩ frameAdjusting × -move_speed
-        camera Right  ⍟( 0.25≤G gamepadAxis.gamepad_axis_left_x)˜↩ frameAdjusting ×  move_speed
-      }⍟⊢ IsGamepadAvailable 0
-
-      {𝕤
-        camera MoveUp⍟(IsDown space       )˜↩ frameAdjusting ×  move_speed
-        camera MoveUp⍟(IsDown left_control)˜↩ frameAdjusting × -move_speed
-      }⍟⊢mode=cm.free
+      camera Right ˜↩  pan_speed××0⊑mouseDelta
+      camera MoveUp˜↩ -pan_speed××1⊑mouseDelta
+    ;
+      # Mouse support
+      camera Yaw  ˜↩ -mouse_move_sensitivity×0⊑mouseDelta
+      camera Pitch˜↩⟨-mouse_move_sensitivity×1⊑mouseDelta, lockView, rotateUp⟩
     }
 
-    {𝕊:
-      # Zoom target distance
-      camera MoveToTarget˜↩-mouse.WheelMoved@
-      camera MoveToTarget˜↩2×-´IsPressed¨keypad.subtract‿keypad.add
-    }⍟⊢∨´mode=cm.third_person‿cm.orbital
+    # Keyboard support
+    camera Forward˜↩ frameAdjusting × move_speed×-´IsDown¨w‿s
+    camera Right  ˜↩ frameAdjusting × move_speed×-´IsDown¨d‿a
+
+    # Gamepad movement
+    {𝕤
+      G ← GetGamepadAxisMovement 0⊸⋈
+
+      # Gamepad controller support
+      camera Yaw  ˜↩ frameAdjusting × mouse_move_sensitivity × ¯20×G gamepadAxis.gamepad_axis_right_x
+      camera Pitch˜↩⟨frameAdjusting × mouse_move_sensitivity × ¯20×G gamepadAxis.gamepad_axis_right_y, lockView, rotateUp⟩
+      camera Forward˜↩ frameAdjusting × move_speed × 0.25 (-⊸≥-≤) G gamepadAxis.gamepad_axis_left_y
+      camera Right˜↩ -frameAdjusting × move_speed × 0.25 (-⊸≥-≤) G gamepadAxis.gamepad_axis_left_x
+      camera MoveUp˜↩ frameAdjusting × move_speed × raylib.gamepadButton.gamepad_button_right_face_down -○raylib.IsGamepadButtonDown○(0⊸⋈) raylib.gamepadButton.gamepad_button_right_thumb
+    }⍟⊢ IsGamepadAvailable 0
+
+    camera MoveUp˜↩ frameAdjusting × move_speed × space -○IsDown left_control
+
     camera
   }
 }
 
-update ← MakeUpdater {
-  orbital_speed  ⇐ 0.5
-  rotation_speed ⇐ 0.03 # Radians per second
+# Zoom target distance
+UpdateZoom ← {𝕊camera: 1𝕊𝕩;
+  zoomAmount𝕊camera:
+  # scale multiplies the zoom speed to prevent you zooming past 0
+  dist ← +´⌾(×˜)-´index.target‿index.position⊏𝕩
+
+  # Zoom slows as you get close, and `0⍟(0≥dist+⊢)` makes sure you can't get to/past 0 incase user zooms for a loooong time.
+  camera MoveToTarget˜↩ 0⍟(0≥dist+⊢)- zoomAmount × (mouse.WheelMoved@) + 2×-´IsPressed¨keypad.add‿keypad.subtract
+}
+UpdateRoll ← {⟨rotationSpeed⋄leftKey‿rightKey⟩𝕊camera: # rotation is Radians per second
+  camera Roll ˜↩ (60×GetFrameTime⟨⟩)×rotationSpeed×-´IsDown¨leftKey‿rightKey
+}
+updateFree ← {0.03‿(𝕨.keys.roll) UpdateRoll 𝕏{⊢⊣⌾(index.up⊸⊑)𝔽}}⟜MakeUpdater {
+  rotation_speed ⇐ 0.03
   move_speed     ⇐ 0.09
   pan_speed      ⇐ 0.2
+
+  moveInWorldPlane ⇐ 0
+  lockView         ⇐ 1
+  rotateUp         ⇐ 0
 
   # Camera mouse movement sensitivity
   mouse_move_sensitivity   ⇐ 0.003     # TODO: it should be independant of framerate
   mouse_scroll_sensitivity ⇐ 1.5
+
+  keys ⇐ {
+    height  ⇐ key.left_control‿key.space
+    pitch   ⇐ key.up          ‿key.down
+    yaw     ⇐ key.left        ‿key.right
+    roll    ⇐ key.e           ‿key.q
+    panMode ⇐ mouse.button.middle
+  }
 }
 
+# Orbital can just orbit
+UpdateOrbital ⇐ UpdateZoom {𝕊:0.5×GetFrameTime⟨⟩}⊸Yaw⌾ToTarget
+
+updateFirstPerson ⇐ MakeUpdater {
+  rotation_speed ⇐ 0.03 # Radians per second
+  move_speed     ⇐ 0.09
+  pan_speed      ⇐ 0.2
+
+  moveInWorldPlane   ⇐ 0
+  lockView           ⇐ 1
+  rotateUp           ⇐ 1
+
+  # Camera mouse movement sensitivity
+  mouse_move_sensitivity   ⇐ 0.003     # TODO: it should be independant of framerate
+  mouse_scroll_sensitivity ⇐ 1.5
+
+  keys ⇐ {
+    height  ⇐ key.left_control‿key.space
+    pitch   ⇐ key.up          ‿key.down
+    yaw     ⇐ key.left        ‿key.right
+    panMode ⇐ mouse.button.middle
+  }
+}
+updateThirdPerson ⇐ {UpdateZoom 𝕏⌾ToTarget} MakeUpdater {
+  rotation_speed ⇐ 0.03 # Radians per second
+  move_speed     ⇐ 0.09
+  pan_speed      ⇐ 0.2
+
+  moveInWorldPlane   ⇐ 0
+  lockView           ⇐ 1
+  rotateUp           ⇐ 0
+
+  # Camera mouse movement sensitivity
+  mouse_move_sensitivity   ⇐ 0.003     # TODO: it should be independant of framerate
+  mouse_scroll_sensitivity ⇐ 1.5
+
+  keys ⇐ {
+    height ⇐ key.left_control‿key.space
+    pitch ⇐ key.up‿key.down
+    yaw   ⇐ key.left‿key.right
+    roll  ⇐ key.e‿key.q
+    panMode ⇐ mouse.button.middle
+  }
+}
+updateMinecraft ← MakeUpdater{
+  rotation_speed ⇐ 0.03 # Radians per second
+  move_speed     ⇐ 0.09
+  pan_speed      ⇐ 0.2
+
+  moveInWorldPlane   ⇐ 1
+  lockView           ⇐ 1
+  rotateUp           ⇐ 0
+
+  # Camera mouse movement sensitivity
+  mouse_move_sensitivity   ⇐ 0.003     # TODO: it should be independant of framerate
+  mouse_scroll_sensitivity ⇐ 1.5
+
+  keys ⇐ {
+    height ⇐ key.left_shift‿key.space
+    pitch ⇐ key.up‿key.down
+    yaw   ⇐ key.left‿key.right
+    roll  ⇐ @‿@
+    panMode ⇐ mouse.button.middle
+  }
+}
 
 # Update camera movement, movement/rotation values should be provided by user
-UpdatePro ← {movement‿rotation‿zoom𝕊camera:
+UpdatePro ← UpdateZoom {movement‿rotation‿zoom𝕊camera:
   # Required values
   # movement.x - Move forward/backward
   # movement.y - Move right/left
@@ -348,15 +407,51 @@ UpdatePro ← {movement‿rotation‿zoom𝕊camera:
   moveInWorldPlane   ← 1
 
   # Camera rotation
-  camera Yaw  ˜↩⟨-deg2rad×0⊑rotation, rotateAroundTarget⟩
-  camera Pitch˜↩⟨-deg2rad×1⊑rotation, lockView, rotateAroundTarget, rotateUp⟩
-  camera Roll ˜↩  deg2rad×2⊑rotation
+  camera Yaw  ˜↩ -deg2rad×0⊑rotation
+  camera Pitch˜↩⟨-deg2rad×1⊑rotation, lockView, rotateUp⟩
 
   # Camera movement
   camera MoveForwardInWorldPlane˜↩ 0⊑movement
   camera MoveRightInWorldPlane  ˜↩ 1⊑movement
   camera MoveUp                 ˜↩ 2⊑movement
 
-  # Zoom target distance
-  MoveToTarget camera‿zoom
+  camera
+}
+
+[
+  Rotate ‿ RotateLocked
+  RotateAroundTarget ‿ RotateAroundTargetLocked
+] ← (↕2‿2) {𝕨𝕊f: 𝕨 _f}¨ {{
+  angleYaw‿anglePitch‿angleRoll RotateAroundTarget‿LockView _𝕣 position‿target‿up‿fovy‿projection:
+
+  targetPosition ← up‿angleYaw Vector3RotateByAxisAngle target-position
+  right ← targetPosition 1⊸⌽⊸×{1⌽𝔽˜-𝔽} up
+
+  anglePitch {
+    # In these camera modes we clamp the Pitch angle
+    # to allow only viewing straight up or down.
+
+    # Clamp view up
+    𝕩 ⌊↩ ¯0.001+up VectorAngle targetPosition
+
+    # Clamp view down
+    𝕩 ⌈ 0.001-(-up) VectorAngle targetPosition
+  }⍟lockView ↩
+
+
+  transpos ← right‿anglePitch Vector3RotateByAxisAngle targetPosition
+  r←rotateAroundTarget
+  [position⋄target] (+`transPos≍˜⊏)⌾(r⊸⌽-⍟r)↩
+
+  ⟨
+    position
+    target
+    up Vector3RotateByAxisAngle˝transPos‿angleRoll≍right‿anglePitch
+    fovy
+    projection
+  ⟩
+}}
+
+Rotate2 ← {⟨angleYaw‿anglePitch‿angleRoll⋄locked⟩𝕊position‿target‿up‿fovy‿projection:
+  angleRoll Roll anglePitch‿locked‿1 Pitch angleYaw‿rotateAroundTarget Yaw position‿target‿up‿fovy‿projection
 }
