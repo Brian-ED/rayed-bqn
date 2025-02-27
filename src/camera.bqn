@@ -15,6 +15,8 @@
   Yaw
   Pitch
   Roll
+  Rotate‿RotateLocked
+  RotateAroundTarget‿RotateAroundTargetLocked
 
   GetViewMatrix
   GetProjectionMatrix
@@ -441,7 +443,7 @@ UpdatePro ← UpdateZoom {movement‿rotation‿zoom𝕊camera:
 
   transpos ← right‿anglePitch Vector3RotateByAxisAngle targetPosition
   r←rotateAroundTarget
-  [position⋄target] (+`transPos≍˜⊏)⌾(r⊸⌽-⍟r)↩
+  [position⋄target] (+`transPos≍˜⊏)⌾(r⌽-⍟r)↩
 
   ⟨
     position
@@ -451,7 +453,3 @@ UpdatePro ← UpdateZoom {movement‿rotation‿zoom𝕊camera:
     projection
   ⟩
 }}
-
-Rotate2 ← {⟨angleYaw‿anglePitch‿angleRoll⋄locked⟩𝕊position‿target‿up‿fovy‿projection:
-  angleRoll Roll anglePitch‿locked‿1 Pitch angleYaw‿rotateAroundTarget Yaw position‿target‿up‿fovy‿projection
-}

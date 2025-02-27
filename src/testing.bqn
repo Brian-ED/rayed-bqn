@@ -21,6 +21,7 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
 
 Approx ← 5⊸Round
 
+•Out "(math tests started"
 e←"Round"
 e!100.2131≡4 Round 100.21312344123
 
@@ -186,10 +187,11 @@ e! 68 ≡ Remap 12‿ 5‿10‿40‿60
 e! 40 ≡ Remap 10‿10‿20‿40‿60
 
 
-•Out "Math tests passed"
+•Out "Math tests passed)"
+•Out "(RCore tests started"
 
 
-⟨GetWorldToScreenEx⟩ ← •Import "rcore.bqn"
+⟨GetWorldToScreenEx⟩ ← ⟨{⇐}⋄1⟩ •Import "rcore.bqn"
 
 pos ← 111‿9‿4
 width‿height ← 1920‿1080
@@ -198,4 +200,35 @@ e↩"GetWorldToScreenEx"
 e!(Approx GetWorldToScreenEx pos‿camera3D‿width‿height) ≡ 2396.74492‿728.27699
 
 
-•Out "RCore tests passed"
+•Out "RCore tests passed)"
+•Out "(Camera tests started"
+
+{𝕊position‿target‿up‿fovy‿projection:
+
+  position‿target‿up‿fovy‿projection
+} camera3d
+
+⟨
+  Rotate, RotateLocked
+  RotateAroundTarget, RotateAroundTargetLocked
+  Roll, Pitch, Yaw
+⟩ ← ⟨
+  {up‿left‿down‿right‿w‿a‿s‿d‿e‿q‿space‿leftControl‿ispressed‿keypad‿isdown‿leftShift⇐↕16}
+  {button⇐{middle⇐↕1}}, {getFrameTime‿gamepadaxis‿getgamepadaxismovement‿isgamepadavailable‿getMouseDelta⇐↕5}
+  •Import "math.bqn"
+⟩ •Import "camera.bqn"
+
+# Reference implementation to test against
+Rotate2 ← {⟨angleYaw‿anglePitch‿angleRoll⋄locked⟩𝕊position‿target‿up‿fovy‿projection:
+  angleRoll Roll anglePitch‿locked‿1 Pitch angleYaw Yaw position‿target‿up‿fovy‿projection
+}
+
+a←⟨0.5‿0.2‿0.4⋄0⟩ Rotate2 camera3D
+e↩"Rotate"
+e!a≡○Approx 0.5‿0.2‿0.4 Rotate camera3D
+
+c↩⟨0.5‿4‿0.4⋄1⟩ Rotate2 camera3D
+e↩"RotateLocked"
+e!c≡○Approx 0.5‿4‿0.4 RotateLocked camera3D
+
+•Out "Camera tests passed)"
