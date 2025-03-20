@@ -89,11 +89,11 @@ Copy ← {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
 # image.ToArr
 ToArr ← {𝕊raylibImg:
   changeFormat←pixelFormat.uncompressed_r8g8b8a8≢4⊑𝕩
-  dataptr‿width‿hight‿·‿format ← {
+  dataptr‿width‿height‿·‿format ← {
     ⊑⊑raylib.ImageFormatRef ⟨Copy 𝕩⟩‿pixelFormat.uncompressed_r8g8b8a8
   }⍟changeFormat 𝕩
   "Invalid image format"!×format
-  bqnImg ← hight‿width‿4(⊣⥊×´⊸low.Make)dataPtr
+  bqnImg ← height‿width‿4(⊣⥊×´⊸low.Make)dataPtr
   raylib.MemFree⍟changeFormat dataPtr
   bqnImg
 }
@@ -135,8 +135,8 @@ GifToImages ← {𝕊bytes:
   "GIF"≡3↑𝕩?
     NeedsWindow@
     image‿⟨frames⟩ ← raylib.LoadImageAnimFromMemoryRef ⟨".gif"⋄bytes⋄≠bytes⋄⟨0⟩⟩ # fileType fileData dataSize frames # Load image sequence from memory buffer
-    dataptr‿width‿hight‿·‿format←image
-    r ← width‿hight‿4‿frames(⊣⥊×´⊸low.Make)dataPtr
+    dataptr‿width‿height‿·‿format←image
+    r ← width‿height‿4‿frames(⊣⥊×´⊸low.Make)dataPtr
     r ⊣ raylib.MemFree dataPtr
   ;
   @
