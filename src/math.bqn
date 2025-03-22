@@ -37,7 +37,6 @@
   Lerp
 
   # functions applied to a list
-  Vector3Unproject
   VectorClampValue
   VectorAngle
   VectorLength ⋄ VectorLengthSqr
