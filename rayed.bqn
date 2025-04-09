@@ -651,12 +651,14 @@ StartClock ← {𝕊@:
 
 mouse ← {
 
-  buttons ← 7
+  # mouse.buttonCount
+  buttonCount ⇐ 7
+
   # mouse.button.
   button ⇐ {
-    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
+    left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttonCount
     IsDown‿IsPressed‿IsReleased‿IsUp⇐
-    IsMouseButton ← "Mouse button doesn't exist. (𝕩∊↕7)"⊸!∘⊑∘∊⟜(↕buttons)⚇0
+    IsMouseButton ← "Mouse button doesn't exist. (𝕩∊↕7)"⊸!∘⊑∘∊⟜(↕buttonCount)⚇0
 
     # mouse.IsDown
     IsDown ⇐ {𝕊mouseButton:
