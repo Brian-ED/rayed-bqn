@@ -400,7 +400,7 @@ window ← {
 # Drawing
 draw ← {
   ⟨
-    _WithCanvas ⋄ _in3D ⋄ _inRectangle
+    _WithCanvas ⋄ _in3D ⋄ _in2d ⋄ _inRectangle
     Rectangle ⋄ Triangle ⋄ Line
     Ellipse ⋄ EllipseOutline
     Text ⋄ Texture ⋄ advanced
@@ -414,6 +414,16 @@ draw ← {
     raylib.BeginMode3D 𝕩
     raylib.EndMode3D∘⟨⟩⊸⊢𝔽𝕩
   }
+
+  # Start 2d mode, drawing relative to camera using 𝔽, then ends 2d mode
+  # draw._in2D
+  _in2D ← {𝕨 Drawing2D _𝕣 offset‿target‿rotation‿zoom:
+    NeedsWindow@          # pos  target up   FOV Camera projection type
+    "_in2D: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"ii"‿"ii"‿'i'‿'i'
+    raylib.BeginMode2D 𝕩
+    raylib.EndMode2D∘⟨⟩⊸⊢𝔽𝕩
+  }
+
   # Start drawing, draw background as color 𝕩, use function 𝔽𝕨, end drawing
   # draw._WithCanvas
   _withCanvas ← {𝕨DrawingFunc _𝕣 color: arg←𝕨⊣@
@@ -452,9 +462,8 @@ draw ← {
 
   # Draw text at x‿y in given font, color, and size
   # draw.Text
-  Text ← {𝕨𝕊⟨x‿y⋄text⟩:
+  Text ← {𝕨𝕊⟨x‿y⋄text⟩: t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
     NeedsWindow@
-    t ← ⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
     "Text: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾(5⥊'i')‿'n'‿'n')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
     raylib.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
   }
@@ -646,8 +655,34 @@ mouse ← {
   # mouse.button.
   button ⇐ {
     left‿right‿middle‿side‿extra‿forward‿back ⇐ ↕buttons
-  }
+    IsDown‿IsPressed‿IsReleased‿IsUp⇐
+    IsMouseButton ← "Mouse button doesn't exist. (𝕩∊↕7)"⊸!∘⊑∘∊⟜(↕buttons)⚇0
 
+    # mouse.IsDown
+    IsDown ⇐ {𝕊mouseButton:
+      NeedsWindow@
+      IsMouseButton 𝕩
+      raylib.IsMouseButtonDown⚇0 𝕩
+    }
+    # mouse.IsPressed
+    IsPressed ⇐ {𝕊mouseButton:
+      NeedsWindow@
+      IsMouseButton 𝕩
+      raylib.IsMouseButtonPressed⚇0 𝕩
+    }
+    # mouse.IsReleased
+    IsReleased ⇐ {𝕊mouseButton:
+      NeedsWindow@
+      IsMouseButton 𝕩
+      raylib.IsMouseButtonReleased⚇0 𝕩
+    }
+    # mouse.IsUp
+    IsUp ⇐ {𝕊mouseButton:
+      NeedsWindow@
+      IsMouseButton 𝕩
+      raylib.IsMouseButtonUp⚇0 𝕩
+    }
+  }
   # mouse.GetPos
   GetPos     ⇐ {𝕊:
     NeedsWindow@
@@ -673,38 +708,10 @@ mouse ← {
     NeedsWindow@
     raylib.SetMouseScale 𝕩
   }
-
   # mouse.WheelMoved
   WheelMoved ⇐ {𝕊:
     NeedsWindow@
     raylib.GetMouseWheelMove⟨⟩
-  }
-
-  IsMouseButton ← "Mouse button doesn't exist. (𝕩∊↕7)"⊸!∘⊑∘∊⟜(↕buttons)⚇0
-
-  # mouse.IsButtonDown
-  IsButtonDown ⇐ {𝕊mouseButton:
-    NeedsWindow@
-    IsMouseButton 𝕩
-    raylib.IsMouseButtonDown⚇0 𝕩
-  }
-  # mouse.IsButtonPressed
-  IsButtonPressed ⇐ {𝕊mouseButton:
-    NeedsWindow@
-    IsMouseButton 𝕩
-    raylib.IsMouseButtonPressed⚇0 𝕩
-  }
-  # mouse.IsButtonReleased
-  IsButtonReleased ⇐ {𝕊mouseButton:
-    NeedsWindow@
-    IsMouseButton 𝕩
-    raylib.IsMouseButtonReleased⚇0 𝕩
-  }
-  # mouse.IsButtonUp
-  IsButtonUp ⇐ {𝕊mouseButton:
-    NeedsWindow@
-    IsMouseButton 𝕩
-    raylib.IsMouseButtonUp⚇0 𝕩
   }
 
   cursor ⇐ {
