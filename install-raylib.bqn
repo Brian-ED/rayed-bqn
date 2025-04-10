@@ -1,7 +1,7 @@
 #!usr/bin/env bqn
 ⟨Realpath⋄At⋄Exists⋄CreateDir⋄Remove⋄List⋄Bytes⋄path⟩ ← •file
 ⟨os⟩←•platform
-version ← "5.0"
+version ← "5.5"
 binariesPath ← "lib"
 
 ⟨               ext     ⋄ libFile         ⋄ raylibFolder

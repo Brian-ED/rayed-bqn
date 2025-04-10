@@ -576,7 +576,9 @@ font ← {
   ;
     charactersAllowed 𝕊 size‿fileType‿fontFileChars:
       NeedsWindow@
-      raylib.LoadFontFromMemory⟨fileType⋄fontFileChars⋄≠fontFileChars⋄size⋄@-˜charactersAllowed⋄≠charactersAllowed⟩
+      log.setLevel.Error@
+      r←raylib.LoadFontFromMemory⟨fileType⋄fontFileChars⋄≠fontFileChars⋄size⋄@-˜charactersAllowed⋄≠charactersAllowed⟩
+      r⊣log.setLevel.Warning@
   }
 
   # font.LoadFile
@@ -590,14 +592,18 @@ font ← {
       {!"Path given wasn't absolute: "∾•Repr𝕩}⍟("."⊸•file.At⊸≢)filePath
       {!"Couldn't find file: "∾•Repr𝕩}⍟(¬•file.Exists) filePath
 
-      raylib.LoadFontEx ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
+      log.setLevel.Error@
+      r←raylib.LoadFontEx ⟨filePath⋄size⋄𝕨-@⋄≠𝕨⟩
+      r⊣log.setLevel.Warning@
   }
 
   # font.LoadBQN
   LoadBQN ← {𝕊fontSize: fontSize 100⍟(@⊸≡)↩
     NeedsWindow@
     file ← •file.RealPath ("Expected file at: "⊸∾!•file.Exists)⊸⊢ •file.At "imports/BQN386/BQN386.ttf"
-    raylib.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
+    log.setLevel.Error@
+    r←raylib.LoadFontEx⟨file⋄fontSize⋄bqnFontChars-@⋄≠bqnFontChars⟩
+    r⊣log.setLevel.Warning@
   }
   # font.LoadRaylib
   LoadRaylib ← {𝕊@:
