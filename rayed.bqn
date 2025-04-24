@@ -391,6 +391,7 @@ draw ← {
     _WithCanvas ⋄ _in3D ⋄ _inRectangle
     Rectangle ⋄ Triangle ⋄ Line
     Ellipse ⋄ EllipseOutline
+    Poly ⋄ PolyLines ⋄ PolyLinesEx
     Text ⋄ Texture ⋄ advanced
   ⟩⇐
 
@@ -507,6 +508,21 @@ draw ← {
   Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
     [p1,p2,p3] ← 𝕩
     raylib.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
+  }⎉1‿2
+
+  # draw.Poly
+  Poly ← {color𝕊⟨p1⋄sides⋄radius⋄rotation⟩:
+    raylib.DrawPoly p1‿sides‿radius‿rotation‿𝕨
+  }⎉1‿2
+
+  # draw.PolyLines
+  PolyLines ← {color𝕊⟨p1⋄sides⋄radius⋄rotation⟩:
+    raylib.DrawPolyLines p1‿sides‿radius‿rotation‿𝕨
+  }⎉1‿2
+
+  # draw.PolyLinesEx
+  PolyLinesEx ← {color𝕊⟨p1⋄sides⋄radius⋄rotation⋄thickness⟩:
+    raylib.DrawPolyLinesEx p1‿sides‿radius‿rotation‿thickness‿𝕨
   }⎉1‿2
 
   # These aren't recommended because they are useless if you use _WithCanvas.
@@ -1162,9 +1178,6 @@ camera ↩ key‿mouse‿raylib‿raymath •Import "src/camera.bqn"
 # drawTriangleLines
 # drawTriangleFan
 # drawTriangleStrip
-# drawPoly
-# drawPolyLines
-# drawPolyLinesEx
 # drawSplineLinear
 # drawSplineBasis
 # drawSplineCatmullRom
