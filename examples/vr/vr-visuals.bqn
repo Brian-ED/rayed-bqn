@@ -10,7 +10,6 @@ device ← ⟨
     1200     # Vertical resolution in pixels
     0.133793 # Horizontal size in meters
     0.0669   # Vertical size in meters
-    0.0      # Screen center in meters
     0.041    # Distance between eye and display in meters
     0.07     # Lens separation distance in meters
     0.07     # IPD (distance between pupils) in meters
@@ -25,12 +24,11 @@ deviceIndex ← {
   vResolution            ⇐ 1 # Vertical resolution in pixels
   hScreenSize            ⇐ 2 # Horizontal size in meters
   vScreenSize            ⇐ 3 # Vertical size in meters
-  vScreenCenter          ⇐ 4 # Screen center in meters
-  eyeToScreenDistance    ⇐ 5 # Distance between eye and display in meters
-  lensSeparationDistance ⇐ 6 # Lens separation distance in meters
-  interpupillaryDistance ⇐ 7 # IPD (distance between pupils) in meters
-  lensDistortionValues   ⇐ 8 # Lens distortion constant parameters
-  chromaAbCorrection     ⇐ 9 # Chromatic aberration correction parameters
+  eyeToScreenDistance    ⇐ 4 # Distance between eye and display in meters
+  lensSeparationDistance ⇐ 5 # Lens separation distance in meters
+  interpupillaryDistance ⇐ 6 # IPD (distance between pupils) in meters
+  lensDistortionValues   ⇐ 7 # Lens distortion constant parameters
+  chromaAbCorrection     ⇐ 8 # Chromatic aberration correction parameters
 }
 
 # Load VR stereo config for VR device parameteres (Oculus Rift CV1 parameters)
