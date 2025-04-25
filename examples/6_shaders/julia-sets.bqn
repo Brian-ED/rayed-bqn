@@ -123,7 +123,7 @@ lightIndex ⇐ {
     # If either left or right button is pressed, zoom in/out.
     {
       # Change zoom. If Mouse left -> zoom in. Mouse right -> zoom out.
-      zoom ×↩ ⋆0.01×-´mouse.IsButtonDown mouse.button.left‿mouse.button.right
+      zoom ×↩ ⋆0.01×-´mouse.button.IsDown mouse.button.left‿mouse.button.right
       mousePos ← mouse.GetPos@
       # Find the velocity at which to change the camera. Take the distance of the mouse
       # from the center of the screen as the direction, and adjust magnitude based on
@@ -139,7 +139,7 @@ lightIndex ⇐ {
 
       SetShaderValue⟨shader, zoomLoc, zoomfloat,    rf.shaderUniformDataType.shader_uniform_float⟩
       SetShaderValue⟨shader, offsetLoc, offsetV2, rf.shaderUniformDataType.shader_uniform_vec2⟩
-    }⍟rl.mouse.IsButtonDown mouse.button.right
+    }⍟rl.mouse.button.IsDown mouse.button.right
 
     SetShaderValue⟨shader, cLoc, cv2, rf.shaderUniformDataType.shader_uniform_vec2⟩
     #----------------------------------------------------------------------------------

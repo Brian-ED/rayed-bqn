@@ -260,7 +260,7 @@ MakeUpdater ← {𝕊⟨
     forward ← moveInWorldPlane⊑MoveForward‿MoveForwardInWorldPlane
 
     # Camera movement
-    {mouse.IsButtonDown panModeKey?
+    {mouse.button.IsDown panModeKey?
       # Camera pan (for camera.free)
       camera Right ˜↩  pan_speed××0⊑mouseDelta
       camera MoveUp˜↩ -pan_speed××1⊑mouseDelta
