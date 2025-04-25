@@ -684,25 +684,25 @@ mouse ← {
     IsDown‿IsPressed‿IsReleased‿IsUp⇐
     IsMouseButton ← "Mouse button doesn't exist. (𝕩∊↕7)"⊸!∘⊑∘∊⟜(↕buttonCount)⚇0
 
-    # mouse.IsDown
+    # mouse.button.IsDown
     IsDown ⇐ {𝕊mouseButton:
       NeedsWindow@
       IsMouseButton 𝕩
       raylib.IsMouseButtonDown⚇0 𝕩
     }
-    # mouse.IsPressed
+    # mouse.button.IsPressed
     IsPressed ⇐ {𝕊mouseButton:
       NeedsWindow@
       IsMouseButton 𝕩
       raylib.IsMouseButtonPressed⚇0 𝕩
     }
-    # mouse.IsReleased
+    # mouse.button.IsReleased
     IsReleased ⇐ {𝕊mouseButton:
       NeedsWindow@
       IsMouseButton 𝕩
       raylib.IsMouseButtonReleased⚇0 𝕩
     }
-    # mouse.IsUp
+    # mouse.button.IsUp
     IsUp ⇐ {𝕊mouseButton:
       NeedsWindow@
       IsMouseButton 𝕩
