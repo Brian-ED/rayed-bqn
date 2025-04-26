@@ -9,7 +9,7 @@ Breaking changes to any feature in rayed.bqn should be expected for now, as this
 Rayed-bqn works on Windows, Linux and MacOS.
 Make sure you've installed [git](https://git-scm.com/downloads) and CBQN on [Windows](https://github.com/vylsaz/cbqn-win-docker-build/releases), [Linux](https://github.com/dzaima/CBQN) or [MacOS](https://github.com/dzaima/CBQN). Rayed-bqn works with CBQN version 0.7.0, and hopefully >0.7.0 as well.
 
-Make sure bqn is on `PATH`. To check, run `bqn` in the terminal, in the case of windows it's the `Command Prompt` or `Windows PowerShell`. Then type `1+1` in the terminal and get `2`. If `bqn` wasn't found, and you're on linux or mac, make sure you've installed CBQN correctly and ran `sudo make install` - and if you're on windows, add the bqn folder from cbqn-win-docker-build to PATH, [here's a tutorial](https://www.computerhope.com/issues/ch000549.htm).
+Make sure bqn is on `PATH`. To check, run `bqn` in the terminal, in the case of windows it's the `Command Prompt` or `Windows PowerShell`. Then type `1+1` in the terminal and get `2`. If `bqn` wasn't found, and you're on linux or mac, make sure you've installed CBQN correctly and ran `sudo make install` - and if you're on windows, add the bqn folder from [cbqn-win-docker-build](https://github.com/vylsaz/cbqn-win-docker-build/releases) to PATH, [here's a tutorial](https://www.computerhope.com/issues/ch000549.htm).
 
 First step in installing is cloning rayed-bqn and installing raylib by typing the following in the terminal:
 ```SH
