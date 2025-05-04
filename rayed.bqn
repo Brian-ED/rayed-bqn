@@ -138,8 +138,8 @@ monitor ← {
     raylib.GetMonitorCount⟨⟩
   }
 
-  notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( 𝕩∊↕monitor.Count@ ) v ( 𝕩≡@ )"
-  M ← @⊸≢◶Selected‿{𝕩⊣notAMonitorErr!⊑𝕩∊↕Count@} # No need for NeedsWindow because Selected and Count need it so error still works
+  notAMonitorErr ← "Invalid monitor 𝕩, can only be @ for currently selected monitor or a monitor number; ( ∊⟜(↕monitor.Count@)⌾<𝕩 ) v ( 𝕩≡@ )"
+  M ← @⊸≢◶Selected‿{𝕩⊣notAMonitorErr!∊⟜(↕Count@)⌾<𝕩} # No need for NeedsWindow because Selected and Count need it so error still works
 
   # monitor.RefreshRate
   RefreshRate ← {𝕊monitor:
@@ -341,21 +341,22 @@ window ← {
   cs ← raylib.ClearWindowState‿raylib.SetWindowState
   cf ← configFlags
 
-  SetFullscreen        ⇐ {!⊑𝕩∊↕2 ⋄ fullscreen        ↩ 𝕩 ⊣ raylib.ToggleFullscreen∘⟨⟩⍟(𝕩≠IWS)⍟isopen cf.fullscreen_mode} # window.SetFullscreen
-  SetResizable         ⇐ {!⊑𝕩∊↕2 ⋄ resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         } # window.SetResizable
-  SetDecorated         ⇐ {!⊑𝕩∊↕2 ⋄ decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       } # window.SetDecorated
-  SetTransparent       ⇐ {!⊑𝕩∊↕2 ⋄ transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       } # window.SetTransparent
-  Setmsaa4xhint        ⇐ {!⊑𝕩∊↕2 ⋄ msaa4xhint        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.msaa4xhint               } # window.Setmsaa4xhint
-  Setvsynchint         ⇐ {!⊑𝕩∊↕2 ⋄ vsyncHint         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.vsync_hint               } # window.Setvsynchint
-  SetHidden            ⇐ {!⊑𝕩∊↕2 ⋄ hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
-  SetRunWhileMinimized ⇐ {!⊑𝕩∊↕2 ⋄ runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
-  SetMinimized         ⇐ {!⊑𝕩∊↕2 ⋄ minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
-  SetMaximized         ⇐ {!⊑𝕩∊↕2 ⋄ maximized         ↩ 𝕩 ⊣   raylib.MaximizeWindow∘⟨⟩⍟(𝕩=IWS)⍟isOpen cf.window_maximized} # window.SetMaximized
-  SetFocused           ⇐ {!⊑𝕩∊↕2 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
-  SetTopmost           ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
-  SetHighDPI           ⇐ {!⊑𝕩∊↕2 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_highDPI           } # window.SetHighDPI
-  SetMousePassThrough  ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
-  SetInterlacedhint    ⇐ {!⊑𝕩∊↕2 ⋄ interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
+  B←"Boolean required"!∊⟜(↕2)⌾<
+  SetFullscreen        ⇐ {B𝕩 ⋄ fullscreen        ↩ 𝕩 ⊣ raylib.ToggleFullscreen∘⟨⟩⍟(𝕩≠IWS)⍟isopen cf.fullscreen_mode} # window.SetFullscreen
+  SetResizable         ⇐ {B𝕩 ⋄ resizable         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_resizable         } # window.SetResizable
+  SetDecorated         ⇐ {B𝕩 ⋄ decorated         ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_undecorated       } # window.SetDecorated
+  SetTransparent       ⇐ {B𝕩 ⋄ transparent       ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_transparent       } # window.SetTransparent
+  Setmsaa4xhint        ⇐ {B𝕩 ⋄ msaa4xhint        ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.msaa4xhint               } # window.Setmsaa4xhint
+  Setvsynchint         ⇐ {B𝕩 ⋄ vsyncHint         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.vsync_hint               } # window.Setvsynchint
+  SetHidden            ⇐ {B𝕩 ⋄ hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
+  SetRunWhileMinimized ⇐ {B𝕩 ⋄ runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
+  SetMinimized         ⇐ {B𝕩 ⋄ minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
+  SetMaximized         ⇐ {B𝕩 ⋄ maximized         ↩ 𝕩 ⊣   raylib.MaximizeWindow∘⟨⟩⍟(𝕩=IWS)⍟isOpen cf.window_maximized} # window.SetMaximized
+  SetFocused           ⇐ {B𝕩 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
+  SetTopmost           ⇐ {B𝕩 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
+  SetHighDPI           ⇐ {B𝕩 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_highDPI           } # window.SetHighDPI
+  SetMousePassThrough  ⇐ {B𝕩 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
+  SetInterlacedhint    ⇐ {B𝕩 ⋄ interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
 
   IsFullscreen        ⇐ {𝕊: isOpen?  IWS cf.fullscreen_mode          ; fullscreen        }
   IsResizable         ⇐ {𝕊: isOpen?  IWS cf.window_resizable         ; resizable         }
