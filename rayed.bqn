@@ -353,7 +353,7 @@ window ← {
   SetMaximized         ⇐ {!⊑𝕩∊↕2 ⋄ maximized         ↩ 𝕩 ⊣   raylib.MaximizeWindow∘⟨⟩⍟(𝕩=IWS)⍟isOpen cf.window_maximized} # window.SetMaximized
   SetFocused           ⇐ {!⊑𝕩∊↕2 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
   SetTopmost           ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
-  SetHighDPI           ⇐ {!⊑𝕩∊↕2 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.highDPI                  } # window.SetHighDPI
+  SetHighDPI           ⇐ {!⊑𝕩∊↕2 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_highDPI           } # window.SetHighDPI
   SetMousePassThrough  ⇐ {!⊑𝕩∊↕2 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
   SetInterlacedhint    ⇐ {!⊑𝕩∊↕2 ⋄ interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
 
@@ -369,7 +369,7 @@ window ← {
   IsMaximized         ⇐ {𝕊: isOpen?  IWS cf.window_maximized         ; maximized         }
   IsFocused           ⇐ {𝕊: isOpen? ¬IWS cf.window_unfocused         ; focused           }
   IsTopmost           ⇐ {𝕊: isOpen?  IWS cf.window_topmost           ; topmost           }
-  IsHighDPI           ⇐ {𝕊: isOpen?  IWS cf.highDPI                  ; highDPI           }
+  IsHighDPI           ⇐ {𝕊: isOpen?  IWS cf.window_highDPI           ; highDPI           }
   IsMousePassThrough  ⇐ {𝕊: isOpen?  IWS cf.window_mouse_passthrough ; mousePassThrough  }
   IsInterlacedhint    ⇐ {𝕊: isOpen?  IWS cf.window_interlacedhint    ; interlacedhint    }
 
