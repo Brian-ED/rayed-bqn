@@ -307,8 +307,8 @@ window ← {
   # window.SetFPS
   SetFPS ⇐ {𝕊fps:
     NeedsWindow@
-    (𝕩=0⌈⌈𝕩)!˜"FPS has to be a positive int"
-    𝕩⊣raylib.SetTargetFPS𝕩
+    ((∞=𝕩) ∨ 0≤𝕩)!˜"FPS has to be a non-negative number"
+    𝕩⊣raylib.SetTargetFPS i32_max⌊0⍟(∞⊸=)⌈𝕩
   }
   # window.Screenshot
   Screenshot ← {𝕊:
