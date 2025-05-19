@@ -24,13 +24,13 @@ git_clone_path ← "https://www.github.com/raysan5/raylib/releases/download/"∾
 Exec ← {e‿·‿o:o!0≡e}•SH
 
 # Download raylib zip/tar file
-Exec {"windows"≡os?
+Exec {"windows"≡os? # If errors: Curl was likely not found.
   ⟨
     "Powershell.exe" ⋄ "-Command"
     "curl -o """∾(At"temp"∾ext)∾""" "∾git_clone_path
   ⟩
 ;
-  ⟨"curl" ⋄ "-o" ⋄ At"temp"∾ext ⋄ git_clone_path, "-L"⟩
+  ⟨"curl" ⋄ "-o" ⋄ At"temp"∾ext ⋄ git_clone_path ⋄ "-L"⟩
 }
 "Downloading raylib failed from github failed. Likely due to redirects not being followed."!⟨⟩≢•FBytes "temp"∾ext
 
