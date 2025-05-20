@@ -1,5 +1,6 @@
 #!usr/bin/env bqn
-⟨Realpath⋄At⋄Exists⋄CreateDir⋄Remove⋄List⋄Bytes⋄path⟩ ← •file
+⟨Realpath⋄At⋄CreateDir⋄Remove⋄List⋄Bytes⋄path⟩ ← •file
+Exists ← ∨´(List"")≡○RealPath¨<
 ⟨os⟩←•platform
 version ← "5.5"
 binariesPath ← "lib"

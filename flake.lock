@@ -1,0 +1,95 @@
+{
+  "nodes": {
+    "BQN386": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1742690705,
+        "narHash": "sha256-7GW4W08d5sB9EIlPPTol29nWA64pPF+8PvrugrRkXtA=",
+        "owner": "dzaima",
+        "repo": "BQN386",
+        "rev": "4d8b9f668ba76a15ca9cd44d9bfedaf95a4c0d96",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dzaima",
+        "repo": "BQN386",
+        "type": "github"
+      }
+    },
+    "BQNoise": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1697201482,
+        "narHash": "sha256-HIXRJYjPvgZB4jpg7GZ2rig8g1OJZvnKiLaQtEIerEM=",
+        "owner": "mlochbaum",
+        "repo": "BQNoise",
+        "rev": "0a2c524fcba6ae07458918b694576eb4c840a3a2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mlochbaum",
+        "repo": "BQNoise",
+        "type": "github"
+      }
+    },
+    "bqn-libs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1746555490,
+        "narHash": "sha256-mz2Efhd1XkRzFZM6vN5j0QBTZiPYe2vdVNImmnd5kFg=",
+        "owner": "mlochbaum",
+        "repo": "bqn-libs",
+        "rev": "f71d69231658659f76a9bd6146ee3dde51c1ac18",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mlochbaum",
+        "repo": "bqn-libs",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1746141548,
+        "narHash": "sha256-IgBWhX7A2oJmZFIrpRuMnw5RAufVnfvOgHWgIdds+hc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f02fddb8acef29a8b32f10a335d44828d7825b78",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "raylib-bqn": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1745597781,
+        "narHash": "sha256-Zp0FOthl4/xwSuTmG9k/go/Mo+dJpj+5/+xM8SU/dD8=",
+        "owner": "Brian-ED",
+        "repo": "raylib-bqn",
+        "rev": "d4f689ada11e70801249974624869dbea688f3dd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Brian-ED",
+        "repo": "raylib-bqn",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "BQN386": "BQN386",
+        "BQNoise": "BQNoise",
+        "bqn-libs": "bqn-libs",
+        "nixpkgs": "nixpkgs",
+        "raylib-bqn": "raylib-bqn"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
