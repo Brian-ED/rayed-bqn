@@ -12,10 +12,10 @@ binariesPath ← "lib"
 
 git_clone_path ← "https://www.github.com/raysan5/raylib/releases/download/"∾version∾"/"∾raylibFolder∾ext
 
-# Expected library to not exist
+# Expects library to not exist
 !∘{𝕊:"raylib already installed. Delete it to re-install.
-  rm "∾(Realpath 𝕩)∾"
-"}⍟Exists binariesPath At libFile
+  rm "∾(@+10)∾˜libFile At˜ Realpath •file.Parent 𝕩 # Doing •file.Parent avoids getting path to the symlink's destination
+}⍟Exists binariesPath At libFile
 
 # ---------------
 # download raylib
