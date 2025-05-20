@@ -18,8 +18,10 @@
       value = f system;
     }) supportedSystems);
   in {
-    packages = forAllSystems (system: let pkgs = nixpkgs.legacyPackages.${system}; in {
-      default = pkgs.stdenv.mkDerivation (finalAttrs: {
+    packages = forAllSystems (system:
+    let
+      pkgs = nixpkgs.legacyPackages.${system};
+      rayed-bqn = pkgs.stdenv.mkDerivation (finalAttrs: {
         pname = "rayed-bqn";
         version = "rolling";
         meta = {
@@ -44,6 +46,9 @@
           ln -s ${pkgs.raylib.outPath}/lib/libraylib.so.5.5.0 $out/lib/libraylib.so
         '';
       });
+    in {
+      inherit rayed-bqn;
+      default = rayed-bqn;
       devShells.${system}.default = pkgs.mkShell {
         name = "rayed-bqn-shell";
         buildInputs = [
