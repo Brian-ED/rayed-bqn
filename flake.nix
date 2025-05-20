@@ -1,5 +1,5 @@
 {
-  description = "Rayed-bqn derivation and dev shell with BQN";
+  description = "Rayed BQN is a library made to write cross-platform applications using the [BQN programming language";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
