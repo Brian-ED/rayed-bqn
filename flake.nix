@@ -49,12 +49,6 @@
     in {
       inherit rayed-bqn;
       default = rayed-bqn;
-      devShells.${system}.default = pkgs.mkShell {
-        name = "rayed-bqn-shell";
-        buildInputs = [
-          pkgs.cbqn
-        ];
-      };
     });
   };
 }
