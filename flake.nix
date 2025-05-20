@@ -1,7 +1,5 @@
-# TODO try using raylib package from nixpkgs and modify hash and version 5.0→5.5
-
 {
-  description = "Rayed-bqn dev shell with BQN and raylib";
+  description = "Rayed-bqn derivation and dev shell with BQN";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
