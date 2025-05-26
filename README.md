@@ -25,7 +25,7 @@ bqn rayed-bqn/examples/1_shapes/circleInsideSquares.bqn
 ### Explanation
 `git clone` has the option [`--filter=blob:none`](https://github.blog/open-source/git/get-up-to-speed-with-partial-clone-and-shallow-clone/) to clone the repository faster, and [`--recurse-submodules`](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to also install the submodules automatically.
 
-Running `bqn install-raylib.bqn` downloads [raylib](https://github.com/raysan5/raylib/releases/) with release 5.0. In the case of windows, this is `raylib-5.0_win64_msvc16`. It then takes the shared-binary from `raylib/lib/` folder and places it in `rayed-bqn/lib/`.
+Running `bqn install-raylib.bqn` downloads [raylib](https://github.com/raysan5/raylib/releases/) with release 5.5. In the case of windows, this is `raylib-5.5_win64_msvc16`. It then takes the shared-binary from `raylib/lib/` folder and places it in `rayed-bqn/lib/`.
 
 # Tested raylib versions:
 `raylib-4.5.0_win64_mingw-w64` on Windows 10  
