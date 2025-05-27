@@ -1,9 +1,10 @@
-#!usr/bin/env bqn
-⟨Realpath⋄At⋄CreateDir⋄Remove⋄List⋄Bytes⋄path⟩ ← •file
-Exists ← ∨´(List"")≡○RealPath¨<
+#!/usr/bin/env bqn
+⟨Realpath⋄At⋄CreateDir⋄Exists⋄Remove⋄List⋄Bytes⋄path⟩ ← •file
+
 ⟨os⟩←•platform
 version ← "5.5"
 binariesPath ← "lib"
+CreateDir⍟(¬Exists) binariesPath
 
 ⟨               ext     ⋄ libFile         ⋄ raylibFolder
 ⟩←{"darwin":  ⟨".tar.gz"⋄"libraylib.dylib"⋄"raylib-"∾version∾"_macos"       ⟩
@@ -15,8 +16,8 @@ git_clone_path ← "https://www.github.com/raysan5/raylib/releases/download/"∾
 
 # Expects library to not exist
 !∘{𝕊:"raylib already installed. Delete it to re-install.
-  rm "∾(@+10)∾˜libFile At˜ Realpath •file.Parent 𝕩 # Doing •file.Parent avoids getting path to the symlink's destination
-}⍟Exists binariesPath At libFile
+  rm "∾(•file.At 𝕩)∾"
+"}⍟Exists binariesPath At libFile
 
 # ---------------
 # download raylib
@@ -44,7 +45,6 @@ Remove Realpath"temp"∾ext
 # ---------------------
 # Copy binary file to binariesPath
 # ---------------------
-CreateDir⍟(¬Exists) binariesPath
 (binariesPath At libFile) Bytes Bytes Realpath raylibFolder At "lib" At libFile
 
 # -----------------
