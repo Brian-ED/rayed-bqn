@@ -18,7 +18,7 @@ Game ← {𝕊:
     r.cameraProjection.perspective # Camera mode type
   ⟩
 
-  compressedFiles ← "OBJ/Map__5_Normal_Bump.tga"‿"OBJ/RubberDuck_LOD0.obj"
+  compressedFiles ← "OBJ/Map__5_Normal_Bump.png"‿"OBJ/RubberDuck_LOD0.obj"
   {
     data ← •FBytes 𝕩∾".comp"
     p‿⟨s⟩ ← rl.DeCompressDataRef⟨data,≠data,⋈0⟩
