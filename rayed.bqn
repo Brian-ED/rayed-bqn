@@ -408,6 +408,8 @@ draw ← {
     Text ⋄ Texture ⋄ advanced
   ⟩⇐
 
+  isDrawing ← 0
+
   # Start 3d mode, drawing relative to camera using 𝔽, then ends 3d mode
   # draw._in3D
   _in3D ← {𝕨 Drawing3D _𝕣 camera:
@@ -430,13 +432,15 @@ draw ← {
   # draw._WithCanvas
   _withCanvas ← {𝕨DrawingFunc _𝕣 color: arg←𝕨⊣@
     NeedsWindow@
+    "Canvas is already being drawn"!¬isDrawing
     "_WithCanvas only accepts 𝕩 as a color; 4 ints in the range 0-255 inclusive"!∧´⟨
       𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"
       ∧´(255⊸≥∧0⊸≤)𝕩
     ⟩
     raylib.BeginDrawing⟨⟩
+    isDrawing↩1
     raylib.ClearBackground 𝕩
-    raylib.EndDrawing∘⟨⟩⊸⊢𝔽arg
+    {isDrawing↩0}∘raylib.EndDrawing∘⟨⟩⊸⊢𝔽arg
   }
 
   # draw._inTexture
