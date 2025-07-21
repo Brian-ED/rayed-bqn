@@ -262,8 +262,8 @@ color ← {
   darkbrown            ⇐ 76 ‿63 ‿47 ‿255
   darkcyan             ⇐ 0  ‿139‿139‿255
   darkgoldenrod        ⇐ 184‿134‿11 ‿255
-  darkGray             ⇐ 80 ‿80 ‿80 ‿255
-  darkGrey             ⇐ 80 ‿80 ‿80 ‿255
+  darkgray             ⇐ 80 ‿80 ‿80 ‿255
+  darkgrey             ⇐ 80 ‿80 ‿80 ‿255
   darkgreen            ⇐ 0  ‿117‿44 ‿255
   darkkhaki            ⇐ 189‿183‿107‿255
   darkmagenta          ⇐ 139‿0  ‿139‿255
@@ -310,8 +310,8 @@ color ← {
   lightcoral           ⇐ 240‿128‿128‿255
   lightcyan            ⇐ 225‿255‿255‿255
   lightgoldenrodyellow ⇐ 250‿250‿210‿255
-  lightGray            ⇐ 200‿200‿200‿255
-  lightGrey            ⇐ 200‿200‿200‿255
+  lightgray            ⇐ 200‿200‿200‿255
+  lightgrey            ⇐ 200‿200‿200‿255
   lightgreen           ⇐ 144‿238‿144‿255
   lightred             ⇐ 255‿102‿102‿255
   lightsalmon          ⇐ 255‿160‿122‿255
