@@ -401,11 +401,15 @@ window ← {
 # Drawing
 draw ← {
   ⟨
-    _WithCanvas ⋄ _in3D ⋄ _in2d ⋄ _inRectangle
-    Rectangle ⋄ Triangle ⋄ Line
-    Ellipse ⋄ EllipseOutline
+    _withCanvas ⋄ advanced
+    _in3D ⋄ _in2D
+    _withBlend ⋄ _withShader
+    _inRectangle ⋄ _inTexture
+    Rectangle ⋄ Triangle
+    Circle ⋄ Ellipse ⋄ EllipseOutline
+    Line ⋄ ThickLine
     Poly ⋄ PolyLines
-    Text ⋄ Texture ⋄ advanced
+    Text ⋄ Texture
   ⟩⇐
 
   isDrawing ← 0
