@@ -1,5 +1,19 @@
 #!/usr/bin/env bqn
 ⟨Realpath⋄At⋄CreateDir⋄Exists⋄Remove⋄List⋄Bytes⋄path⟩ ← •file
+Exec ← {e‿o‿eo:eo!0≡e⋄•term.OutRaw o}•SH
+
+gitSubCmd ← "git"‿"submodule"‿"update"‿"--init"‿"--recursive"
+{𝕊:
+  Exec gitSubCmd
+}⎊{𝕊:
+  !1↓∾´(@+10)∾¨⟨
+    "Automatic submodule install failed."
+    "Command for manual install is as folllows:"
+    ""
+    "  "∾1↓∾´' '∾¨gitSubCmd
+    ""
+  ⟩
+}@
 
 ⟨os⟩←•platform
 version ← "5.5"
@@ -23,8 +37,6 @@ git_clone_path ← "https://www.github.com/raysan5/raylib/releases/download/"∾
 # download raylib
 # ---------------
 
-Exec ← {e‿·‿o:o!0≡e}•SH
-
 # Download raylib zip/tar file
 Exec {"windows"≡os? # If errors: Curl was likely not found.
   ⟨
@@ -38,7 +50,7 @@ Exec {"windows"≡os? # If errors: Curl was likely not found.
 
 # unzip/untar/unarchive raylib
 # tar on windows handles zip files, while mac/linux get raylib as tar.gz files
-Exec ⟨"tar" ⋄ "-xzf"⋄Realpath"temp"∾ext ⋄ "-C"⋄path⟩
+Exec ⟨"tar" ⋄ "-xzf"⋄ Realpath"temp"∾ext ⋄ "-C"⋄path⟩
 Remove Realpath"temp"∾ext
 "Extracting raylib failed"!Exists raylibFolder At "lib" At libFile
 
