@@ -2,10 +2,8 @@
   ⟨ReadI32 ⋄ ReadI8⟩⇐low
   rf⇐raylib
   ⟨
-    GetShaderLocation ⋄ SetShaderValueRaw ⋄ SetShaderValue
+    GetShaderLocation ⋄ SetShaderValue
     MemAlloc ⋄ MemFree
-    ⟨ SHADER_UNIFORM_INT ⋄ SHADER_UNIFORM_VEC3 ⋄ SHADER_UNIFORM_Vec4
-    ⟩⇐shaderUniformDataType
   ⟩⇐raylib
   ⟨black⋄white⋄raywhite⟩⇐color
   key⋄mouse
@@ -30,6 +28,23 @@ screenHeight ← 450
 offsetSpeedMul ← 2
 
 startingZoom ← 0.75
+
+lightIndex ⇐ {
+  type        ⇐ 0
+  enabled     ⇐ 1
+  position    ⇐ 2
+  target      ⇐ 3
+  color       ⇐ 4
+  attenuation ⇐ 5
+
+  # Shader locations
+  enabledLoc     ⇐ 6
+  typeLoc        ⇐ 7
+  positionLoc    ⇐ 8
+  targetLoc      ⇐ 9
+  colorLoc       ⇐ 10
+  attenuationLoc ⇐ 11
+}
 
 {𝕤
   # Load julia set shader
@@ -57,7 +72,6 @@ startingZoom ← 0.75
   cLoc      ← GetShaderLocation shader‿"c"
   zoomLoc   ← GetShaderLocation shader‿"zoom"
   offsetLoc ← GetShaderLocation shader‿"offset"
-# Report to dzaima: &ref seem to accept pointer objects
 
   cv2 ← (rf.MemAlloc 8).Cast "f32"
   (↕2)cv2.Write¨c
@@ -68,32 +82,13 @@ startingZoom ← 0.75
   offsetV2 ← (rf.MemAlloc 8).Cast "f32"
   (↕2)offsetV2.Write¨offset
 
-    (↕2)cv2.Write¨c
-
   # Upload the shader uniform values!
-  rf.SetShaderValue⟨shader, cLoc     , cv2     , rf.shaderUniformDataType.shader_uniform_vec2 ⟩
-  rf.SetShaderValue⟨shader, zoomLoc  , zoomFloat , rf.shaderUniformDataType.shader_uniform_float⟩
-  rf.SetShaderValue⟨shader, offsetLoc, offsetV2, rf.shaderUniformDataType.shader_uniform_vec2 ⟩
+  rf.SetShaderValue⟨shader, cLoc     , cv2      , rf.shaderUniformDataType.shader_uniform_vec2 ⟩
+  rf.SetShaderValue⟨shader, zoomLoc  , zoomFloat, rf.shaderUniformDataType.shader_uniform_float⟩
+  rf.SetShaderValue⟨shader, offsetLoc, offsetV2 , rf.shaderUniformDataType.shader_uniform_vec2 ⟩
 
   incrementSpeed ← 0 # Multiplier of speed to change c value
   showControls ← 1   # Show controls
-
-lightIndex ⇐ {
-  type        ⇐ 0
-  enabled     ⇐ 1
-  position    ⇐ 2
-  target      ⇐ 3
-  color       ⇐ 4
-  attenuation ⇐ 5
-
-  # Shader locations
-  enabledLoc     ⇐ 6
-  typeLoc        ⇐ 7
-  positionLoc    ⇐ 8
-  targetLoc      ⇐ 9
-  colorLoc       ⇐ 10
-  attenuationLoc ⇐ 11
-}
 
 
 
@@ -111,8 +106,8 @@ lightIndex ⇐ {
         zoomFloat.Write zoom
         (↕2)offsetV2.Write¨offset↩0‿0
         (↕2)zoomFloat.Write¨startingZoom
-        SetShaderValue⟨shader, zoomLoc  , zoomFloat , rf.shaderUniformDataType.shader_uniform_float⟩
-        SetShaderValue⟨shader, offsetLoc, offsetV2, rf.shaderUniformDataType.shader_uniform_vec2 ⟩
+        SetShaderValue⟨shader, zoomLoc  , zoomFloat, rf.shaderUniformDataType.shader_uniform_float⟩
+        SetShaderValue⟨shader, offsetLoc, offsetV2 , rf.shaderUniformDataType.shader_uniform_vec2 ⟩
     }⍟key.IsPressed key.r
 
     incrementSpeed ×↩ ¬key.IsPressed key.space # Pause animation (c change)
@@ -166,5 +161,6 @@ lightIndex ⇐ {
   #--------------------------------------------------------------------------------------
   rf.UnloadShader shader              # Unload shader
   rf.UnloadRenderTexture target        # Unload render texture
+  MemFree¨ cv2‿zoomFloat‿offsetV2
 
 } rl.window._openAs "raylib [shaders] example - basic lighting"
