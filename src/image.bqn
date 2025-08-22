@@ -125,9 +125,7 @@ FromFile ← {𝕊path:
   fileData ← •FBytes 𝕩
 
   # Loading image from memory data
-  img ← raylib.LoadImageFromMemory⟨ext, fileData, ≠fileData⟩
-  # TODO might need to reformat img
-  (Unload⊢ToArr) img
+  (Unload⊢ToArr) raylib.LoadImageFromMemory⟨ext, fileData, ≠fileData⟩
 }
 
 # TODO
