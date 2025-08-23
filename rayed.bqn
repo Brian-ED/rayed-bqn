@@ -1114,9 +1114,7 @@ model ← {
 camera ↩ key‿mouse‿raylib‿math •Import "src/camera.bqn"
 
 
-
 # # TODO add IsImage, IsTexture etc for error checks
-# # Consider using LoadFontFromMemory instead of accepting path
 #
 # # TODO functions left to decide to add
 #
@@ -1128,11 +1126,8 @@ camera ↩ key‿mouse‿raylib‿math •Import "src/camera.bqn"
 # isWindowFocused
 # isWindowResized
 # toggleBorderlessWindowed
-# maximizeWindow
-# minimizeWindow
 # restoreWindow
 # setWindowIcons
-# setWindowTitle
 # setWindowMinSize
 # setWindowMaxSize
 # setWindowOpacity
@@ -1141,8 +1136,6 @@ camera ↩ key‿mouse‿raylib‿math •Import "src/camera.bqn"
 # getRenderWidth
 # getRenderHeight
 # getWindowScaleDPI
-# beginMode2D
-# endMode2D
 # beginVrStereoMode
 # endVrStereoMode
 # loadVrStereoConfig
