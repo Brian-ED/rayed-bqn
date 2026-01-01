@@ -30,7 +30,8 @@ raylibLibPath ← {
       ""
     ⟩
   }⍟(0=≠)validPaths
-  RealPath ⊑ validPaths
+  "File expected at "!Exists ⊑validPaths
+  RealPath ⊑validPaths
 }
 
 {𝕊:
