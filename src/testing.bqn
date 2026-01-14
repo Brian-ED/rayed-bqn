@@ -11,7 +11,7 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
   MatrixRotate, Wrap, Normalize, Vector3Unproject, MP, _ToDim_, MatrixExtend, Round
   QuaternionEquals, Vector3OrthoNormalize, Vector3RotateByAxisAngle, VectorClampValue
   MatrixTranslate, MatrixRotateX, MatrixRotateY, MatrixRotateZ, VectorAngle, deg2rad, rad2deg
-  SlopeInterceptToLine, DistanceToPlane, QuaternionFromEuler, QuaternionToEuler
+  LineToSlopeIntercept, DistanceToPlane, QuaternionFromEuler, QuaternionToEuler
   VectorReflect, VectorNormalize, Vector3CrossProduct, Vector2LineAngle, Remap
 
   # These have been extensively tested against C versions
@@ -103,17 +103,17 @@ e!(Approx[
   1‿3‿0
 ] VectorAngle○⍉ ≍˜0‿1‿0) ≡ 0.7854‿0.32175
 
-e↩"SlopeInterceptToLine"
-e!(SlopeInterceptToLine 1‿2         ) ≡ ¯1‿1‿2
-e!(SlopeInterceptToLine⁼ 0.5‿¯0.5‿¯1) ≡ 1‿2
-e!(SlopeInterceptToLine⁼ ¯1‿1‿2     ) ≡ 1‿2
+e↩"LineToSlopeIntercept"
+e!(LineToSlopeIntercept⁼ 1‿2         ) ≡ ¯1‿1‿2
+e!(LineToSlopeIntercept 0.5‿¯0.5‿¯1) ≡ 1‿2
+e!(LineToSlopeIntercept ¯1‿1‿2     ) ≡ 1‿2
 
 e↩"DistanceToPlane"
 e!2.71058≡Approx 5‿8‿2‿¯2 DistanceToPlane 4‿¯4‿3
 e!0.46829≡Approx ¯5‿¯8‿1‿7 DistanceToPlane 2‿5‿3
 e!5.50598≡Approx ¯3‿3‿3‿1 DistanceToPlane 2‿¯8‿¯3
 e!4.91935≡Approx 0.5‿¯0.5‿¯1 DistanceToPlane 4‿4
-e!4.91935≡Approx (SlopeInterceptToLine 1‿2) DistanceToPlane 4‿4
+e!4.91935≡Approx (LineToSlopeIntercept⁼ 1‿2) DistanceToPlane 4‿4
 
 e!2.71058‿0.46829‿4.91935‿5.50598‿4.91935≡Approx [
    5‿¯5‿ 0.5‿¯3‿¯1

@@ -55,7 +55,7 @@
   Vector3Unproject
   Vector3Refract
 
-  SlopeInterceptToLine
+  LineToSlopeIntercept
   DistanceToPlane
 
   # matrix operations
@@ -532,5 +532,5 @@ DistanceToPlane ← {plane𝕊point:
 }
 
 
-# turn the plane function ax+b=y (a‿b) into c+ax+by=0 (c‿a‿b)
-SlopeInterceptToLine ← {𝕊⁼:(-1⊸↓÷⊑)𝕩; ¯1∾𝕩}
+# turn c+ax+by=0 (c‿a‿b) into the plane function ax+b=y (a‿b)
+LineToSlopeIntercept ← {𝕊⁼:¯1∾𝕩; (-1⊸↓÷⊑)𝕩}
