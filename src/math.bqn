@@ -337,7 +337,7 @@ MatrixTranslate ← {𝕊x‿y‿z:
 }
 # Create rotation matrix from axis and angle
 # NOTE: Angle should be provided in radians
-MatrixRotate ← {𝕊axis‿angle: # v3 f
+MatrixRotate ← {angle𝕊axis: # f 𝕊 v3
   v ← ×⌜˜÷⟜(0⊸=⊸++´⌾(×˜)) axis
   x‿y‿z ← axis
   (v×¬•math.Cos angle)+((=⌜˜↕3)⊏(•math.Sin∾•math.Cos)angle)×[
