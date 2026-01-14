@@ -486,14 +486,11 @@ draw ← {
     raylib.DrawLineEx(<˘𝕩)∾1⋈𝕨
   }⎉1‿2
 
-  ThickLine ← {𝕊:
-    NeedsWindow@
-    leftArg ← {
-      𝕊r‿g‿b‿a:1⋈˜𝕩;
-      𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
-    }𝕨
-    "Line: wrong types as input"!leftArg‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
-    raylib.DrawLineEx(<˘𝕩)∾⌽leftArg
+  # Draw line with a specified thickness
+  # draw.ThinckLine
+  ThickLine ← {⟨r‿g‿b‿a⋄thickness⟩𝕊[x1‿y1⋄x2‿y2]:
+    "Line: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
+    raylib.DrawLineEx(<˘𝕩)∾⌽𝕨
   }
 
   # draw.Texture
@@ -547,14 +544,10 @@ draw ← {
   }⎉1‿2
 
   # draw.PolyLines
-  PolyLines ← {𝕊:
+  PolyLines ← {⟨r‿g‿b‿a⋄thickness⟩𝕊𝕩:
     NeedsWindow@
-    leftArg ← {
-      𝕊r‿g‿b‿a:1⋈˜𝕩;
-      𝕊⟨r‿g‿b‿a⋄thickness⟩:𝕩
-    }𝕨
-    "PolyLines: wrong types as input"!leftArg‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄"ii"‿'i'‿'i'‿'i'⟩
-    raylib.DrawPolyLinesEx 𝕩∾⌽leftArg
+    "PolyLines: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄"ii"‿'i'‿'i'‿'i'⟩
+    raylib.DrawPolyLinesEx 𝕩∾⌽𝕨
   }⎉1‿2
 
   # These aren't recommended because they are useless if you use _WithCanvas.
