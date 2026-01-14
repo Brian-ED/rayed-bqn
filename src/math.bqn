@@ -348,10 +348,10 @@ MatrixRotate ← {𝕊axis‿angle: # v3 f
 }
 
 # NOTE: Angle must be provided in radians
-MatrixRotate2D ←  (≍⟜-˝≍⌽)•math.Cos≍•math.Sin
-MatrixRotateX ← {((≍⟜-˝≍⌽)•math.Cos≍•math.Sin)∘𝕩⌾(⍉·1‿2⊸⊏˘1‿2⊸⊏)=⌜˜↕3}
-MatrixRotateY ← {((≍⟜-˝≍⌽)•math.Cos≍•math.Sin)∘𝕩⌾(  0‿2⊸⊏˘0‿2⊸⊏)=⌜˜↕3}
-MatrixRotateZ ← {((≍⟜-˝≍⌽)•math.Cos≍•math.Sin)∘𝕩⌾(⍉·0‿1⊸⊏˘0‿1⊸⊏)=⌜˜↕3}
+MatrixRotate2D ← (≍⟜-˝≍⌽)•math.Cos≍•math.Sin
+MatrixRotateX ← {MatrixRotate2D∘𝕩⌾(⍉·1‿2⊸⊏˘1‿2⊸⊏)=⌜˜↕3}
+MatrixRotateY ← {MatrixRotate2D∘𝕩⌾(  0‿2⊸⊏˘0‿2⊸⊏)=⌜˜↕3}
+MatrixRotateZ ← {MatrixRotate2D∘𝕩⌾(⍉·0‿1⊸⊏˘0‿1⊸⊏)=⌜˜↕3}
 
 # Get xyz-rotation matrix
 # NOTE: Angle must be provided in radians
