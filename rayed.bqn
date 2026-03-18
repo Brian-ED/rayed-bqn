@@ -534,7 +534,7 @@ draw ← {
   # draw.Triangle
   Triangle ← {color𝕊[x1‿y1⋄x2‿y2⋄x3‿y3]:
     [p1,p2,p3] ← 𝕩
-    raylib.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜p3<○(•math.Atan2´p2⊸-)p1
+    raylib.DrawTriangle p1‿𝕨∾˜p2‿p3⌽˜ π< (2×π)| p3-○(•math.Atan2´p2⊸-)p1
   }⎉1‿2
 
   # draw.Poly
