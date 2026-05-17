@@ -256,9 +256,9 @@ window ← {
     raylib.SetExitKey 0 # 0 means no key, essentially removing esc key closing programs implicitly
 
     # constants
-    S ← {𝕊:s⊣s↩(raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight) raylib.GetCurrentMonitor⟨⟩}
+    s ← (raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight) raylib.GetCurrentMonitor⟨⟩
     isScaling ← (1⊸>∧0⊸≤)tempSize # if given size is 0-1, scale the window relative to monitor size
-    windowSize ← ⌈{∨´isScaling?isScaling/S@;⟨⟩}⊸×⟜¬⌾(isScaling⊸/)tempSize
+    windowSize ← ⌈{∨´isScaling?isScaling/s;⟨⟩}⊸×⟜¬⌾(isScaling⊸/)tempSize
 
     raylib.SetWindowPosition {
       •platform.os≡"windows"?
