@@ -351,7 +351,7 @@ window ← {
   SetHidden            ⇐ {B𝕩 ⋄ hidden            ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_hidden            } # window.SetHidden
   SetRunWhileMinimized ⇐ {B𝕩 ⋄ runWhileMinimized ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_always_run        } # window.SetRunWhileMinimized
   SetMinimized         ⇐ {B𝕩 ⋄ minimized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_minimized         } # window.SetMinimized
-  SetMaximized         ⇐ {B𝕩 ⋄ maximized         ↩ 𝕩 ⊣   raylib.MaximizeWindow∘⟨⟩⍟(𝕩=IWS)⍟isOpen cf.window_maximized} # window.SetMaximized
+  SetMaximized         ⇐ {B𝕩 ⋄ maximized         ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_maximized         } # window.SetMaximized
   SetFocused           ⇐ {B𝕩 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
   SetTopmost           ⇐ {B𝕩 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
   SetHighDPI           ⇐ {B𝕩 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_highDPI           } # window.SetHighDPI
