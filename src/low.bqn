@@ -30,11 +30,22 @@ MakeF32 ⇐ (@•FFI"*:i8"‿"memcpy"‿"&f32"‿"*i8"‿"u64"){
 
 F32ToI8 ⇐ (@•FFI"*:i8"‿"memcpy"‿"&i8"‿"*f32"‿"u64"){1⊑𝔽⟨(4×≠𝕩)⥊0, 𝕩, 4×≠𝕩⟩}
 
-AllocNeeded ← {
-  Alloc ← 𝕏
+
+# Note, raylib.MemAlloc should be used as Alloc with raylib.
+GetFnsNeedingAlloc ⇐ {𝕊alloc:
+  ⟨ AllocCStr ⟩⇐
+
+  # Returns pointer but also length because
+  # length changes after converting to UTF8
+  # and getting length from the output with
+  # low.StrLen is O(n).
+  # It is also a good reminder to not assume
+  # input string length is the C-string length.
   AllocCStr ⇐ {𝕊str:
-    p ← (Alloc 1+≠str).Cast "i8"
-    (↕1+≠𝕩)p.Write¨ @-˜𝕩∾@
-    p
+    p ← (Alloc 1+≠str).Cast "u8"
+    utfCStr ← @∾˜•ToUTF8 str
+    len ← ≠utfCStr
+    (↕len) p.Write¨ utfCStr-@
+    ⟨len-1, p.Cast "i8:c8"⟩
   }
 }
