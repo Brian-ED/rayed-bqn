@@ -7,7 +7,7 @@
 # -------
 # Exports
 ⟨
-  draw, texture, monitor, window, mouse
+  raylib, draw, texture, monitor, window, mouse
   font, key, clipboard, StartClock
   sound, bqnoise, math, camera, image, model, low, log
 ⟩⇐
@@ -48,8 +48,8 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 # -------
 # Imports
-raylib  ⇐ ⟨•file⟩ •Import "src/loadRaylib.bqn"
-math ← •Import "src/math.bqn"
+raylib  ← ⟨•file⟩ •Import "src/loadRaylib.bqn"
+math    ← •Import "src/math.bqn"
 image   ← NeedsWindow‿raylib •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
 bqnoise ← •Import "imports/BQNoise/wav.bqn"
