@@ -472,7 +472,7 @@ draw ← {
 
   # Draw text at x‿y in given font, color, and size
   # draw.Text
-  Text ← {𝕨𝕊⟨x‿y⋄text⟩: t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
+  Text ← {𝕨𝕊⟨x‿y⋄text⟩: t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ← ∾⟜1⍟(3≡≠)𝕨
     NeedsWindow@
     "Text: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾(5⥊'i')‿'n'‿'n')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
     raylib.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩
