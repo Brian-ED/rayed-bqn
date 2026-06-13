@@ -2,7 +2,7 @@
 # Example input:
 # white Rectangle [100‿100⋄200‿400]˙
 
-⟨co⇐color,window,draw,k⇐key,clipboard,font⟩←r←•Import "../../rayed.bqn"
+⟨co⇐color,window,draw,k⇐key,clipboard⟩←r←•Import "../../rayed.bqn"
 ⟨lf,Split⟩  ← •Import "../../imports/bqn-libs/strings.bqn"
 fontSize    ← 50
 lineSpacing ← 40
@@ -10,7 +10,7 @@ charSize    ← 27‿50
 
 Game ← {𝕊:
   window.SetPos 0‿540
-  font←font.LoadBQN fontSize
+  font←r.font.LoadBQN fontSize
   DrawText ← co.blue‿font‿fontSize draw.Text ⋈
   rmFn←0
   Back ← {𝕤
@@ -56,7 +56,7 @@ Game ← {𝕊:
     rr
   }•_While_(¬window.ShouldClose) ""‿⟨⟩‿0
 
-  font.Unload font
+  r.font.Unload font
 }
 window.SetSize 0.5
 Game window._openAs "BQN Repl"
