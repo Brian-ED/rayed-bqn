@@ -1,5 +1,5 @@
 ⟨
-  ⟨ReadI32 ⋄ ReadI8⟩⇐low
+  ⟨ReadI32 ⋄ ReadI8 ⋄ F32ToI8⟩⇐low
   rf⇐raylib
   ⟨
     GetShaderLocation ⋄ SetShaderValueRaw ⋄ SetShaderValue
@@ -26,7 +26,6 @@ lightIndex ⇐ {
   colorLoc       ⇐ 10
   attenuationLoc ⇐ 11
 }
-
 
 # Light type
 lighttype ⇐ {
@@ -84,16 +83,15 @@ UpdateLightValues ← {shader𝕊⟨
     attenuationLoc
   ⟩:
 
-  F32ToI8 ← (@•FFI"*:i8"‿"memcpy"‿"&i8"‿"*f32"‿"u64"){1⊑𝔽⟨(4×≠𝕩)⥊0, 𝕩, 4×≠𝕩⟩}
   {
     ptr ← MemAlloc 4
     ⟨type⟩ ReadI32 ptr
-    rf.SetShaderValue⟨shader, typeLoc    ,ptr , SHADER_UNIFORM_INT ⟩
+    rf.SetShaderValue⟨shader, typeLoc, ptr , SHADER_UNIFORM_INT ⟩
   }
   {
     ptr ← MemAlloc 1
     ⟨enabled⟩ Readi8 ptr
-    SetShaderValue⟨shader, enabledLoc ,ptr , SHADER_UNIFORM_INT ⟩
+    SetShaderValue⟨shader, enabledLoc, ptr , SHADER_UNIFORM_INT ⟩
   }
   {
     # [3]f32
