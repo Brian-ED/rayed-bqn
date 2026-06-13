@@ -1,10 +1,17 @@
-⟨⟨RealPath ⋄ Exists ⋄ At⟩⟩ ← {𝕊:⋈⟨".."⟩•BQN"•file"}⍟(0=≠) •args
+⟨⟨RealPath ⋄ Exists ⋄ At⟩⟩ ← {𝕊:
+  ⟨⟨
+    •file.RealPath •file.At
+    •file.Exists •file.At
+    {(".." •file.At 𝕨)•file.At 𝕩}
+  ⟩⟩
+}⍟(0=≠) •args
+
 lf ← @+10
 raylibLibPath ← {
   raylibName ← {
-    "windows": "raylib.dll" ;
-    "linux": "libraylib.so";
-    "darwin":"libraylib.dylib"
+    "windows": "raylib.dll"
+    ;"linux" : "libraylib.so"
+    ;"darwin": "libraylib.dylib"
   }•platform.os
   validPaths ← Exists¨⊸/ At⟜raylibName¨ {
     "windows": "lib"‿"C:\raylib\raylib\lib"  # C:\raylib is default installation location for the raylib-provided-installer
