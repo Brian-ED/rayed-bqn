@@ -43,7 +43,7 @@
           ln -s ${bqn-libs  } $out/imports/bqn-libs
           ln -s ${BQNoise   } $out/imports/BQNoise
           ln -s ${raylib-bqn} $out/imports/raylib-bqn
-          ln -s ${pkgs.raylib.outPath}/lib/libraylib.so.5.5.0 $out/lib/libraylib.so
+          ln -s ${pkgs.raylib.outPath}/lib/libraylib.so.6.0.0 $out/lib/libraylib.so
         '';
       });
     in {
