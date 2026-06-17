@@ -16,7 +16,7 @@ gitSubCmd ← "git"‿"submodule"‿"update"‿"--init"‿"--recursive"
 }@
 
 ⟨os⟩←•platform
-version ← "5.5"
+version ← "6.0"
 binariesPath ← "lib"
 CreateDir⍟(¬Exists) binariesPath
 
