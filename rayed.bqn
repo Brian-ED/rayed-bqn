@@ -1044,7 +1044,6 @@ key ← {
   kb_menu       ⇐ 348      # KB menu
 
   keypad ⇐ {
-    num_lock    ⇐ 282      # Num lock
     zero‿one‿two‿three‿four‿five‿six‿seven‿eight‿nine←320+↕10 # Keypad 0-9
     decimal     ⇐ 330      # Keypad .
     divide      ⇐ 331      # Keypad /
@@ -1056,7 +1055,7 @@ key ← {
   }
   android ⇐ {
     back        ⇐ 4        # back button
-    menu        ⇐ 82       # menu button
+    menu        ⇐ 5        # menu button
     volume_up   ⇐ 24       # volume up button
     volume_down ⇐ 25       # volume down button
   }
