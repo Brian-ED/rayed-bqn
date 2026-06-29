@@ -70,6 +70,10 @@ materialMapIndex ← { # Material map index
   irradiance ⇐ 8   # Irradiance material (NOTE: Uses GL_TEXTURE_CUBE_MAP)
   prefilter  ⇐ 9   # Prefilter material (NOTE: Uses GL_TEXTURE_CUBE_MAP) 
   brdf       ⇐ 10  # Brdf material                                       
+
+  # Aliases
+  diffuse  ⇐ albedo
+  specular ⇐ metalness
 }
 shaderLocationIndex ← { # Shader location index
   vertex_position   ⇐ 0   # Shader location: vertex attribute: position                                     
@@ -98,7 +102,17 @@ shaderLocationIndex ← { # Shader location index
   map_irradiance    ⇐ 23  # Shader location: samplerCube texture: irradiance                                
   map_prefilter     ⇐ 24  # Shader location: samplerCube texture: prefilter                                 
   map_brdf          ⇐ 25  # Shader location: sampler2d texture: brdf                                        
+  boneids           ⇐ 26  # Shader location: vertex attribute: bone indices
+  boneweights       ⇐ 27  # Shader location: vertex attribute: bone weights
+  bonetransforms    ⇐ 28  # Shader location: matrix attribute: bone transforms (animation)
+  instancetransform ⇐ 29  # Shader location: vertex attribute: instance transforms
+
+  # Aliases
+  map_diffuse  ⇐ map_albedo
+  map_specular ⇐ map_metalness
 }
+
+
 shaderUniformDataType ← { # Shader uniform data type
   float     ⇐ 0  # Shader uniform type: float         
   vec2      ⇐ 1  # Shader uniform type: vec2 (2 float)
@@ -108,7 +122,11 @@ shaderUniformDataType ← { # Shader uniform data type
   ivec2     ⇐ 5  # Shader uniform type: ivec2 (2 int) 
   ivec3     ⇐ 6  # Shader uniform type: ivec3 (3 int) 
   ivec4     ⇐ 7  # Shader uniform type: ivec4 (4 int) 
-  sampler2d ⇐ 8  # Shader uniform type: sampler2d     
+  uint      ⇐ 8  # Shader uniform type: unsigned int
+  uivec2    ⇐ 9  # Shader uniform type: uivec2 (2 unsigned int)
+  uivec3    ⇐ 10 # Shader uniform type: uivec3 (3 unsigned int)
+  uivec4    ⇐ 11 # Shader uniform type: uivec4 (4 unsigned int)
+  sampler2d ⇐ 12 # Shader uniform type: sampler2d     
 }
 shaderAttributeDataType ← { # Shader attribute data types
   float ⇐ 0  # Shader attribute type: float         
@@ -116,7 +134,7 @@ shaderAttributeDataType ← { # Shader attribute data types
   vec3  ⇐ 2  # Shader attribute type: vec3 (3 float)
   vec4  ⇐ 3  # Shader attribute type: vec4 (4 float)
 }
-pixelFormat ← { # Pixel formats for images
+pixelFormat ← { # Pixel formats for images. NOTE: Support depends on OpenGL version and platform
   uncompressed_grayscale    ⇐ 1   # 8 bit per pixel (no alpha)   
   uncompressed_gray_alpha   ⇐ 2   # 8*2 bpp (2 channels)         
   uncompressed_r5g6b5       ⇐ 3   # 16 bpp                       
@@ -127,17 +145,20 @@ pixelFormat ← { # Pixel formats for images
   uncompressed_r32          ⇐ 8   # 32 bpp (1 channel - float)   
   uncompressed_r32g32b32    ⇐ 9   # 32*3 bpp (3 channels - float)
   uncompressed_r32g32b32a32 ⇐ 10  # 32*4 bpp (4 channels - float)
-  compressed_dxt1_rgb       ⇐ 11  # 4 bpp (no alpha)             
-  compressed_dxt1_rgba      ⇐ 12  # 4 bpp (1 bit alpha)          
-  compressed_dxt3_rgba      ⇐ 13  # 8 bpp                        
-  compressed_dxt5_rgba      ⇐ 14  # 8 bpp                        
-  compressed_etc1_rgb       ⇐ 15  # 4 bpp                        
-  compressed_etc2_rgb       ⇐ 16  # 4 bpp                        
-  compressed_etc2_eac_rgba  ⇐ 17  # 8 bpp                        
-  compressed_pvrt_rgb       ⇐ 18  # 4 bpp                        
-  compressed_pvrt_rgba      ⇐ 19  # 4 bpp                        
-  compressed_astc_4x4_rgba  ⇐ 20  # 8 bpp                        
-  compressed_astc_8x8_rgba  ⇐ 21  # 2 bpp                        
+  uncompressed_r16          ⇐ 11  # 16 bpp (1 channel - half float)
+  uncompressed_r16g16b16    ⇐ 12  # 16*3 bpp (3 channels - half float)
+  uncompressed_r16g16b16a16 ⇐ 13  # 16*4 bpp (4 channels - half float)
+  compressed_dxt1_rgb       ⇐ 14  # 4 bpp (no alpha)             
+  compressed_dxt1_rgba      ⇐ 15  # 4 bpp (1 bit alpha)          
+  compressed_dxt3_rgba      ⇐ 16  # 8 bpp                        
+  compressed_dxt5_rgba      ⇐ 17  # 8 bpp                        
+  compressed_etc1_rgb       ⇐ 18  # 4 bpp                        
+  compressed_etc2_rgb       ⇐ 19  # 4 bpp                        
+  compressed_etc2_eac_rgba  ⇐ 20  # 8 bpp                        
+  compressed_pvrt_rgb       ⇐ 21  # 4 bpp                        
+  compressed_pvrt_rgba      ⇐ 22  # 4 bpp                        
+  compressed_astc_4x4_rgba  ⇐ 22  # 8 bpp                        
+  compressed_astc_8x8_rgba  ⇐ 23  # 2 bpp                        
 }
 textureFilter ← { # Texture parameters: filter mode
   point           ⇐ 0  # No filter, just pixel approximation      
@@ -154,12 +175,11 @@ textureWrap ← { # Texture parameters: wrap mode
   mirror_clamp  ⇐ 3  # Mirrors and clamps to border the texture in tiled mode
 }
 cubemapLayout ← { # Cubemap layouts
-  auto_detect         ⇐ 0  # Automatically detect layout type                            
-  line_vertical       ⇐ 1  # Layout is defined by a vertical line with faces             
-  line_horizontal     ⇐ 2  # Layout is defined by a horizontal line with faces           
-  cross_three_by_four ⇐ 3  # Layout is defined by a 3x4 cross with cubemap faces         
-  cross_four_by_three ⇐ 4  # Layout is defined by a 4x3 cross with cubemap faces         
-  panorama            ⇐ 5  # Layout is defined by a panorama image (equirrectangular map)
+  auto_detect         ⇐ 0  # Automatically detect layout type                   
+  line_vertical       ⇐ 1  # Layout is defined by a vertical line with faces    
+  line_horizontal     ⇐ 2  # Layout is defined by a horizontal line with faces  
+  cross_three_by_four ⇐ 3  # Layout is defined by a 3x4 cross with cubemap faces
+  cross_four_by_three ⇐ 4  # Layout is defined by a 4x3 cross with cubemap faces
 }
 fontType ← { # Font type, defines generation method
   font_default ⇐ 0  # Default font generation, anti-aliased        
@@ -222,8 +242,10 @@ windowConfigFlags ⇐ {
   window_topmost           ⇐ 2⋆12 # Set to window always on top
   window_highdpi           ⇐ 2⋆13 # Set to support HighDPI
   window_mouse_passthrough ⇐ 2⋆14 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+  borderless_windowed_mode ⇐ 2⋆15 # Set to run program in borderless windowed mode
   interlaced_hint          ⇐ 2⋆16 # Set to try enabling interlaced video format (for V3D)
 }
+
 # Useful constants for RLGL
 rlgl ← {
   default_batch_buffer_elements   ⇐   8192  # Default internal render batch elements limits
@@ -232,8 +254,31 @@ rlgl ← {
   default_batch_max_texture_units ⇐      4  # Maximum number of textures units that can be activated on batch drawing (SetShaderValueTexture())
   max_matrix_stack_size           ⇐     32  # Maximum size of internal Matrix stack
   max_shader_locations            ⇐     32  # Maximum number of shader locations supported
-  cull_distance_near              ⇐   0.01  # Default projection matrix near cull distance
-  cull_distance_far               ⇐ 1000.0  # Default projection matrix far cull distance
+  cull_distance_near              ⇐   0.05  # Default projection matrix near cull distance
+  cull_distance_far               ⇐ 4000.0  # Default projection matrix far cull distance
+
+  # When loading a shader, the following vertex attributes and uniform
+  # location names are tried to be set automatically:
+  shaderDefault ← {
+    attrib_name_position      ⇐ "vertexPosition"    # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_POSITION
+    attrib_name_texcoord      ⇐ "vertexTexCoord"    # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD
+    attrib_name_normal        ⇐ "vertexNormal"      # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_NORMAL
+    attrib_name_color         ⇐ "vertexColor"       # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_COLOR
+    attrib_name_tangent       ⇐ "vertexTangent"     # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_TANGENT
+    attrib_name_texcoord2     ⇐ "vertexTexCoord2"   # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_TEXCOORD2
+    attrib_name_boneindices   ⇐ "vertexBoneIndices" # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEINDICES
+    attrib_name_boneweights   ⇐ "vertexBoneWeights" # Bound by default to shader location: RL_DEFAULT_SHADER_ATTRIB_LOCATION_BONEWEIGHTS
+    uniform_name_mvp          ⇐ "mvp"               # model-view-projection matrix
+    uniform_name_view         ⇐ "matView"           # view matrix
+    uniform_name_projection   ⇐ "matProjection"     # projection matrix
+    uniform_name_model        ⇐ "matModel"          # model matrix
+    uniform_name_normal       ⇐ "matNormal"         # normal matrix (transpose(inverse(matModelView)))
+    uniform_name_color        ⇐ "colDiffuse"        # color diffuse (base tint color, multiplied by texture color)
+    uniform_name_bonematrices ⇐ "boneMatrices"      # bone matrices
+    sampler2d_name_texture0   ⇐ "texture0"          # texture0 (texture slot active 0)
+    sampler2d_name_texture1   ⇐ "texture1"          # texture1 (texture slot active 1)
+    sampler2d_name_texture2   ⇐ "texture2"          # texture2 (texture slot active 2)
+  }
 }
 # list of rgba-format colors for convenience
 color ← {

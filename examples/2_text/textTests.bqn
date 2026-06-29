@@ -1,7 +1,9 @@
 ⟨color,window,draw⟩←r←•Import "../../rayed.bqn"
 fontSize←50
 
-txt←"hello how are you? ⦃⦄ 𝕣 𝕩 this is bqn ⥊ ⍴ ⍺ ⍉↓ :D"
+txt ← r.raylib {
+  "raylib version: "∾(•Repr 𝕗.raylibVersionMajor‿𝕗.raylibVersionMinor‿𝕗.raylibVersionPatch)∾(@+10)∾𝕩
+} "hello how are you? ⦃⦄ 𝕣 𝕩 this is bqn ⥊ ⍴ ⍺ ⍉↓ :D"
 
 PerFrame ← {𝕊font1‿font2‿font3:
   fps←" FPS"∾˜•Repr window.GetFPS@
