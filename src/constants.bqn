@@ -259,8 +259,6 @@ rlgl ← {
     sampler2d_name_texture2   ⇐ "texture2"          # texture2 (texture slot active 2)
   }
 }
-
-
 # list of rgba-format colors for convenience
 color ← {
   aliceblue            ⇐ 240‿248‿255‿255
