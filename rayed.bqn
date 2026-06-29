@@ -1080,7 +1080,7 @@ model ← {
   # model.Unload
   # Unload model (including meshes) from memory (RAM and/or VRAM)
   Unload ← {𝕊:
-    "model.Unload: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iinnninn"∾˜<16⥊'i'
+    "model.Unload: wrong types as input"!𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡'i'‿'i'‿'n'‿'n'‿'n'‿"inn"‿'n'‿'n'∾˜<16⥊'i'
     raylib.UnloadModel 𝕩
   }
 
