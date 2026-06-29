@@ -333,6 +333,7 @@ window ← {
   topmost           ← 0 # Set to window always on top                                                   # window.topmost
   highDPI           ← 0 # Set to support HighDPI                                                        # window.highDPI
   mousePassThrough  ← 0 # Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED # window.mousePassThrough
+  borderlessWindow  ← 0 # Set to run program in borderless windowed mode
   interlacedhint    ← 0 # Set to try enabling interlaced video format (for V3D)                         # window.interlacedhint
 
   # array of Clear‿Set that clears(Clear sets var to 0) and sets(Set var to 1) used as ◶cs
@@ -356,6 +357,7 @@ window ← {
   SetTopmost           ⇐ {B𝕩 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
   SetHighDPI           ⇐ {B𝕩 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_highDPI           } # window.SetHighDPI
   SetMousePassThrough  ⇐ {B𝕩 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
+  SetBorderlessWindow  ⇐ {B𝕩 ⋄ borderlessWindow  ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.borderless_windowed_mode } # window.SetBorderlessWindow
   SetInterlacedhint    ⇐ {B𝕩 ⋄ interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
 
   IsFullscreen        ⇐ {𝕊: isOpen?  IWS cf.fullscreen_mode          ; fullscreen        }
@@ -372,6 +374,7 @@ window ← {
   IsTopmost           ⇐ {𝕊: isOpen?  IWS cf.window_topmost           ; topmost           }
   IsHighDPI           ⇐ {𝕊: isOpen?  IWS cf.window_highDPI           ; highDPI           }
   IsMousePassThrough  ⇐ {𝕊: isOpen?  IWS cf.window_mouse_passthrough ; mousePassThrough  }
+  IsBorderlessWindow  ⇐ {𝕊: isOpen?  IWS cf.borderless_windowed_mode ; borderlessWindow  }
   IsInterlacedhint    ⇐ {𝕊: isOpen?  IWS cf.window_interlacedhint    ; interlacedhint    }
 
   # window.stateNames
