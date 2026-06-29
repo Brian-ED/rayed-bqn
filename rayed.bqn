@@ -7,7 +7,7 @@
 # -------
 # Exports
 ⟨
-  draw, texture, monitor, window, mouse
+  raylib, draw, texture, monitor, window, mouse
   font, key, clipboard, StartClock
   sound, bqnoise, math, camera, image, model, low, log
 ⟩⇐
@@ -48,8 +48,8 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 # -------
 # Imports
-raylib  ⇐ ⟨•file⟩ •Import "src/loadRaylib.bqn"
-math ← •Import "src/math.bqn"
+raylib  ← ⟨•file⟩ •Import "src/loadRaylib.bqn"
+math    ← •Import "src/math.bqn"
 image   ← NeedsWindow‿raylib •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
 bqnoise ← •Import "imports/BQNoise/wav.bqn"
@@ -356,7 +356,7 @@ window ← {
   SetFocused           ⇐ {B𝕩 ⋄ focused           ↩ 𝕩 ⊣ ¬∘𝕩◶cs⍟isOpen cf.window_unfocused         } # window.SetFocused
   SetTopmost           ⇐ {B𝕩 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_topmost           } # window.SetTopmost
   SetHighDPI           ⇐ {B𝕩 ⋄ highDPI           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_highDPI           } # window.SetHighDPI
-  SetMousePassThrough  ⇐ {B𝕩 ⋄ topmost           ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
+  SetMousePassThrough  ⇐ {B𝕩 ⋄ mousePassThrough  ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_mouse_passthrough } # window.SetMousePassThrough
   SetBorderlessWindow  ⇐ {B𝕩 ⋄ borderlessWindow  ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.borderless_windowed_mode } # window.SetBorderlessWindow
   SetInterlacedhint    ⇐ {B𝕩 ⋄ interlacedhint    ↩ 𝕩 ⊣   𝕩◶cs⍟isOpen cf.window_interlacedhint    } # window.SetInterlacedhint
 
@@ -475,7 +475,7 @@ draw ← {
 
   # Draw text at x‿y in given font, color, and size
   # draw.Text
-  Text ← {𝕨𝕊⟨x‿y⋄text⟩: t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ⇐ ∾⟜1⍟(3≡≠)𝕨
+  Text ← {𝕨𝕊⟨x‿y⋄text⟩: t←⟨r‿g‿b‿a⋄font⋄fontSize⋄spacing⟩ ← ∾⟜1⍟(3≡≠)𝕨
     NeedsWindow@
     "Text: wrong types as input"!t‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿("iii"∾(5⥊'i')‿'n'‿'n')‿'i'‿'i'⋄"ii"⋈'c'¨text⟩
     raylib.DrawTextCodepoints ⟨font⋄text-@⋄≠text⋄x‿y⋄fontSize⋄spacing⋄r‿g‿b‿a⟩

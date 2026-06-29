@@ -21,7 +21,10 @@ camera3D ← {position⇐230‿120‿90 ⋄ target⇐204‿303‿226 ⋄ up⇐0�
 
 Approx ← 5⊸Round
 
+
 •Out "(math tests started"
+
+
 e←"Round"
 e!100.2131≡4 Round 100.21312344123
 
@@ -203,6 +206,7 @@ e!(Approx GetWorldToScreenEx pos‿camera3D‿width‿height) ≡ 2396.74492‿7
 •Out "RCore tests passed)"
 •Out "(Camera tests started"
 
+
 {𝕊position‿target‿up‿fovy‿projection:
 
   position‿target‿up‿fovy‿projection
@@ -231,4 +235,31 @@ c↩⟨0.5‿4‿0.4⋄1⟩ Rotate2 camera3D
 e↩"RotateLocked"
 e!c≡○Approx 0.5‿4‿0.4 RotateLocked camera3D
 
+
 •Out "Camera tests passed)"
+•Out "(Low tests started"
+
+
+malloc ← @•FFI "*"‿"malloc"‿">u8"
+⟨ReadI8, MakeUTF8, IsNull, null, F32ToI8, MakeF32, StrLen, GetFnsNeedingAlloc⟩ ← •Import "low.bqn"
+mem ← Malloc 100
+testChars ← "hello¨⍉𝕩!"∾@
+testBytes ← •ToUTF8 testChars
+(↕≠testBytes) (mem.Cast "u8").Write¨ testBytes-@
+
+! testChars ≡ (≠testBytes) MakeUTF8 mem
+! 0 = IsNull mem
+! 1 = IsNull null
+! 1 = IsNull null.Cast"i32"
+a2 ← F32ToI8 1‿2‿3.5
+! a2 ≡ 0‿0‿¯128‿63‿0‿0‿0‿64‿0‿0‿96‿64
+a2 ReadI8 mem
+! 1‿2‿3.5 ≡ 3 MakeF32 mem
+
+⟨AllocCStr⟩ ← GetFnsNeedingAlloc malloc
+len‿cStr ← AllocCStr "abc⍉𝕨∊"
+! len ≡ 13
+! len ≡ StrLen cStr
+
+
+•Out "Low tests passed)"

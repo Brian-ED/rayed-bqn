@@ -1,10 +1,21 @@
-⟨⟨RealPath ⋄ Exists ⋄ At⟩⟩ ← {𝕊:⋈⟨".."⟩•BQN"•file"}⍟(0=≠) •args
+⟨⟨RealPath ⋄ Exists ⋄ At⟩⟩ ← {𝕊:
+  ⟨⟨
+    •file.RealPath •file.At
+    •file.Exists •file.At
+    {(".." •file.At 𝕨)•file.At 𝕩}
+  ⟩⟩
+}⍟(0=≠) •args
+
 lf ← @+10
 raylibLibPath ← {
   raylibName ← {
-    "windows": "raylib.dll" ;
-    "linux": "libraylib.so";
-    "darwin":"libraylib.dylib"
+    "windows": "raylib.dll"
+    ;"linux" : "libraylib.so"
+    ;"darwin": "libraylib.dylib"
+    ;!∾lf∾¨⟨
+      "Unknown OS, unable to find path to raylib binary automatically."
+      "Try providing binary as argument (⟨""raylib.so""⟩•Import""rayed.bqn"")"
+    ⟩
   }•platform.os
   validPaths ← Exists¨⊸/ At⟜raylibName¨ {
     "windows": "lib"‿"C:\raylib\raylib\lib"  # C:\raylib is default installation location for the raylib-provided-installer
@@ -13,10 +24,6 @@ raylibLibPath ← {
       e‿stdout‿·←•SH⎊1‿⟨⟩‿@ "brew"‿"--prefix"‿"raylib"
       brewPath ← ⟨(@+10)⊸≠⊸/stdout⟩⍟(0≢e)⟨⟩
       "lib"‿"/usr/local/lib"∾brewPath
-    ;!∾lf∾¨⟨
-      "Unknown OS, unable to find path to raylib binary automatically."
-      "Try providing binary as argument (⟨""raylib.so""⟩•Import""rayed.bqn"")"
-    ⟩
   }•platform.os
   {𝕊:
     !∾lf∾¨⟨
