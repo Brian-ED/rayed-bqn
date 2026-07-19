@@ -1,13 +1,19 @@
-⟨⟨RealPath ⋄ Exists ⋄ At⟩⟩ ← {𝕊:
+args ← {𝕊:
   ⟨⟨
     •file.RealPath •file.At
     •file.Exists •file.At
     {(".." •file.At 𝕨)•file.At 𝕩}
   ⟩⟩
 }⍟(0=≠) •args
+⟨RealPath ⋄ Exists ⋄ At⟩ ← ⊑args
+binArg ← 1↓args # optional: user-provided path to the raylib binary (⟨"raylib.so"⟩•Import"rayed.bqn")
 
 lf ← @+10
 raylibLibPath ← {
+  0<≠binArg ?
+  ("Provided raylib binary not found at: "∾•Fmt⊑binArg)!Exists ⊑binArg
+  RealPath ⊑binArg
+  ;
   raylibName ← {
     "windows": "raylib.dll"
     ;"linux" : "libraylib.so"

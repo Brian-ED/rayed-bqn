@@ -48,7 +48,7 @@ NeedsWindow ← {window.isOpen?𝕩;!"Expected window to be open"}
 
 # -------
 # Imports
-raylib  ← ⟨•file⟩ •Import "src/loadRaylib.bqn"
+raylib  ← (⟨•file⟩∾•args) •Import "src/loadRaylib.bqn"
 math    ← •Import "src/math.bqn"
 image   ← NeedsWindow‿raylib •Import "src/image.bqn"
 low     ← •Import "src/low.bqn"
