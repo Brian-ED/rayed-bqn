@@ -20,7 +20,7 @@ raylibLibPath ← {
     ;"darwin": "libraylib.dylib"
     ;!∾lf∾¨⟨
       "Unknown OS, unable to find path to raylib binary automatically."
-      "Try providing binary as argument (⟨""raylib.so""⟩•Import""rayed.bqn"")"
+      "Try providing binary as argument (⟨•file.RealPath ""raylib.so""⟩•Import""rayed.bqn"")"
     ⟩
   }•platform.os
   validPaths ← Exists¨⊸/ At⟜raylibName¨ {
@@ -39,7 +39,7 @@ raylibLibPath ← {
       "    bqn "∾•file.RealPath "../install-raylib.bqn"
       ""
       "  Already installed raylib? Tell rayed.bqn where to find it"
-      "    ⟨""path/to/"∾raylibName∾"""⟩•Import""rayed.bqn"")"
+      "    ⟨•file.RealPath ""path/to/"∾raylibName∾"""⟩•Import""rayed.bqn"")"
       ""
     ⟩
   }⍟(0=≠)validPaths
