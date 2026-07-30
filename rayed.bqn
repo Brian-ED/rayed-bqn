@@ -408,7 +408,7 @@ draw ← {
     _in3D ⋄ _in2D
     _withBlend ⋄ _withShader
     _inRectangle ⋄ _inTexture
-    Rectangle ⋄ Triangle
+    Rectangle ⋄ RectangleOutline ⋄ Triangle
     Circle ⋄ Ellipse ⋄ EllipseOutline
     Line ⋄ ThickLine
     Poly ⋄ PolyLines
@@ -508,6 +508,13 @@ draw ← {
     NeedsWindow@
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
     raylib.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈⌊𝕩 # capping with max and min to avoid errors at ∞
+  }⎉1‿2
+
+  # draw.RectangleOutline
+  RectangleOutline ← {⟨r‿g‿b‿a⋄thickness⟩𝕊[x1‿y1⋄x2‿y2]:
+    NeedsWindow@
+    "RectangleOutline: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
+    raylib.DrawRectangleLinesEx (⌽𝕨)∾˜<∾(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈⌊𝕩 # capping with max and min to avoid errors at ∞
   }⎉1‿2
 
   # draw.Ellipse
