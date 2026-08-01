@@ -507,22 +507,22 @@ draw ← {
   Rectangle ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "Rectangle: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"⋈2‿2⥊'i'
-    raylib.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈⌊𝕩 # capping with max and min to avoid errors at ∞
+    raylib.DrawRectangleV 𝕨∾⟜<˜(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈𝕩 # capping with max and min to avoid errors at ∞
   }⎉1‿2
 
   # draw.RectangleOutline
   RectangleOutline ← {⟨r‿g‿b‿a⋄thickness⟩𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
     "RectangleOutline: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
-    raylib.DrawRectangleLinesEx (⌽𝕨)∾˜<∾(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈⌊𝕩 # capping with max and min to avoid errors at ∞
+    raylib.DrawRectangleLinesEx (⌽𝕨)∾˜<∾(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈𝕩 # capping with max and min to avoid errors at ∞
   }⎉1‿2
 
   # draw.Ellipse
   Ellipse ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    𝕩(i32_max⌊i32_min⌈⌊)↩
+    𝕩(i32_max⌊i32_min⊸⌈)↩
     ((∧´⌈⊸=∧0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
-    raylib.DrawEllipse 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩
+    raylib.DrawEllipseV 𝕨∾⟜<˜ <⊸∾˝ +`⁼ ⌽(2÷˜+)` ∧˘⌾⍉ 𝕩
   }⎉1‿2
 
   # Draw a color-filled circle
@@ -538,7 +538,7 @@ draw ← {
   # draw.EllipseOutline
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
     NeedsWindow@
-    raylib.DrawEllipseLines 𝕨∾⟜<˜(⌈∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
+    raylib.DrawEllipseLinesV 𝕨∾⟜<˜(⌈<⊸∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
   }⎉1‿2
 
   # draw.Triangle
