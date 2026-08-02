@@ -410,8 +410,8 @@ draw ← {
     _inRectangle ⋄ _inTexture
     Rectangle ⋄ RectangleOutline ⋄ Triangle
     Circle ⋄ Ellipse ⋄ EllipseOutline
-    Line ⋄ ThickLine
-    Poly ⋄ PolyLines
+    Line
+    Poly ⋄ PolyOutline
     Text ⋄ Texture
   ⟩⇐
 
@@ -483,18 +483,14 @@ draw ← {
 
   # Draw line from x1‿y1 to x2‿y2
   # draw.Line
-  Line ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
-    NeedsWindow@
-    "Line: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"⋄2‿2⥊'i'⟩
-    raylib.DrawLineEx(<˘𝕩)∾1⋈𝕨
+  Line ← {
+    r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
+      𝕨‿1𝕊𝕩;
+    ⟨r‿g‿b‿a⋄thickness⟩𝕊[x1‿y1⋄x2‿y2]:
+      NeedsWindow@
+      "Line: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
+      raylib.DrawLineEx(<˘𝕩)∾⌽𝕨
   }⎉1‿2
-
-  # Draw line with a specified thickness
-  # draw.ThinckLine
-  ThickLine ← {⟨r‿g‿b‿a⋄thickness⟩𝕊[x1‿y1⋄x2‿y2]:
-    "Line: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
-    raylib.DrawLineEx(<˘𝕩)∾⌽𝕨
-  }
 
   # draw.Texture
   Texture ← {tint‿texture‿scale‿rotation𝕊x‿y:
@@ -511,10 +507,13 @@ draw ← {
   }⎉1‿2
 
   # draw.RectangleOutline
-  RectangleOutline ← {⟨r‿g‿b‿a⋄thickness⟩𝕊[x1‿y1⋄x2‿y2]:
-    NeedsWindow@
-    "RectangleOutline: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
-    raylib.DrawRectangleLinesEx (⌽𝕨)∾˜<∾(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈𝕩 # capping with max and min to avoid errors at ∞
+  RectangleOutline ← {
+    r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
+      𝕨‿1𝕊𝕩;
+    ⟨r‿g‿b‿a⋄thickness⟩𝕊[x1‿y1⋄x2‿y2]:
+      NeedsWindow@
+      "RectangleOutline: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄2‿2⥊'i'⟩
+      raylib.DrawRectangleLinesEx (⌽𝕨)∾˜<∾(⊣⋈-˜)˝∧˘⌾⍉i32_max⌊i32_min⌈𝕩 # capping with max and min to avoid errors at ∞
   }⎉1‿2
 
   # draw.Ellipse
@@ -522,7 +521,7 @@ draw ← {
     NeedsWindow@
     𝕩(i32_max⌊i32_min⊸⌈)↩
     ((∧´⌈⊸=∧0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
-    raylib.DrawEllipseV 𝕨∾⟜<˜ <⊸∾˝ +`⁼ ⌽(2÷˜+)` ∧˘⌾⍉ 𝕩
+    raylib.DrawEllipseV 𝕨∾⟜<˜ <⊸∾˝ +`⁼ ⌽ ÷⟜2∘+` ∧˘⌾⍉ 𝕩
   }⎉1‿2
 
   # Draw a color-filled circle
@@ -531,13 +530,15 @@ draw ← {
     NeedsWindow@
     (𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"‿⟨"ii"⋄'i'⟩)!˜"Wrong input types given to draw.Circle"
     ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
-    raylib.DrawCircleV ⟨x‿y,radius,𝕨⟩
+    raylib.DrawCircleV ⟨x‿y,|radius,𝕨⟩
   }
 
   # draw.EllipseOutline
   EllipseOutline ← {r‿g‿b‿a𝕊[x1‿y1⋄x2‿y2]:
-    NeedsWindow@
-    raylib.DrawEllipseLinesV 𝕨∾⟜<˜(⌈<⊸∾⊢-⊏∘𝕩)(+˝÷≠)𝕩                # i‿i‿f‿f‿color # centerX centerY radiusH radiusV
+      NeedsWindow@
+      # This is the only shape-drawing raylib function that doesn't dissapear at size 0
+      #                   Fix:  /¯¯¯¯¯¯¯\
+      raylib.DrawEllipseLinesV⍟(∧´0≠1‿2⊸⊏) 𝕨∾⟜<˜(⌈<⊸∾⊢-⊏∘𝕩)(+˝÷≠)𝕩  # v2‿f‿f‿color # center radiusH radiusV color
   }⎉1‿2
 
   # draw.Triangle
@@ -547,16 +548,19 @@ draw ← {
   }⎉1‿2
 
   # draw.Poly
-  Poly ← {color𝕊⟨p1⋄sides⋄radius⋄rotation⟩:
+  Poly ← {r‿g‿b‿a𝕊⟨x‿y⋄sides⋄radius⋄rotation⟩:
     NeedsWindow@
-    raylib.DrawPoly p1‿sides‿radius‿rotation‿𝕨
+    raylib.DrawPoly 𝕩∾<𝕨
   }⎉1‿2
 
-  # draw.PolyLines
-  PolyLines ← {⟨r‿g‿b‿a⋄thickness⟩𝕊𝕩:
+  # draw.PolyOutline
+  PolyOutline ← {
+    r‿g‿b‿a𝕊⟨x‿y⋄sides⋄radius⋄rotation⟩:
+      𝕨‿1𝕊𝕩;
+    ⟨r‿g‿b‿a⋄thickness⟩𝕊⟨x‿y⋄sides⋄radius⋄rotation⟩:
     NeedsWindow@
-    "PolyLines: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄"ii"‿'i'‿'i'‿'i'⟩
-    raylib.DrawPolyLinesEx 𝕩∾⌽𝕨
+    "PolyOutline: wrong types as input"!𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡⟨"iiii"‿'i'⋄"ii"‿'i'‿'i'‿'i'⟩
+    raylib.DrawPolyLinesEx ⟨x‿y⋄sides⋄|radius⋄rotation⋄thickness⋄r‿g‿b‿a⟩
   }⎉1‿2
 
   # These aren't recommended because they are useless if you use _WithCanvas.
