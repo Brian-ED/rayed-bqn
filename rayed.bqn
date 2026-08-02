@@ -530,9 +530,8 @@ draw ← {
   Circle ← {r‿g‿b‿a𝕊⟨x‿y⋄radius⟩: # color 𝕊 pos‿radius
     NeedsWindow@
     (𝕨‿𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iiii"‿⟨"ii"⋄'i'⟩)!˜"Wrong input types given to draw.Circle"
-    ((∧´⌈⊸=∨∞=|)x‿y)!˜"Position for draw.Circle has to be two ints"
     ((∧´0⊸≤∧≤⟜255)𝕨)!˜"𝕨 (color) only accepts ints in the range 0-255 inclusive"
-    raylib.DrawCircle x‿y‿radius‿𝕨
+    raylib.DrawCircleV ⟨x‿y,radius,𝕨⟩
   }
 
   # draw.EllipseOutline
