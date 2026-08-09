@@ -23,14 +23,7 @@ raylibLibPath ← {
       "Try providing binary as argument (⟨•file.RealPath ""raylib.so""⟩•Import""rayed.bqn"")"
     ⟩
   }•platform.os
-  validPaths ← Exists¨⊸/ At⟜raylibName¨ {
-    "windows": "lib"‿"C:\raylib\raylib\lib"  # C:\raylib is default installation location for the raylib-provided-installer
-    ;"linux" : "lib"‿"/usr/local/lib"
-    ;"darwin":
-      e‿stdout‿·←•SH⎊1‿⟨⟩‿@ "brew"‿"--prefix"‿"raylib"
-      brewPath ← ⟨(@+10)⊸≠⊸/stdout⟩⍟(0≢e)⟨⟩
-      "lib"‿"/usr/local/lib"∾brewPath
-  }•platform.os
+  validPaths ← Exists¨⊸/ At⟜raylibName¨ •Import "searchPaths.bqn"
   {𝕊:
     !∾lf∾¨⟨
       "Path to raylib binary not found at install location."
@@ -40,6 +33,9 @@ raylibLibPath ← {
       ""
       "  Already installed raylib? Tell rayed.bqn where to find it"
       "    ⟨•file.RealPath ""path/to/"∾raylibName∾"""⟩•Import""rayed.bqn"")"
+      ""
+      "  Packaging rayed.bqn? Set the search path in"
+      "    "∾•file.RealPath "searchPaths.bqn"
       ""
     ⟩
   }⍟(0=≠)validPaths
