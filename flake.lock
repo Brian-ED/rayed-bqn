@@ -50,11 +50,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1782467914,
-        "narHash": "sha256-pGvFkM8N0xEkIIXDe5YYfbEAvHrk4IxBrjB/x8OomhE=",
+        "lastModified": 1786384358,
+        "narHash": "sha256-RzPPiWeUtuvymnpuEWsdtzli5w4kjZs49FqEs3/1u+I=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e73de5be04e0eff4190a1432b946d469c794e7b4",
+        "rev": "2fcb964de67fcf60b43471c55d5d99e61a9ccb5a",
         "type": "github"
       },
       "original": {
@@ -64,14 +64,18 @@
         "type": "github"
       }
     },
-    "raylib-bqn": {
-      "flake": false,
+    "raylib-bqn-f": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1780771259,
-        "narHash": "sha256-wDxKdzCgRY87eXu7a2hSvrTlsNLc3rx9x9+yVceu5Es=",
+        "lastModified": 1786390218,
+        "narHash": "sha256-ccGYr/LJSVGfmOPDMlpjnmTlnkH9eAzeXByccGSTNQI=",
         "owner": "Brian-ED",
         "repo": "raylib-bqn",
-        "rev": "07ede81beaa4b4c46736512ef2096ec631ad82d7",
+        "rev": "b4a397578c874d4585f4be1ad8ffd7be05a4e169",
         "type": "github"
       },
       "original": {
@@ -86,7 +90,7 @@
         "BQNoise": "BQNoise",
         "bqn-libs": "bqn-libs",
         "nixpkgs": "nixpkgs",
-        "raylib-bqn": "raylib-bqn"
+        "raylib-bqn-f": "raylib-bqn-f"
       }
     }
   },
