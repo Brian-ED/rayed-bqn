@@ -11,62 +11,62 @@ binArg ← 1↓args # optional: user-provided path to the raylib binary (⟨"ray
 lf ← @+10
 raylibBQNPath ← "../imports/raylib-bqn/raylib.bqn"
 raylibLibPath ← {
-  0<≠binArg ?
-  ("Provided raylib binary not found at: "∾•Fmt⊑binArg)!Exists ⊑binArg
-  RealPath ⊑binArg
+  0<≠binArg?
+    ("Provided raylib binary not found at: "∾•Fmt⊑binArg)!Exists ⊑binArg
+    RealPath ⊑binArg
   ; ¬∨´("#INSERT-CUSTOM-RAYLIB-PATH-"∾"NOT"⊢"HERE")⍷•FBytes raylibBQNPath?
-  @ # A custom path has been set in raylib.bqn, so searching/installation is skipped
-  # This case is mainly useful for Nix and Guix who don't follow the binary location standard FHS
-  # and instead rely on replacing source code to set library file paths at build time
+    @ # A custom path has been set in raylib.bqn, so searching/installation is skipped
+    # This case is mainly useful for Nix and Guix who don't follow the binary location standard FHS
+    # and instead rely on replacing source code to set library file paths at build time
   ;
-  raylibName ← {
-    "windows": "raylib.dll"
-    ;"linux" : "libraylib.so"
-    ;"darwin": "libraylib.dylib"
-    ;!∾lf∾¨⟨
-      "Unknown OS, unable to find path to raylib binary automatically."
-      "Try providing binary as argument (⟨•file.RealPath ""raylib.so""⟩•Import""rayed.bqn"")"
-    ⟩
-  }•platform.os
-  validPaths ← Exists¨⊸/ At⟜raylibName¨ {
-    "windows": "lib"‿"C:\raylib\raylib\lib"  # C:\raylib is default installation location for the raylib-provided-installer
-    ;"linux" : "lib"‿"/usr/local/lib"
-    ;"darwin":
-      e‿stdout‿·←•SH⎊1‿⟨⟩‿@ "brew"‿"--prefix"‿"raylib"
-      brewPath ← ⟨(@+10)⊸≠⊸/stdout⟩⍟(0≢e)⟨⟩
-      "lib"‿"/usr/local/lib"∾brewPath
-  }•platform.os
-  {𝕊:
-    !∾lf∾¨⟨
-      "Path to raylib binary not found at install location."
-      ""
-      "  To install raylib, run the install-raylib script:"
-      "    bqn "∾•file.RealPath "../install-raylib.bqn"
-      ""
-      "  Already installed raylib? Tell rayed.bqn where to find it"
-      "    ⟨•file.RealPath ""path/to/"∾raylibName∾"""⟩•Import""rayed.bqn"")"
-      ""
-    ⟩
-  }⍟(0=≠)validPaths
-  "File expected at "!Exists ⊑validPaths
-  RealPath ⊑validPaths
+    raylibName ← {
+      "windows": "raylib.dll"
+      ;"linux" : "libraylib.so"
+      ;"darwin": "libraylib.dylib"
+      ;!∾lf∾¨⟨
+        "Unknown OS, unable to find path to raylib binary automatically."
+        "Try providing binary as argument (⟨•file.RealPath ""raylib.so""⟩•Import""rayed.bqn"")"
+      ⟩
+    }•platform.os
+    validPaths ← Exists¨⊸/ At⟜raylibName¨ {
+      "windows": "lib"‿"C:\raylib\raylib\lib"  # C:\raylib is default installation location for the raylib-provided-installer
+      ;"linux" : "lib"‿"/usr/local/lib"
+      ;"darwin":
+        e‿stdout‿·←•SH⎊1‿⟨⟩‿@ "brew"‿"--prefix"‿"raylib"
+        brewPath ← ⟨(@+10)⊸≠⊸/stdout⟩⍟(0≢e)⟨⟩
+        "lib"‿"/usr/local/lib"∾brewPath
+    }•platform.os
+    {𝕊:
+      !∾lf∾¨⟨
+        "Path to raylib binary not found at install location."
+        ""
+        "  To install raylib, run the install-raylib script:"
+        "    bqn "∾•file.RealPath "../install-raylib.bqn"
+        ""
+        "  Already installed raylib? Tell rayed.bqn where to find it"
+        "    ⟨•file.RealPath ""path/to/"∾raylibName∾"""⟩•Import""rayed.bqn"")"
+        ""
+      ⟩
+    }⍟(0=≠)validPaths
+    "File expected at "!Exists ⊑validPaths
+    RealPath ⊑validPaths
 }
 
 {
-@≡raylibLibPath?
-  •Import raylibBQNPath
-;
-{𝕊:
-  ⟨raylibLibPath⟩ •Import raylibBQNPath
-}⎊{𝕊:
-  !•CurrentError⊸∾ ∾lf∾¨⟨
-    "Likely incorrect raylib version."
-    "Run the following script to install the correct version."
-    "Requires an internet connection."
-    "Output goes in ./rayed-bqn/lib/"
-    ""
-    "  bqn """∾""""∾˜•file.RealPath "../install-raylib.bqn"
-    ""
-  ⟩
-}@
+  @≡raylibLibPath?
+    •Import raylibBQNPath
+  ;
+  {𝕊:
+    ⟨raylibLibPath⟩ •Import raylibBQNPath
+  }⎊{𝕊:
+    !•CurrentError⊸∾ ∾lf∾¨⟨
+      "Likely incorrect raylib version."
+      "Run the following script to install the correct version."
+      "Requires an internet connection."
+      "Output goes in ./rayed-bqn/lib/"
+      ""
+      "  bqn """∾""""∾˜•file.RealPath "../install-raylib.bqn"
+      ""
+    ⟩
+  }@
 }
