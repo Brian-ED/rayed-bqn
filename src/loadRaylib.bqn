@@ -9,10 +9,15 @@ args ← {𝕊:
 binArg ← 1↓args # optional: user-provided path to the raylib binary (⟨"raylib.so"⟩•Import"rayed.bqn")
 
 lf ← @+10
+raylibBQNPath ← "../imports/raylib-bqn/raylib.bqn"
 raylibLibPath ← {
   0<≠binArg ?
   ("Provided raylib binary not found at: "∾•Fmt⊑binArg)!Exists ⊑binArg
   RealPath ⊑binArg
+  ; ¬∨´("#INSERT-CUSTOM-RAYLIB-PATH-"∾"NOT"⊢"HERE")⍷•FBytes raylibBQNPath?
+  @ # A custom path has been set in raylib.bqn, so searching/installation is skipped
+  # This case is mainly useful for Nix and Guix who don't follow the binary location standard FHS
+  # and instead rely on replacing source code to set library file paths at build time
   ;
   raylibName ← {
     "windows": "raylib.dll"
@@ -47,8 +52,12 @@ raylibLibPath ← {
   RealPath ⊑validPaths
 }
 
+{
+@≡raylibLibPath?
+  •Import raylibBQNPath
+;
 {𝕊:
-  ⟨raylibLibPath⟩ •Import "../imports/raylib-bqn/raylib.bqn"
+  ⟨raylibLibPath⟩ •Import raylibBQNPath
 }⎊{𝕊:
   !•CurrentError⊸∾ ∾lf∾¨⟨
     "Likely incorrect raylib version."
@@ -60,3 +69,4 @@ raylibLibPath ← {
     ""
   ⟩
 }@
+}
