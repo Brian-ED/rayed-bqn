@@ -1,11 +1,10 @@
 ⟨
-  ⟨F32ToI8⟩⇐low
   rf⇐raylib
   ⟨
     GetShaderLocation ⋄ SetShaderValue
     MemAlloc ⋄ MemFree
   ⟩⇐raylib
-  ⟨black⋄white⋄raywhite⟩⇐color
+  black‿white‿raywhite⇐color
   key⋄mouse
 ⟩ ← rl ← •Import "../../rayed.bqn"
 
@@ -55,14 +54,10 @@ zoomSpeed ← 1.01
   zoomLoc   ← GetShaderLocation shader‿"zoom"
   offsetLoc ← GetShaderLocation shader‿"offset"
 
-  cv2 ← (rf.MemAlloc 8).Cast "f32"
-  cv2.WriteList c
-
-  zoomFloat ← (rf.MemAlloc 4).Cast "f32"
-  zoomFloat.Write zoom
-
-  offsetV2 ← (rf.MemAlloc 8).Cast "f32"
-  (↕2)offsetV2.Write¨offset
+  cv2‿zoomFloat‿offsetV2 ← {
+    p←(rf.MemAlloc 4×≠𝕩).Cast "f32"
+    p⊣p.WriteList 𝕩
+  }¨ c‿⟨zoom⟩‿offset
 
   # Upload the shader uniform values!
   rf.SetShaderValue⟨shader, cLoc     , cv2      , rf.shaderUniformDataType.shader_uniform_vec2 ⟩
