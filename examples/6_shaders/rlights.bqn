@@ -1,5 +1,4 @@
 ⟨
-  ⟨ReadI32 ⋄ ReadI8 ⋄ F32ToI8⟩⇐low
   rf⇐raylib
   ⟨
     GetShaderLocation ⋄ SetShaderValueRaw ⋄ SetShaderValue
@@ -84,29 +83,30 @@ UpdateLightValues ← {shader𝕊⟨
   ⟩:
 
   {
-    ptr ← MemAlloc 4
-    ⟨type⟩ ReadI32 ptr
+    ptr ← (MemAlloc 4).Cast "i32"
+    ptr.Write type
     rf.SetShaderValue⟨shader, typeLoc, ptr , SHADER_UNIFORM_INT ⟩
   }
   {
-    ptr ← MemAlloc 1
-    ⟨enabled⟩ Readi8 ptr
+    ptr ← (MemAlloc 1).Cast "i8"
+    ptr.Write enabled
     SetShaderValue⟨shader, enabledLoc, ptr , SHADER_UNIFORM_INT ⟩
   }
   {
     # [3]f32
-    ptr ← MemAlloc 4×3
-    (F32ToI8 position) ReadI8 ptr
+    ptr ← (MemAlloc 4×3).Cast "f32"
+    ptr.WriteList position
+    ptr.ReadList 3
     SetShaderValue⟨shader, positionLoc, ptr, SHADER_UNIFORM_VEC3⟩ # Send to shader light position values
   }
   {
-    ptr ← MemAlloc 4×3
-    (F32ToI8 target) ReadI8 ptr
+    ptr ← (MemAlloc 4×3).Cast "f32"
+    ptr.WriteList target
     SetShaderValue⟨shader, targetLoc, ptr, SHADER_UNIFORM_VEC3⟩ # Send to shader light target position values
   }
   {
-    ptr ← MemAlloc 4×4
-    (F32ToI8 color÷255) ReadI8 ptr
+    ptr ← (MemAlloc 4×4).Cast "f32"
+    ptr.WriteList color÷255
     SetShaderValue⟨shader, colorLoc, ptr, SHADER_UNIFORM_VEC4⟩ # Send to shader light color values
   }
   ⟨

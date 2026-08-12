@@ -1,5 +1,5 @@
 ⟨
-  ⟨ReadI32 ⋄ ReadI8⟩⇐low
+  ⟨F32ToI8⟩⇐low
   rf⇐raylib
   ⟨
     GetShaderLocation ⋄ SetShaderValue
@@ -56,7 +56,7 @@ zoomSpeed ← 1.01
   offsetLoc ← GetShaderLocation shader‿"offset"
 
   cv2 ← (rf.MemAlloc 8).Cast "f32"
-  (↕2)cv2.Write¨c
+  cv2.WriteList c
 
   zoomFloat ← (rf.MemAlloc 4).Cast "f32"
   zoomFloat.Write zoom
@@ -78,14 +78,14 @@ zoomSpeed ← 1.01
   increment←0
   {𝕊:
     {𝕊:
-      (↕2)cv2.Write¨𝕩
+      cv2.WriteList 𝕩
       SetShaderValue⟨shader, cLoc, cv2, rf.shaderUniformDataType.shader_uniform_vec2⟩
     }˘pointsOfInterest/˜key.IsPressed¨key.one+↕6
 
     # If "R" is pressed, reset zoom and offset.
     {𝕊:
       zoomFloat.Write zoom↩startingZoom
-      (↕2)offsetV2.Write¨offset↩0‿0
+      offsetV2.WriteList offset↩0‿0
       SetShaderValue⟨shader, zoomLoc  , zoomFloat, rf.shaderUniformDataType.shader_uniform_float⟩
       SetShaderValue⟨shader, offsetLoc, offsetV2 , rf.shaderUniformDataType.shader_uniform_vec2 ⟩
     }⍟key.IsPressed key.r
@@ -110,7 +110,7 @@ zoomSpeed ← 1.01
 
       # Apply move velocity to camera
       offset +↩ offsetVelocity×rf.GetFrameTime⟨⟩
-      (↕2)offsetV2.Write¨offset
+      offsetV2.WriteList offset
 
       # Update the shader uniform values!
       SetShaderValue⟨shader, zoomLoc, zoomfloat,    rf.shaderUniformDataType.shader_uniform_float⟩
@@ -120,7 +120,7 @@ zoomSpeed ← 1.01
     # Increment c value with time
     dc ← (rf.GetFrameTime⟨⟩)×incrementSpeed×0.0005
     c +↩ dc
-    (↕2)cv2.Write¨c
+    cv2.WriteList c
     SetShaderValue⟨shader, cLoc, cv2, rf.shaderUniformDataType.shader_uniform_vec2⟩
     #----------------------------------------------------------------------------------
 
