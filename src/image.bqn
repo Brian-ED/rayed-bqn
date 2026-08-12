@@ -82,7 +82,7 @@ Copy ← {𝕊dataPtr‿oldWidth‿oldHeight‿mipmaps‿format:
   mapSizes ← ×´¨1⌈⌊∘÷⟜2⍟(↕mipmaps) oldHeight‿oldWidth
   size ← +´format⊸GetPixelDataSize¨mapSizes
   ptr ← (raylib.MemAlloc size).Cast "i8"
-  (↕size) ptr.Write¨ (dataPtr.Cast "i8").Read¨ ↕size
+  ptr.WriteList (dataPtr.Cast "i8").ReadList size
   ptr‿oldWidth‿oldHeight‿mipmaps‿format
 }
 
@@ -102,7 +102,7 @@ ToArr ← {𝕊raylibImg:
 LoadFromArr ← {𝕊img:
   NeedsWindow@
   ptr ← {𝕩.Cast"i8"} raylib.MemAlloc≠l←¯128+256|128+⥊𝕩
-  l ptr.Write¨˜↕≠l
+  ptr.WriteList l
   ptr<⊸∾(⌽∾⟜4⁼≢𝕩)∾1‿pixelFormat.uncompressedr8g8b8a8
 }
 

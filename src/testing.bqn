@@ -237,23 +237,24 @@ e!c≡○Approx 0.5‿4‿0.4 RotateLocked camera3D
 
 
 •Out "Camera tests passed)"
-•Out "(Low tests started"
+•Out "(Low tests started" # COMPLETE Tested all functions atleast once
 
 
 malloc ← @•FFI "*"‿"malloc"‿">u8"
-⟨ReadI8, MakeUTF8, IsNull, null, F32ToI8, MakeF32, StrLen, GetFnsNeedingAlloc⟩ ← •Import "low.bqn"
+⟨MakeUTF8, IsNull, nullI8, F32ToI8, MakeF32, StrLen, GetFnsNeedingAlloc⟩ ← •Import "low.bqn"
 mem ← Malloc 100
 testChars ← "hello¨⍉𝕩!"∾@
 testBytes ← •ToUTF8 testChars
-(↕≠testBytes) (mem.Cast "u8").Write¨ testBytes-@
+(mem.Cast "u8").WriteList testBytes-@
 
 ! testChars ≡ (≠testBytes) MakeUTF8 mem
+! (¯1↓testChars) ≡ MakeUTF8 mem
 ! 0 = IsNull mem
-! 1 = IsNull null
-! 1 = IsNull null.Cast"i32"
+! 1 = IsNull •foreign.null
+! 1 = IsNull nullI8
 a2 ← F32ToI8 1‿2‿3.5
 ! a2 ≡ 0‿0‿¯128‿63‿0‿0‿0‿64‿0‿0‿96‿64
-a2 ReadI8 mem
+(mem.Cast"i8").WriteList a2
 ! 1‿2‿3.5 ≡ 3 MakeF32 mem
 
 ⟨AllocCStr⟩ ← GetFnsNeedingAlloc malloc
