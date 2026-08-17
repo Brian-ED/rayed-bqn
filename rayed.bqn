@@ -36,7 +36,8 @@
 (⊑⟨"ffi"⟩∊•listsys)!˜"CBQN compiled without ffi (FFI=0)"
 
 # Check if CBQN supports •foreign
-(⊑⟨"foreign"⟩∊•listsys)!˜"Bad CBQN version, missing •foreign. Working version as of writing is 0.12.0"∾{𝕊:", and you're currently running """∾'"'∾˜⟨⟩•BQN"•platform.bqn.implVersion"}⎊""@
+VErr←"Bad CBQN version, missing •foreign. Working version as of writing is 0.12.0"∾{𝕊:", and you're currently running """∾'"'∾˜⟨⟩•BQN"•platform.bqn.implVersion"}⎊""
+!∘VErr⍟¬ ⊑⟨"foreign"⟩∊•listsys
 foreign ← ⟨⟩ •BQN "•foreign"
 
 {!"git-submodules "∾(•Repr𝕩)∾" not found.
