@@ -240,7 +240,7 @@ e!c≡○Approx 0.5‿4‿0.4 RotateLocked camera3D
 •Out "(Low tests started" # COMPLETE Tested all functions atleast once
 
 
-malloc ← @•FFI "*"‿"malloc"‿">u8"
+malloc ← @•FFI "*"‿"malloc"‿">usize"
 ⟨MakeUTF8, IsNull, nullI8, F32ToI8, MakeF32, StrLen, GetFnsNeedingAlloc⟩ ← •Import "low.bqn"
 mem ← Malloc 100
 testChars ← "hello¨⍉𝕩!"∾@
