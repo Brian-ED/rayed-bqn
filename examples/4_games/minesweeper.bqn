@@ -3,9 +3,9 @@
 textSize ← 30
 
 rectangleSize ← 60
-boardSize ← 4‿4
+boardSize ← 10‿10
 
-bombCount ← 2
+bombCount ← 15
 font←@
 background ← color.darkGray
 
@@ -16,7 +16,7 @@ introText ← "
                        Welcome to minesweeper!
 
 
-In this game, You are challanged to clear the entire area of mines!
+In this game, You are challenged to clear the entire area of mines!
 
 Flag all mines to win, aswell as uncover all the space. Goodluck!
 "
