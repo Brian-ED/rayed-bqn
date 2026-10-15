@@ -43,7 +43,7 @@ VErr←"Bad CBQN version, missing •foreign. Working version as of writing is 0
 foreign ← ⟨⟩ •BQN "•foreign"
 
 {!"git-submodules "∾(•Repr𝕩)∾" not found.
-Use the following command to install the neccessary git submodules:
+Use the following command to install the necessary git submodules:
 
   git submodule update --init --recursive
 "}⍟(0≠≠){¬•file.Exists"imports"•file.At𝕩}¨⊸/ "bqn-libs"‿"BQN386"‿"BQNoise"‿"raylib-bqn"
@@ -156,7 +156,7 @@ monitor ← {
   Size ← {𝕊monitor:
     (raylib.GetMonitorWidth ∾ raylib.GetMonitorHeight)M 𝕩
   }
-  # Get size in milimeters
+  # Get size in millimeters
   # monitor.Sizemm
   Sizemm ← {𝕊monitor:
     (raylib.GetMonitorPhysicalWidth ∾ raylib.GetMonitorPhysicalHeight)M 𝕩
@@ -220,7 +220,7 @@ window ← {
   # tempSize is used to store size until window is open
   tempSize ← 0‿0
 
-  # Set the width and hight of the window, width and hight being relative to window position
+  # Set the width and height of the window, width and height being relative to window position
   # window.SetSize
   SetSize ← {𝕊size:
     ((⌈⊸≡∨⊢≡0⌈1⌊⊢)𝕩)!˜"Size can only be between 0 and 1, or a positive whole number"
@@ -239,7 +239,7 @@ window ← {
     tempSize↩2⥊𝕩
   }
 
-  # Get the width and hight of the window, width and hight being relative to window position
+  # Get the width and height of the window, width and height being relative to window position
   # window.GetSize
   GetSize ← {𝕤
     isOpen?
@@ -403,7 +403,7 @@ window ← {
     "interlacedhint"
   ⟩
   # window.GetState
-  GetState ← {𝕤 # returns binary list that corrisponds to raylib's config_flags format
+  GetState ← {𝕤 # returns binary list that corresponds to raylib's config_flags format
     0‿fullscreen‿resizable‿(¬decorated)‿transparent‿msaa_4x_hint‿vsync_hint‿hidden‿runWhileMinimized‿minimized‿maximized‿(¬focused)‿topmost‿highdpi‿mouse_passthrough‿0‿interlaced_hint
   }
 }
@@ -599,7 +599,7 @@ font ← {
   ⟨ Load ⋄ LoadBQN ⋄ LoadRaylib ⋄ Unload ⟩⇐
   IsValid ← {
     (𝕩•Type⊸⊑⟜"_icfmdn"⚇0⊸≡"iii"∾"iiiii"<⊸∾⋈˜'n')!˜"Expected a valid font"
-    𝕩⊣(¬∨´low.IsNull¨¯2↑𝕩)!˜"Invalid font. font has null pointers, likely due to unsuported format."
+    𝕩⊣(¬∨´low.IsNull¨¯2↑𝕩)!˜"Invalid font. font has null pointers, likely due to unsupported format."
   }
   glyphInfo ← {value‿offsetX‿offsetY‿advanceX‿image⇐↕5}             # The namespace is for eliminating magic-numbers
 
